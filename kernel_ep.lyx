@@ -1,0 +1,456 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass paper
+\begin_preamble
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{chngcntr}
+\counterwithout{equation}{part}
+
+\usepackage{enumerate}
+\usepackage{geometry}
+    \usepackage[ plainpages = true, pdfpagelabels, 
+                 pdfpagelayout = useoutlines,
+                 bookmarks,
+                 bookmarksopen = true,
+                 bookmarksnumbered = true,
+                 breaklinks = true,
+                 linktocpage,
+                 pagebackref,
+                 colorlinks = true,
+                 linkcolor = blue,
+                 urlcolor  = blue,
+                 citecolor = red,
+                 anchorcolor = green,
+                 hyperindex = true,
+                 hyperfigures
+                 ]{hyperref} 
+%\usepackage{index}
+\usepackage{longtable}
+%\usepackage{mdwlist}
+\usepackage{natbib}
+%\usepackage{microtype}
+\usepackage{soul}
+
+\usepackage{url}
+\usepackage[all]{xy}
+\usepackage{tikz}
+\date{}
+
+\newcommand{\secref}[1]{Section~\ref{#1}}
+\newcommand{\algoref}[1]{Algorithm~\ref{#1}}
+\newcommand{\algoline}[1]{\texttt{\ref{#1}:}}
+
+\newcommand{\C}[1]{}
+\newcommand{\cc}[1]{\yhl{#1}}
+\newcommand{\bs}[1]{\boldsymbol{#1}}
+\newcommand{\tr}[1]{\textcolor{orange}{#1}}
+
+
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\tabref}[1]{Table~\ref{#1}}
+\newcommand{\figref}[1]{Figure~\ref{#1}}
+
+\newcommand{\x}{\bs{x}}
+\newcommand{\X}{\mathbf{X}}
+
+\newcommand{\y}{\bs{y}}
+\newcommand{\Y}{\mathbf{Y}}
+
+\newcommand{\z}{\bs{z}}
+\newcommand{\Z}{\mathbf{Z}}
+
+\newcommand{\al}{\bs{\alpha}}
+\newcommand{\alh}{\bs{\widehat{\alpha}}}
+\newcommand{\h}{\bs{h}}
+\newcommand{\hh}{\bs{\widehat{h}}}
+\renewcommand{\H}{\bs{H}}
+\newcommand{\Hh}{\bs{\widehat{H}}}
+\newcommand{\R}{\bs{R}}
+\newcommand{\W}{\bs{W}}
+\newcommand{\w}{\bs{w}}
+\newcommand{\Wh}{\bs{\widehat{W}}}
+\newcommand{\wh}{\bs{\widehat{w}}}
+\newcommand{\Wti}{\bs{\widetilde{W}}}
+
+\newcommand{\bh}{\bs{\widehat{\beta}}}
+\newcommand{\Phib}{\bs{\varphi}}
+\newcommand{\Phiy}{\bs{\phi}^y}
+\newcommand{\Phiz}{\bs{\phi}^z}
+\newcommand{\met}{$\ell_{1}$-LSMI}
+
+\newcommand{\diag}{\mathop{\mathrm{diag}}}
+\newcommand{\trace}{\mathop{\mathrm{tr}}}
+\newcommand{\median}{\mathop{\mathrm{median}}}
+
+\let\oldenumerate=\enumerate
+\def\enumerate{
+\oldenumerate
+\setlength{\itemsep}{0pt}
+}
+\let\olditemize=\itemize
+\def\itemize{
+\olditemize
+\setlength{\itemsep}{0pt}
+}
+
+\allowdisplaybreaks
+
+
+\usetikzlibrary{shapes,decorations}
+\usetikzlibrary{calc}
+\end_preamble
+\use_default_options true
+\begin_modules
+theorems-ams
+eqs-within-sections
+figs-within-sections
+\end_modules
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 11
+\spacing single
+\use_hyperref false
+\pdf_author "Wittawat Jitkrittum"
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder false
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
+\papersize a4paper
+\use_geometry true
+\use_amsmath 2
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 1in
+\bottommargin 1in
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle plain
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Research Note
+\end_layout
+
+\begin_layout Date
+23 January 2014
+\end_layout
+
+\begin_layout Author
+Wittawat Jitkrittum 
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+url{wittawat@gatsby.ucl.ac.uk}
+\end_layout
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+Gatsby Unit
+\end_layout
+
+\begin_layout Section
+Review
+\end_layout
+
+\begin_layout Subsection
+Learning to Pass Expectation Propagation Messages
+\end_layout
+
+\begin_layout Standard
+Summary of 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Heess2013"
+
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Approaches to general inference can be categorized into two cases: uninformed
+ and informed.
+ In the uninformed case, the modeler has all the freedom in the model specificat
+ion without having to regard to the inference routines.
+ In the informed case, models are constructed out of building blocks which
+ have an already implemented computational operations.
+ Expectation propagation (EP) message often require the computation of integrals
+ that do not have an analytical expression.
+ The paper attempts to bridge the gap between the uninformed and the informed
+ case by training a discriminative model which map EP message inputs to
+ EP message outputs.
+ 
+\end_layout
+
+\begin_layout Paragraph
+Notations
+\end_layout
+
+\begin_layout Itemize
+We have a factor graph representing a joint distribution over 
+\begin_inset Formula $\boldsymbol{x}=\left\{ x_{1},\ldots,x_{D}\right\} $
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+Non-negative factors 
+\begin_inset Formula $\psi_{1},\ldots\psi_{J}$
+\end_inset
+
+.
+ Let 
+\begin_inset Formula $\boldsymbol{x}_{\psi_{j}}$
+\end_inset
+
+ be the set of variables associated with 
+\begin_inset Formula $\psi_{j}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+Let 
+\begin_inset Formula $Scope(\psi_{j})$
+\end_inset
+
+ the set of indices of variables over which 
+\begin_inset Formula $\psi_{j}$
+\end_inset
+
+ is defined.
+\end_layout
+
+\begin_layout Itemize
+Focus on the directed factors 
+\begin_inset Formula $\psi_{j}\left(x_{out(j)}|\boldsymbol{x}_{in(j)}\right)$
+\end_inset
+
+ which specifies the conditional distribution over 
+\begin_inset Formula $x_{out(j)}$
+\end_inset
+
+ given 
+\begin_inset Formula $\boldsymbol{x}_{in(j)}$
+\end_inset
+
+.
+ Here, 
+\begin_inset Formula $\boldsymbol{x}_{\psi_{j}}=\{x_{out(j)}\cup\boldsymbol{x}_{in(j)}\}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+Let 
+\begin_inset Formula $f_{j}$
+\end_inset
+
+ be stochastic function (forward-sampling function) which draws a sample
+ from 
+\begin_inset Formula $\psi_{j}\left(x_{out(j)}|\boldsymbol{x}_{in(j)}\right)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Paragraph
+Expectation Propagation (EP)
+\end_layout
+
+\begin_layout Standard
+EP is a generalization of sum-product belief propagation algorithm.
+ Two important aspects of EP in the paper:
+\end_layout
+
+\begin_layout Enumerate
+Posterior is approximated as a fully factorized distribution
+\end_layout
+
+\begin_layout Enumerate
+EP update message from a factor 
+\begin_inset Formula $\psi$
+\end_inset
+
+ to variable 
+\begin_inset Formula $i$
+\end_inset
+
+ is
+\begin_inset Formula 
+\[
+m_{\psi i}(x_{i})=\frac{\text{proj}\left[\int d\boldsymbol{x}_{\psi-i}\psi(x_{out}|\boldsymbol{x}_{in})\left(\prod_{i'\in Scope(\psi)}m_{i\psi}(x_{i'})\right)\right]}{m_{i\psi}(x_{i})}
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $\boldsymbol{x}_{\psi-i}$
+\end_inset
+
+ denotes all variables in 
+\begin_inset Formula $\psi$
+\end_inset
+
+ except 
+\begin_inset Formula $x_{i}$
+\end_inset
+
+.
+ The denominator 
+\begin_inset Formula $m_{i\psi}(x_{i})$
+\end_inset
+
+ is to divide out 
+\begin_inset Formula $m_{i\psi}(x_{i})$
+\end_inset
+
+ in the product in the numerator.
+ That is, a message from 
+\begin_inset Formula $\psi$
+\end_inset
+
+ to 
+\begin_inset Formula $x_{i}$
+\end_inset
+
+ should not include information from 
+\begin_inset Formula $x_{i}$
+\end_inset
+
+ to 
+\begin_inset Formula $\psi$
+\end_inset
+
+.
+ The projection operator is defined as 
+\begin_inset Formula 
+\[
+\text{proj}\left[p\right]=\arg\max_{q}KL(p\|q).
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Where is the neural network needed ????
+\end_layout
+
+\begin_layout Paragraph
+Formulation
+\end_layout
+
+\begin_layout Standard
+The goal is to allow a user to specify a factor 
+\begin_inset Formula $\psi$
+\end_inset
+
+ in EP via specifying a forward sampling procedure 
+\begin_inset Formula $f(\boldsymbol{x}_{in}):\boldsymbol{x}_{in}\mapsto x_{out}$
+\end_inset
+
+ (stochastically).
+ The user also specifies the family of distribution to represent messages.
+\end_layout
+
+\begin_layout Standard
+Given incoming messages 
+\begin_inset Formula $\{m_{i\psi}(x_{i})\}_{i\in Scope(\psi)}$
+\end_inset
+
+, compute the outgoing message 
+\begin_inset Formula $m_{\psi i}(x_{i})$
+\end_inset
+
+ by importance sampling.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "k_ep"
+options "plainnat"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
