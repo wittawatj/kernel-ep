@@ -73,11 +73,13 @@ for fi=1:fold
                 
                 for zi=1:length(zwlist)
                     zw = zwlist(zi)*medz;
-                    Hte = kerGaussian(Zte, Zte, zw);
+                    %Hte = kerGaussian(Zte, Zte, zw);
                     Htr = kerGaussian(Ztr, Ztr, zw);
                     Hrs = kerGaussian(Ztr, Zte, zw);
                     % poor performance. Improve later.
-                    sqerr = trace(Hte) + trace(A'*Htr*A) - 2*trace(A'*Hrs);
+                    %sqerr = trace(Hte) + trace(A'*Htr*A) - 2*trace(A'*Hrs);
+                    HtrA = Htr*A;
+                    sqerr = nte + A(:)'*HtrA(:) - 2*A(:)'*Hrs(:);
                     CFErr(fi, xi, yi, ri, zi) = sqerr;
                     
                     fprintf('fold: %d, xw: %.3g, yw: %.3g, lamb: %.3g, zw: %.3g => err: %.3g\n', ...
