@@ -18,7 +18,9 @@ reglist = myProcessOptions(op, 'reglist', [1e-2, 1e-0, 10]);
 % median distance.
 list = [1, 2, 4];
 xwlist = myProcessOptions(op, 'xwlist', list);
-zwlist = myProcessOptions(op, 'zwlist', list);
+
+warning('Why do we have to cross validate on params for Z here ?');
+zwlist = myProcessOptions(op, 'zwlist', [1]); % set to [1] for now
 
 medx = meddistance(X);
 medz = meddistance(Z);
@@ -68,7 +70,7 @@ for fi=1:fold
                 sqerr = nte + A(:)'*HtrA(:) - 2*A(:)'*Hrs(:);
                 CFErr(fi, xi,  ri, zi) = sqerr;
                 
-                fprintf('fold: %d, xw: %.3g, lamb: %.3g, zw: %.3g => err: %.3g\n', ...
+                fprintf('fold: %d, in_w: %.3g, lamb: %.3g, out_w: %.3g => err: %.3g\n', ...
                     fi, xw,  lambda, zw, sqerr);
             end
         end

@@ -19,7 +19,8 @@ reglist = myProcessOptions(op, 'reglist', [1e-2, 1e-0, 10]);
 list = [1, 2, 4];
 xwlist = myProcessOptions(op, 'xwlist', list);
 ywlist = myProcessOptions(op, 'ywlist', list);
-zwlist = myProcessOptions(op, 'zwlist', list);
+warning('Why do we have to cross validate on params for Z here ?');
+zwlist = myProcessOptions(op, 'zwlist', [1]); % set to [1] for now
 
 medx = meddistance(X);
 medy = meddistance(Y);
