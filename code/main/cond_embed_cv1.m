@@ -5,6 +5,8 @@ function CVLog = cond_embed_cv1(X, Z,  op)
 % conditioning variable.
 % - Assume Gaussian kernels.
 % - All data matrices are dim x dataset size
+% The output mapping for Z represents sufficient statistic for a normal
+% distribution, [z, z^2] (finite-dimensional mapping, no parameters).
 %
 
 [d,n] = size(X);
@@ -19,11 +21,7 @@ reglist = myProcessOptions(op, 'reglist', [1e-2, 1e-0, 10]);
 list = [1, 2, 4];
 xwlist = myProcessOptions(op, 'xwlist', list);
 
-warning('Why do we have to cross validate on params for Z here ?');
-zwlist = myProcessOptions(op, 'zwlist', [1]); % set to [1] for now
-
 medx = meddistance(X);
-medz = meddistance(Z);
 
 % Number of folds in cross validation
 fold = myProcessOptions(op, 'fold', 3 );
@@ -36,7 +34,7 @@ I = strafolds(n, fold, seed );
 
 % Matrix of regression square loss for each fold
 CFErr = zeros(fold, length(xwlist), ...
-    length(reglist), length(zwlist) );
+    length(reglist));
 
 for fi=1:fold
     % Make test index
@@ -50,6 +48,11 @@ for fi=1:fold
     Ztr = Z(:, trI);
     Zte = Z(:, teI);
     
+    Str = DistNormal.normalSuffStat(Ztr);
+    Htr = Str'*Str;
+    Ste = DistNormal.normalSuffStat(Zte);
+    Hrs = Str'*Ste;
+    
     for xi=1:length(xwlist)
         xw = xwlist(xi)*medx;
         
@@ -60,19 +63,14 @@ for fi=1:fold
             lambda = reglist(ri);
             A = (Ktr + lambda*eye(ntr)) \ Krs;
             
-            for zi=1:length(zwlist)
-                zw = zwlist(zi)*medz;
-          
-                Htr = kerGaussian(Ztr, Ztr, zw);
-                Hrs = kerGaussian(Ztr, Zte, zw);
-              
-                HtrA = Htr*A;
-                sqerr = nte + A(:)'*HtrA(:) - 2*A(:)'*Hrs(:);
-                CFErr(fi, xi,  ri, zi) = sqerr;
-                
-                fprintf('fold: %d, in_w: %.3g, lamb: %.3g, out_w: %.3g => err: %.3g\n', ...
-                    fi, xw,  lambda, zw, sqerr);
-            end
+            HtrA = Htr*A;
+            %sqerr = trace(Hte) + trace(A'*Htr*A) - 2*trace(A'*Hrs);
+            sqerr = Ste(:)'*Ste(:) + A(:)'*HtrA(:) - 2*A(:)'*Hrs(:);
+            CFErr(fi, xi,  ri) = sqerr;
+            
+            fprintf('fold: %d, in_w: %.3g, lamb: %.3g => err: %.3g\n', ...
+                fi, xw,  lambda, sqerr);
+            
         end
     end
 end
@@ -80,26 +78,26 @@ end
 CErr = squeeze( mean(CFErr,  1) );
 % best param combination
 [minerr, ind] = min(CErr(:));
-[bxi,  bri, bzi] = ind2sub(size(CErr), ind);
+[bxi,  bri] = ind2sub(size(CErr), ind);
 
 CVLog.minerr = minerr;
 % best x width
 CVLog.bxw = xwlist(bxi);
-CVLog.bzw = zwlist(bzi);
+
 CVLog.blambda = reglist(bri);
 
 CVLog.medx = medx;
 
-CVLog.medz = medz;
 
 CVLog.reglist = reglist;
 CVLog.xwlist = xwlist;
 
-CVLog.zwlist = zwlist;
 CVLog.seed = seed;
 CVLog.fold = fold;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 end
+
+
+
