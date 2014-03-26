@@ -29,8 +29,8 @@ classdef DistNormal < handle & GKConvolvable
         function prec = get.precision(this)
             if isempty(this.precision)
                 % expensive. Try to find a way for lazy evaluation later.
-                reg = (abs(this.variance) < 1e-5)*1e-5;
-                this.precision = inv(this.variance + reg);
+%                 reg = (abs(this.variance) < 1e-5)*1e-5;
+                this.precision = inv(this.variance );
             end
             prec = this.precision;
         end
@@ -55,7 +55,7 @@ classdef DistNormal < handle & GKConvolvable
             [d,n] = size(X);
             assert(d==length(this.mean));
             
-%             we can do better. sqrt(det(2*pi*Sigma)) will cancel anyway.
+            %             we can do better. sqrt(det(2*pi*Sigma)) will cancel anyway.
             Mux = sqrt(det(2*pi*Sigma))*mvnpdf(X', this.mean(:)', this.variance+gw*eye(d) );
             
         end
@@ -79,12 +79,25 @@ classdef DistNormal < handle & GKConvolvable
         end
         
         function z = get.Z(this)
+            % Z is used with multiplication not division.
             if isempty(this.Z)
                 d = length(this.mean);
                 this.Z = ((2*pi)^(-d/2))*(det(this.variance)^(-1/2));
             end
             z = this.Z;
         end
+        
+        function p=isproper(this)
+            % return true if this is a proper distribution e.g., not have
+            % negative variance.
+            if length(this.mean) > 1
+                error('Not yet supported for dim>1');
+            end
+            vv = norm(this.variance, 'fro');
+            mm = norm(this.mean);
+            p = isfinite(vv) && isfinite(mm) && this.variance >0;
+        end
+        
         function D = mtimes(this, distNorm)
             if ~isa(distNorm, 'DistNormal')
                 error('mtimes only works with DistNormal obj.');
@@ -96,7 +109,9 @@ classdef DistNormal < handle & GKConvolvable
             
             prec = p1+p2;
             nmean = prec \ (p1*m1 + p2*m2);
-            D = DistNormal(nmean, prec);
+            %  bad idea to invert ?
+            var = inv(prec);
+            D = DistNormal(nmean, var);
         end
         
         function D = mrdivide(this, distNorm)
@@ -110,7 +125,9 @@ classdef DistNormal < handle & GKConvolvable
             
             prec = p1-p2;
             nmean = prec \ (p1*m1 - p2*m2);
-            D = DistNormal(nmean, prec);
+            %  bad idea to invert ?
+            var = inv(prec);
+            D = DistNormal(nmean, var);
         end
         
     end %end methods
@@ -122,15 +139,19 @@ classdef DistNormal < handle & GKConvolvable
             % phi(x)=[x, x^2]' or phi(x)=[x; vec(xx')]
             % X (dxn)
             [d,n] = size(X);
-            %             S = zeros(d+d^2, n);
-            %             very slow
-            %             for i=1:n
-            %                 Xi = X(:, i);
-            %                 S(:, i) = [Xi; reshape(Xi*Xi', d^2, 1)];
-            %             end
-            %assume 1d for now
-            S = [X; X.^2];
+            assert(d>=1)
+            if d==1
+                S = [X; X.^2];
+            else
+                S = zeros(d+d^2, n);
+                % very slow. Improve later
+                for i=1:n
+                    Xi = X(:, i);
+                    S(:, i) = [Xi; reshape(Xi*Xi', d^2, 1)];
+                end
+            end
             
         end
-    end
+        
+    end %end static methods
 end
