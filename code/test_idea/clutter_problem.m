@@ -1,39 +1,45 @@
-function [ ] = clutter_problem( )
+function [ ] = clutter_problem( seed )
 % Clutter problem of Tom Minka
-% variance of contamination distribution N(0, a*I)
+if nargin < 1
+    seed = 1;
+end
+
+oldRs = RandStream.getGlobalStream();
+rs = RandStream.create('mt19937ar','seed',seed);
+RandStream.setGlobalStream(rs);          
+
 N  = 400;
-a = 1;
-% contamination rate w in [0,1]
-w = 0.3;
-var_theta = 2;
+% from
+fr = -7;
+to = 8;
+Tp = unifrnd(fr, to, 1, N);
+tp_pdf = @(t)unifpdf(t, fr, to);
+
 % Training dataset
 %%%%%%%%%%%%%%%%%%%%%
-[Theta, X] = train_set(N, a, w, var_theta);
+[Xp] = x_cond_dist(Tp);
 
-[d,N] = size(X);
+[d,N] = size(Xp);
 % Now we have a joint sample (Theta, X)
 % Learn mean embedding operator
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % operator at f_i from x to theta
 options = [];
-options.reglist  = [1e-4, 1e-2, 1, 10, 100];
+options.reglist  = [ 1e-2, 1, 10, 100];
 options.xwlist = [1/2, 1, 2, 4, 8];
 % options.xwlist = [1];
-[Op] = CondOp1.learn_operator(X, Theta, options);
-
+[Op] = CondOp1.learn_operator(Xp, Tp, options);
 
 % EP iterations
 %%%%%%%%%%%%%%%%%%%%%%
 % new data set from the same distribution
-ta = a;
-tw = w;
-tvar_theta = 0.5; 
+nN = 400;
+[Theta, tdist] = theta_dist(nN);
+[NX, xdist] = x_cond_dist(Theta);
 
-[NTheta, NX] = train_set(400, ta, tw, tvar_theta);
-[nd, nN] = size(NX);
 % prior factor for theta
-f0 = DistNormal(6, 5);
+f0 = DistNormal(2, 5);
 % f tilde's represented by DistNormal
 FT = cell(1, nN);
 % product of all incoming messages to theta. Estimate of posterior over
@@ -58,23 +64,64 @@ for t=1:1
     end
     % check convergence
     if norm(q.mean-qprev.mean)<1e-4 && norm(q.variance - qprev.variance, 'fro')<1e-4
-        break;
+%         break;
     end
     t
     q
 end
 % keyboard
+RandStream.setGlobalStream(oldRs);
+
+
+%%%%%%%%% plot
+figure
+hold on
+set(gca, 'FontSize', 20)
+
+range = [-8, 9];
+dom = range(1):0.01:range(2);
+
+% test theta distribution
+plot(dom, tdist(dom), '-r', 'LineWidth', 2);
+% distribution of x given mean theta 
+fxdist = @(x)pdf(xdist, x');
+plot(dom, fxdist(dom), '-b', 'LineWidth', 2);
+% theta distribution used in training
+plot(dom, tp_pdf(dom),  '-k', 'LineWidth', 2);
+
+% q = resulting distribution of theta from EP
+plot(dom, q.density(dom),  '-m', 'LineWidth', 2);
+
+
+legend('Test \theta dist', 'X | mean \theta', 'Train \theta dist', 'q');
+ylabel('Density')
+xlim([range(1), range(2)])
+ylim([0, .6])
+title(sprintf('seed: %d. q: (mean, variance) = (%.3g, %.3g)', seed, q.mean, q.variance));
+grid on
+
+hold off
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%5
 end
 
-function [Theta, X] = train_set(N, a, w, var_theta)
-
-
-dis_theta = DistNormal(3, var_theta);
+function [Theta, tdist] = theta_dist(N)
+% Theta distribution on testing
+var_theta = 1;
+mu = 3;
+dis_theta = DistNormal(mu, var_theta);
 Theta = dis_theta.draw(N);
+tdist = @(t)(normpdf(t, mu, var_theta ));
+end
+
+function [X, ftrue] = x_cond_dist(Theta)
+
+a = 7;
+% contamination rate w in [0,1]
+w = 0.3;
+N  = length(Theta);
 cov(:,:,1) = 1;
 cov(:,:,2) = a;
-
 
 X = zeros(1, N);
 F = cell(1,N);
@@ -85,6 +132,6 @@ for i=1:N
     F{i} = f;
 end
 
-ftrue =  gmdistribution([dis_theta.mean; 0], cov, [1-w, w]);
-fplot(@(x)(pdf(ftrue, x)), [-5, 8])
+ftrue =  gmdistribution([mean(Theta); 0], cov, [1-w, w]);
 end
+
