@@ -42,17 +42,18 @@ for fi=1:fold
     % Make training index
     trI = ~teI;
     ntr = sum(trI);
-    nte = sum(teI);
+%     nte = sum(teI);
     Xtr = X(:, trI);
     Xte = X(:, teI);
     Ztr = Z(:, trI);
     Zte = Z(:, teI);
     
     Str = DistNormal.normalSuffStat(Ztr);
-    Htr = Str'*Str;
+%     Htr = Str'*Str;
     Ste = DistNormal.normalSuffStat(Zte);
-    Hrs = Str'*Ste;
+%     Hrs = Str'*Ste;
     
+    Ste2 = Ste(:)'*Ste(:);
     for xi=1:length(xwlist)
         xw = xwlist(xi)*medx;
         
@@ -63,9 +64,12 @@ for fi=1:fold
             lambda = reglist(ri);
             A = (Ktr + lambda*eye(ntr)) \ Krs;
             
-            HtrA = Htr*A;
+%             HtrA = Htr*A;
+            StrA = (Str*A);
+%             HtrA = Str'*(Str*A);
             %sqerr = trace(Hte) + trace(A'*Htr*A) - 2*trace(A'*Hrs);
-            sqerr = Ste(:)'*Ste(:) + A(:)'*HtrA(:) - 2*A(:)'*Hrs(:);
+%             sqerr = Ste(:)'*Ste(:) + A(:)'*HtrA(:) - 2*A(:)'*Hrs(:);
+            sqerr = Ste2 + StrA(:)'*StrA(:) - 2*StrA(:)'*Ste(:);
             CFErr(fi, xi,  ri) = sqerr;
             
             fprintf('fold: %d, in_w: %.3g, lamb: %.3g => err: %.3g\n', ...

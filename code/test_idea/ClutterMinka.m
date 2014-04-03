@@ -23,17 +23,18 @@ classdef ClutterMinka
             a= this.a;
             w=this.w;
             
-            
             oldRs = RandStream.getGlobalStream();
             rs = RandStream.create('mt19937ar','seed',seed);
             RandStream.setGlobalStream(rs);
-            
             
             N = size(Theta, 2);
             [X, fx] = ClutterMinka.x_cond_dist(Theta, a, w);
             
             M = zeros(1, N);
             V = inf(1, N);
+            S = zeros(1, N);
+            MQNI = zeros(1, N);
+            VQNI = zeros(1, N);
             % parameter of q
             m = m0;
             v = v0;
@@ -42,6 +43,10 @@ classdef ClutterMinka
             % records of change of M and V in every iteration
             TM = [];
             TV = [];
+            TS = [];
+            % mean of cavity
+            TMQNI = [];
+            TVQNI = [];
             
             for t=1:100
                 mprev = m;
@@ -71,6 +76,7 @@ classdef ClutterMinka
                     % perturb for stability
                     %                       V(:, i) = (v_new^-1 - v_not_i^-1 + 1e-3)^-1 + 1e-3;
                     M(:, i) = m_not_i + (V(:, i) + v_not_i)*(m_new-m_not_i)/v_not_i;
+                    
                     if isnan(M(:,i))
                         display(sprintf('f_tilde_%d: nan mean', i));
                     end
@@ -78,13 +84,21 @@ classdef ClutterMinka
                     if isnan(m_new) || isnan(v_new)
                         continue
                     end
+                    s_i = z_i/(sqrt(2*pi*V(:,i))*normpdf(M(:,i), sqrt(V(:,i)+v_not_i) ));
+                    S(:, i) = s_i;
+                    
                     m = m_new;
                     v = v_new;
+                    
+                    MQNI(:, i) = m_not_i;
+                    VQNI(:, i) = v_not_i;
                     
                 end
                 TM(t, :) = M;
                 TV(t, :) = V;
-                
+                TS(t, :) = S;
+                TMQNI(t ,:) = MQNI;
+                TVQNI(t, :) = VQNI;
                 %                 if any(isnan(M)) || any(isnan(V)) || ...
                 
                 if                        (abs(m-mprev) < 1e-2 && abs(v-vprev) < 1e-2)
@@ -100,6 +114,9 @@ classdef ClutterMinka
             R.v = v; %var of q
             R.TM = TM;
             R.TV = TV;
+            R.TS = TS;
+            R.TMQNI = TMQNI;
+            R.TVQNI = TVQNI;
             R.X = X;
             R.fx = fx;
             
