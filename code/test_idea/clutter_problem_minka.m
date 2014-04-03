@@ -1,5 +1,5 @@
 % solve clutter problem  with original EP
-seed = 16;
+seed = 17;
 oldRs = RandStream.getGlobalStream();
             rs = RandStream.create('mt19937ar','seed',seed);
             RandStream.setGlobalStream(rs);
@@ -12,6 +12,8 @@ C = ClutterMinka(a, w);
 
 N = 200;
 % Theta = 4*ones(1, N);
+
+% make sure to keep it the same as it clutter_problem
 Theta = randn(1, N) + 3;
 
 % [X, ftrue] = ClutterMinka.x_cond_dist(Theta, a, w);
@@ -26,3 +28,43 @@ v0 = 10;
 % fplot(@(x)pdf(fx, x), [-5, 5])
 
 RandStream.setGlobalStream(oldRs);
+
+%%%%%%%%%%%%%%%
+% Plot results mean
+figure
+hold all
+stem(R.TM(1, :) , '-b', 'linewidth', 1);
+stem(R.TM(2, :) , '-r', 'linewidth', 1);
+plot(R.TMQNI(1, :), '-k', 'linewidth', 2);
+plot(R.TMQNI(2, :), '-g', 'linewidth', 2);
+% plot(R.TM(1, :) , 'linewidth', 1, 'markerfacecolor', 'blue');
+% plot(R.TM(2, :) , 'linewidth', 1, 'markerfacecolor', 'red');
+
+set(gca, 'fontsize', 20);
+xlabel('Factor index');
+ylabel('Value');
+title(sprintf('Mean of $\\tilde{f}_i$. q: (%.3g, %.3g) ', R.m, R.v), 'Interpreter', 'latex');
+legend('Iteration 1', 'Iteration 2', 'It. 1: q^{\\i}', 'It. 2: q^{\\i}');
+ylim([-10, 10])
+grid on
+hold off
+
+% TV variance
+figure
+hold all
+stem(R.TV(1, :) , '-b', 'linewidth', 1);
+stem(R.TV(2, :) , '-r', 'linewidth', 1);
+plot(R.TVQNI(1, :), '-k', 'linewidth', 2);
+plot(R.TVQNI(2, :), '-g', 'linewidth', 2);
+% plot(R.TM(1, :) , 'linewidth', 1, 'markerfacecolor', 'blue');
+% plot(R.TM(2, :) , 'linewidth', 1, 'markerfacecolor', 'red');
+
+set(gca, 'fontsize', 20);
+xlabel('Factor index');
+ylabel('Value');
+title(sprintf('Variance of $\\tilde{f}_i$. q: (%.3g, %.3g) ', R.m, R.v), 'Interpreter', 'latex');
+legend('Iteration 1', 'Iteration 2', ...
+     'It. 1: q^{\\i}', 'It. 2: q^{\\i}');
+ylim([-30, 30])
+grid on
+hold off
