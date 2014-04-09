@@ -1,4 +1,4 @@
-classdef ClutterMinka
+classdef ClutterMinka < handle
     % Clutter problem solved with original EP
     %
     
@@ -19,7 +19,7 @@ classdef ClutterMinka
             
         end
         
-        function [R] = ep(this, Theta, m0, v0, seed)
+        function [R] = ep(this, X, m0, v0, seed)
             a= this.a;
             w=this.w;
             
@@ -27,9 +27,7 @@ classdef ClutterMinka
             rs = RandStream.create('mt19937ar','seed',seed);
             RandStream.setGlobalStream(rs);
             
-            N = size(Theta, 2);
-            [X, fx] = ClutterMinka.x_cond_dist(Theta, a, w);
-            
+            N = size(X, 2);
             M = zeros(1, N);
             V = inf(1, N);
             S = zeros(1, N);
@@ -48,7 +46,7 @@ classdef ClutterMinka
             TMQNI = [];
             TVQNI = [];
             
-            for t=1:100
+            for t=1:100 %EP iterations
                 mprev = m;
                 vprev = v;
                 for i=1:N
@@ -118,7 +116,6 @@ classdef ClutterMinka
             R.TMQNI = TMQNI;
             R.TVQNI = TVQNI;
             R.X = X;
-            R.fx = fx;
             
             RandStream.setGlobalStream(oldRs);
             
@@ -130,6 +127,7 @@ classdef ClutterMinka
         
         function [Theta, tdist] = theta_dist(N)
             % Theta distribution
+            error('does not make sense ? variance so high ?');
             b = 100;
             mu = 0;
             dis_theta = DistNormal(mu, b);
@@ -137,8 +135,8 @@ classdef ClutterMinka
             tdist = @(t)(normpdf(t, mu, b ));
         end
         
-        function [X, ftrue] = x_cond_dist(Theta, a, w)
-            
+        function [X, ftrue, feval] = x_cond_dist(Theta, a, w)
+            % feval takes to argument (x, theta) and evaluates the factor
             N  = length(Theta);
             cov(:,:,1) = 1;
             cov(:,:,2) = a;
@@ -152,6 +150,17 @@ classdef ClutterMinka
                 F{i} = f;
             end
             ftrue =  gmdistribution([mean(Theta); 0], cov, [1-w, w]);
+            
+            feval = @(x, the)( ClutterMinka.factor_eval(x, the, [1,a], w) );
+        end
+        
+        function E=factor_eval(x, theta, vars, w)
+            % assume 1d Gaussians
+            assert(size(x,2)==size(theta,2));
+            
+            C1 = (1/(sqrt(2*pi*vars(1))))*exp(-(x-theta ).^2/(2*vars(1)) );
+            C2 = normpdf(x, 0, sqrt(vars(2)) );
+            E = (1-w)*C1 + w*C2;
         end
         
     end

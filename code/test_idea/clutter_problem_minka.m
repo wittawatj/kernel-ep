@@ -1,28 +1,34 @@
 % solve clutter problem  with original EP
-seed = 17;
+seed = 18;
 oldRs = RandStream.getGlobalStream();
-            rs = RandStream.create('mt19937ar','seed',seed);
-            RandStream.setGlobalStream(rs);
-            
-            
+rs = RandStream.create('mt19937ar','seed',seed);
+RandStream.setGlobalStream(rs);
+
 a = 10;
 w= 0.5;
 
 C = ClutterMinka(a, w);
 
-N = 200;
+N = 100;
 % Theta = 4*ones(1, N);
 
-% make sure to keep it the same as it clutter_problem
-Theta = randn(1, N) + 3;
+% make sure to keep it the same as it clutter_problem.m
+if false
+    Theta = randn(1, N) + 3;
+    [X, fx] = ClutterMinka.x_cond_dist(Theta, a, w);
+else
+    load('test_idea/clutter_data.mat');
+    X = observedData;
+end
 
-% [X, ftrue] = ClutterMinka.x_cond_dist(Theta, a, w);
+% observedData = X;
+% save('test_idea/clutter_data.mat', 'observedData', 'Theta');
 
 % initial values for q
 m0 = 0;
 v0 = 10;
 % TM (iterations x N) = mean of each i for each iteration t
-[R] = C.ep(Theta, m0, v0, seed );
+[R] = C.ep(X, m0, v0, seed );
 
 
 % fplot(@(x)pdf(fx, x), [-5, 5])
@@ -64,7 +70,7 @@ xlabel('Factor index');
 ylabel('Value');
 title(sprintf('Variance of $\\tilde{f}_i$. q: (%.3g, %.3g) ', R.m, R.v), 'Interpreter', 'latex');
 legend('Iteration 1', 'Iteration 2', ...
-     'It. 1: q^{\\i}', 'It. 2: q^{\\i}');
+    'It. 1: q^{\\i}', 'It. 2: q^{\\i}');
 ylim([-30, 30])
 grid on
 hold off
