@@ -1,7 +1,7 @@
 base = pwd();
 fs = filesep();
 folders = {'helper', 'test_idea', 'main', 'main/sampler', ...
-    'main/base', 'plot'};
+    'main/base', 'plot', 'test_code'};
 addpath(pwd);
 
 for fi=1:length(folders)

@@ -1,15 +1,14 @@
 classdef CondOp1 < handle
     %CONDOP1 Conditional mean embedding operator taking one input. Assume
     %the output suff. stat. mapping is finite-dimensional phi(z)=[z, z^2]
-    %for Gaussian distribution. C_{z|x)
+    %for Gaussian distribution. C_{z|x}
     
     properties (SetAccess=private)
         fsample %X
         tsample %Z
-        gw % Gaussian kernel width
-        lambda % regularization parameter
-        ker_mat %kernel matrix
+        
         operator % operator
+        gw % Gaussian width
     end
     
     methods
@@ -17,19 +16,39 @@ classdef CondOp1 < handle
         % t = to
         % gw = Gaussian width of kernel associated with this operator
         % regularization parameter
-        function this = CondOp1(fsample, tsample, gw, lamb)
+        function this = CondOp1(fsample, tsample, operator, gw)
             this.fsample = fsample;
             this.tsample = tsample;
+            this.operator = operator;
             this.gw = gw;
-            this.lambda = lamb;
         end
         
-        function op = get.operator(this)
-            if isempty(this.operator)
-                [d,n]=size(this.fsample);
-                this.operator = inv(this.ker_mat + this.lambda*eye(n));
-            end
-            op = this.operator;
+        
+        function mfz = apply_bp(this, mxf)
+            % Apply this operator to one incoming message.
+            % Not for EP
+            assert(isa(mxf, 'GKConvolvable'));
+            X = this.fsample;
+            Z = this.tsample;
+            
+            Mux = mxf.conv_gaussian( X, this.gw);
+            [d,n] = size(X);
+            % Operator application
+            Alpha = this.operator*Mux(:);
+            C = Alpha;
+            S = DistNormal.normalSuffStat(Z);
+            % projection
+            suffStat = S*C;
+            [dz,nz] = size(Z);
+            mean = suffStat(1:dz);
+            cov = reshape(suffStat( (dz+1):end), [dz,dz]) - mean*mean' ;
+            
+            mfz = DistNormal(mean, cov);
+        end
+        
+        function mfz = apply_ep_approx(this, mxf,   mzf)
+            mfz = apply_ep(this, mxf,   mzf);
+            
         end
         
         function mfz = apply_ep(this, mxf,   mzf)
@@ -56,57 +75,61 @@ classdef CondOp1 < handle
             % Density can be imaginary because variance can be < 0
             % resulting in sqrt(det(variance)) being imaginary. Don't know
             % what to do here. Take real parts ??
-%             Beta = real( mzf.density(Z)' );
-%             C = Alpha.*Beta;
-            C = Alpha;
+            Beta = real( mzf.density(Z)' );
+            C = Alpha.*Beta;
+            %             C = Alpha;
             S = DistNormal.normalSuffStat(Z);
             % projection
             suffStat = S*C;
             [dz,nz] = size(Z);
             mean = suffStat(1:d);
-            cov = reshape(suffStat( (d+1):end), [dz,dz]) - mean*mean'; 
+            cov = reshape(suffStat( (d+1):end), [dz,dz]) - mean*mean' ;
             
             Dis = DistNormal(mean, cov);
             % divide after projection
-%             mfz = Dis/mzf;
-            mfz = Dis;
-            
+            mfz = Dis/mzf;
+            %             mfz = Dis;
         end
         
-        function K = get.ker_mat(this)
-            if isempty(this.ker_mat)
-                % Kernel matrix
-                X = this.fsample;
-                Kx = kerGaussian(X, X, this.gw);
-                this.ker_mat = Kx;
-                
-            end
-            K = this.ker_mat;
-        end
+       
     end %end methods
     
     methods (Static=true)
         
-        function [Op] = learn_operator(X, Z_X, o)
-            % learn mean embedding operator taking 1 input
+        function [Op, CVLog] = learn_operator(X, Z_X, o)
+            % learn C_{z|x}
             % Gaussian kernels. Do cross validation.
             % The operator can be thought of a mapping of messages x->f
             % into f->z where the factor f is represented by the conditional sample of
             % Z_X on X
+            % It is assumed that (X, Z_X) ~ p(Z|X)s(X) where p(Z|X) is the
+            % true distribution. s() can be arbitrary.
             %
             if nargin <3
                 o = [];
             end
- 
-            C = cond_embed_cv1(X, Z_X, o);
             
-            % medx = pairwise median distance of X
-            skx = C.bxw * C.medx; %bxw = best Gaussian width for x
-            lamb = C.blambda;
-            
-            Op = CondOp1(X, Z_X, skx, lamb);
+            CVLog = cond_embed_cv1(X, Z_X, o);
+            skx = CVLog.bxw * CVLog.medx; %bxw = best Gaussian width for x
+            Op = CondOp1(X, Z_X, CVLog.operator, skx);
         end
         
+        function [Op, CVLog] = kbr_operator(X, Y, o)
+            % Kernel Bayes rule operator. Learn C_{y|x}
+            % learn mean embedding operator taking 1 input
+            % Gaussian kernels. Do cross validation.
+            % The operator C_{y|x} maps m_{x->f} to m_{f->y}. It is assumed
+            % that (X,Y) ~ p(X|Y)s(Y) where p(X|Y) is the true
+            % distribution. s() can be arbitrary.
+            %
+            if nargin <3
+                o = [];
+            end
+            
+            CVLog = kbr_cv1(X, Y,  o);
+            skx = CVLog.bxw * CVLog.medx; %bxw = best Gaussian width for x
+            Op = CondOp1(X, Y, CVLog.operator, skx);
+        end
     end
     
 end

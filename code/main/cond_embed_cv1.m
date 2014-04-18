@@ -1,8 +1,8 @@
-function CVLog = cond_embed_cv1(X, Z,  op)
+function C = cond_embed_cv1(X, Z,  op)
 %
 % Cross validation for conditional mean embedding for one conditioning
 % variable. The embedding operator takes the form C_{z|x} where X is the
-% conditioning variable.
+% conditioning variable. Assume that Z is generated from p(z|x).
 % - Assume Gaussian kernels.
 % - All data matrices are dim x dataset size
 % The output mapping for Z represents sufficient statistic for a normal
@@ -84,21 +84,29 @@ CErr = squeeze( mean(CFErr,  1) );
 [minerr, ind] = min(CErr(:));
 [bxi,  bri] = ind2sub(size(CErr), ind);
 
-CVLog.minerr = minerr;
+C.minerr = minerr;
 % best x width
-CVLog.bxw = xwlist(bxi);
+C.bxw = xwlist(bxi);
 
-CVLog.blambda = reglist(bri);
+C.blambda = reglist(bri);
+C.medx = medx;
+C.reglist = reglist;
+C.xwlist = xwlist;
 
-CVLog.medx = medx;
+C.seed = seed;
+C.fold = fold;
+C.I = I;
 
+% compute operator and K, L
+skx = C.bxw * C.medx; %bxw = best Gaussian width for x
+K = kerGaussian(X, X, skx );
+lamb = C.blambda;
 
-CVLog.reglist = reglist;
-CVLog.xwlist = xwlist;
-
-CVLog.seed = seed;
-CVLog.fold = fold;
-
+% not a good idea to invert ??
+O = inv(K + lamb*eye(n));
+C.K = K;
+C.operator = O;
+ 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 end

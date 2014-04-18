@@ -1,4 +1,4 @@
-classdef DistNormal < handle & GKConvolvable
+classdef DistNormal < handle & GKConvolvable & Sampler
     %DIST_NORMAL Gaussian distribution object for kernel EP framework.
     
     properties (SetAccess=private)
@@ -9,9 +9,10 @@ classdef DistNormal < handle & GKConvolvable
         variance=[];
     end
     
-    properties (SetAccess=private, GetAccess=private)
+    properties (SetAccess=protected, GetAccess=protected)
         Z % normalization constant
     end
+    
     methods
         %constructor
         function this = DistNormal(m, var)
@@ -30,7 +31,12 @@ classdef DistNormal < handle & GKConvolvable
             if isempty(this.precision)
                 % expensive. Try to find a way for lazy evaluation later.
 %                 reg = (abs(this.variance) < 1e-5)*1e-5;
-                this.precision = inv(this.variance );
+                if isscalar(this.variance)
+                    this.precision = 1/this.variance;
+                else
+                    this.precision = inv(this.variance );
+                end
+                
             end
             prec = this.precision;
         end
@@ -56,7 +62,8 @@ classdef DistNormal < handle & GKConvolvable
             assert(d==length(this.mean));
             
             %             we can do better. sqrt(det(2*pi*Sigma)) will cancel anyway.
-            Mux = sqrt(det(2*pi*Sigma))*mvnpdf(X', this.mean(:)', this.variance+gw*eye(d) );
+            Sigma = gw*eye(d);
+            Mux = sqrt(det(2*pi*Sigma))*mvnpdf(X', this.mean(:)', this.variance+ Sigma)';  
             
         end
         
@@ -98,6 +105,10 @@ classdef DistNormal < handle & GKConvolvable
             p = isfinite(vv) && isfinite(mm) && this.variance >0;
         end
         
+        function X = sampling0(this, N)
+            X = this.draw( N);
+        end
+        
         function D = mtimes(this, distNorm)
             if ~isa(distNorm, 'DistNormal')
                 error('mtimes only works with DistNormal obj.');
@@ -122,7 +133,8 @@ classdef DistNormal < handle & GKConvolvable
             p1 = this.precision;
             m2 = distNorm.mean;
             p2 = distNorm.precision;
-            
+           
+            % create a problem if p1=p2 ***
             prec = p1-p2;
             nmean = prec \ (p1*m1 - p2*m2);
             %  bad idea to invert ?
