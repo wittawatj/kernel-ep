@@ -21,7 +21,7 @@ reglist = myProcessOptions(op, 'reglist', [1e-2, 1e-0, 10]);
 list = [1, 2, 4];
 xwlist = myProcessOptions(op, 'xwlist', list);
 
-medx = meddistance(X);
+medx = meddistance(X)^2;
 
 % Number of folds in cross validation
 fold = myProcessOptions(op, 'fold', 3 );
@@ -79,7 +79,7 @@ for fi=1:fold
     end
 end
 
-CErr = squeeze( mean(CFErr,  1) );
+CErr = shiftdim( mean(CFErr,  1) , 1);
 % best param combination
 [minerr, ind] = min(CErr(:));
 [bxi,  bri] = ind2sub(size(CErr), ind);

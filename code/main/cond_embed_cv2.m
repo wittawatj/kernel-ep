@@ -2,7 +2,7 @@ function CVLog = cond_embed_cv2(X, Y, Z, op)
 %
 % Cross validation for conditional mean embedding for two conditioning
 % variables. The embedding operator takes the form C_{z|xy} where X, Y are
-% conditioning variables.
+% conditioning variables. Assume that Z is generated from p(Z|X,Y)
 % - Assume Gaussian kernels for X, Y.
 % - Z does not have a kernel. A finite dimensional map (z, z^2) to compute suff stat
 % for Gaussian is used.
@@ -22,8 +22,8 @@ list = [1, 2, 4];
 xwlist = myProcessOptions(op, 'xwlist', list);
 ywlist = myProcessOptions(op, 'ywlist', list);
 
-medx = meddistance(X);
-medy = meddistance(Y);
+medx = meddistance(X)^2;
+medy = meddistance(Y)^2;
 
 % Number of folds in cross validation
 fold = myProcessOptions(op, 'fold', 3 );
@@ -89,7 +89,7 @@ for fi=1:fold
     end
 end
 
-CErr = squeeze( mean(CFErr,  1) );
+CErr = shiftdim( mean(CFErr,  1) , 1);
 % best param combination
 [minerr, ind] = min(CErr(:));
 [bxi, byi, bri] = ind2sub(size(CErr), ind);
@@ -109,7 +109,7 @@ CVLog.ywlist = ywlist;
 
 CVLog.seed = seed;
 CVLog.fold = fold;
-
+CVLog.I = I;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 

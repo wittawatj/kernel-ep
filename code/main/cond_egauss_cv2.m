@@ -34,10 +34,10 @@ xwlist = myProcessOptions(op, 'xwlist', list);
 ywlist = myProcessOptions(op, 'ywlist', list);
 
 % normalized median distance
-medx = medEGaussian(X);
-medy = medEGaussian(Y);
-% medx = 4;
-% medy = 4;
+% medx = medEGaussian(X);
+% medy = medEGaussian(Y);
+medx = 1;
+medy = 1;
 
 % Number of folds in cross validation
 fold = myProcessOptions(op, 'fold', 3 );
@@ -103,7 +103,7 @@ for fi=1:fold
     end
 end
 
-CErr = squeeze( mean(CFErr,  1) );
+CErr = shiftdim( mean(CFErr,  1), 1 );
 % best param combination
 [minerr, ind] = min(CErr(:));
 [bxi, byi, bri] = ind2sub(size(CErr), ind);
