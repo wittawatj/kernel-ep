@@ -15,12 +15,13 @@ tol = 0.1;
 maxcols = n;
 X = randn(d, n) + rand(d, n)*2;
 med = meddistance(X);
-kfunc = @(a,b)(kerGaussian(a,b, med^2));
-In=IncompChol(X, kfunc, tol, maxcols);
+kfunc = KerGaussian(med^2);
+Dat = MatInstances(X);
+In=IncompChol(Dat, kfunc, tol, maxcols);
 R2 = In.R;
 
 % full K
-K = kfunc(X, X);
+K = kfunc.eval(X, X);
 % [fnewr2, R2, I2, nu2 ] = incomp_chol2(K, tol);
 
 
@@ -34,8 +35,8 @@ display(sprintf('Diff of two approximations: %g', norm(R1'*R1 - R2'*R2) ) );
 
 % test Cholesky projection
 Y = randn(d, 100) + rand(d, 100)*2;
-Rt2 = In.chol_project(Y);
-Rt1 = fnewr1(kfunc(X, Y));
+Rt2 = In.chol_project(MatInstances(Y));
+Rt1 = fnewr1(kfunc.eval(X, Y));
 display(sprintf('Diff of two Chol. projections: %g', norm(Rt1'*Rt1-Rt2'*Rt2)));
 
 RandStream.setGlobalStream(oldRs);
