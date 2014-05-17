@@ -6,9 +6,9 @@ function I = strapart( Y, fold, seed)
 % I is a foldxn binary fold indicator matrix.
 %
 
-oldRs = RandStream.getDefaultStream();
+oldRs = RandStream.getGlobalStream();
 rs = RandStream.create('mt19937ar','seed',seed);
-RandStream.setDefaultStream(rs);          
+RandStream.setGlobalStream(rs);          
 
 n = length(Y);
 I = false(fold,n); % 1 byte per entry for logical matrix
@@ -28,8 +28,7 @@ for ui=1:length(UY)
     
 end
 
-
-RandStream.setDefaultStream(oldRs);
+RandStream.setGlobalStream(oldRs);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
