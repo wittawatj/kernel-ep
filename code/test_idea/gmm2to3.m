@@ -3,15 +3,14 @@ function [ ] = gmm2to3( )
 % x|y ~ GMM(3 bumps with one bump depending on y)
 % The goal is to infer the distribution of y given just the sample from x.
 
-% seed = 2,6 , 8(not so bad)
-seed = 6;
+seed = 8;
 oldRs = RandStream.getGlobalStream();
 rs = RandStream.create('mt19937ar','seed',seed);
 RandStream.setGlobalStream(rs);          
 
 % data generation
-Np=800; % number of points for training
-N = 600;
+Np=500; % number of points for training
+N = 500;
 % Gaussian prior for Y. Used for learning the operator
 % m = 5;
 % v = 20;
@@ -30,8 +29,10 @@ Xp = gen_data(Yp);
 
 % operator at f_i from x to y
 options = [];
-options.reglist  = [1e-1, 1, 10];
-options.xwlist = [1/2, 1, 2, 4];
+options.reglist  = [1e-1, 1, 10, 100];
+options.xwlist = [ 1/2, 1, 2, 4, 8];
+options.fold = 5;
+% options.xwlist = [1/8, 1/4, 1/2, 1, 2, 4, 6, 8];
 % options.xwlist = [1];
 % use Yp prior to learn
 [Op] = CondOp1.learn_operator(Xp, Yp, options);
@@ -97,7 +98,7 @@ title(sprintf('q: (mean, variance) = (%.3g, %.3g)', q.mean, q.variance));
 hold off
 grid on
 
-keyboard
+% keyboard
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%5
 RandStream.setGlobalStream(oldRs);
@@ -118,7 +119,7 @@ end
 function [X, ff]=gen_data(Y)
 
 ycov(:,:,1) = 0.5;
-ycov(:,:,2) = 0.2;
+ycov(:,:,2) = 0.1;
 % ycov(:,:,3) = 0.01;
 w = 0.7;
 % mixing = [w, 0.5-w/2, 0.5-w/2];
