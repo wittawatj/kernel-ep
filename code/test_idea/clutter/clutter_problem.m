@@ -21,7 +21,7 @@ N  = 1000;
 % Gaussian prior
 % mp = 1;
 % vp = 40;
-mp = 2;
+mp = 1;
 vp = 30;
 Tp = randn(1, N)*sqrt(vp) + mp;
 tp_pdf = @(t)normpdf(t, mp, sqrt(vp));
@@ -30,7 +30,7 @@ tp_pdf = @(t)normpdf(t, mp, sqrt(vp));
 % Now we have a joint sample (Theta, X)
 
 % new data set for testing EP. Not for learning an operator.
-nN = 50;
+nN = 200;
 [Theta, tdist] = theta_dist(nN);
 [NX, xdist] = ClutterMinka.x_cond_dist(Theta, a, w);
 
@@ -191,10 +191,10 @@ for t=1:2
     for i=1:nN
         
         qni = q/FT(i); % DistNormal division  
-        if qni.variance < 0
-            display(sprintf('Cavity q\\%d = N(%.2g, %.2g) not proper. Skip.', i, qni.mean, qni.variance));
-            continue;
-        end
+%         if qni.variance < 0
+%             display(sprintf('Cavity q\\%d = N(%.2g, %.2g) not proper. Skip.', i, qni.mean, qni.variance));
+%             continue;
+%         end
         
         %         if qni.variance < 0.1
         %             positive but small => make it bigger
@@ -251,7 +251,7 @@ function [R] = kernel_parallel_ep(NX, Op)
 
 nN = size(NX, 2);
 % prior factor for theta
-f0 = DistNormal(0, 100);
+f0 = DistNormal(0, 50);
 % product of all incoming messages to theta. Estimate of posterior over
 % theta
 q = f0;
@@ -384,49 +384,4 @@ options.fold = 2;
 [Op] = CondOp2.learn_operator(Xp, Tp, Tp, options);
 
 end
-
-
-function plot_results(test_theta, xdist, train_theta, q, seed)
-
-%%%%%%%%% plot
-figure
-hold on
-set(gca, 'FontSize', 20)
-
-range = [-8, 9];
-dom = range(1):0.01:range(2);
-
-% test theta distribution
-plot(dom, test_theta(dom), '-r', 'LineWidth', 2);
-% distribution of x given mean theta
-fxdist = @(x)pdf(xdist, x');
-plot(dom, fxdist(dom), '-b', 'LineWidth', 2);
-% theta distribution used in training
-plot(dom, train_theta(dom),  '-k', 'LineWidth', 2);
-
-% q = resulting distribution of theta from EP
-plot(dom, q.density(dom),  '-m', 'LineWidth', 2);
-
-
-legend('Test \theta dist', 'X | mean \theta', 'Train \theta dist', 'q');
-% legend('Test \theta dist', 'X | mean \theta');
-ylabel('Density')
-xlim([range(1), range(2)])
-ylim([0, .6])
-title(sprintf('seed: %d. q: (mean, variance) = (%.3g, %.3g)', seed, q.mean, q.variance));
-grid on
-
-hold off
-end
-
-function [Theta, tdist] = theta_dist(N)
-% Theta distribution on testing
-var_theta = 0.1;
-mu = 3;
-dis_theta = DistNormal(mu, var_theta);
-Theta = dis_theta.draw(N);
-tdist = @(t)(normpdf(t, mu, sqrt(var_theta) ));
-end
-
-
 

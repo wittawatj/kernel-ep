@@ -136,21 +136,34 @@ classdef ClutterMinka < handle
         end
         
         function [X, ftrue, feval] = x_cond_dist(Theta, a, w)
+            % Draw X|theta.
             % feval takes to argument (x, theta) and evaluates the factor
             N  = length(Theta);
             cov(:,:,1) = 1;
             cov(:,:,2) = a;
             
             X = zeros(1, N);
-            F = cell(1,N);
-            for i=1:N
-                theta = Theta(:,i);
-                f = gmdistribution([theta; 0], cov, [1-w, w]);
-                X(:,i) = f.random(1);
-                F{i} = f;
+   
+            % poor performance
+%             for i=1:N
+%                 theta = Theta(:,i);
+%                 f = gmdistribution([theta; 0], cov, [1-w, w]);
+%                 X(:,i) = f.random(1);
+%             end
+
+            % my own. 
+            % Sample mixture components
+            Z = 1+ (rand(1, N) > 1-w);
+            % theta component
+            I1 = Z==1;
+            I2 = Z==2;
+            if sum(I1)>0
+                X(I1) = randn(1, sum(I1) ) + Theta(I1);
             end
-            ftrue =  gmdistribution([mean(Theta); 0], cov, [1-w, w]);
+            % noise component
+            X(I2) = randn(1, sum(I2))*sqrt(a);
             
+            ftrue =  gmdistribution([mean(Theta); 0], cov, [1-w, w]);
             feval = @(x, the)( ClutterMinka.factor_eval(x, the, [1,a], w) );
         end
         
