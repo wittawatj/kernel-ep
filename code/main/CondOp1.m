@@ -76,11 +76,12 @@ classdef CondOp1 < handle
             % resulting in sqrt(det(variance)) being imaginary. Don't know
             % what to do here. Take real parts ??
             Beta = real( mzf.density(Z)' );
+            
             C = Alpha.*Beta;
             %             C = Alpha;
             S = DistNormal.normalSuffStat(Z);
             % projection
-            suffStat = S*C;
+            suffStat = S*C/sum(C);
             [dz,nz] = size(Z);
             mean = suffStat(1:d);
             cov = reshape(suffStat( (d+1):end), [dz,dz]) - mean*mean' ;

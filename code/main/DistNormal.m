@@ -1,11 +1,11 @@
-classdef DistNormal < handle & GKConvolvable & Sampler
+classdef DistNormal < handle & GKConvolvable & Sampler & Density 
     %DIST_NORMAL Gaussian distribution object for kernel EP framework.
     
     properties (SetAccess=private)
         mean
         % precision matrix
         precision
-        
+        d %dimension
         variance=[];
     end
     
@@ -13,19 +13,33 @@ classdef DistNormal < handle & GKConvolvable & Sampler
         Z % normalization constant
     end
     
+    
     methods
         %constructor
         function this = DistNormal(m, var)
             assert(~isempty(m));
             assert(~isempty(var));
-            this.mean = m(:);
-            assert(all(size(var)==size(var'))) %square
-            this.variance = var;
+            if size(m, 1)==1 && size(var, 1) && size(m, 2) > 1
+                % object array of many 1d Gaussians
+                assert(size(m, 2)==size(var, 2));
+                n = size(m, 2);
+                this = DistNormal.empty();
+                for i=1:n
+                    this(i) = DistNormal(m(i), var(i));
+                end
+            else
+                % one object
+                this.mean = m(:);
+                this.d = length(this.mean);
+                assert(all(size(var)==size(var'))) %square
+                this.variance = var;
+            end
+            
         end
         
-        function m = get.mean(this)
-            m = this.mean;
-        end
+%         function m = get.mean(this)
+%             m = this.mean;
+%         end
         
         function prec = get.precision(this)
             if isempty(this.precision)
@@ -41,10 +55,10 @@ classdef DistNormal < handle & GKConvolvable & Sampler
             prec = this.precision;
         end
         
-        function var = get.variance(this)
-            var = this.variance;
-        end
-        
+%         function var = get.variance(this)
+%             var = this.variance;
+%         end
+         
         function X = draw(this, N)
             % return dxN sample from the distribution
             X = mvnrnd(this.mean', this.variance, N)';

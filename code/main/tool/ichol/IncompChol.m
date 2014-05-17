@@ -105,7 +105,7 @@ classdef IncompChol < handle
             Xdat = X.getAll();
             % compute diagonal entries of K
             d = kfunc.pairEval(Xdat, Xdat);
-            
+            d = d(:)'; % make it a row vector
 %             d = diag(K);
             [a, I(j+1)] = max(d);
             if a <= eta
@@ -128,7 +128,7 @@ classdef IncompChol < handle
                 R(j, beforeIj) = ( k_Ij(beforeIj) - R(:, I(j))'*R(:, beforeIj) )/nu(j);
                 R(j, afterIj) = ( k_Ij(afterIj) - R(:, I(j))'*R(:, afterIj) )/nu(j);
                 
-                d = d - R(j, :)'.^2;
+                d = d - R(j, :).^2;
                 [a, I(j+1)] = max(d);
                 if j >= maxrank
                     % maxrank reached. stop
@@ -139,7 +139,7 @@ classdef IncompChol < handle
             R = R(1:T, :);
             I = I(1:T);
 %             nu = nu(1:T);
-            
+            display(sprintf('IncompChol returns with rank %d', T));
         end
         
     end

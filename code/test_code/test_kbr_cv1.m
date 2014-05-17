@@ -1,6 +1,6 @@
 % function  test_kbr_cv1( )
 % 
-n = 300;
+n = 400;
 
 % p(y)
 my = 0;
@@ -11,9 +11,9 @@ Y = randn(1, n)*sqrt(vy) + my;
 % Y = rand(1, n)*8 -4;
 
 % p(x|y)
-a = 2;
+a = -2;
 b = 1;
-vx = 0.1;
+vx = 0.5;
 X = randn(1, n)*sqrt(vx) + a*Y + b;
 
 % expected p(y|x)
@@ -27,8 +27,8 @@ o = [];
 % C = cond_embed_cv1(Y, X, op);
 
 % both seem to work
-% [Op, CVLog] = CondOp1.kbr_operator(X, Y, o);
-[Op, CVLog] = CondOp1.learn_operator(X, Y, o);
+[Op, CVLog] = CondOp1.kbr_operator(X, Y, o);
+% [Op, CVLog] = CondOp1.learn_operator(X, Y, o);
 skx = CVLog.bxw * CVLog.medx; %bxw = best Gaussian width for x
 
 % print

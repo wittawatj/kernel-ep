@@ -14,7 +14,7 @@ classdef Instances < handle
         Data=getAll(this);
         
         % Return data instances specified by the indices in Ind in the form 
-        % of Instances. Ind is a % list of indices.
+        % of Instances. Ind is a list of indices.
         Ins=instances(this, Ind);
         
         % total number of instances 

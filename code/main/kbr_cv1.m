@@ -37,7 +37,7 @@ y_mean_map = myProcessOptions(op, 'y_mean_map', mean(Ysuff, 2) );
 % median distance.
 list = [1/3, 1, 3];
 xwlist = myProcessOptions(op, 'xwlist', list);
-medx = meddistance(X);
+medx = meddistance(X)^2;
 
 % Number of folds in cross validation
 fold = myProcessOptions(op, 'fold', 3 );
@@ -108,7 +108,7 @@ for fi=1:fold
     end
 end
 
-CErr = squeeze( mean(CFErr,  1) );
+CErr = shiftdim( mean(CFErr,  1) , 1);
 
 % best param combination
 [minerr, ind] = min(CErr(:));

@@ -72,6 +72,7 @@ classdef CondOp2 < handle
         end
         
         function mfz = apply_pbp(this, mxf, myf)
+            % pbp = projected BP
             % Apply this operator to two incoming messages. Used for projected BP
             
             assert(isa(mxf, 'GKConvolvable'));
