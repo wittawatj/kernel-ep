@@ -1,5 +1,5 @@
-function  test_ggauss_chol_compare(  seed)
-%TEST_GGAUSS_CHOL_COMPARE Compare KGGauss with incomplete Cholesky to
+function  t_ggauss_chol_compare(  seed)
+%T_GGAUSS_CHOL_COMPARE Compare KGGauss with incomplete Cholesky to
 %KGGauss using full matrix
 
 if nargin < 1

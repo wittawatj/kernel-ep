@@ -1,4 +1,4 @@
-% function test_condop1( seed)
+% function t_condop1( seed)
 %
 % Test conditional mean embedding C_z|x trained on data generated from
 % p(x | z)p(z) which is not the correct p(z|x)p(x)

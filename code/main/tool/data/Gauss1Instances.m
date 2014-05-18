@@ -3,7 +3,7 @@ classdef Gauss1Instances < Instances
     %matrices of mean's and variance's
      %  data variable is a struct with fields
     %  - mean = a matrix with each column representing one mean. dxn
-    %  - variance = If d==1, a row vector. If d>1, a dxdxn matrix.
+    %  - variance = a row vector
     %  - d = dimension of the distribution (= size(mean,1))
     %
     properties (SetAccess=private)

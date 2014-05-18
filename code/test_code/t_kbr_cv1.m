@@ -1,4 +1,4 @@
-% function  test_kbr_cv1( )
+% function  t_kbr_cv1( )
 % 
 n = 400;
 
