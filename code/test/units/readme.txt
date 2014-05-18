@@ -1,0 +1,1 @@
+This folder contains files for unit testing. The files are to be used with xunit.
