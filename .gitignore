@@ -1,0 +1,16 @@
+*.pdf
+*~
+*.bak
+*.mat
+img/
+docs/
+Infer.NET 2.5
+/.project
+ITE
+3rdparty
+*.#
+*.lyx
+*.bib
+kernel_ep_share/
+meetings/
+KernelEP/
