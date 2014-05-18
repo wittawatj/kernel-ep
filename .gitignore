@@ -6,8 +6,10 @@ img/
 docs/
 Infer.NET 2.5
 /.project
-ITE
-3rdparty
+ITE/
+kernelBP/
+kernelBP_chol/
+kernelBP_loopy/
 *.#
 *.lyx
 *.bib
