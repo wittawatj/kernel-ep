@@ -1,7 +1,12 @@
-function [ s] = l_clutterTrainMsgs( nload )
+function [ s] = l_clutterTrainMsgs( nload, seed )
 %L_CLUTTERTRAINMSGS Load training messages for clutter problem.
 % n = number of instances to load
 % 
+
+if nargin < 2
+    seed=1;
+end
+rng(seed);
 
 fpath = 'saved/clutterTrainMsgs.mat';
 assert(exist(fpath, 'file')~=0 );

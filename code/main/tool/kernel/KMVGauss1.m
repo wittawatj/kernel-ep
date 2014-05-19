@@ -103,8 +103,9 @@ classdef KMVGauss1 < Kernel
             end
             
             Ks = cell(length(mean_medf), length(var_medf));
-            mean_med = meddistance(s.mean);
-            var_med = meddistance(s.variance);
+            % !! don't forget the ^2 here !
+            mean_med = meddistance(s.mean)^2;
+            var_med = meddistance(s.variance)^2;
             for i=1:length(mean_medf)
                 mmedf = mean_medf(i);
                 for j=1:length(var_medf)

@@ -39,10 +39,10 @@ train_size = myProcessOptions(op, 'train_size', floor(0.8*n));
 test_size = myProcessOptions(op, 'test_size',  n-train_size );
 
 % Tolerance for incomplete Cholesky on kernel matrix
-chol_tol = myProcessOptions(op, 'chol_tol', 0.5);
+chol_tol = myProcessOptions(op, 'chol_tol', 1e-2);
 
 % Maximum rank (column of R) K~R'*R in incomplete Cholesky.
-chol_maxrank = myProcessOptions(op, 'chol_maxrank', ceil(sqrt(n)) );
+chol_maxrank = myProcessOptions(op, 'chol_maxrank', max(n, 500) );
 
 % seed for data stratification
 seed = myProcessOptions(op, 'seed', 1);
