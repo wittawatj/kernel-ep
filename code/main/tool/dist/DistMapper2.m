@@ -1,7 +1,9 @@
 classdef DistMapper2 < handle
     %DISTMAPPER2 A map taking two distributions as input and outputs
     %another distribution
-    %   Detailed explanation goes here
+    %   This is useful for representing an operation of gathering all
+    %   incoming messages (two in this case) and output a projected message
+    %   in EP.
     
     properties
     end

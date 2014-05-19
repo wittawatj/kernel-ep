@@ -1,4 +1,4 @@
-classdef CondCholFiniteOut
+classdef CondCholFiniteOut < InstancesMapper
     %CONDCHOLFINITEOUT Generic conditional mean embedding operator using incomplete
     %Cholesky for outputs using finite-dimensional feature maps.
     % C_{Z|X} where Z is the output, X is the input. This class supports
@@ -39,7 +39,7 @@ classdef CondCholFiniteOut
             
         end
         
-        function Zout = map(this, Xin)
+        function Zout = mapInstances(this, Xin)
             % Map Instances in Xin to Zout with this operator.
             assert(isa(Xin, 'Instances'));
             R = this.R;

@@ -9,7 +9,7 @@ rng(seed);
 
 
 % total samples to use
-n= 1000;
+n= 700;
 [ s] = l_clutterTrainMsgs( n);
 % This will load a bunch of variables in s into the current scope.
 eval(structvars(100, s));
@@ -64,7 +64,7 @@ for i=1:ncut
     
     % instance in the tensor product (domain of the operator)
     in = In.instances(is);
-    zout = Op.map(in);
+    zout = Op.mapInstances(in);
     
     % we are working with a 1d Gaussian (for now)
     % mean = zout(1), uncenter 2nd moment = zout(2)

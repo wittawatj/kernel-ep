@@ -66,7 +66,7 @@ for i=1:ncut
     
     % instance in the tensor product (domain of the operator)
     in = In.instances(is);
-    zout = Op.map(in);
+    zout = Op.mapInstances(in);
     
     % we are working with a 1d Gaussian (for now)
     % mean = zout(1), uncenter 2nd moment = zout(2)
