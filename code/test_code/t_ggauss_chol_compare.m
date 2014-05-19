@@ -6,58 +6,13 @@ if nargin < 1
     seed = 1;
 end
 rng(seed);
-regen = 0;
 
-fpath = 'saved/test_ggauss_chol_compare.mat';
-if exist(fpath, 'file') && ~regen
-    load(fpath);
-else
-    % generate some data
-    % options
-    n = 3000;
-    op.training_size = n;
-    op.iw_samples = 2e4;
-    op.seed = seed;
-    
-    % parameters for clutter problem
-    a = 10;
-    w = 0.5;
-    op.clutter_a = a;
-    op.clutter_w = w;
-    
-    % generate training set
-    [ X, T, Xout, Tout ] = gentrain_cluttereg(op);
-    
-    % CV
-    % sort dataset by the means of Tout
-    [Tout_means, I] = sort([Tout.mean]);
-    X = X(I);
-    T = T(I);
-    Xout = Xout(I);
-    Tout = Tout(I);
-    
-    save(fpath, 'n', 'op', 'a', 'w', 'X', 'T', 'Xout', 'Tout');
-    
-end
 
 % total samples to use
-n = 1100;
-
-% use remove. So we can keep the sorted inputs.
-toremove = length(X)-min(n, length(X));
-Id = randperm( length(X),  toremove);
-X(Id) = [];
-T(Id) = [];
-Xout(Id) = [];
-Tout(Id) = [];
-
-% Learn operator with cross validation
-% In = tensor of X and T
-% XIns = ArrayInstances(X);
-XIns = Gauss1Instances(X);
-% TIns = ArrayInstances(T);
-TIns = Gauss1Instances(T);
-In = TensorInstances({XIns, TIns});
+n= 1000;
+[ s] = l_clutterTrainMsgs( n);
+% This will load a bunch of variables in s into the current scope.
+eval(structvars(100, s));
 
 % kernel candidates
 embed_widths = [2];

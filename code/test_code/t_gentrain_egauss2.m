@@ -1,4 +1,4 @@
-function  test_gentrain_egauss2( seed )
+function  t_gentrain_egauss2( seed )
 %
 % - Generate message data set with gentrain_dist2.
 % - Learn the Egauss conditional mean embedding operator

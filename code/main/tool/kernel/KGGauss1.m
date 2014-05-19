@@ -3,7 +3,7 @@ classdef KGGauss1 < Kernel
     %with a struct instead of object array to avoid Matlab overhead.
     %  data variable is a struct with fields
     %  - mean = a matrix with each column representing one mean. dxn
-    %  - variance = If d==1, a row vector. If d>1, a dxdxn matrix.
+    %  - variance = a row vector.
     %  - d = dimension of the distribution (= size(mean,1))
     %
     % Intended to be used with Gauss1Instances.
@@ -19,7 +19,7 @@ classdef KGGauss1 < Kernel
     methods
         
         function this=KGGauss1(embed_width2, width2)
-            % sigm2 = Width for embedding into Gaussian RKHS
+            % embed_width2  = Width for embedding into Gaussian RKHS
             % width2 = Gaussian width^2. Not the one for embedding the
             % distribution.
             assert(width2 > 0, 'Gaussian width must be > 0');
@@ -120,7 +120,7 @@ classdef KGGauss1 < Kernel
             % median distance.
             
             if nargin < 4
-                subsamples = length(X);
+                subsamples = length(s.mean);
             end
             assert(isstruct(s));
             assert(isnumeric(embed_widths));
