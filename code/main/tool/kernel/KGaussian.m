@@ -32,14 +32,10 @@ classdef KGaussian < Kernel
             % lazy implmentation. Obviously this can be improved.
             assert(isnumeric(X));
             assert(isnumeric(Y));
-            n1=size(X, 2);
-            n2=size(Y, 2);
-            assert(n1==n2);
-            Kvec = zeros(1, n1);
-            for i=1:n1
-                Kvec(i) = this.eval(X(:, i), Y(:, i));
-            end
             
+            D2 = sum((X-Y).^2, 1);
+            Kvec = exp(-D2./(2*(this.sigma2)));
+
         end
         
         function Param = getParam(this)
