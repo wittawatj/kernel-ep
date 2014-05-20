@@ -11,7 +11,7 @@ classdef DistMapper2 < handle
     methods (Abstract)
         % Produce an output distribution dout from two input distributions:
         % din1 and din2.
-        dout = mapDist2(din1, din2);
+        dout = mapDist2(this, din1, din2);
     end
     
 end
