@@ -8,7 +8,8 @@ if nargin < 2
 end
 rng(seed);
 
-fpath = 'saved/clutterTrainMsgs.mat';
+% fpath = 'saved/clutterTrainMsgs.mat';
+fpath = 'saved/clutterTrainMsgs_1e4.mat';
 assert(exist(fpath, 'file')~=0 );
 load(fpath);
 % load() will load 'n', 'op', 'a', 'w', 'X', 'T', 'Xout', 'Tout'

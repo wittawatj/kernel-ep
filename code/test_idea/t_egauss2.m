@@ -50,7 +50,7 @@ Op = CondOpEGauss2.learn_operator(X, T, Tout, op);
 
 % new data set for testing EP. Not for learning an operator.
 % nN = 50;
-% [Theta, tdist] = theta_dist(nN);
+% [Theta, tdist] = Clutter.theta_dist(nN);
 % [NX, xdist] = ClutterMinka.x_cond_dist(Theta, a, w);
 
 n = length(X);

@@ -27,7 +27,7 @@ op.reglist = [1e-4, 1e-2, 1];
 
 % new data set for testing EP. Not for learning an operator.
 nN = 50;
-[Theta, tdist] = theta_dist(nN);
+[Theta, tdist] = Clutter.theta_dist(nN);
 [NX, xdist] = ClutterMinka.x_cond_dist(Theta, a, w);
 % if false
 %     load('test_idea/clutter_data.mat');

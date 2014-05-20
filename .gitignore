@@ -16,3 +16,5 @@ kernelBP_loopy/
 kernel_ep_share/
 meetings/
 KernelEP/
+slurm/
+qsub/

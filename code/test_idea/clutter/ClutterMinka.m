@@ -125,15 +125,6 @@ classdef ClutterMinka < handle
     
     methods (Static)
         
-        function [Theta, tdist] = theta_dist(N)
-            % Theta distribution
-            error('does not make sense ? variance so high ?');
-            b = 100;
-            mu = 0;
-            dis_theta = DistNormal(mu, b);
-            Theta = dis_theta.draw(N);
-            tdist = @(t)(normpdf(t, mu, b ));
-        end
         
         function [X, ftrue, feval] = x_cond_dist(Theta, a, w)
             % Draw X|theta.

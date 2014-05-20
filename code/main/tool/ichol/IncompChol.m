@@ -102,6 +102,7 @@ classdef IncompChol < handle
             end
             j = 0;
             R = zeros(maxrank, ell);
+%             R = gpuArray(R);
             Xdat = X.getAll();
             % compute diagonal entries of K
             d = kfunc.pairEval(Xdat, Xdat);

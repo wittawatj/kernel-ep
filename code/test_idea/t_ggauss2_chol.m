@@ -13,14 +13,14 @@ end
 rng(seed);
 
 % total samples to use
-n= 100;
+n= 50;
 [ s] = l_clutterTrainMsgs( n);
 % This will load a bunch of variables in s into the current scope.
 eval(structvars(100, s));
 
 % kernel candidates
 embed_widths = [1, 6, 12];
-med_factors = [1/4, 1, 4];
+med_factors = [1, 4];
 
 subsamples = max(1000, n);
 SX = XIns.getAll();
@@ -48,7 +48,7 @@ op.chol_maxrank = min(500, n);
 
 % new data set for testing EP. Not for learning an operator.
 % nN = 50;
-% [Theta, tdist] = theta_dist(nN);
+% [Theta, tdist] = Clutter.theta_dist(nN);
 % [NX, xdist] = ClutterMinka.x_cond_dist(Theta, a, w);
 
 

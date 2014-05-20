@@ -31,7 +31,7 @@ tp_pdf = @(t)normpdf(t, mp, sqrt(vp));
 
 % new data set for testing EP. Not for learning an operator.
 nN = 200;
-[Theta, tdist] = theta_dist(nN);
+[Theta, tdist] = Clutter.theta_dist(nN);
 [NX, xdist] = ClutterMinka.x_cond_dist(Theta, a, w);
 
 if false

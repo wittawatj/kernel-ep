@@ -8,7 +8,7 @@ fpath = 'saved/clutterTrainMsgs.mat';
 
 % generate some data
 % options
-n = 1e4;
+n = 3e4;
 op.training_size = n;
 op.iw_samples = 5e4;
 op.seed = seed;
