@@ -19,7 +19,7 @@ op.iw_samples = 7e4;
 op.seed = seed;
 
 % sample from msgs from Theta instead of from the proposal
-op.sample_cond_msg = true;
+% op.sample_cond_msg = true;
 
 % parameters for clutter problem
 a = 10;

@@ -17,7 +17,7 @@ T = gen_theta_msg(N);
 
 % proposal distribution for for the conditional varibles (i.e. t) 
 % in the factor. Require: Sampler & Density.
-op.in_proposal = DistNormal( 2.5, 30);
+op.in_proposal = DistNormal( 0, 30);
 
 % clutter problem specific parameters
 a = myProcessOptions(op, 'clutter_a', 10);
@@ -34,10 +34,10 @@ end
 
 function X=gen_x_msg(n)
 % 
-M = randn(1, n)*20 + 2;
+M = randn(1, n)*sqrt(30);
 % Should focus on low variance because we will observe X and represent it
 % with a DistNormal having a small variance (instead of using a PointMass).
-V = gamrnd(1, 0.3, 1, n);
+V = gamrnd(1, 0.1, 1, n);
 % V = unifrnd(0.01, 1, 1, n);
 X = DistNormal(M, V);
 end
@@ -45,7 +45,7 @@ end
 
 function T=gen_theta_msg(n)
 % MT = unifrnd(-10, 10, 1, n);
-MT = randn(1, n)*30;
+MT = randn(1, n)*sqrt(30);
 % VT = gamrnd(2, 100, 1, n);
 VT = unifrnd(0.01, 1000, 1, n);
 T = DistNormal(MT, VT);

@@ -46,6 +46,8 @@ chol_maxrank = myProcessOptions(op, 'chol_maxrank', max(n, 500) );
 
 % seed for data stratification
 seed = myProcessOptions(op, 'seed', 1);
+oldRng = rng;
+rng(seed);
 
 % Instances indices
 [TRI, TEI] = train_test_indices(num_ho, train_size, test_size, n, seed);
@@ -61,7 +63,7 @@ Z = Out;
 % best_err = inf;
 % best_ri = 0;
 % best_ki = 0;
-parfor ki=1:length(kernel_candidates)
+for ki=1:length(kernel_candidates)
     kfunc = kernel_candidates{ki};
     assert(isa(kfunc, 'Kernel'));
     % It is user's responsibility to make sure the kernel can support
@@ -150,6 +152,7 @@ C.seed = seed;
 C.train_indices = TRI;
 C.test_indices = TEI;
 
+rng(oldRng);
 end
 
 
