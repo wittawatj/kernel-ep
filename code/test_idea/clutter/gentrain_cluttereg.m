@@ -11,14 +11,13 @@ end
 
 N = myProcessOptions(op, 'training_size', 1000);
 
-
 % gen X, gen T
 X = gen_x_msg(N);
 T = gen_theta_msg(N);
 
 % proposal distribution for for the conditional varibles (i.e. t) 
 % in the factor. Require: Sampler & Density.
-op.in_proposal = DistNormal( 3, 30);
+op.in_proposal = DistNormal( 2.5, 30);
 
 % clutter problem specific parameters
 a = myProcessOptions(op, 'clutter_a', 10);
@@ -28,26 +27,27 @@ w = myProcessOptions(op, 'clutter_w', 0.5);
 % outputting samples from the conditional distribution represented by the
 % factor.
 op.cond_factor = @(T)(ClutterMinka.x_cond_dist(T, a, w));
- 
-
- [ X, T, Xout, Tout ] = gentrain_dist2(X, T, op);
+[ X, T, Xout, Tout ] = gentrain_dist2(X, T, op);
  
 end
 
 
 function X=gen_x_msg(n)
 % 
-M = randn(1, n)*20 + 3;
-% V = gamrnd(2, 1, 1, n);
-V = unifrnd(0.05, 1000, 1, n);
+M = randn(1, n)*20 + 2;
+% Should focus on low variance because we will observe X and represent it
+% with a DistNormal having a small variance (instead of using a PointMass).
+V = gamrnd(1, 0.3, 1, n);
+% V = unifrnd(0.01, 1, 1, n);
 X = DistNormal(M, V);
 end
 
 
 function T=gen_theta_msg(n)
-MT = unifrnd(-10, 10, 1, n);
-% VT = gamrnd(2, 1, 1, n);
-VT = unifrnd(0.05, 1000, 1, n);
+% MT = unifrnd(-10, 10, 1, n);
+MT = randn(1, n)*30;
+% VT = gamrnd(2, 100, 1, n);
+VT = unifrnd(0.01, 1000, 1, n);
 T = DistNormal(MT, VT);
 end
 

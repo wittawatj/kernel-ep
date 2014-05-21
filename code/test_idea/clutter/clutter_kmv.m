@@ -10,12 +10,15 @@ end
 rng(seed);
 
 % total samples to use
-n = 500;
+n = 4000;
 ntr = floor(0.8*n);
 nte = min(100, n-ntr);
 
+% op.clutter_data_path = 'saved/clutterTrainMsgs_mgauss_vgam.mat';
+op.clutter_data_path = 'saved/clutterTrainMsgs.mat';
+
 % Load training messages
-[ s] = l_clutterTrainMsgs( n);
+[ s] = l_clutterTrainMsgs( n, op);
 % load 'n', 'op', 'a', 'w', 'X', 'T', 'Xout', 'Tout'
 % !! Be careful. This will override op. !!
 eval(structvars(100, s));
@@ -30,7 +33,7 @@ op.num_ho = 3;
 op.train_size = floor(0.7*ntr);
 op.test_size = min(1000, ntr - op.train_size);
 op.chol_tol = 1e-5;
-op.chol_maxrank = min(600, ntr);
+op.chol_maxrank = min(500, ntr);
 op.reglist = [1e-2, 1];
 
 % options used in learnMapper
@@ -39,16 +42,19 @@ op.mean_med_factors = [1];
 op.variance_med_factors = [1];
 
 % options for EP (for distMapper2_ep() )
-op.f0 = DistNormal(0, 20);
-op.ep_iters = 2;
+op.f0 = DistNormal(0, 30);
+op.ep_iters = 10;
 op.observed_variance = 0.1;
+op.mean_conv_thresh = 0.1;
+op.var_conv_thresh = 1;
 
 % learn a mapper from X to theta
 [mapper, C] = KMVMapper1D2In.learnMapper(X, T, Tout, op);
 
 % new data set for testing EP. Not for learning an operator.
-nN = 50;
-[Theta, tdist] = Clutter.theta_dist(nN);
+nN = 100;
+% [Theta, tdist] = Clutter.theta_dist(nN);
+Theta = randn(1, nN)*sqrt(0.1) + 3;
 [NX, xdist] = ClutterMinka.x_cond_dist(Theta, a, w);
 
 % start EP

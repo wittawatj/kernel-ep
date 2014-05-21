@@ -10,7 +10,7 @@ function [ R] = distMapper2_ep( X, mapper, op)
 %    - X is matrix of observed values where each column is one value.
 % Return:
 %    - A structure logging mean and variance of each factor during EP
-% 
+%
 assert(isnumeric(X));
 assert(isa(mapper, 'DistMapper2'));
 [d, nN] = size(X);
@@ -26,6 +26,14 @@ ep_iters = myProcessOptions(op, 'ep_iters', 10);
 % parameter specifies the variance of the distribution. Typically small.
 observed_variance = myProcessOptions(op, 'observed_variance', 0.1);
 
+% convergence threshold for the mean of the posterior
+mean_conv_thresh = myProcessOptions(op, 'mean_conv_thresh', 1e-2);
+assert(mean_conv_thresh >= 0);
+
+% convergence threshold for the variance of the posterior
+var_conv_thresh = myProcessOptions(op, 'var_conv_thresh', 1e-2);
+assert(var_conv_thresh >= 0);
+
 % ######### Begin EP #####
 
 % product of all incoming messages to theta. Estimate of posterior over
@@ -40,6 +48,8 @@ TM = [];
 TV = [];
 TMQNI = [];
 TVQNI = [];
+% records of q in each sweep
+Q = DistNormal.empty(0, 1);
 display(sprintf('Starting EP in %s', mfilename));
 % repeat until convergence
 for t=1:ep_iters
@@ -47,51 +57,65 @@ for t=1:ep_iters
     pvar = q.variance;
     display(sprintf('## EP iteration %d starts', t));
     for i=1:nN
-        
+        skip = false;
         qni = q/FT(i); % DistNormal division
-        %         if qni.variance < 0
-        %             display(sprintf('Cavity q\\%d = N(%.2g, %.2g) not proper. Skip.', i, qni.mean, qni.variance));
-        %             continue;
-        %         end
         
-        % control the magnitude of the variance of the cavity
-        if qni.variance < -1e1
-            qni = DistNormal(qni.mean, -1e1);
+        
+        % skip if the cavity is ill-scaled
+        if abs(qni.variance) > 1e3
+            display(sprintf('Cavity q\\%d = N(%.2g, %.2g) ill-scaled. Skip.', i, qni.mean, qni.variance));
+            skip = true;
         end
-        
-        if qni.variance > 100
-            qni = DistNormal(qni.mean, 100);
-        end
-        
-        display(sprintf('Cavity q\\%d = N(%.2g, %.2g)', i, qni.mean, qni.variance));
-        
         % we observed X. Use PointMass.
         %                         mxi_f = PointMass(NX(:,i));
         % we observed X. But, let's put a width around it
-        mxi_f = DistNormal(X(:,i), observed_variance);
+        if ~skip
+            display(sprintf('Cavity q\\%d = N(%.2g, %.2g)', i, qni.mean, qni.variance));
+            mxi_f = DistNormal(X(:,i), observed_variance);
+            
+            display(sprintf('x%d = %.2g', i, X(:,i)));
+            qnew = mapper.mapDist2(mxi_f, qni);
+            mfi_z = qnew/qni; %DistNormal division
+            mv = [mfi_z.mean, mfi_z.variance];
+            if any(isinf(mv)) || any(isnan(mv))
+                display(sprintf('f_%d  = N(%.2g, %.2g) not proper. Skip.', i, mfi_z.mean, mfi_z.variance));
+                skip = true;
+            end
+        end
         
-        display(sprintf('x%d = %.2g', i, X(:,i)));
-        q = mapper.mapDist2(mxi_f, qni);
-        mfi_z = q/qni; %DistNormal division
-        display(sprintf('m_f%d->theta = N(%.2g, %.2g)', i, mfi_z.mean, ...
-            mfi_z.variance));
-        display(sprintf('q = N(%.2g, %.2g)', q.mean, q.variance));
-        FT(i) = mfi_z;
-        TMQNI(t, i) = qni.mean;
-        TVQNI(t, i) = qni.variance;
-        
+        if ~skip
+            % control the magnitude of the variance of the mfi_z
+            if abs(mfi_z.variance) > 1e4
+                mfi_z = DistNormal(mfi_z.mean, sign(mfi_z.variance)*1e4 );
+            elseif abs(mfi_z.variance) < 1e-2
+                mfi_z = DistNormal(mfi_z.mean, sign(mfi_z.variance)*1e-2 );
+            end
+            q = qnew;
+            display(sprintf('m_f%d->theta = N(%.2g, %.2g)', i, mfi_z.mean, ...
+                mfi_z.variance));
+            display(sprintf('q = N(%.2g, %.2g)', q.mean, q.variance));
+            
+            FT(i) = mfi_z;
+            TMQNI(t, i) = qni.mean;
+            TVQNI(t, i) = qni.variance;
+            
+        else
+            % skip
+            TMQNI(t, i) = nan;
+            TVQNI(t, i) = nan;
+        end
         fprintf('\n');
     end
     % object array manipulation
     TM(t, :) = [FT.mean];
     TV(t, :) = [FT.variance];
+    Q(t) = DistNormal(q.mean, q.variance);
     % check convergence
-    if norm(q.mean-pmean)<1e-2 && norm(q.variance - pvar, 'fro')<1e-2
+    if norm(q.mean-pmean)<mean_conv_thresh && ...
+            norm(q.variance - pvar, 'fro')<var_conv_thresh
         break;
     end
-    if ~q.isproper()
-        break;
-    end
+    
 end %end main for
 
 R.Mean = TM;
@@ -99,6 +123,8 @@ R.Variance = TV;
 R.CavityMean = TMQNI;
 R.CavityVariance = TVQNI;
 R.q = q;
+R.Factors = FT;
+R.Q = Q;
 
 
 end

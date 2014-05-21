@@ -1,17 +1,22 @@
-function [ s] = l_clutterTrainMsgs( nload, seed )
+function [ s] = l_clutterTrainMsgs( nload, op )
 %L_CLUTTERTRAINMSGS Load training messages for clutter problem.
 % n = number of instances to load
 % 
-
 if nargin < 2
-    seed=1;
+    op = [];
 end
+
+seed = myProcessOptions(op, 'seed', 1);
+
+% path to load training set
+clutter_data_path = myProcessOptions(op, 'clutter_data_path', ...
+    'saved/clutterTrainMsgs.mat');
 rng(seed);
 
 % fpath = 'saved/clutterTrainMsgs.mat';
-fpath = 'saved/clutterTrainMsgs_1e4.mat';
-assert(exist(fpath, 'file')~=0 );
-load(fpath);
+
+assert(exist(clutter_data_path, 'file')~=0 );
+load(clutter_data_path);
 % load() will load 'n', 'op', 'a', 'w', 'X', 'T', 'Xout', 'Tout'
 
 % use remove. So we can keep the sorted inputs.
