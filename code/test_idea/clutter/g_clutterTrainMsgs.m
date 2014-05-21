@@ -1,17 +1,25 @@
-function  g_clutterTrainMsgs( )
+function  g_clutterTrainMsgs(n , op )
 %G_CLUTTERTRAINMSGS Generate training messages for clutter problem.
 %
-seed = 1;
+if nargin < 2
+    op=[];
+end
+
+seed = myProcessOptions(op, 'seed', 1);
 rng(seed);
 
-fpath = 'saved/clutterTrainMsgs.mat';
+clutter_data_path = myProcessOptions(op, 'clutter_data_path', ...
+    'saved/clutterTrainMsgs.mat');
+
 
 % generate some data
 % options
-n = 1e4;
 op.training_size = n;
-op.iw_samples = 5e4;
+op.iw_samples = 7e4;
 op.seed = seed;
+
+% sample from msgs from Theta instead of from the proposal
+op.sample_cond_msg = true;
 
 % parameters for clutter problem
 a = 10;
@@ -30,7 +38,7 @@ T = T(I);
 Xout = Xout(I);
 Tout = Tout(I);
 
-save(fpath, 'n', 'op', 'a', 'w', 'X', 'T', 'Xout', 'Tout');
+save(clutter_data_path, 'n', 'op', 'a', 'w', 'X', 'T', 'Xout', 'Tout');
 
 end
 

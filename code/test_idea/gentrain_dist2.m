@@ -10,6 +10,8 @@ function [ X, T, Xout, Tout ] = gentrain_dist2(X, T, op)
 % Typically an array of DistNormal
 assert(isa(X, 'Density'));
 assert(isa(T, 'Density'));
+assert(isa(X, 'Sampler'));
+assert(isa(T, 'Sampler'));
 assert(length(X) == length(T));
 xd = X(1).d;
 td = T(1).d;
@@ -25,11 +27,19 @@ iw_samples = myProcessOptions(op, 'iw_samples', 1e4);
 % number of times to draw IW samples to try before giving up on the
 % messages.
 iw_trials = myProcessOptions(op, 'iw_trials', 20);
-% proposal distribution for for the conditional varibles (i.e. t)
-% in the factor. Require: Sampler & Density.
-in_proposal = op.in_proposal;
-assert(isa(in_proposal, 'Density'));
-assert(isa(in_proposal, 'Sampler'));
+
+% Instead of samplilng from the in_proposal, if sample_cond_msg is true,
+% then sample from mt (message from T) instead. T is the conditioned
+% variable. If true, in_proposal is not needed and ignored.
+sample_cond_msg = myProcessOptions(op, 'sample_cond_msg', false);
+
+if ~sample_cond_msg
+    % proposal distribution for for the conditional varibles (i.e. t)
+    % in the factor. Require: Sampler & Density.
+    in_proposal = op.in_proposal;
+    assert(isa(in_proposal, 'Density'));
+    assert(isa(in_proposal, 'Sampler'));
+end
 
 % A forward sampling function taking samples (array) from in_proposal and
 % outputting samples from the conditional distribution represented by the
@@ -52,12 +62,18 @@ for i=1:N
     mx = X(i);
     mt = T(i);
     for j=1:iw_trials
-        
-        TP = in_proposal.sampling0(K);
-        
-        XP = cond_factor(TP);
-        % compute importance weights
-        W = mx.density(XP).*mt.density(TP) ./ in_proposal.density(TP);
+        if sample_cond_msg
+            % sample from mt instead of in_proposal
+            TP = mt.sampling0(K);
+            XP = cond_factor(TP);
+            % compute importance weights
+            W = mx.density(XP);
+        else
+            TP = in_proposal.sampling0(K);
+            XP = cond_factor(TP);
+            % compute importance weights
+            W = mx.density(XP).*mt.density(TP) ./ in_proposal.density(TP);
+        end
         
         assert( all(W >= 0));
         % projection
