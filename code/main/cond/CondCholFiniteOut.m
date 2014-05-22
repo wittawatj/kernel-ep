@@ -13,7 +13,7 @@ classdef CondCholFiniteOut < InstancesMapper
         regparam; %regularization parameter
         
         % R*R'. Needed in mapInstances()
-        RRT;
+%         RRT;
         
         % Out*R'. Needed in mapInstances()
         OutRT;
@@ -47,12 +47,12 @@ classdef CondCholFiniteOut < InstancesMapper
             this.Out = Out;
             this.kfunc = kfunc;
             this.R = R;
-            this.RRT = R*R';
+%             this.RRT = R*R';
             this.OutRT = Out*R';
             this.regparam = lambda;
             % L, U factor for (this.RRT + lamb*eye(ra)).
             ra = size(R, 1);
-            [this.L, this.U, P] = lu( this.RRT + lambda*eye(ra) );
+            [this.L, this.U, P] = lu( R*R' + lambda*eye(ra) );
             this.P = sparse(P);
         end
         

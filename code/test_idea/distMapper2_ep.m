@@ -75,11 +75,18 @@ for t=1:ep_iters
             
             display(sprintf('x%d = %.2g', i, X(:,i)));
             qnew = mapper.mapDist2(mxi_f, qni);
-            mfi_z = qnew/qni; %DistNormal division
-            mv = [mfi_z.mean, mfi_z.variance];
-            if any(isinf(mv)) || any(isnan(mv))
-                display(sprintf('f_%d  = N(%.2g, %.2g) not proper. Skip.', i, mfi_z.mean, mfi_z.variance));
+            if abs(qnew.variance) > 1e4 || abs(qnew.variance) < 1e-2
+                display(sprintf('Ill-scaled qnew = N(%.2g, %.2g)', qnew.mean, qnew.variance));
                 skip = true;
+            end
+            
+            if ~skip
+                mfi_z = qnew/qni; %DistNormal division
+                mv = [mfi_z.mean, mfi_z.variance];
+                if any(isinf(mv)) || any(isnan(mv))
+                    display(sprintf('f_%d  = N(%.2g, %.2g) not proper. Skip.', i, mfi_z.mean, mfi_z.variance));
+                    skip = true;
+                end
             end
         end
         
