@@ -13,7 +13,7 @@ for fi=1:length(folders)
 end
 
 % folders to be added by genpath
-gfolders = {'3rdparty/xunit', 'main/tool'};
+gfolders = {'3rdparty/xunit', 'main/tool', '3rdparty/multicore'};
 for i=1:length(gfolders)
     fol = gfolders{i};
     p = [base , fs, fol];
