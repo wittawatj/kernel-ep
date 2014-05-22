@@ -10,7 +10,7 @@ end
 rng(seed);
 
 % total samples to use
-n = 4000;
+n = 6000;
 ntr = floor(0.8*n);
 nte = min(100, n-ntr);
 
@@ -56,7 +56,7 @@ op.var_conv_thresh = 0.5;
 % new data set for testing EP. Not for learning an operator.
 nN = 400;
 % [Theta, tdist] = Clutter.theta_dist(nN);
-Theta = randn(1, nN)*sqrt(0.1) +5;
+Theta = randn(1, nN)*sqrt(0.1) +2;
 [NX, xdist] = ClutterMinka.x_cond_dist(Theta, a, w);
 
 % start EP
