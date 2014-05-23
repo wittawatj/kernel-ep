@@ -98,7 +98,7 @@ for t=1:ep_iters
                 mfi_z = DistNormal(mfi_z.mean, sign(mfi_z.variance)*1e-2 );
             end
             q = qnew;
-            display(sprintf('m_f%d->theta = N(%.2g, %.2g)', i, mfi_z.mean, ...
+            display(sprintf('m_f%d-> = N(%.2g, %.2g)', i, mfi_z.mean, ...
                 mfi_z.variance));
             display(sprintf('q = N(%.2g, %.2g)', q.mean, q.variance));
             
@@ -130,7 +130,7 @@ R.Variance = TV;
 R.CavityMean = TMQNI;
 R.CavityVariance = TVQNI;
 R.q = q;
-R.Factors = FT;
+% R.Factors = FT;
 R.Q = Q;
 
 

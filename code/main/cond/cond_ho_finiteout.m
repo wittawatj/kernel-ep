@@ -67,6 +67,8 @@ keval_func = @(kf)(eval_kernel(kf, In, Out, TRI, TEI, op));
 if use_multicore
     % call multicore package. Evaluate one kernel with one slave.
     % resultCell = cell of HR
+    multicore_settings.multicoreDir= myProcessOptions(multicore_settings, ...
+        'multicoreDir', '/nfs/nhome/live/wittawat/SHARE/gatsby/research/code/tmp');
     resultCell = startmulticoremaster(keval_func, kernel_candidates, multicore_settings);
     
     CHErr = cat(3, resultCell{:});

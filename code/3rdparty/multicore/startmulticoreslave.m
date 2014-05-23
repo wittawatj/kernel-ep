@@ -37,7 +37,7 @@ settingsDefault.maxWaitTime   = 5.0; % in seconds
 
 % If there are no slave files found for more than this time, the current
 % Matlab process will be shut down (thanks Richard!).
-settingsDefault.maxIdleTime = inf; % in seconds
+settingsDefault.maxIdleTime = floor(2*3600); % in seconds
 
 % set time after which to notify the user if there are no slave files found
 settingsDefault.firstWarnTime = 10; % in seconds

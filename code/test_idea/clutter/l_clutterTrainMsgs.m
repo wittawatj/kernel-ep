@@ -11,6 +11,7 @@ seed = myProcessOptions(op, 'seed', 1);
 % path to load training set
 clutter_data_path = myProcessOptions(op, 'clutter_data_path', ...
     'saved/clutterTrainMsgs.mat');
+oldRng = rng;
 rng(seed);
 
 % fpath = 'saved/clutterTrainMsgs.mat';
@@ -48,5 +49,6 @@ s.XIns = XIns;
 s.TIns = TIns;
 s.In = In;
 
+rng(oldRng);
 end
 
