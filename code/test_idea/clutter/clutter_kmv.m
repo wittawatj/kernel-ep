@@ -36,7 +36,7 @@ if ~exist(op.clutter_model_path, 'file') || op.retrain_clutter_model
     a = s.a;
     w = s.w;
    
-    [X, T, Tout, Xte, Tte, Toutte] = Clutter.splitTrainTest(s, ntr, nte);
+    [X, T, Tout, Xte, Tte, Toutte] = Data.splitTrainTest(s, ntr, nte);
     assert(length(X)==ntr);
     assert(length(T)==ntr);
     assert(length(Tout)==ntr);

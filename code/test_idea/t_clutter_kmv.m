@@ -3,7 +3,7 @@ function t_clutter_kmv()
 %
 
 % How many runs
-runs = 20;
+runs = 40;
 op.t_clutter_kmv_path = 'saved/t_clutter_kmv_results.mat';
 
 rerun = true;
@@ -28,8 +28,11 @@ if ~exist(op.t_clutter_kmv_path , 'file') || rerun
     for i=1:length(resultCell)
         R = resultCell{i};
         Q(i) = R.q;
-        RR{i} = R;
+        
         op = dealstruct(R.op, op);
+        % Remove big fields
+        R = rmfield(R, 'op');
+        RR{i} = R;
     end
     
     save(op.t_clutter_kmv_path, 'Q', 'op', 'RR');    

@@ -18,7 +18,7 @@ ntr = floor(0.8*n);
 nte = min(100, n-ntr);
 
 [ s] = l_clutterTrainMsgs( n);
-[X, T, Tout, Xte, Tte, Toutte] = Clutter.splitTrainTest(s, ntr, nte);
+[X, T, Tout, Xte, Tte, Toutte] = Data.splitTrainTest(s, ntr, nte);
 assert(length(X)==ntr);
 assert(length(T)==ntr);
 assert(length(Tout)==ntr);
