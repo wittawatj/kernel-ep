@@ -64,6 +64,7 @@ if ~exist(op.clutter_model_path, 'file') || op.retrain_clutter_model
     
     % learn a mapper from X to theta
     [mapper, C] = KMVMapper1D2In.learnMapper(X, T, Tout, op);
+    saved_op = op;
     save(op.clutter_model_path, 'mapper', 'C', 'saved_op', 'a', 'w', 's');
 else
     % mapper already exists in a file. load it.

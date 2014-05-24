@@ -15,14 +15,10 @@ classdef CondCholFiniteOut < InstancesMapper
         % R*R'. Needed in mapInstances()
 %         RRT;
         
-        % Out*R'. Needed in mapInstances()
-        OutRT;
+        % (Z-Out*R'(RR' + lambda*eye(ra))^-1 R)/lamb. Needed in mapInstances()
+        ZOutR3;
         
-        % L, U, P factors for (this.RRT + lamb*eye(ra)). Need in mapInstances()
-        L;
-        U;
-        % permutation matrix in LU decomposition
-        P; 
+    
     end
     
     methods
@@ -47,13 +43,11 @@ classdef CondCholFiniteOut < InstancesMapper
             this.Out = Out;
             this.kfunc = kfunc;
             this.R = R;
-%             this.RRT = R*R';
-            this.OutRT = Out*R';
             this.regparam = lambda;
+            
             % L, U factor for (this.RRT + lamb*eye(ra)).
             ra = size(R, 1);
-            [this.L, this.U, P] = lu( R*R' + lambda*eye(ra) );
-            this.P = sparse(P);
+            this.ZOutR3 = (Out - ( (Out*R')/(R*R'+lambda*eye(ra)) )*R)/lambda;
         end
         
         
@@ -65,15 +59,13 @@ classdef CondCholFiniteOut < InstancesMapper
             Z = this.Out;
             kfunc = this.kfunc;
             Krs = kfunc.eval(In.getAll(), Xin.getAll());
-            RKrs = R*Krs;
-            ra = size(R, 1);
-            lamb = this.regparam;
+            
 %             B = (R*R' + lamb*eye(ra)) \ RKrs;
 %             B = (this.RRT + lamb*eye(ra)) \ RKrs;
-            y = linsolve(this.L, this.P*RKrs, struct('LT', true));
-            B = linsolve(this.U, y, struct('UT', true));
+%             y = linsolve(this.L, this.P*RKrs, struct('LT', true));
+%             B = linsolve(this.U, y, struct('UT', true));
 %             Zout = (Z*Krs - (Z*R')*B)/lamb;
-            Zout = (Z*Krs - this.OutRT*B)/lamb;
+            Zout = this.ZOutR3*Krs;
         end
         
     end %end methods
