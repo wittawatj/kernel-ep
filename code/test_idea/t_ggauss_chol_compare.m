@@ -9,7 +9,7 @@ rng(seed);
 
 
 % total samples to use
-n= 700;
+n= 8000;
 [ s] = l_clutterTrainMsgs( n);
 % This will load a bunch of variables in s into the current scope.
 eval(structvars(100, s));
@@ -31,7 +31,7 @@ op.kernel_candidates = Kcandid;
 ToutSuff = [[Tout.mean]; [Tout.variance] + [Tout.mean].^2];
 
 % options for repeated hold-outs
-op.num_ho = 1;
+op.num_ho = 3;
 op.train_size = floor(0.8*n);
 op.test_size = min(1000, n - op.train_size);
 op.chol_tol = 1e-15;

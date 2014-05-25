@@ -3,10 +3,10 @@ function t_clutter_kmv()
 %
 
 % How many runs
-runs = 40;
+runs = 100;
 op.t_clutter_kmv_path = 'saved/t_clutter_kmv_results.mat';
 
-rerun = true;
+rerun = false;
 if ~exist(op.t_clutter_kmv_path , 'file') || rerun
     
     % options
@@ -41,7 +41,7 @@ else
     load(op.t_clutter_kmv_path );
 end
 
-plotInferedParams(Q);
+plotInferedParams(Q, op);
 
 end
 
@@ -52,13 +52,20 @@ op.seed =seed;
 [R] = clutter_kmv( op);
 end
 
-function plotInferedParams(Q)
+function plotInferedParams(Q, op)
 % Q is an array of inferred DistNormal's from different seeds.
 % means resulted from all seeds
 Means = [Q.mean];
 Vars = [Q.variance];
 % scatter plot
 
-scatter(Means, Vars);
+scatter(Means, Vars, 'linewidth', 2);
+set(gca, 'fontsize', 20);
+title(sprintf('Inferred (mean, variance) of hidden var. in clutter problem. True: N(%.3g, 0.1) ', op.clutter_theta_mean));
+xlabel('mean');
+ylabel('variance');
+grid on 
+box on
+op
 
 end

@@ -4,13 +4,11 @@ function  [hmean, hvar, hkl]=distMapper2_gauss1_tester( mapper,  X1, X2, Out)
 %   Given a dataset and a mapper, compare the mapped output 
 %   out' = mapper(x1, x2) to the ground truth in Out. Then plot.
 % 
-%   Only of Gaussian inputs and Gaussian output.
+%   Only for Gaussian output.
 %
 %   X1, X2, Out = array of DistNormal
 %   Return handles to the plots.
 % 
-assert(isa(X1, 'DistNormal'));
-assert(isa(X2, 'DistNormal'));
 assert(isa(Out, 'DistNormal'));
 assert(length(X1)==length(X2));
 assert(length(X2)==length(Out));

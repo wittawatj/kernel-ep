@@ -13,7 +13,7 @@ end
 rng(seed);
 
 % total samples to use
-n = 500;
+n = 8000;
 ntr = floor(0.8*n);
 nte = min(100, n-ntr);
 
@@ -31,8 +31,8 @@ assert(length(Tout)==ntr);
 op.num_ho = 3;
 op.train_size = floor(0.7*ntr);
 op.test_size = min(1000, ntr - op.train_size);
-op.chol_tol = 1e-5;
-op.chol_maxrank = min(600, ntr);
+op.chol_tol = 1e-15;
+op.chol_maxrank = min(700, ntr);
 op.reglist = [1e-2, 1];
 
 % options used in learnMapper
@@ -63,5 +63,5 @@ axkl = get(hkl, 'CurrentAxes');
 title(axmean, sprintf('Training size: %d', ntr));
 title(axvar, sprintf('Training size: %d', ntr));
 title(axkl, sprintf('Training size: %d', ntr));
-% keyboard
+keyboard
 end

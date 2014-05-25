@@ -21,7 +21,8 @@ if ~exist(op.clutter_model_path, 'file') || op.retrain_clutter_model
     % total samples to use
     op.total_samples = myProcessOptions(op, 'total_samples', 8000);
     n = op.total_samples;
-    ntr = floor(0.8*n);
+    op.train_split = myProcessOptions(op, 'train_split', floor(0.8*n));
+    ntr = op.train_split;
     nte = min(100, n-ntr);
     
     % op.clutter_data_path = 'saved/clutterTrainMsgs_mgauss_vgam.mat';
