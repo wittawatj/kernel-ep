@@ -35,7 +35,7 @@ nN = 200;
 [NX, xdist] = ClutterMinka.x_cond_dist(Theta, a, w);
 
 if false
-    load('test_idea/clutter_data.mat');
+    load('main/problem/clutter/clutter_data.mat');
     % Theta is also loaded.
     NX = observedData;
 end

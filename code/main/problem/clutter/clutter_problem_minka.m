@@ -17,12 +17,12 @@ if false
     Theta = randn(1, N) + 3;
     [X, fx] = ClutterMinka.x_cond_dist(Theta, a, w);
 else
-    load('test_idea/clutter_data.mat');
+    load('main/problem/clutter/clutter_data.mat');
     X = observedData;
 end
 
 % observedData = X;
-% save('test_idea/clutter_data.mat', 'observedData', 'Theta');
+% save('main/problem/clutter/clutter_data.mat', 'observedData', 'Theta');
 
 % initial values for q
 m0 = 0;
