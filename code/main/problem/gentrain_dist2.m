@@ -6,6 +6,7 @@ function [ X, T, Xout, Tout ] = gentrain_dist2(X, T, op)
 %
 % Xout, Tout contain outgoing messages without dividing by the cavity i.e.,
 % q(.).
+%
 
 % Typically an array of DistNormal
 assert(isa(X, 'Density'));
@@ -13,8 +14,8 @@ assert(isa(T, 'Density'));
 assert(isa(X, 'Sampler'));
 assert(isa(T, 'Sampler'));
 assert(length(X) == length(T));
-xd = X(1).d;
-td = T(1).d;
+% xd = X(1).d;
+% td = T(1).d;
 N = length(X);
 
 seed = myProcessOptions(op, 'seed', 1);
@@ -32,6 +33,18 @@ iw_trials = myProcessOptions(op, 'iw_trials', 20);
 % then sample from mt (message from T) instead. T is the conditioned
 % variable. If true, in_proposal is not needed and ignored.
 sample_cond_msg = myProcessOptions(op, 'sample_cond_msg', false);
+
+% The SSBuilder for x in p(x|t) i.e., the left variable. This SSBuilder will
+% determine the output distribution of x.
+% Output DistNormal by default.
+left_ssbuilder = myProcessOptions(op, 'left_ssbuilder', DistNormal.getSSBuilder());
+assert(isa(left_ssbuilder, 'DistBuilder'));
+
+% The SSBuilder for t in p(x|t) i.e., the right variable. This SSBuilder will
+% determine the output distribution of t.
+% Output DistNormal by default.
+right_ssbuilder = myProcessOptions(op, 'right_ssbuilder', DistNormal.getSSBuilder());
+assert(isa(right_ssbuilder, 'DistBuilder'));
 
 if ~sample_cond_msg
     % proposal distribution for for the conditional varibles (i.e. t)
@@ -54,10 +67,11 @@ RandStream.setGlobalStream(rs);
 K = iw_samples;
 
 % outputs
-Xout = DistNormal.empty(0, 1);
-Tout = DistNormal.empty(0, 1);
+Xout = left_ssbuilder.empty(0, 1);
+Tout = right_ssbuilder.empty(0, 1);
 index = 1;
-
+% Indices of bad messages
+BadInd = [];
 for i=1:N
     mx = X(i);
     mt = T(i);
@@ -76,9 +90,9 @@ for i=1:N
         end
         
         assert( all(W >= 0));
-        % projection
-        Xsuff = DistNormal.suffStat(XP);
-        Tsuff = DistNormal.suffStat(TP);
+        % projection. p(x|t)
+        Xsuff = left_ssbuilder.suffStat(XP);
+        Tsuff = right_ssbuilder.suffStat(TP);
         wsum = sum(W);
         WN = W/wsum;
 %         WN = W/K;
@@ -86,17 +100,12 @@ for i=1:N
         xs = Xsuff*WN';
         ts = Tsuff*WN';
         
-        xmean = xs(1:xd);
-        xvar = reshape(xs((xd+1):end), xd, xd) - xmean*xmean';
-        tmean = ts(1:td);
-        tvar = reshape(ts((td+1):end), td, td) - tmean*tmean';
-        
-        if all(~isnan(xmean)) && all(~isnan(xvar)) && ...
-                all(~isnan(tmean)) && all(~isnan(tvar)) && ...
-                all(abs(xvar) > 1e-4) && all(abs(tvar) > 1e-4)
+        if left_ssbuilder.stableSuffStat(xs) ...
+                && right_ssbuilder.stableSuffStat(ts)
+            
             % W be numerically 0 if the density values are too low.
-            mx_out = DistNormal(xmean, xvar);
-            mt_out = DistNormal(tmean, tvar);
+            mx_out = left_ssbuilder.fromSuffStat(xs);
+            mt_out = right_ssbuilder.fromSuffStat(ts);
             % store
             Xout(index) = mx_out;
             Tout(index) = mt_out;
@@ -106,10 +115,12 @@ for i=1:N
         else
             if j==iw_trials
                 % not successful in getting nonzero W
-                Xout(index) = DistNormal(nan(xd, 1), inf(xd, 1));
-                Tout(index) = DistNormal(nan(xd, 1), inf(xd, 1));
+                Xout(index) = left_ssbuilder.dummyObj();
+                Tout(index) = right_ssbuilder.dummyObj();
+                BadInd(end+1) = index;
                 index = index+1;
             end
+
             % Assume mx and mt are somehow hard to deal with e.g., low variance.
             % Try again.
         end
@@ -118,15 +129,14 @@ for i=1:N
     
 end
 
-assert(length(X)==length(Xout));
-assert(length(T)==length(Tout));
+assert(length(X)>=length(Xout));
+assert(length(T)>=length(Tout));
 
 % exclude bad messages
-I = any( isnan([Xout.mean]), 1) ;
-X(I) = [];
-T(I) = [];
-Xout(I) = [];
-Tout(I) = [];
+X(BadInd) = [];
+T(BadInd) = [];
+Xout(BadInd) = [];
+Tout(BadInd) = [];
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 RandStream.setGlobalStream(oldRs);
 end

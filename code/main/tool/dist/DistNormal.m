@@ -179,23 +179,18 @@ classdef DistNormal < handle & GKConvolvable & Sampler & Density
     methods (Static)
         
         function S=suffStat(X)
-            % phi(x)=[x, x^2]' or phi(x)=[x; vec(xx')]
-            % X (dxn)
-            [d,n] = size(X);
-            assert(d>=1)
-            if d==1
-                S = [X; X.^2];
-            else
-                S = zeros(d+d^2, n);
-                % very slow. Improve later
-                for i=1:n
-                    Xi = X(:, i);
-                    S(:, i) = [Xi; reshape(Xi*Xi', d^2, 1)];
-                end
-            end
-            
+            ssb = DistNormalBuilder();
+            S = ssb.suffStat(X);
         end
         
+        function D=fromSuffStat(S)
+            ssb = DistNormalBuilder();
+            D = ssb.fromSuffStat(S);
+        end
+        
+        function ssb=getSSBuilder()
+            ssb = DistNormalBuilder();
+        end
         
     end %end static methods
 end
