@@ -119,6 +119,23 @@ classdef DistNormal < handle & GKConvolvable & Sampler & Density
             p = isfinite(vv) && isfinite(mm) && this.variance >0;
         end
         
+        function dist=distHellinger(this, d2)
+            % Compute Hellinger distance from this DistNormal to d2,
+            % another DistNormal. Hellinger distance is bounded between 0
+            % and 1
+            % Refer: https://en.wikipedia.org/wiki/Hellinger_distance
+            assert(this.d==1, 'Hellinger distance is for d=1 presently.');
+            assert(isa(d2, 'DistNormal'));
+            m1 = this.mean;
+            v1 = this.variance;
+            m2 = d2.mean;
+            v2 = d2.variance;
+            c = sqrt(2*sqrt(v1)*sqrt(v2)/(v1+v2 ));
+            e = exp(-(1/4)*(m1-m2)^2/(v1+v2) );
+            dist = sqrt(1- c*e );
+            
+        end
+        
         function X = sampling0(this, N)
             X = this.draw( N);
         end
