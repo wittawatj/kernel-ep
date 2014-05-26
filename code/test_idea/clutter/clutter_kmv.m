@@ -1,7 +1,6 @@
 function [R] = clutter_kmv( op )
 % - Clutter problem of Tom Minka solved by learning a conditional mean
 % embedding operator with KMVGauss1 kernel
-% - Specifically, use KMVMapper1D2In
 %
 
 if nargin < 1
@@ -64,7 +63,7 @@ if ~exist(op.clutter_model_path, 'file') || op.retrain_clutter_model
     op.var_conv_thresh = 0.5;
     
     % learn a mapper from X to theta
-    [mapper, C] = KMVMapper1D2In.learnMapper(X, T, Tout, op);
+    [mapper, C] = DistMapper2Factory.learnKMVMapper1D(X, T, Tout, op);
     saved_op = op;
     save(op.clutter_model_path, 'mapper', 'C', 'saved_op', 'a', 'w', 's');
 else

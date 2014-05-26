@@ -1,19 +1,32 @@
-function  t_kmvmapper1d2in( seed )
+function  t_gauss1TensorMapper2In( op )
 %
 % - Generate message data set with gentrain_cluttereg.
 % - Learn the conditional mean embedding operator
-% - Test the operator on the training messages.
+% - Test the operator on a separate test set split from the loaded message 
+% samples
 % - Measure the error with
 %   KL(training Gaussian || operator output Gaussian)
+% 
+% - This function is for testing Gauss1TensorMapper2In which includes a
+% mapper using KMVGauss1 kernel and KNaturalGauss1 kernel. See
+% DistMapper2Factory for how to construct these mappers.
 %
 
 if nargin < 1
-    seed = 1;
+    op = [];
 end
+op.seed = myProcessOptions(op, 'seed', 1);
+seed = op.seed;
 rng(seed);
 
+% options specific to this file for choosing which kernel to use
+%   @DistMapper2Factory.learnKMVMapper1D for KMVGauss1
+%   @DistMapper2Factory.learnKNaturalGaussMapper1D for KNaturalGauss1
+op.mapper_learner = myProcessOptions(op, 'mapper_learner', ...
+    @DistMapper2Factory.learnKMVMapper1D );
+
 % total samples to use
-n = 8000;
+n = 4000;
 ntr = floor(0.8*n);
 nte = min(100, n-ntr);
 
@@ -35,13 +48,21 @@ op.chol_tol = 1e-15;
 op.chol_maxrank = min(700, ntr);
 op.reglist = [1e-2, 1];
 
-% options used in learnMapper
+% options used in learning a mapper in DistMapper2Factory
 op.med_subsamples = min(1500, ntr);
+
+% Used when selected DistMapper2Factory.learnKMVMapper1D 
 op.mean_med_factors = [1];
 op.variance_med_factors = [1];
 
+% Used when selected DistMapper2Factory.learnKNaturalGaussMapper1D
+op.prec_mean_med_factors = [1]; 
+op.neg_prec_med_factors = [1];            
+            
 % learn a mapper from X to theta
-[mapper, C] = KMVMapper1D2In.learnMapper(X, T, Tout, op);
+% [mapper, C] = DistMapper2Factory.learnKMVMapper1D(X, T, Tout, op);
+% [mapper, C] = DistMapper2Factory.learnKNaturalGaussMapper1D(X, T, Tout, op);
+[mapper, C] = feval(op.mapper_learner, X, T, Tout, op);
 
 % new data set for testing EP. Not for learning an operator.
 % nN = 50;

@@ -1,4 +1,4 @@
-function  [hmean, hvar, hkl]=distMapper2_gauss1_tester( mapper,  X1, X2, Out)
+function  [hmean, hvar, hhell]=distMapper2_gauss1_tester( mapper,  X1, X2, Out)
 %DISTMAPPER2_GAUSS1_TESTER A generic tester for DistMapper2.
 % 
 %   Given a dataset and a mapper, compare the mapped output 
@@ -15,7 +15,7 @@ assert(length(X2)==length(Out));
 
 % n test
 nte = length(X1);
-KL = zeros(1, nte);
+Helling = zeros(1, nte);
 OpMsgs = DistNormal.empty(0, nte);
 % test the operator on the training set.
 for i=1:nte
@@ -26,11 +26,11 @@ for i=1:nte
     true_toTq = Out(i);
     if true_toTq.isproper() && q.isproper()
         % compare mfi_z to the one from training set
-        kl = kl_gauss(true_toTq, q);
+        hl = true_toTq.distHellinger(q);
     else
-        kl = nan();
+        hl = nan();
     end
-    KL(i) = kl;
+    Helling(i) = hl;
     OpMsgs(i) = q;
 end
 
@@ -67,14 +67,17 @@ legend('True variance', 'Output variance', 'abs. diff.');
 grid on
 hold off
 
-% plot KL
-hkl=figure;
-stem(KL);
+% plot Hellinger distances 
+hhell=figure;
+hold on
+stem(Helling);
 set(gca, 'fontsize', 20);
-title('KL error on training messages' );
+title('Hellinger distance' );
 xlabel('Messsage index');
-ylabel('KL');
-
+ylabel('Hellinger distance');
+ylim([0, 1]);
+grid on
+hold off
 
 end
 
