@@ -48,9 +48,9 @@ for fi=1:fold
     Ztr = Z(:, trI);
     Zte = Z(:, teI);
     
-    Str = DistNormal.normalSuffStat(Ztr);
+    Str = DistNormal.suffStat(Ztr);
 %     Htr = Str'*Str;
-    Ste = DistNormal.normalSuffStat(Zte);
+    Ste = DistNormal.suffStat(Zte);
 %     Hrs = Str'*Ste;
     
     Ste2 = Ste(:)'*Ste(:);

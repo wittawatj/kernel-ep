@@ -47,7 +47,7 @@ s = DistNormal(3, 10);
 draw = 1e4;
 Tpro = s.draw(draw);
 Tden = s.density(Tpro);
-Spro = DistNormal.normalSuffStat(Tpro);
+Spro = DistNormal.suffStat(Tpro);
 % records
 OpMes = DistNormal.empty(); % operator messages
 IwMes = DistNormal.empty(); % importance-weight messages

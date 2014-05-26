@@ -77,8 +77,8 @@ for i=1:N
         
         assert( all(W >= 0));
         % projection
-        Xsuff = DistNormal.normalSuffStat(XP);
-        Tsuff = DistNormal.normalSuffStat(TP);
+        Xsuff = DistNormal.suffStat(XP);
+        Tsuff = DistNormal.suffStat(TP);
         wsum = sum(W);
         WN = W/wsum;
 %         WN = W/K;

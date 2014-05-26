@@ -29,7 +29,7 @@ kbr_reglist = myProcessOptions(op, 'kbr_reglist', [1e-4, 1e-2, 1]);
 % In general, the mean map is infinite-dimensional. However, in this case,
 % we can represent the mean map with a vector because we assumed the
 % feature map of Y is finite-dimenisional.
-Ysuff = DistNormal.normalSuffStat(Y);
+Ysuff = DistNormal.suffStat(Y);
 y_mean_map = myProcessOptions(op, 'y_mean_map', mean(Ysuff, 2) );
 % y_mean_map = myProcessOptions(op, 'y_mean_map', [3, 150]' );
 
@@ -65,9 +65,9 @@ for fi=1:fold
     Ytr = Y(:, trI);
     Yte = Y(:, teI);
     
-    Yr = DistNormal.normalSuffStat(Ytr);
+    Yr = DistNormal.suffStat(Ytr);
     Lr = Yr'*Yr;
-    Ys = DistNormal.normalSuffStat(Yte);
+    Ys = DistNormal.suffStat(Yte);
     % us and vs are weight vectors. Basically sample weights. In generally
     % not necessaily 1/n.
     us = repmat(1/nte, nte, 1);
@@ -137,7 +137,7 @@ C.I = I;
 % Compute kernel matrices and operator
 skx = C.bxw * C.medx; %bxw = best Gaussian width for x
 K = kerGaussian(X, X, skx);
-YY = DistNormal.normalSuffStat(Y);
+YY = DistNormal.suffStat(Y);
 L = YY'*YY;
 B = (L + C.bksr_reg*eye(n))\(YY'*y_mean_map);
 D = diag(B);

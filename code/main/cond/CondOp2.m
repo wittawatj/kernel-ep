@@ -89,7 +89,7 @@ classdef CondOp2 < handle
             Mup = Mux.*Muy;
             Alpha = this.operator*Mup(:);
             C = Alpha;
-            S = DistNormal.normalSuffStat(Z);
+            S = DistNormal.suffStat(Z);
             % projection
             suffStat = S*C;
             [dz,nz] = size(Z);

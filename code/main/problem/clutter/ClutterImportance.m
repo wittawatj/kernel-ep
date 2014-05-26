@@ -128,7 +128,7 @@ classdef ClutterImportance < handle
             
             assert( all(W >= 0));
             % projection
-            Tsuff = DistNormal.normalSuffStat(TP);
+            Tsuff = DistNormal.suffStat(TP);
             wsum = sum(W);
             WN = W/wsum;
             ts = Tsuff*WN';

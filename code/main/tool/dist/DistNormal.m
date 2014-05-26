@@ -178,7 +178,7 @@ classdef DistNormal < handle & GKConvolvable & Sampler & Density
     
     methods (Static)
         
-        function S=normalSuffStat(X)
+        function S=suffStat(X)
             % phi(x)=[x, x^2]' or phi(x)=[x; vec(xx')]
             % X (dxn)
             [d,n] = size(X);
@@ -195,6 +195,7 @@ classdef DistNormal < handle & GKConvolvable & Sampler & Density
             end
             
         end
+        
         
     end %end static methods
 end

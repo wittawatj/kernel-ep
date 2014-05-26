@@ -36,7 +36,7 @@ classdef CondOp1 < handle
             % Operator application
             Alpha = this.operator*Mux(:);
             C = Alpha;
-            S = DistNormal.normalSuffStat(Z);
+            S = DistNormal.suffStat(Z);
             % projection
             suffStat = S*C;
             [dz,nz] = size(Z);
@@ -79,7 +79,7 @@ classdef CondOp1 < handle
             
             C = Alpha.*Beta;
             %             C = Alpha;
-            S = DistNormal.normalSuffStat(Z);
+            S = DistNormal.suffStat(Z);
             % projection
             suffStat = S*C/sum(C);
             [dz,nz] = size(Z);
