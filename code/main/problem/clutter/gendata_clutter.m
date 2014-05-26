@@ -1,5 +1,5 @@
-function [ X, T, Xout, Tout ] = gentrain_cluttereg( op)
-%GENTRAIN_CLUTTEREG Generate training set (messages) for clutter problem.
+function [ X, T, Xout, Tout ] = gendata_clutter( op)
+%GENDATA_CLUTTER Generate training set (messages) for clutter problem.
 % 
 % T = theta
 % Tout = outgoing messages for theta (after projection)

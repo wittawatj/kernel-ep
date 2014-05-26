@@ -31,7 +31,7 @@ op.ywlist = [ 1, 8, 16, 32];
 op.reglist = [1e-4, 1e-2, 1];
 
 % generate training set
-[ X, T, Xout, Tout ] = gentrain_cluttereg(op);
+[ X, T, Xout, Tout ] = gendata_clutter(op);
 % sort dataset by the means of Tout
 [Tout_means, I] = sort([Tout.mean]);
 X = X(I);

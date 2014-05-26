@@ -36,7 +36,7 @@ nN = 50;
 % end
 
 % generate training set
-[ X, T, Xout, Tout ] = gentrain_cluttereg(op);
+[ X, T, Xout, Tout ] = gendata_clutter(op);
 % Learn operator and EP iterations.. cross validation
 Op = CondOpEGauss2.learn_operator(X, T, Tout, op);
 % EP

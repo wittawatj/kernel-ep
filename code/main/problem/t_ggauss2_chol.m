@@ -1,6 +1,6 @@
 function  t_ggauss2_chol( seed )
 %
-% - Generate message data set with gentrain_cluttereg.
+% - Generate message data set with gendata_clutter.
 % - Learn the GGauss conditional mean embedding operator
 % - Test the operator on the training messages.
 % - Measure the error with

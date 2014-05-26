@@ -28,7 +28,7 @@ op.clutter_a = a;
 op.clutter_w = w;
 
 % generate training set
-[ X, T, Xout, Tout ] = gentrain_cluttereg(op);
+[ X, T, Xout, Tout ] = gendata_clutter(op);
 
 % CV
 % sort dataset by the means of Tout

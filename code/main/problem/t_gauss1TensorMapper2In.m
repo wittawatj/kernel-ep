@@ -1,6 +1,6 @@
 function  t_gauss1TensorMapper2In( op )
 %
-% - Generate message data set with gentrain_cluttereg.
+% - Generate message data set with gendata_clutter.
 % - Learn the conditional mean embedding operator
 % - Test the operator on a separate test set split from the loaded message 
 % samples
