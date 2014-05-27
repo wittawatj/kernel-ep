@@ -27,3 +27,14 @@ end
 
 
 end
+
+function test_getMean()
+    d=DistNormal(1, 4);
+    assertElementsAlmostEqual(d.getMean(), 1);
+end
+
+
+function test_getVariance()
+    d=DistNormal(1, 4);
+    assertElementsAlmostEqual(d.getVariance(), 4);
+end

@@ -1,4 +1,4 @@
-classdef DistNormal < handle & GKConvolvable & Sampler & Density 
+classdef DistNormal < handle & GKConvolvable & Sampler & Density & Distribution
     %DIST_NORMAL Gaussian distribution object for kernel EP framework.
     
     properties (SetAccess=private)
@@ -19,7 +19,7 @@ classdef DistNormal < handle & GKConvolvable & Sampler & Density
         function this = DistNormal(m, var)
             assert(~isempty(m));
             assert(~isempty(var));
-            if size(m, 1)==1 && size(var, 1) && size(m, 2) > 1
+            if size(m, 1)==1 && size(var, 1)==1 && size(m, 2) > 1
                 % object array of many 1d Gaussians
                 assert(size(m, 2)==size(var, 2));
                 n = size(m, 2);
@@ -37,10 +37,6 @@ classdef DistNormal < handle & GKConvolvable & Sampler & Density
             
         end
         
-%         function m = get.mean(this)
-%             m = this.mean;
-%         end
-        
         function prec = get.precision(this)
             if isempty(this.precision)
                 % expensive. Try to find a way for lazy evaluation later.
@@ -55,9 +51,6 @@ classdef DistNormal < handle & GKConvolvable & Sampler & Density
             prec = this.precision;
         end
         
-%         function var = get.variance(this)
-%             var = this.variance;
-%         end
          
         function X = draw(this, N)
             % return dxN sample from the distribution
@@ -138,6 +131,16 @@ classdef DistNormal < handle & GKConvolvable & Sampler & Density
         
         function X = sampling0(this, N)
             X = this.draw( N);
+        end
+        
+        function m=getMean(this)
+            % Inherit from Distribution
+            m=this.mean;
+        end
+        
+        function v=getVariance(this)
+            % Inherit from Distribution
+            v=this.variance;
         end
         
         function D = mtimes(this, distNorm)
