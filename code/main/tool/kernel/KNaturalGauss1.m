@@ -7,7 +7,7 @@ classdef KNaturalGauss1 < Kernel
     %  - variance = a row vector.
     %  - d = dimension of the distribution (= size(mean,1) = 1)
     %
-    % Intended to be used with Gauss1Instances. This kernel behaves much
+    % Intended to be used with MV1Instances. This kernel behaves much
     % like KMVGauss1.
     %
     properties (SetAccess=private)

@@ -41,8 +41,8 @@ classdef KEGaussian < Kernel
             sig2 = this.sigma2;
             if X(1).d==1
                 kg1 = KEGauss1(this.sigma2);
-                ins1= Gauss1Instances(X);
-                ins2 = Gauss1Instances(Y);
+                ins1= MV1Instances(X);
+                ins2 = MV1Instances(Y);
                 s1=ins1.getAll();
                 s2=ins2.getAll();
                 Kvec = kg1.pairEval(s1, s2);

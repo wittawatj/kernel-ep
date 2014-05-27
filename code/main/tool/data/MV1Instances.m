@@ -1,5 +1,5 @@
-classdef Gauss1Instances < Instances
-    %GAUSS1INSTANCES Instances representing many 1d Gaussian distribution as
+classdef MV1Instances < Instances
+    %MV1INSTANCES Instances representing many 1d Distribution's as
     %matrices of mean's and variance's
      %  data variable is a struct with fields
     %  - mean = a matrix with each column representing one mean. dxn
@@ -12,11 +12,11 @@ classdef Gauss1Instances < Instances
     end
     
     methods
-        function this=Gauss1Instances(arr)
+        function this=MV1Instances(arr)
             % make sure it is 1d
             assert(any(size(arr)==1), 'array must be 1d');
-            assert(isa(arr, 'DistNormal'));
-            assert(arr(1).d==1);
+            assert(isa(arr, 'Distribution'));
+            
             this.mean = [arr.mean];
             assert(size(this.mean, 1)==1);
             this.variance = [arr.variance];
@@ -35,8 +35,11 @@ classdef Gauss1Instances < Instances
         
 
         function Ins=instances(this, Ind)
-            arr = DistNormal(this.mean(Ind), this.variance(Ind));
-            Ins= Gauss1Instances(arr);
+            
+            % make a dummy MV1Instances
+            Ins = MV1Instances(DistNormal(0, 1));
+            Ins.mean = this.mean(Ind);
+            Ins.variance = this.variance(Ind);
         end
         
         function l = count(this)

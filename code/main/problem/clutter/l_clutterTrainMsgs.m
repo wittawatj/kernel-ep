@@ -31,9 +31,9 @@ Tout(Id) = [];
 % Learn operator with cross validation
 % In = tensor of X and T
 % XIns = ArrayInstances(X);
-XIns = Gauss1Instances(X);
+XIns = MV1Instances(X);
 % TIns = ArrayInstances(T);
-TIns = Gauss1Instances(T);
+TIns = MV1Instances(T);
 In = TensorInstances({XIns, TIns});
 
 % pack everything into a struct s

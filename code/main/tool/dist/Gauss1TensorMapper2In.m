@@ -3,7 +3,7 @@ classdef Gauss1TensorMapper2In < DistMapper2
     % DistNormal's and outputs another DistNormal.
     %   - Use incomplete Cholesky internally. Call CondCholFiniteOut.
     %   - Use an InstancesMapper with kernel supporting TensorInstances of 2
-    %   Gauss1Instances. 
+    %   MV1Instances. 
     
     properties (SetAccess=private)
         % a conditional mean embedding operator
@@ -21,8 +21,8 @@ classdef Gauss1TensorMapper2In < DistMapper2
             assert(isa(din1, 'DistNormal'));
             assert(isa(din2, 'DistNormal'));
             
-            dins1 = Gauss1Instances(din1);
-            dins2 = Gauss1Instances(din2);
+            dins1 = MV1Instances(din1);
+            dins2 = MV1Instances(din2);
             tensorIn =  TensorInstances({dins1, dins2});
             zout = this.operator.mapInstances(tensorIn);
             

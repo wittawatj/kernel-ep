@@ -37,8 +37,8 @@ classdef DistMapper2Factory
             assert(isa(Out, 'DistNormal'));
             assert(length(X1)==length(X2));
             n = length(X1);
-            X1Ins = Gauss1Instances(X1);
-            X2Ins = Gauss1Instances(X2);
+            X1Ins = MV1Instances(X1);
+            X2Ins = MV1Instances(X2);
             
             % number of samples to be used for computing the pairwise
             % median distance. The pairwise median distance is just a
@@ -85,8 +85,8 @@ classdef DistMapper2Factory
             assert(isa(Out, 'DistNormal'));
             assert(length(X1)==length(X2));
             n = length(X1);
-            X1Ins = Gauss1Instances(X1);
-            X2Ins = Gauss1Instances(X2);
+            X1Ins = MV1Instances(X1);
+            X2Ins = MV1Instances(X2);
             
             % number of samples to be used for computing the pairwise
             % median distance. The pairwise median distance is just a

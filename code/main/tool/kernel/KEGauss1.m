@@ -6,7 +6,7 @@ classdef KEGauss1 < Kernel
     %  - variance = If d==1, a row vector. If d>1, a dxdxn matrix.
     %  - d = dimension of the distribution (= size(mean,1))
     %
-    % Intended to be used with Gauss1Instances.
+    % Intended to be used with MV1Instances.
     %
     properties (SetAccess=private)
         % Gaussian width^2
