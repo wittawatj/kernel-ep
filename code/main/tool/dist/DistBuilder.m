@@ -15,7 +15,8 @@ classdef DistBuilder
         S=suffStat(this, X);
         
         % construct a list of distributions D from a list of sufficient
-        % statistics S. S is what returned by suffStat.
+        % statistics (or moment parameters for expected sufficient statistic)
+        % S. S is what returned by suffStat.
         D=fromSuffStat(this, S)
         
         % Return a row vector T such that length(T)==size(S,2).

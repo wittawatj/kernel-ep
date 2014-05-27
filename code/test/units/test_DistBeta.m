@@ -4,15 +4,15 @@ initTestSuite;
 
 end
 
-function test_getMean()
+function test_mean()
     d=DistBeta(1, 4);
-    assertElementsAlmostEqual(d.getMean(), 1/5 );
+    assertElementsAlmostEqual(d.mean, 1/5 );
 end
 
 
-function test_getVariance()
+function test_variance()
     d=DistBeta(1, 4);
-    assertElementsAlmostEqual(d.getVariance(), 2/75);
+    assertElementsAlmostEqual(d.variance, 2/75);
 end
 
 function test_draw()

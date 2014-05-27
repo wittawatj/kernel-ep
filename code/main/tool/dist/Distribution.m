@@ -1,16 +1,13 @@
-classdef (Abstract) Distribution < handle
+classdef Distribution < handle
     %DIST A semantic tag for distributions.
     
-    properties
+    properties (Abstract, SetAccess=private)
+        mean;
+        variance;
     end
     
     methods (Abstract)
         
-        % return the first moment
-        m=getMean(this);
-        
-        % return variance
-        v=getVariance(this);
     end
     
 end

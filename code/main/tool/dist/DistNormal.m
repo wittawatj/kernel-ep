@@ -133,16 +133,6 @@ classdef DistNormal < handle & GKConvolvable & Sampler & Density & Distribution
             X = this.draw( N);
         end
         
-        function m=getMean(this)
-            % Inherit from Distribution
-            m=this.mean;
-        end
-        
-        function v=getVariance(this)
-            % Inherit from Distribution
-            v=this.variance;
-        end
-        
         function D = mtimes(this, distNorm)
             if ~isa(distNorm, 'DistNormal')
                 error('mtimes only works with DistNormal obj.');
@@ -191,7 +181,7 @@ classdef DistNormal < handle & GKConvolvable & Sampler & Density & Distribution
             D = ssb.fromSuffStat(S);
         end
         
-        function ssb=getSSBuilder()
+        function ssb=getDistBuilder()
             ssb = DistNormalBuilder();
         end
         
