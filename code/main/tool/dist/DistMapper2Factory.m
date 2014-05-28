@@ -24,6 +24,63 @@ classdef DistMapper2Factory
             
         end
         
+         function [Map, C] = learnKParamsMapper1D(X1, X2, Out, op)
+            % - X1, X2 are array of Distribution representing training set.
+            % - Out is and array of DistNormal representing the training
+            % set for outputs.
+            % - op = option structure
+            % Learn a mapper using product kernel of KParams2Gauss1.
+            % For DistNormal X1, X2, this is equivalent to KMVGauss1
+            % because parameters are {mean, variance}.
+            if nargin < 4
+                op=[];
+            end
+            assert(isa(X1, 'Distribution'));
+            assert(isa(X2, 'Distribution'));
+            assert(isa(Out, 'DistNormal'));
+            assert(length(X1)==length(X2));
+            n = length(X1);
+            X1Ins = Params2Instances(X1);
+            X2Ins = Params2Instances(X2);
+            
+            % number of samples to be used for computing the pairwise
+            % median distance. The pairwise median distance is just a
+            % heuristic. We do not need a precise median. So subsampling
+            % suffices.
+            med_subsamples = myProcessOptions(op, 'med_subsamples', min(1500, n));
+            
+            % Numerical array of factors to be multiplied with the median
+            % distance on param1.
+            param1_med_factors = myProcessOptions(op, 'param1_med_factors', [1/3, 1, 3]);
+            assert(all(param1_med_factors>0));
+            
+            % Numerical array of factors to be multiplied with the median
+            % distance on param2.
+            param2_med_factors = myProcessOptions(op, 'param2_med_factors', ...
+                [1/3, 1, 3]);
+            assert(all(param2_med_factors>0));
+            
+            S1 = X1Ins.getAll();
+            S2 = X2Ins.getAll();
+            K1cell = KParams2Gauss1.candidates(S1, param1_med_factors, param2_med_factors,...
+                med_subsamples);
+            K2cell = KParams2Gauss1.candidates(S2, param1_med_factors, param2_med_factors,...
+                med_subsamples);
+            
+            % kernel on tensor product space. Stack in the same order as in
+            % TensorInstances.
+            Kcandid = KProduct.cross_product(K1cell, K2cell);
+            op.kernel_candidates = Kcandid;
+            OutSuff = [[Out.mean]; [Out.variance] + [Out.mean].^2];
+            
+            % learn operator
+            tensorIn =  TensorInstances({X1Ins, X2Ins});
+            [Op, C] = CondCholFiniteOut.learn_operator(tensorIn, OutSuff,  op);
+            Map = ParamsTensorMapper2In(Op);
+            
+         end
+        
+        
         function [Map, C] = learnKMVMapper1D(X1, X2, Out, op)
             % - X1, X2 are array of Distribution representing training set.
             % Basically any distribution having mean and variance will

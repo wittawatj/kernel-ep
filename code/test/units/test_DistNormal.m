@@ -27,3 +27,12 @@ end
 
 
 end
+
+function test_parameters()
+    m=3;
+    v=4;
+    d=DistNormal(m, v);
+    C = d.parameters;
+    assertElementsAlmostEqual(C{1}, m);
+    assertElementsAlmostEqual(C{2}, v);
+end

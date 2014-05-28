@@ -49,8 +49,8 @@ classdef SigmoidFactor
             % Should focus on low variance because we will observe X and represent it
             % with a Beta which is close to a PointMass
             
-%             fplot( @(x)pdf('gamma', x,  1 ,60), [0 , 800])
-            con = gamrnd(1, 30, 1, N);
+%             fplot( @(x)pdf('gamma', x,  1 ,10), [0 , 100])
+            con = gamrnd(1, 10, 1, N);
             from = 0.01;
             peakLocs = rand(1, N)*(1-from*2) + from;
             AX = peakLocs.*con;
@@ -59,13 +59,13 @@ classdef SigmoidFactor
             assert(all([X.mean]>=from & [X.mean]<=1-from) )
             
             % gen T
-            MT = randn(1, N)*sqrt(20);
-            VT = unifrnd(0.01, 500, 1, N);
+            MT = randn(1, N)*sqrt(3.5);
+            VT = unifrnd(0.01, 10, 1, N);
             T = DistNormal(MT, VT);
             
             % proposal distribution for for the conditional varibles (i.e. t)
             % in the factor. Require: Sampler & Density.
-            op.in_proposal = DistNormal( 0, 30);
+            op.in_proposal = DistNormal( 0, 4);
             
             % A forward sampling function taking samples (array) from in_proposal and
             % outputting samples from the conditional distribution represented by the
@@ -93,7 +93,7 @@ classdef SigmoidFactor
             % generate some data
             % options
             op.generate_size = n;
-            op.iw_samples = 1e5;
+            op.iw_samples = 12e4;
             op.seed = seed;
             
             op.sample_cond_msg = true;
@@ -224,7 +224,7 @@ classdef SigmoidFactor
             save(op.clutter_model_path, 'mapper', 'C', 'saved_op',  's');
         end
         
-        function runTestKMVMapper(op)
+        function [mapper]=runTestKMVMapper(op)
             % Test the mean embedding operator defined with 2 KMVGauss1 kernels. 
             % One on Beta incoming message, the other on Gaussian incoming
             % message. KMVGauss1 relies on mean and variance of messages.
@@ -241,13 +241,40 @@ classdef SigmoidFactor
             
             % kernel parameters
             op.mean_med_factors = myProcessOptions(op, ...
-                'mean_med_factors', [ 10]);
+                'mean_med_factors', [1, 3]);
             op.variance_med_factors = myProcessOptions(op, ...
-                'variance_med_factors', [ 10]);
+                'variance_med_factors', [1, 3]);
+            op.reglist = [1e-2, 1];
+
+            [mapper] = t_gauss1TensorMapper2In( op );
+        end
+        
+        function [mapper]=runTestKParamsMapper(op)
+            % Test the mean embedding operator defined with 2 KParams2Gauss1 kernels. 
+            % (kernel on alpha, beta for Beta messages, kernel on mean and
+            % variance for Gaussian messages).
+            %
+            if nargin < 1
+                op = [];
+            end
+            %###
+            op.mapper_learner = myProcessOptions(op, 'mapper_learner', ...
+                @DistMapper2Factory.learnKParamsMapper1D );
+            op.n_loaded_samples = myProcessOptions(op, 'n_loaded_samples', 4000);
+            % important
+            op.message_set_loader = myProcessOptions(op, 'message_set_loader', ...
+                @SigmoidFactor.l_sigmoidTrainMsgs );
+            
+            % kernel parameters
+            op.param1_med_factors = myProcessOptions(op, ...
+                'param1_med_factors', [ 1]);
+            op.param2_med_factors = myProcessOptions(op, ...
+                'param2_med_factors', [ 1]);
             op.reglist = [1e-2, 1, 5];
 
-            t_gauss1TensorMapper2In( op );
+            [mapper]=t_gauss1TensorMapper2In( op );
         end
+        
         
         function [R] = runSigmoidEPWithKMV( op )
             % - Run sigmoid EP problem with KMVGauss1 kernel

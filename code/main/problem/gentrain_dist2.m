@@ -27,7 +27,7 @@ iw_samples = myProcessOptions(op, 'iw_samples', 1e4);
 % example, the messages have very small variance. iw_trials specifies the
 % number of times to draw IW samples to try before giving up on the
 % messages.
-iw_trials = myProcessOptions(op, 'iw_trials', 20);
+iw_trials = myProcessOptions(op, 'iw_trials', 5);
 
 % Instead of samplilng from the in_proposal, if sample_cond_msg is true,
 % then sample from mt (message from T) instead. T is the conditioned

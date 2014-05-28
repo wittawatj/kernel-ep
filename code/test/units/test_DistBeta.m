@@ -30,3 +30,12 @@ function test_isproper()
     assert(~DistBeta(2, nan).isproper());
     
 end
+
+function test_parameters()
+    a = 4;
+    b = 1;
+    d = DistBeta(a, b);
+    C = d.parameters;
+    assertElementsAlmostEqual(C{1}, a);
+    assertElementsAlmostEqual(C{2}, b);
+end

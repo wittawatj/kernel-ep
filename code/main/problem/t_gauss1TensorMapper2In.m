@@ -1,4 +1,4 @@
-function  t_gauss1TensorMapper2In( op )
+function  [mapper]=t_gauss1TensorMapper2In( op )
 %
 % - Load message data set 
 % - Learn the conditional mean embedding operator

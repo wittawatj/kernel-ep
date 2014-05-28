@@ -1,9 +1,9 @@
-classdef Gauss1TensorMapper2In < DistMapper2
-    %GAUSS1TENSORMAPPER2IN A distribution mapper taking 2 Distribution's.
+classdef ParamsTensorMapper2In < DistMapper2
+    %PARAMSTENSORMAPPER2IN A distribution mapper taking 2 Distribution's. 
     % and outputs another DistNormal.
     %   - Use incomplete Cholesky internally. Call CondCholFiniteOut.
     %   - Use an InstancesMapper with kernel supporting TensorInstances of 2
-    %   MV1Instances. 
+    %   Params2Instances 
     
     properties (SetAccess=private)
         % a conditional mean embedding operator
@@ -11,7 +11,7 @@ classdef Gauss1TensorMapper2In < DistMapper2
     end
     
     methods
-        function this=Gauss1TensorMapper2In(operator)
+        function this=ParamsTensorMapper2In(operator)
             assert(isa(operator, 'InstancesMapper'));
             this.operator = operator;
         end
@@ -21,8 +21,8 @@ classdef Gauss1TensorMapper2In < DistMapper2
             assert(isa(din1, 'Distribution'));
             assert(isa(din2, 'Distribution'));
             
-            dins1 = MV1Instances(din1);
-            dins2 = MV1Instances(din2);
+            dins1 = Params2Instances(din1);
+            dins2 = Params2Instances(din2);
             tensorIn =  TensorInstances({dins1, dins2});
             zout = this.operator.mapInstances(tensorIn);
             

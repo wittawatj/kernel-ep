@@ -2,11 +2,13 @@ classdef DistBeta < handle &  Sampler & Density & Distribution
     %DISTBETA Summary of this class goes here
     %   Detailed explanation goes here
     
-    properties (SetAccess=private)
+    properties (SetAccess=protected)
         alpha;
         beta;
         mean;
         variance;
+        % from Distribution
+        parameters;
     end
     
     methods
@@ -29,6 +31,7 @@ classdef DistBeta < handle &  Sampler & Density & Distribution
                 this.beta = b;
                 this.mean =this.alpha/(this.alpha+this.beta);
                 this.variance=a*b/( ((a+b)^2)*(a+b+1) );
+                this.parameters = {a, b};
             end
             
         end

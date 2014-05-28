@@ -1,12 +1,15 @@
 classdef DistNormal < handle & GKConvolvable & Sampler & Density & Distribution
     %DIST_NORMAL Gaussian distribution object for kernel EP framework.
     
-    properties (SetAccess=private)
+    properties (SetAccess=protected)
         mean
         % precision matrix
         precision
         d %dimension
         variance=[];
+        
+        % from Distribution
+        parameters;
     end
     
     properties (SetAccess=protected, GetAccess=protected)
@@ -33,6 +36,7 @@ classdef DistNormal < handle & GKConvolvable & Sampler & Density & Distribution
                 this.d = length(this.mean);
                 assert(all(size(var)==size(var'))) %square
                 this.variance = var;
+                this.parameters = {this.mean, this.variance};
             end
             
         end
