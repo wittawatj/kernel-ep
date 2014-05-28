@@ -22,3 +22,4 @@ code/3rdparty/kernelBP_chol
 code/3rdparty/kernelBP_loopy
 code/3rdparty/qsub
 code/3rdparty/slurm
+*.mbak

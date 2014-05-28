@@ -34,17 +34,33 @@ iw_trials = myProcessOptions(op, 'iw_trials', 20);
 % variable. If true, in_proposal is not needed and ignored.
 sample_cond_msg = myProcessOptions(op, 'sample_cond_msg', false);
 
-% The SSBuilder for x in p(x|t) i.e., the left variable. This SSBuilder will
-% determine the output distribution of x.
+% The DistBuilder for x in p(x|t) i.e., the left variable. This SSBuilder will
+% determine the output distribution of x. If [], Xout will be [].
 % Output DistNormal by default.
-left_ssbuilder = myProcessOptions(op, 'left_ssbuilder', DistNormal.getSSBuilder());
-assert(isa(left_ssbuilder, 'DistBuilder'));
+if isfield(op, 'left_distbuilder')
+    if isempty(op.left_distbuilder)
+        left_distbuilder = [];
+    else
+        left_distbuilder = op.left_distbuilder;
+    end
+else
+    left_distbuilder = DistNormal.getDistBuilder();
+end
+assert(isa(left_distbuilder, 'DistBuilder') || isempty(left_distbuilder));
 
-% The SSBuilder for t in p(x|t) i.e., the right variable. This SSBuilder will
-% determine the output distribution of t.
+% The DistBuilder for t in p(x|t) i.e., the right variable. This SSBuilder will
+% determine the output distribution of t. If [], Tout will be [].
 % Output DistNormal by default.
-right_ssbuilder = myProcessOptions(op, 'right_ssbuilder', DistNormal.getSSBuilder());
-assert(isa(right_ssbuilder, 'DistBuilder'));
+if isfield(op, 'right_distbuilder')
+    if isempty(op.right_distbuilder)
+        right_distbuilder = [];
+    else
+        right_distbuilder = op.right_distbuilder;
+    end
+else
+    right_distbuilder = DistNormal.getDistBuilder();
+end
+assert(isa(right_distbuilder, 'DistBuilder') || isempty(right_distbuilder));
 
 if ~sample_cond_msg
     % proposal distribution for for the conditional varibles (i.e. t)
@@ -67,8 +83,13 @@ RandStream.setGlobalStream(rs);
 K = iw_samples;
 
 % outputs
-Xout = left_ssbuilder.empty(0, 1);
-Tout = right_ssbuilder.empty(0, 1);
+if ~isempty(left_distbuilder)
+    Xout = left_distbuilder.empty(0, 1);
+end
+
+if ~isempty(right_distbuilder)
+    Tout = right_distbuilder.empty(0, 1);
+end
 index = 1;
 % Indices of bad messages
 BadInd = [];
@@ -90,37 +111,49 @@ for i=1:N
         end
         
         assert( all(W >= 0));
-        % projection. p(x|t)
-        Xsuff = left_ssbuilder.suffStat(XP);
-        Tsuff = right_ssbuilder.suffStat(TP);
         wsum = sum(W);
         WN = W/wsum;
-%         WN = W/K;
-%         error('/wsum or /K ?');
-        xs = Xsuff*WN';
-        ts = Tsuff*WN';
+        % projection. p(x|t)
+        if ~isempty(left_distbuilder)
+            Xsuff = left_distbuilder.suffStat(XP);
+            xs = Xsuff*WN';
+        end
         
-        if left_ssbuilder.stableSuffStat(xs) ...
-                && right_ssbuilder.stableSuffStat(ts)
+        if ~isempty(right_distbuilder)
+            Tsuff = right_distbuilder.suffStat(TP);
+            ts = Tsuff*WN';
+        end
+        
+        if (isempty(left_distbuilder) || left_distbuilder.stableSuffStat(xs) )...
+                && (isempty(right_distbuilder) || right_distbuilder.stableSuffStat(ts) )
             
             % W be numerically 0 if the density values are too low.
-            mx_out = left_ssbuilder.fromSuffStat(xs);
-            mt_out = right_ssbuilder.fromSuffStat(ts);
-            % store
-            Xout(index) = mx_out;
-            Tout(index) = mt_out;
+            if ~isempty(left_distbuilder)
+                mx_out = left_distbuilder.fromSuffStat(xs);
+                Xout(index) = mx_out;
+            end
+            
+            if ~isempty(right_distbuilder)
+                mt_out = right_distbuilder.fromSuffStat(ts);
+                Tout(index) = mt_out;
+            end
             index = index + 1;
             break;
             
         else
             if j==iw_trials
                 % not successful in getting nonzero W
-                Xout(index) = left_ssbuilder.dummyObj();
-                Tout(index) = right_ssbuilder.dummyObj();
+                if ~isempty(left_distbuilder)
+                    Xout(index) = left_distbuilder.dummyObj();
+                end
+                
+                if ~isempty(right_distbuilder)
+                    Tout(index) = right_distbuilder.dummyObj();
+                end
                 BadInd(end+1) = index;
                 index = index+1;
             end
-
+            
             % Assume mx and mt are somehow hard to deal with e.g., low variance.
             % Try again.
         end
@@ -129,14 +162,22 @@ for i=1:N
     
 end
 
-assert(length(X)>=length(Xout));
-assert(length(T)>=length(Tout));
-
 % exclude bad messages
 X(BadInd) = [];
 T(BadInd) = [];
-Xout(BadInd) = [];
-Tout(BadInd) = [];
+if ~isempty(left_distbuilder)
+    Xout(BadInd) = [];
+else
+    Xout = [];
+end
+
+if ~isempty(right_distbuilder)
+    Tout(BadInd) = [];
+    
+else
+    Tout = [];
+end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 RandStream.setGlobalStream(oldRs);
 end

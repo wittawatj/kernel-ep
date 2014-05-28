@@ -18,8 +18,8 @@ classdef Gauss1TensorMapper2In < DistMapper2
         
         
         function dout = mapDist2(this, din1, din2)
-            assert(isa(din1, 'DistNormal'));
-            assert(isa(din2, 'DistNormal'));
+            assert(isa(din1, 'Distribution'));
+            assert(isa(din2, 'Distribution'));
             
             dins1 = MV1Instances(din1);
             dins2 = MV1Instances(din2);

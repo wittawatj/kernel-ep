@@ -6,7 +6,8 @@ function  [hmean, hvar, hhell]=distMapper2_gauss1_tester( mapper,  X1, X2, Out)
 % 
 %   Only for Gaussian output.
 %
-%   X1, X2, Out = array of DistNormal
+%   X1, X2 = array such that each element is accepted by the mapper
+%   Out = array of DistNormal
 %   Return handles to the plots.
 % 
 assert(isa(Out, 'DistNormal'));
@@ -45,7 +46,7 @@ stem(TrMeans, 'or');
 stem(OpMeans, 'ob');
 plot( abs(TrMeans-OpMeans), '-k', 'LineWidth', 2);
 xlabel('Message index');
-ylabel('Gaussian mean');
+ylabel('Mean');
 % title(sprintf('Training size: %d', n));
 legend('True means', 'Output means', 'abs. diff.');
 grid on
@@ -61,7 +62,7 @@ stem(TrVar, 'or');
 stem(OpVar, 'ob');
 plot( abs(TrVar-OpVar), '-k', 'LineWidth', 2);
 xlabel('Message index');
-ylabel('Gaussian variance');
+ylabel('Variance');
 % title(sprintf('Training size: %d', n));
 legend('True variance', 'Output variance', 'abs. diff.');
 grid on

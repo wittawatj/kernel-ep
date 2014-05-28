@@ -5,6 +5,8 @@ classdef DistBeta < handle &  Sampler & Density & Distribution
     properties (SetAccess=private)
         alpha;
         beta;
+        mean;
+        variance;
     end
     
     methods
@@ -25,7 +27,8 @@ classdef DistBeta < handle &  Sampler & Density & Distribution
                 % one object
                 this.alpha = a;
                 this.beta = b;
-                
+                this.mean =this.alpha/(this.alpha+this.beta);
+                this.variance=a*b/( ((a+b)^2)*(a+b+1) );
             end
             
         end
@@ -60,17 +63,10 @@ classdef DistBeta < handle &  Sampler & Density & Distribution
             X = this.draw( N);
         end
     
-        function m=getMean(this)
-            % Inherit from Distribution
-            m=this.alpha/(this.alpha+this.beta);
-        end
+    end
+    
+    methods (Static)
         
-        function v=getVariance(this)
-            % Inherit from Distribution
-            a=this.alpha;
-            b=this.beta;
-            v=a*b/( ((a+b)^2)*(a+b+1) );
-        end
         
     end
     

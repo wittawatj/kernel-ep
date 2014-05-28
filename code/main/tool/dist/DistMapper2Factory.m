@@ -25,15 +25,17 @@ classdef DistMapper2Factory
         end
         
         function [Map, C] = learnKMVMapper1D(X1, X2, Out, op)
-            % - X1, X2 are array of DistNormal representing training set
+            % - X1, X2 are array of Distribution representing training set.
+            % Basically any distribution having mean and variance will
+            % work.
             % - Out is and array of DistNormal representing the training
             % set for outputs.
             % - op = option structure
             if nargin < 4
                 op=[];
             end
-            assert(isa(X1, 'DistNormal'));
-            assert(isa(X2, 'DistNormal'));
+            assert(isa(X1, 'Distribution'));
+            assert(isa(X2, 'Distribution'));
             assert(isa(Out, 'DistNormal'));
             assert(length(X1)==length(X2));
             n = length(X1);

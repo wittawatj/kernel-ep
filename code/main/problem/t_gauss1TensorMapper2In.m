@@ -1,6 +1,6 @@
 function  t_gauss1TensorMapper2In( op )
 %
-% - Generate message data set with gendata_clutter.
+% - Load message data set 
 % - Learn the conditional mean embedding operator
 % - Test the operator on a separate test set split from the loaded message 
 % samples
@@ -25,12 +25,21 @@ rng(seed);
 op.mapper_learner = myProcessOptions(op, 'mapper_learner', ...
     @DistMapper2Factory.learnKMVMapper1D );
 
-% total samples to use
-n = 4000;
+% total samples to use. Can't be more than what the dataset has.
+op.n_loaded_samples = myProcessOptions(op, 'n_loaded_samples', 4000);
+n = op.n_loaded_samples;
 ntr = floor(0.8*n);
 nte = min(100, n-ntr);
 
-[ s] = l_clutterTrainMsgs( n);
+% Function to be used to load dataset of messages. Assume the naming X, T,
+% Tout, Xout. The function takes (n, op) and return a struct containing
+% data.
+op.message_set_loader = myProcessOptions(op, 'message_set_loader', ...
+    @l_clutterTrainMsgs );
+loader = op.message_set_loader;
+display(sprintf('message_set_loader set to: %s', func2str(op.message_set_loader)));
+[ s] = loader( n, op);
+
 [X, T, Tout, Xte, Tte, Toutte] = Data.splitTrainTest(s, ntr, nte);
 assert(length(X)==ntr);
 assert(length(T)==ntr);
@@ -46,14 +55,14 @@ op.train_size = floor(0.7*ntr);
 op.test_size = min(1000, ntr - op.train_size);
 op.chol_tol = 1e-15;
 op.chol_maxrank = min(700, ntr);
-op.reglist = [1e-2, 1];
+op.reglist = myProcessOptions(op, 'reglist', [1e-2, 1]);
 
 % options used in learning a mapper in DistMapper2Factory
 op.med_subsamples = min(1500, ntr);
 
 % Used when selected DistMapper2Factory.learnKMVMapper1D 
-op.mean_med_factors = [1];
-op.variance_med_factors = [1];
+op.mean_med_factors = myProcessOptions(op, 'mean_med_factors', [1]);
+op.variance_med_factors = myProcessOptions(op, 'variance_med_factors', [1]);
 
 % Used when selected DistMapper2Factory.learnKNaturalGaussMapper1D
 op.prec_mean_med_factors = [1]; 
