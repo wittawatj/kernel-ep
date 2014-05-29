@@ -1,23 +1,22 @@
-function  [hmean, hvar, hhell]=distMapper2_gauss1_tester( mapper,  X1, X2, Out)
-%DISTMAPPER2_GAUSS1_TESTER A generic tester for DistMapper2.
+function  [hmean, hvar, hhell]=distMapper2_tester( mapper,  X1, X2, Out)
+%DISTMAPPER2_TESTER A generic tester for DistMapper2.
 % 
 %   Given a dataset and a mapper, compare the mapped output 
 %   out' = mapper(x1, x2) to the ground truth in Out. Then plot.
-% 
-%   Only for Gaussian output.
 %
 %   X1, X2 = array such that each element is accepted by the mapper
-%   Out = array of DistNormal
+%   Out = array of Distribution
 %   Return handles to the plots.
 % 
-assert(isa(Out, 'DistNormal'));
+
 assert(length(X1)==length(X2));
 assert(length(X2)==length(Out));
 
 % n test
 nte = length(X1);
 Helling = zeros(1, nte);
-OpMsgs = DistNormal.empty(0, nte);
+distBuilder = Out(1).getDistBuilder();
+OpMsgs = distBuilder.empty(0, nte);
 % test the operator on the training set.
 for i=1:nte
     x1 = X1(i);
@@ -46,7 +45,7 @@ stem(TrMeans, 'or');
 stem(OpMeans, 'ob');
 plot( abs(TrMeans-OpMeans), '-k', 'LineWidth', 2);
 xlabel('Message index');
-ylabel('Mean');
+ylabel(sprintf('Mean of %s', class(Out(1)) ));
 % title(sprintf('Training size: %d', n));
 legend('True means', 'Output means', 'abs. diff.');
 grid on
@@ -62,7 +61,7 @@ stem(TrVar, 'or');
 stem(OpVar, 'ob');
 plot( abs(TrVar-OpVar), '-k', 'LineWidth', 2);
 xlabel('Message index');
-ylabel('Variance');
+ylabel(sprintf('Variance of %s', class(Out(1)) ));
 % title(sprintf('Training size: %d', n));
 legend('True variance', 'Output variance', 'abs. diff.');
 grid on
@@ -73,7 +72,7 @@ hhell=figure;
 hold on
 stem(Helling);
 set(gca, 'fontsize', 20);
-title('Hellinger distance' );
+title(sprintf('Hellinger distance on %s', class(Out(1))) );
 xlabel('Messsage index');
 ylabel('Hellinger distance');
 ylim([0, 1]);

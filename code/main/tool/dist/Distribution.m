@@ -17,5 +17,13 @@ classdef Distribution < handle
         
     end
     
+    methods (Static)
+        function builder = getDistBuilder()
+            builder=[];
+            error('Subclass of Distribution needs to override this.');
+            
+        end
+    end
+    
 end
 

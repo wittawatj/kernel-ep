@@ -11,6 +11,7 @@ classdef SigmoidFactor
     
     properties (Constant)
         DEFAULT_DATA_PATH = 'saved/sigmoidTrainMsgs.mat';
+        DEFAULT_BUNDLE_PATH = 'saved/sigmoidMsgBundle.mat';
     end
     
     methods (Static)
@@ -71,6 +72,11 @@ classdef SigmoidFactor
             % outputting samples from the conditional distribution represented by the
             % factor.
             op.cond_factor = @SigmoidFactor.sigmoid;
+            
+            % X is beta in p(x|t)
+            op.left_distbuilder = DistBetaBuilder();
+            % T is Gaussian in p(x|t)
+            op.right_distbuilder = DistNormalBuilder();
             [ X, T, Xout, Tout ] = gentrain_dist2(X, T, op);
             
             rng(oldRng);
@@ -97,7 +103,7 @@ classdef SigmoidFactor
             op.seed = seed;
             
             op.sample_cond_msg = true;
-            op.left_distbuilder = [];
+     
             % generate training set
             [ X, T, Xout, Tout, op ] = SigmoidFactor.genData(op);
             
@@ -112,7 +118,40 @@ classdef SigmoidFactor
             rng(oldRng);
         end
         
-        
+        function g_sigmoidMsgBundle(n ,op)
+            % generate message bundle MsgBundle.
+            if nargin < 2
+                op = [];
+            end
+               
+            seed = myProcessOptions(op, 'seed', 1);
+            oldRng = rng();
+            rng(seed);
+            
+            sigmoid_bundle_path = myProcessOptions(op, 'sigmoid_bundle_path', ...
+                SigmoidFactor.DEFAULT_BUNDLE_PATH);
+            
+            % generate some data
+            % options
+            op.generate_size = n;
+            op.iw_samples = 12e4;
+            op.seed = seed;
+            
+            op.sample_cond_msg = true;
+     
+            % generate training set. p(x|t)
+            [ X, T, Xout, Tout, op ] = SigmoidFactor.genData(op);
+            % Assemble into a MsgBundle
+            msgBundle2Right = DefaultMsgBundle2(X, T, Tout);
+            msgBundle2Left = DefaultMsgBundle2(X, T, Xout);
+            generateMethod = func2str(@SigmoidFactor.g_sigmoidMsgBundle);
+            generateTime = clock();
+            
+            save(sigmoid_bundle_path,  'op',  'msgBundle2Left', ...
+                'msgBundle2Right', 'generateMethod', 'generateTime');
+            rng(oldRng);
+            
+        end
         
         function [ s] = l_sigmoidTrainMsgs( nload, op )
             %Load training messages for sigmoid factor
@@ -224,12 +263,15 @@ classdef SigmoidFactor
             save(op.clutter_model_path, 'mapper', 'C', 'saved_op',  's');
         end
         
-        function [mapper, op]=runTestKMVMapper(op)
+        function [mapper, op]=runTestKMVMapperToLeft(msgBundle, op)
             % Test the mean embedding operator defined with 2 KMVGauss1 kernels. 
             % One on Beta incoming message, the other on Gaussian incoming
             % message. KMVGauss1 relies on mean and variance of messages.
             %
-            if nargin < 1
+            % ToLeft mean the test is for sending message to x in f(x|t)
+            % which is a DistBeta in SigmoidFactor.
+            %
+            if nargin < 2
                 op = [];
             end
             op.mapper_learner = myProcessOptions(op, 'mapper_learner', ...
@@ -246,15 +288,47 @@ classdef SigmoidFactor
                 'variance_med_factors', [1, 3]);
             op.reglist = [1e-2, 1];
 
-            [mapper, op] = t_gauss1TensorMapper2In( op );
+            error('');
+            [mapper, op] = ExpMapper.kmvMapper2Test(msgBundle, op );
         end
         
-        function [mapper, op]=runTestKParamsMapper(op)
+        
+        function [mapper, op]=runTestKMVMapperToRight(msgBundle, op)
+            % Test the mean embedding operator defined with 2 KMVGauss1 kernels. 
+            % One on Beta incoming message, the other on Gaussian incoming
+            % message. KMVGauss1 relies on mean and variance of messages.
+            %
+            % ToRight mean the test is for sending message to t in f(x|t)
+            % which is a Gaussian in SigmoidFactor.
+            %
+            if nargin < 2
+                op = [];
+            end
+            op.mapper_learner = myProcessOptions(op, 'mapper_learner', ...
+                @DistMapper2Factory.learnKMVMapper1D );
+            op.n_loaded_samples = myProcessOptions(op, 'n_loaded_samples', 4000);
+            % important
+            op.message_set_loader = myProcessOptions(op, 'message_set_loader', ...
+                @SigmoidFactor.l_sigmoidTrainMsgs );
+            
+            % kernel parameters
+            op.mean_med_factors = myProcessOptions(op, ...
+                'mean_med_factors', [1, 3]);
+            op.variance_med_factors = myProcessOptions(op, ...
+                'variance_med_factors', [1, 3]);
+            op.reglist = [1e-2, 1];
+            
+            error('a');
+            [mapper, op] = ExpMapper.kmvMapper2Test(msgBundle, op );
+            
+        end
+        
+        function [mapper, op]=runTestKParamsMapper(msgBundle, op)
             % Test the mean embedding operator defined with 2 KParams2Gauss1 kernels. 
             % (kernel on alpha, beta for Beta messages, kernel on mean and
             % variance for Gaussian messages).
             %
-            if nargin < 1
+            if nargin < 2
                 op = [];
             end
             %###
@@ -272,7 +346,8 @@ classdef SigmoidFactor
                 'param2_med_factors', [ 1, 3]);
             op.reglist = [1e-2, 1];
 
-            [mapper, op]=t_gauss1TensorMapper2In( op );
+            error('a');
+            [mapper, op] = ExpMapper.kmvMapper2Test(msgBundle, op );
         end
         
         

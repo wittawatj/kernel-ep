@@ -87,7 +87,9 @@ classdef DistBeta < handle &  Sampler & Density & Distribution ...
     end
     
     methods (Static)
-        
+        function builder = getDistBuilder()
+            builder=DistBetaBuilder();
+        end
         
     end
     

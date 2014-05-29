@@ -10,6 +10,23 @@ classdef DistNormalBuilder < DistBuilder
             L = DistNormal.empty(r, c);
         end
         
+        function S=getStat(this, D)
+            assert(isa(D, 'DistNormal'));
+            assert(D(1).d==1, 'Only 1d Gaussian is supported');
+            M = [D.mean];
+            M2 = [D.variance] + M.^2;
+            S = [M; M2];
+        end
+        
+        function D=fromStat(this, S)
+            % Construct DistNormal(s) from a sufficient statistics returned
+            % from getStat()
+            assert(size(S,1)==2, 'Only univariate Gaussian is supported');
+            M = S(1,:);
+            V = S(2,:)-M.^2;
+            D = DistNormal(M, V);
+        end
+        
         function D= fromSamples(this, samples, weights)
             assert(size(samples, 1)==1, 'Only 1d Gaussian is supported');
             S = this.suffStat(samples);
@@ -18,6 +35,8 @@ classdef DistNormalBuilder < DistBuilder
             v = SW(2)-m^2;
             D = DistNormal(m ,v);
         end
+        
+        %%%%%%%%%%%%%%%%%%%%5
         
         function S=suffStat(this, X)
             % phi(x)=[x, x^2]' or phi(x)=[x; vec(xx')]
@@ -37,15 +56,7 @@ classdef DistNormalBuilder < DistBuilder
             
         end 
 %         
-%         function D=fromSuffStat(this, S)
-%             % Construct DistNormal(s) from a sufficient statistics returned
-%             % from suffStat()
-%             assert(size(S,1)==2, 'Only univariate Gaussian is supported');
-%             M = S(1,:);
-%             V = S(2,:)-M.^2;
-%             D = DistNormal(M, V);
-%         end
-%      
+
 %         function T=stableSuffStat(this, S)
 %             assert(size(S,1)==2, 'Only univariate Gaussian is supported');
 %             M = S(1,:);
