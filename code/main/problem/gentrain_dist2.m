@@ -115,26 +115,21 @@ for i=1:N
         WN = W/wsum;
         % projection. p(x|t)
         if ~isempty(left_distbuilder)
-            Xsuff = left_distbuilder.suffStat(XP);
-            xs = Xsuff*WN';
+            mx_out = left_distbuilder.fromSamples(XP, WN);
         end
         
         if ~isempty(right_distbuilder)
-            Tsuff = right_distbuilder.suffStat(TP);
-            ts = Tsuff*WN';
+            mt_out = right_distbuilder.fromSamples(TP, WN);
         end
         
-        if (isempty(left_distbuilder) || left_distbuilder.stableSuffStat(xs) )...
-                && (isempty(right_distbuilder) || right_distbuilder.stableSuffStat(ts) )
+        if (isempty(left_distbuilder) || mx_out.isProper() )...
+                && (isempty(right_distbuilder) || mt_out.isProper() )
             
-            % W be numerically 0 if the density values are too low.
             if ~isempty(left_distbuilder)
-                mx_out = left_distbuilder.fromSuffStat(xs);
                 Xout(index) = mx_out;
             end
             
             if ~isempty(right_distbuilder)
-                mt_out = right_distbuilder.fromSuffStat(ts);
                 Tout(index) = mt_out;
             end
             index = index + 1;
@@ -142,20 +137,11 @@ for i=1:N
             
         else
             if j==iw_trials
-                % not successful in getting nonzero W
-                if ~isempty(left_distbuilder)
-                    Xout(index) = left_distbuilder.dummyObj();
-                end
-                
-                if ~isempty(right_distbuilder)
-                    Tout(index) = right_distbuilder.dummyObj();
-                end
+                % not successful 
                 BadInd(end+1) = index;
-                index = index+1;
+                % Assume mx and mt are somehow hard to deal with. Skip
             end
-            
-            % Assume mx and mt are somehow hard to deal with e.g., low variance.
-            % Try again.
+            % Try again
         end
         
     end
@@ -165,16 +151,11 @@ end
 % exclude bad messages
 X(BadInd) = [];
 T(BadInd) = [];
-if ~isempty(left_distbuilder)
-    Xout(BadInd) = [];
-else
-    Xout = [];
+if isempty(left_distbuilder)
+   Xout=[];
 end
 
-if ~isempty(right_distbuilder)
-    Tout(BadInd) = [];
-    
-else
+if isempty(right_distbuilder)
     Tout = [];
 end
 
