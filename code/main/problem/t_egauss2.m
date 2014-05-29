@@ -68,7 +68,7 @@ for i=1:ncut
     % Tout, Xout actually contain q not outgoing messages.
     q = mfi_z*qni;
     true_toTq = Tout(is);
-    if true_toTq.isproper() && q.isproper() 
+    if true_toTq.isProper() && q.isProper() 
         % compare mfi_z to the one from training set
         kl = kl_gauss(true_toTq, q);
     else

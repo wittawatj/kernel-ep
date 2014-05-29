@@ -4,8 +4,8 @@ function kl = kl_gauss( n1, n2 )
 assert(isa(n1, 'DistNormal'));
 assert(isa(n2, 'DistNormal'));
 assert(n1.d==n2.d, 'n1 and n2 must have the same dimension');
-assert(n1.isproper(), 'n1 is not a proper Gaussian');
-assert(n2.isproper(), 'n2 is not a proper Gaussian');
+assert(n1.isProper(), 'n1 is not a proper Gaussian');
+assert(n2.isProper(), 'n2 is not a proper Gaussian');
 
 if n1.d==1
     v1 = n1.variance;

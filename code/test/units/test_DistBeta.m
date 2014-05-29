@@ -22,12 +22,12 @@ function test_draw()
     assertTrue(all(s<=1) );
 end
 
-function test_isproper()
-    assert(DistBeta(2, 3).isproper());
-    assert(~DistBeta(0, 3).isproper());
-    assert(~DistBeta(2, 0).isproper());
-    assert(~DistBeta(inf, 3).isproper());
-    assert(~DistBeta(2, nan).isproper());
+function test_isProper()
+    assert(DistBeta(2, 3).isProper());
+    assert(~DistBeta(0, 3).isProper());
+    assert(~DistBeta(2, 0).isProper());
+    assert(~DistBeta(inf, 3).isProper());
+    assert(~DistBeta(2, nan).isProper());
     
 end
 

@@ -54,7 +54,7 @@ classdef DistBeta < handle &  Sampler & Density & Distribution ...
             f = @(x)betapdf(x, this.alpha, this.beta);
         end
         
-        function p=isproper(this)
+        function p=isProper(this)
             % return true if this is a proper distribution e.g., not have
             % negative alpha or beta
             a = this.alpha;

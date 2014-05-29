@@ -11,6 +11,9 @@ classdef Distribution < handle
     end
     
     methods (Abstract)
+        % Return true if this is a proper distribution e.g., positive
+        % variance, not having inf mean, etc.
+        p=isProper(this);
         
     end
     

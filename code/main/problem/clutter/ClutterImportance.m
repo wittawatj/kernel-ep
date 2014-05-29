@@ -64,7 +64,7 @@ classdef ClutterImportance < handle
                 for i=1:N
                     
                     qni = q/FT(i); % DistNormal division
-                    if ~qni.isproper()
+                    if ~qni.isProper()
                         display(sprintf('Cavity q\\%d = N(%.2g, %.2g) not proper. Skip.', i, qni.mean, qni.variance));
                         continue;
                     end

@@ -106,7 +106,7 @@ classdef DistNormal < handle & GKConvolvable & Sampler ...
             z = this.Z;
         end
         
-        function p=isproper(this)
+        function p=isProper(this)
             % return true if this is a proper distribution e.g., not have
             % negative variance.
             if length(this.mean) > 1

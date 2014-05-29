@@ -140,7 +140,7 @@ for t=1:2
     if norm(q.mean-pmean)<1e-2 && norm(q.variance - pvar, 'fro')<1e-2
         break;
     end
-    if ~q.isproper()
+    if ~q.isProper()
         break;
     end
 end %end main for

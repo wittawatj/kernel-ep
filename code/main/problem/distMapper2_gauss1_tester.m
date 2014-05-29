@@ -25,7 +25,7 @@ for i=1:nte
     q = mapper.mapDist2(x1, x2);
     
     true_toTq = Out(i);
-    if true_toTq.isproper() && q.isproper()
+    if true_toTq.isProper() && q.isProper()
         % compare mfi_z to the one from training set
         hl = true_toTq.distHellinger(q);
     else
