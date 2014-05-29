@@ -21,7 +21,7 @@ N = length(X);
 seed = myProcessOptions(op, 'seed', 1);
 
 % importance sampling data size. K in Nicolas's paper.
-iw_samples = myProcessOptions(op, 'iw_samples', 1e4);
+iw_samples = myProcessOptions(op, 'iw_samples', 5e4);
 
 % Importance weight vector can be a numerically zero vector when, for
 % example, the messages have very small variance. iw_trials specifies the

@@ -224,7 +224,7 @@ classdef SigmoidFactor
             save(op.clutter_model_path, 'mapper', 'C', 'saved_op',  's');
         end
         
-        function [mapper]=runTestKMVMapper(op)
+        function [mapper, op]=runTestKMVMapper(op)
             % Test the mean embedding operator defined with 2 KMVGauss1 kernels. 
             % One on Beta incoming message, the other on Gaussian incoming
             % message. KMVGauss1 relies on mean and variance of messages.
@@ -246,10 +246,10 @@ classdef SigmoidFactor
                 'variance_med_factors', [1, 3]);
             op.reglist = [1e-2, 1];
 
-            [mapper] = t_gauss1TensorMapper2In( op );
+            [mapper, op] = t_gauss1TensorMapper2In( op );
         end
         
-        function [mapper]=runTestKParamsMapper(op)
+        function [mapper, op]=runTestKParamsMapper(op)
             % Test the mean embedding operator defined with 2 KParams2Gauss1 kernels. 
             % (kernel on alpha, beta for Beta messages, kernel on mean and
             % variance for Gaussian messages).
@@ -267,12 +267,12 @@ classdef SigmoidFactor
             
             % kernel parameters
             op.param1_med_factors = myProcessOptions(op, ...
-                'param1_med_factors', [ 1]);
+                'param1_med_factors', [ 1, 3]);
             op.param2_med_factors = myProcessOptions(op, ...
-                'param2_med_factors', [ 1]);
-            op.reglist = [1e-2, 1, 5];
+                'param2_med_factors', [ 1, 3]);
+            op.reglist = [1e-2, 1];
 
-            [mapper]=t_gauss1TensorMapper2In( op );
+            [mapper, op]=t_gauss1TensorMapper2In( op );
         end
         
         

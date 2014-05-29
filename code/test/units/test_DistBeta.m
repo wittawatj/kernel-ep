@@ -39,3 +39,25 @@ function test_parameters()
     assertElementsAlmostEqual(C{1}, a);
     assertElementsAlmostEqual(C{2}, b);
 end
+
+function test_distHellinger()
+    
+    d = DistBeta(5,3);
+    
+    for i=1:20
+        a = rand()*10;
+        b = rand()*10;
+        d2 = DistBeta(a, b);
+        assertElementsAlmostEqual(d2.distHellinger(d2), 0 );
+        
+        % symmetry
+        dist = d.distHellinger(d2);
+        assertElementsAlmostEqual(dist, d2.distHellinger(d));
+        
+        % bound
+        assert(dist >= 0);
+        assert(dist <=1);
+    end
+end
+
+

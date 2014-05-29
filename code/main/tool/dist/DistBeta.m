@@ -1,4 +1,5 @@
-classdef DistBeta < handle &  Sampler & Density & Distribution
+classdef DistBeta < handle &  Sampler & Density & Distribution ...
+        & HasHellingerDistance
     %DISTBETA Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -35,7 +36,7 @@ classdef DistBeta < handle &  Sampler & Density & Distribution
             end
             
         end
-         
+        
         function X = draw(this, N)
             % return 1xN sample from the distribution
             X = betarnd(this.alpha, this.beta, 1, N);
@@ -65,7 +66,24 @@ classdef DistBeta < handle &  Sampler & Density & Distribution
         function X = sampling0(this, N)
             X = this.draw( N);
         end
-    
+        
+        function dist=distHellinger(this, d2)
+            % Compute Hellinger distance from this DistBeta to d2,
+            % another DistBeta. Hellinger distance is bounded between 0
+            % and 1
+            % Refer: https://en.wikipedia.org/wiki/Hellinger_distance
+            
+            assert(isa(d2, 'DistBeta'));
+            a1 = this.alpha;
+            b1 = this.beta;
+            a2 = d2.alpha;
+            b2 = d2.beta;
+            % call Matlab's beta function
+            r = beta( (a1+a2)/2, (b1+b2)/2 )/sqrt(beta(a1,b1)*beta(a2,b2));
+            dist = sqrt(1 - r);
+            
+        end
+        
     end
     
     methods (Static)

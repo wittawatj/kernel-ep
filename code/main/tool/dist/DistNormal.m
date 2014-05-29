@@ -1,4 +1,5 @@
-classdef DistNormal < handle & GKConvolvable & Sampler & Density & Distribution
+classdef DistNormal < handle & GKConvolvable & Sampler ...
+        & Density & Distribution & HasHellingerDistance
     %DIST_NORMAL Gaussian distribution object for kernel EP framework.
     
     properties (SetAccess=protected)
@@ -121,8 +122,9 @@ classdef DistNormal < handle & GKConvolvable & Sampler & Density & Distribution
             % another DistNormal. Hellinger distance is bounded between 0
             % and 1
             % Refer: https://en.wikipedia.org/wiki/Hellinger_distance
-            assert(this.d==1, 'Hellinger distance is for d=1 presently.');
+            
             assert(isa(d2, 'DistNormal'));
+            assert(this.d==1, 'Hellinger distance is for d=1 presently.');
             m1 = this.mean;
             v1 = this.variance;
             m2 = d2.mean;
