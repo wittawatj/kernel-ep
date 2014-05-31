@@ -5,4 +5,9 @@ This project is an attempt to learn a kernel-based operator which takes as input
 
 This project extends the following work
 
-    Heess, Nicolas, Daniel Tarlow, and John Winn. “Learning to Pass Expectation Propagation Messages.” In Advances in Neural Information Processing Systems 26, edited by C. j c Burges, L. Bottou, M. Welling, Z. Ghahramani, and K. q Weinberger, 3219–27, 2013. http://media.nips.cc/nipsbooks/nipspapers/paper_files/nips26/1493.pdf.
+    Heess, Nicolas, Daniel Tarlow, and John Winn. 
+    “Learning to Pass Expectation Propagation Messages.” 
+    In Advances in Neural Information Processing Systems 26, 
+    edited by C. j c Burges, L. Bottou, M. Welling, Z. Ghahramani, and K. q Weinberger, 
+    3219–27, 2013. 
+    http://media.nips.cc/nipsbooks/nipspapers/paper_files/nips26/1493.pdf.
