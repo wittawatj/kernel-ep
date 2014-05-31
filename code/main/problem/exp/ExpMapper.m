@@ -7,7 +7,7 @@ classdef ExpMapper
     
     methods (Static)
         
-        function [mapper, op, C] = kgenericMapper2Test(msgBundle, msgBundleTest, op )
+        function [mapper, op, Helling, C] = kgenericMapper2Test(msgBundle, msgBundleTest, op )
             % Need to specify a mapper_learner which is a function taking
             % (msgBundle, op) -> [mapper, op]
             % e.g., DistMapper2Factory.learnKMVMapper1D
@@ -60,7 +60,7 @@ classdef ExpMapper
             Xte = msgBundleTest.getLeftMessages();
             Tte = msgBundleTest.getRightMessages();
             Toutte = msgBundleTest.getOutMessages();
-            [hmean, hvar, hkl]=distMapper2_tester( mapper,  Xte, Tte, Toutte);
+            [hmean, hvar, hkl, Helling]=distMapper2_tester( mapper,  Xte, Tte, Toutte);
             
             % cheating by testing on training set
             % limit = 100;
@@ -77,25 +77,25 @@ classdef ExpMapper
             rng(oldRng);
         end
         
-        function  [mapper, op, C] = knaturalMapper2Test(msgBundle, msgBundleTest, op )
+        function  [mapper, op, Helling, C] = knaturalMapper2Test(msgBundle, msgBundleTest, op )
             
             % Used when selected DistMapper2Factory.learnKNaturalGaussMapper1D
             op.prec_mean_med_factors = myProcessOptions(op, 'prec_mean_med_factors', [1]);
             op.neg_prec_med_factors = myProcessOptions(op, 'neg_prec_med_factors', [1]);
             op.mapper_learner = @DistMapper2Factory.learnKNaturalGaussMapper1D;
-            [mapper, op, C] = ExpMapper.kgenericMapper2Test(msgBundle, msgBundleTest, op );
+            [mapper, op, Helling, C] = ExpMapper.kgenericMapper2Test(msgBundle, msgBundleTest, op );
         end
         
-        function  [mapper, op, C] = kmvMapper2Test(msgBundle, msgBundleTest, op )
+        function  [mapper, op, Helling, C] = kmvMapper2Test(msgBundle, msgBundleTest, op )
             
             % Used when selected DistMapper2Factory.learnKMVMapper1D
             op.mean_med_factors = myProcessOptions(op, 'mean_med_factors', [1, 3]);
             op.variance_med_factors = myProcessOptions(op, 'variance_med_factors', [1, 3]);
             op.mapper_learner = @DistMapper2Factory.learnKMVMapper1D;
-            [mapper, op, C] = ExpMapper.kgenericMapper2Test(msgBundle, msgBundleTest, op );
+            [mapper, op, Helling, C] = ExpMapper.kgenericMapper2Test(msgBundle, msgBundleTest, op );
         end
         
-        function [mapper, op, C] = runSigmoidKMVMapperTestRight(opnew)
+        function [mapper, op, Helling, C] = runSigmoidKMVMapperTestRight(opnew)
             if nargin < 1
                 opnew = [];
             end
@@ -116,11 +116,11 @@ classdef ExpMapper
             msgBundle2Right.reduceTo(nte);
             teBundle = msgBundle2Right;
             
-            [mapper, op, C] = ExpMapper.kmvMapper2Test(trBundle, teBundle, op );
+            [mapper, op, Helling, C] = ExpMapper.kmvMapper2Test(trBundle, teBundle, op );
         end
         
         
-        function [mapper, op, C] = runSigmoidKMVMapperTestLeft(opnew)
+        function [mapper, op, Helling, C] = runSigmoidKMVMapperTestLeft(opnew)
             if nargin < 1
                 opnew = [];
             end
@@ -141,7 +141,7 @@ classdef ExpMapper
             msgBundle2Left.reduceTo(nte);
             teBundle = msgBundle2Left;
             
-            [mapper, op, C] = ExpMapper.kmvMapper2Test(trBundle, teBundle, op );
+            [mapper, op, Helling, C] = ExpMapper.kmvMapper2Test(trBundle, teBundle, op );
         end
     end
     

@@ -1,16 +1,18 @@
-function  [hmean, hvar, hhell]=distMapper2_tester( mapper,  X1, X2, Out)
+function  [hmean, hvar, hhell, Helling]=distMapper2_tester( mapper,  X1, X2, Out)
 %DISTMAPPER2_TESTER A generic tester for DistMapper2.
 % 
 %   Given a dataset and a mapper, compare the mapped output 
 %   out' = mapper(x1, x2) to the ground truth in Out. Then plot.
 %
 %   X1, X2 = array such that each element is accepted by the mapper
-%   Out = array of Distribution
+%   Out = array of Distribution, HasHellingerDistance
 %   Return handles to the plots.
 % 
 
 assert(length(X1)==length(X2));
 assert(length(X2)==length(Out));
+assert(isa(Out, 'Distribution'));
+assert(isa(Out, 'HasHellingerDistance'));
 
 % n test
 nte = length(X1);
