@@ -1,4 +1,4 @@
 kernel-ep
 =========
 
-kernel-based expectation propagation 
+This project is an attempt to learn a kernel-based operator which takes as input all incoming messages to a factor and produces a projected outgoing message. The projected outgoing message is constrained to be a certain parametric form e.g., Gaussian. In ordinary expectation propagation, computing an outgoing message may involve solving a difficult (potentially multdimensional) integral for minimizing the KL divergence between the tilted distribution and the approximate poster. A learned operator allows one to bypass the computation of the integral by directly mapping all incoming messages into an outgoing message. Learning of such mapping is done offline. This approach is useful in an application such as tracking where inference has to be done in real time and numerically computing the integral is infeasible. 
