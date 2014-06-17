@@ -47,8 +47,11 @@ classdef KMVGauss1 < Kernel
         end
       
         function Kvec = pairEval(this, s1, s2)
-            assert(isstruct(s1));
-            assert(isstruct(s2));
+            % s1, s2 can be a DistArray or Distribution. 
+            % The only things KMVGauss1 needs are .mean and .variance which are 
+            % in Distribution.
+            assert(isstruct(s1) || isa(s1, 'Distribution'));
+            assert(isstruct(s2) || isa(s2, 'Distribution'));
             M1=s1.mean;
             M2=s2.mean;
             V1=s1.variance;

@@ -5,8 +5,6 @@ classdef KParams2Gauss1 < Kernel
     %  data variable is a struct with fields
     %  - param1 = a matrix with each column representing 1st parameter d1xn
     %  - param2 = a matrix with each column representing 2nd parameter d2xn
-    %  - param1Name = name of param 1
-    %  - param2Name = name of param 2
     %
     % Intended to be used with Params2Instances
     %

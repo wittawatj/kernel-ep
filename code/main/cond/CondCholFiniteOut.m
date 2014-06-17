@@ -17,7 +17,7 @@ classdef CondCholFiniteOut < InstancesMapper
         
         % (Z-Out*R'(RR' + lambda*eye(ra))^-1 R)/lamb. Needed in mapInstances()
         ZOutR3;
-        
+       
     
     end
     

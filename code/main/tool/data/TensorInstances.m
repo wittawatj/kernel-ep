@@ -2,7 +2,7 @@ classdef TensorInstances < Instances
     %TENSORINSTANCES Meta Instances allowing a combination of many
     %Instances's
     %  The main purpose of this is to form a joint Instances in a tensor
-    %  product space. This is intended to be used with KerProduct.
+    %  product space. This is intended to be used with KProduct.
     
     properties (SetAccess=private)
         % cell array of Instances's

@@ -257,6 +257,7 @@ classdef SigmoidFactor
             op.mean_conv_thresh = 0.05;
             op.var_conv_thresh = 0.5;
             
+            error('call to learnKMVMapper1D needs to be fixed.')
             % learn a mapper from X to theta
             [mapper, C] = DistMapper2Factory.learnKMVMapper1D(X, T, Tout, op);
             saved_op = op;

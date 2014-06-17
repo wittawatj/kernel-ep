@@ -63,6 +63,7 @@ if ~exist(op.clutter_model_path, 'file') || op.retrain_clutter_model
     op.var_conv_thresh = 0.5;
     
     % learn a mapper from X to theta
+    error('call to learnKMVMapper1D needs to be fixed. It now takes in MsgBundle2')
     [mapper, C] = DistMapper2Factory.learnKMVMapper1D(X, T, Tout, op);
     saved_op = op;
     save(op.clutter_model_path, 'mapper', 'C', 'saved_op', 'a', 'w', 's');
