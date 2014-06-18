@@ -34,8 +34,6 @@ xwlist = myProcessOptions(op, 'xwlist', list);
 ywlist = myProcessOptions(op, 'ywlist', list);
 
 % normalized median distance
-% medx = medEGaussian(X);
-% medy = medEGaussian(Y);
 medx = 1;
 medy = 1;
 

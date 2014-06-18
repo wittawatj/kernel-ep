@@ -3,6 +3,7 @@ function clutter_problem( seed )
 if nargin < 1
     seed = 1;
 end
+warning('%s may not work anymore due to the removal of many related files.')
 
 oldRs = RandStream.getGlobalStream();
 rs = RandStream.create('mt19937ar','seed', seed);
