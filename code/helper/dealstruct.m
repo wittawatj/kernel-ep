@@ -18,6 +18,7 @@ end
 if ~isempty(s1) && isempty(s2)
     assert(isstruct(s1));
     s = s1;
+    return;
 end
 
 assert(isstruct(s1));

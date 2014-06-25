@@ -4,7 +4,7 @@ classdef KEGauss1 < Kernel
     %  data variable is a struct with fields
     %  - mean = a matrix with each column representing one mean. dxn
     %  - variance = If d==1, a row vector. If d>1, a dxdxn matrix.
-    %  - d = dimension of the distribution (= size(mean,1))
+    %  data variable can also be DistArray
     %
     % Intended to be used with MV1Instances.
     %

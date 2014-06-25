@@ -21,6 +21,8 @@ classdef MV1Instances < Instances
             assert(size(this.mean, 1)==1);
             this.variance = [arr.variance];
             assert(size(this.variance, 1)==1);
+
+            warning('Should use DistArray instead of MV1Instances.')
         end
         
         function Data=get(this, Ind)

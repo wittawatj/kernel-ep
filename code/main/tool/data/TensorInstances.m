@@ -48,6 +48,12 @@ classdef TensorInstances < Instances
             Ins = this.instancesCell;
             l = Ins{1}.count();
         end
+
+        function dim = tensorDim(this)
+            % Return the size of tensor product.
+            dim = length(this.instancesCell);
+        end
+
     end
     
 end

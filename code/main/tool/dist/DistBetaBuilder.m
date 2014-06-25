@@ -43,6 +43,9 @@ classdef DistBetaBuilder < DistBuilder
             L = DistBeta.empty(r, c);
         end
         
+        function s = shortSummary(this)
+            s = mfilename;
+        end
         
     end
     

@@ -9,7 +9,8 @@ classdef ExpMapper
         
         function [mapper, op, Helling, C] = kgenericMapper2Test(msgBundle, msgBundleTest, op )
             % Need to specify a mapper_learner which is a function taking
-            % (msgBundle, op) -> [mapper, op]
+            % (msgBundle, op) -> [mapper, C] where C is an arbitrary object returned
+            % during the learning of the opeartor.
             % e.g., DistMapper2Factory.learnKMVMapper1D
             %
             % - Learn the conditional mean embedding operator on msgBundle
@@ -74,6 +75,12 @@ classdef ExpMapper
             title(axvar, sprintf('Training size: %d', ntr));
             title(axkl, sprintf('Training size: %d', ntr));
 
+            % print some information
+            [st, i] = dbstack();
+            display(sprintf('Printed from: %s', st(i).name ))
+            display('options used: ');
+            display(op);
+            display(sprintf('mapper: %s', mapper.shortSummary() ));
             rng(oldRng);
         end
         
@@ -97,7 +104,7 @@ classdef ExpMapper
         
         function [mapper, op, Helling, C] = runSigmoidKMVMapperTestRight(opnew)
             if nargin < 1
-                opnew = [];
+                opnew = struct();
             end
             sigmoid_bundle_path = myProcessOptions(opnew, 'sigmoid_bundle_path', ...
                 SigmoidFactor.DEFAULT_BUNDLE_PATH);
@@ -122,7 +129,7 @@ classdef ExpMapper
         
         function [mapper, op, Helling, C] = runSigmoidKMVMapperTestLeft(opnew)
             if nargin < 1
-                opnew = [];
+                opnew = struct();
             end
             sigmoid_bundle_path = myProcessOptions(opnew, 'sigmoid_bundle_path', ...
                 SigmoidFactor.DEFAULT_BUNDLE_PATH);

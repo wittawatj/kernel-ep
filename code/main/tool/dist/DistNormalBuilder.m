@@ -36,6 +36,9 @@ classdef DistNormalBuilder < DistBuilder
             D = DistNormal(m ,v);
         end
         
+        function s = shortSummary(this)
+            s = mfilename;
+        end
         %%%%%%%%%%%%%%%%%%%%5
         
         function S=suffStat(this, X)

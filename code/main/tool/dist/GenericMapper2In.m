@@ -1,10 +1,9 @@
-classdef GenericMVMapper2In < DistMapper2
-    %GENERICMVMAPPER2IN A distribution mapper taking 2 Distribution's.
-    % and outputs another Distribution constructed from the specified
-    % DistBuilder.
-    %   - Use incomplete Cholesky internally. Call CondCholFiniteOut.
-    %   - Use an InstancesMapper with kernel supporting TensorInstances of 2
-    %   MV1Instances. 
+classdef GenericMapper2In < DistMapper2
+    %GENERICMAPPER2IN A distribution mapper taking 2 Distribution's.
+    % and outputs statistics used for constructing 
+    % another Distribution using the specified DistBuilder.
+    %   - Use an InstancesMapper supporting TensorInstances of 2 DistArray's
+    %    
     
     properties (SetAccess=private)
         % a conditional mean embedding operator
@@ -14,7 +13,7 @@ classdef GenericMVMapper2In < DistMapper2
     end
     
     methods
-        function this=GenericMVMapper2In(operator, distBuilder)
+        function this=GenericMapper2In(operator, distBuilder)
             assert(isa(operator, 'InstancesMapper'));
             assert(isa(distBuilder, 'DistBuilder'));
             
@@ -27,9 +26,13 @@ classdef GenericMVMapper2In < DistMapper2
             assert(isa(din1, 'Distribution'));
             assert(isa(din2, 'Distribution'));
             
-            dins1 = MV1Instances(din1);
-            dins2 = MV1Instances(din2);
+            %dins1 = MV1Instances(din1);
+            %dins2 = MV1Instances(din2);
+            dins1 = DistArray(din1);
+            dins2 = DistArray(din2);
             tensorIn =  TensorInstances({dins1, dins2});
+            % Assume the operator outputs a matrix containing distribution 
+            % statistics.
             zoutStat = this.operator.mapInstances(tensorIn);
             
             builder = this.distBuilder;
@@ -37,6 +40,11 @@ classdef GenericMVMapper2In < DistMapper2
             assert(isa(dout, 'Distribution'), ...
                 'distBuilder should construct a Distribution.');
             
+        end
+
+        function s = shortSummary(this)
+            s = sprintf('%s(%s, %s)', mfilename, this.operator.shortSummary(),...
+                this.distBuilder.shortSummary);
         end
     end
     

@@ -80,7 +80,7 @@ classdef DistMapper2Factory
             tensorIn =  TensorInstances({X1Ins, X2Ins});
             outStat = outBuilder.getStat(Out);
             [Op, C] = CondCholFiniteOut.learn_operator(tensorIn, outStat,  op);
-            Map = GenericMVMapper2In(Op, outBuilder);
+            Map = GenericMapper2In(Op, outBuilder);
             
         end
         

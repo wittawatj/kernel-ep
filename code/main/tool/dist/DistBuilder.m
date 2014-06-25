@@ -32,6 +32,8 @@ classdef DistBuilder < handle
         % corresponding weights (on each instance). Weights can be from
         % importance weights, for instance.
         D= fromSamples(this, samples, weights)
+
+        s = shortSummary(this)
     end
     
 end

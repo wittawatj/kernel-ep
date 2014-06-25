@@ -5,7 +5,7 @@ classdef KMVGauss1 < Kernel
     %  data variable is a struct with fields
     %  - mean = a matrix with each column representing one mean. dxn
     %  - variance = a row vector.
-    %  - d = dimension of the distribution (= size(mean,1) = 1)
+    %  data variable can also be a DistArray.
     %
     % Intended to be used with MV1Instances.
     %

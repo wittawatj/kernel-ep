@@ -10,6 +10,9 @@ classdef DistMapper2 < handle
         % Produce an output distribution dout from two input distributions:
         % din1 and din2.
         dout = mapDist2(this, din1, din2);
+
+        % Return a short summary string for this mapper
+        s = shortSummary(this);
     end
     
 end

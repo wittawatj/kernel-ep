@@ -31,6 +31,10 @@ classdef ParamsTensorMapper2In < DistMapper2
             dout = DistNormal(zout(1), zout(2)-zout(1)^2);
             
         end
+
+        function s = shortSummary(this)
+            s = sprintf('%s(%s)', mfilename, this.operator.shortSummary());
+        end
     end
     
     

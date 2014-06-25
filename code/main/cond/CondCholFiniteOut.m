@@ -67,6 +67,12 @@ classdef CondCholFiniteOut < InstancesMapper
 %             Zout = (Z*Krs - (Z*R')*B)/lamb;
             Zout = this.ZOutR3*Krs;
         end
+
+        
+        function s = shortSummary(this)
+            s = sprintf('%s', mfilename);
+        end
+
         
     end %end methods
     

@@ -26,6 +26,7 @@ classdef KParams2Gauss1 < Kernel
             this.param1_width2 = p1width2;
             this.param2_width2 = p2width2;
             
+            warning('usage of %s is discouraged. Should try to unify it with DistArray.');
         end
         
         function Kmat = eval(this, s1, s2)

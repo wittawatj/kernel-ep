@@ -1,8 +1,7 @@
 classdef Gauss1TensorMapper2In < DistMapper2
     %GAUSS1TENSORMAPPER2IN A distribution mapper taking 2 Distribution's.
     % and outputs another DistNormal.
-    %   - Use incomplete Cholesky internally. Call CondCholFiniteOut.
-    %   - Use an InstancesMapper with kernel supporting TensorInstances of 2
+    %   - Use an InstancesMapper supporting TensorInstances of 2
     %   MV1Instances. 
     
     properties (SetAccess=private)
@@ -30,6 +29,10 @@ classdef Gauss1TensorMapper2In < DistMapper2
             % mean = zout(1), uncenter 2nd moment = zout(2)
             dout = DistNormal(zout(1), zout(2)-zout(1)^2);
             
+        end
+
+        function s = shortSummary(this)
+            s = sprintf('%s(%s)', mfilename, this.operator.shortSummary());
         end
     end
     

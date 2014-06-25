@@ -5,7 +5,7 @@ classdef KNaturalGauss1 < Kernel
     %  data variable is a struct with fields
     %  - mean = a matrix with each column representing one mean. dxn
     %  - variance = a row vector.
-    %  - d = dimension of the distribution (= size(mean,1) = 1)
+    %  data can be a DistArray 
     %
     % Intended to be used with MV1Instances. This kernel behaves much
     % like KMVGauss1.
@@ -30,9 +30,7 @@ classdef KNaturalGauss1 < Kernel
         end
         
         function Kmat = eval(this, s1, s2)
-            %             assert(isstruct(s1));
-            %             assert(isstruct(s2));
-            
+            assert(isa(s1, 'Distribution') || isstruct(s1));
             % precision x mean, and negative precision
             [PM1, NP1]=KNaturalGauss1.toNaturalParams(s1.mean, s1.variance);
             [PM2, NP2]=KNaturalGauss1.toNaturalParams(s2.mean, s2.variance);
@@ -48,8 +46,8 @@ classdef KNaturalGauss1 < Kernel
         end
       
         function Kvec = pairEval(this, s1, s2)
-            assert(isstruct(s1));
-            assert(isstruct(s2));
+            assert(isstruct(s1) || isa(s1, 'Distribution'));
+            assert(isstruct(s2) || isa(s2, 'Distribution'));
             
             % precision x mean, and negative precision
             [PM1, NP1]=KNaturalGauss1.toNaturalParams(s1.mean, s1.variance);
