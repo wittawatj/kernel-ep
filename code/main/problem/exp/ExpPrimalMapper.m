@@ -48,7 +48,7 @@ classdef ExpPrimalMapper
             % Typically during LOOCV, the number of features can be low to make
             % it fast to select a candidate.
             op.candidate_primal_features = myProcessOptions(op, ...
-                'candidate_primal_features', 2000);
+                'candidate_primal_features', 1500);
 
             [mapper, op, Helling, C] = ExpMapper.kgenericMapper2Test(trBundle, teBundle, op );
         end
@@ -82,7 +82,13 @@ classdef ExpPrimalMapper
                 @DistMapper2PrimalFactory.learnRFGMVMapper);
 
             % number of primal features to use
-            op.num_primal_features = myProcessOptions(op, 'num_primal_features', 3000);
+            op.num_primal_features = myProcessOptions(op, 'num_primal_features', 5000);
+
+            % number of primal features to use for candidates. 
+            % Typically during LOOCV, the number of features can be low to make
+            % it fast to select a candidate.
+            op.candidate_primal_features = myProcessOptions(op, ...
+                'candidate_primal_features', 1500);
 
             [mapper, op, Helling, C] = ExpMapper.kgenericMapper2Test(trBundle, teBundle, op );
         end

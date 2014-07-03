@@ -99,9 +99,12 @@ for ri=1:length(reglist)
     HTI =  1./(1- sum(P.*AIP, 1)); % 1xn
     B = bsxfun(@times, Z, HTI); % dz x n
     E = C*AIP; % dz x n
-    T = bsxfun(@times, B, HTI)*E'; %dz x dz
-    M = B*B' - T - T' - bsxfun(@times, E, HTI.^2)*E';
-    mse = M(:)'*M(:)/n;
+    EHTI = bsxfun(@times, E, HTI); % dz x n
+    mse = ( B(:)'*B(:) - 2*EHTI(:)'*B(:) + EHTI(:)'*EHTI(:) )/n;
+
+    %T = bsxfun(@times, B, HTI)*E'; %dz x dz
+    %M = B*B' - T - T' - bsxfun(@times, E, HTI.^2)*E';
+    %mse = M(:)'*M(:)/n;
     R(ri) = mse;
 
     fprintf('loocv: lamb: %.3g, fm: %s => err: %.3g\n', ...
