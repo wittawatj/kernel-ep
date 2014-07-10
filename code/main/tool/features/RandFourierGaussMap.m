@@ -41,6 +41,28 @@ classdef RandFourierGaussMap < FeatureMap
             Z = cos(bsxfun(@plus, this.W'*R, this.B'))*sqrt(2/d);
         end
 
+        function g=getGenerator(this, X)
+            g=@(I, J)this.generator(X, I, J);
+
+        end
+
+        function M=generator(this, X, I, J )
+            assert(isnumeric(X));
+            R = X/sqrt(this.gwidth2);
+            d = this.dim;
+            WT = this.W';
+            subW = WT(I, :); %numFeatures x dim
+            subB = this.B(I)';
+            M = cos(bsxfun(@plus, subW*R(:, J), subB))*sqrt(2/d);
+        end
+
+        function M=genFeaturesDynamic(this, X)
+            assert(isa(X, 'DistArray') || isa(X, 'TensorInstances'));
+            g=this.getGenerator(X);
+            n=X.count();
+            M=DefaultDynamicMatrix(g, this.numFeatures, n);
+        end
+
         function s=shortSummary(this)
             s = sprintf('RandFourierGaussMap(w^2=%.3f, #feat=%d)', ...
                 this.gwidth2, this.numFeatures);

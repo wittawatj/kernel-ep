@@ -134,7 +134,7 @@ classdef SigmoidFactor
             % generate some data
             % options
             op.generate_size = n;
-            op.iw_samples = 12e4;
+            op.iw_samples = 20e4;
             op.seed = seed;
             
             op.sample_cond_msg = true;

@@ -26,19 +26,35 @@ classdef CondFMFiniteOut < InstancesMapper
             %
             assert(isnumeric(Out));
             assert(isa(fm, 'FeatureMap'));
-            assert(isnumeric(lambda) && lambda >= 0, 'regularization param must be non-negative.');
+            assert(isnumeric(lambda) && lambda >= 0, ...
+                'regularization param must be non-negative.');
             
             %this.Out = Out;
             this.featureMap = fm;
             this.regParam = lambda;
             
-            P = fm.genFeatures(In); % D x n where D = numFeatures
-            D = size(P, 1);
-            Q = Out*P'; % dy x D
-            % This step can be expensive. O(D^3). But need to be done only once.
-            % P*P' costs O(ND^2)
-            T = Q/(P*P' + lambda*eye(D));
+            %% It is not a good idea to explicitly form P (Dxn)
+            %P = fm.genFeatures(In); % D x n where D = numFeatures
+            %D = size(P, 1);
+            %Q = Out*P'; % dy x D
+            %% This step can be extremely expensive. O(D^3). 
+            %% But need to be done only once.
+            %A = P*P' + lambda*eye(D);
+
+            % Do the lines above with a DynamicMatrix
+            % dm should be treated as P (Dxn) but dynamically generated.
+            dm = fm.genFeaturesDynamic(In);
+            D = size(dm, 1);
+            Q = dm.rmult(Out')';
+            PPT = dm.mmt();
+            clear dm
+            A = PPT + lambda*eye(D);
+
+            opts.POSDEF = true;
+            opts.SYM = true;
+            T = linsolve(A', Q', opts)';
             this.mapMatrix = T;
+
         end
         
         

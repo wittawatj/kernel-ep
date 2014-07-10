@@ -40,27 +40,27 @@ classdef RandFourierGaussMVMap < FeatureMap
         function Z=genFeatures(this, X)  
             % X is a Distribution or DistArray or TensorInstances of DistArray
             % Z = numFeatures x n
-            assert(isa(X, 'DistArray') || isa(X, 'TensorInstances'));
-            [Ms, Vs]=RandFourierGaussMVMap.getAllMV(X);
 
-            if isempty(this.rfgMap)
-                % Initialize the map only once. 
-                % Set width to 1 because we will rescale the input here.
-                dms = cellfun(@(M)size(M,1), Ms );
-                dvs = cellfun(@(V)size(V,1), Vs);
-                dim = sum(dms) + sum(dvs);
-                nf = this.numFeatures;
-                this.rfgMap = RandFourierGaussMap(1, nf, dim);
-            end
-
-            % rescale the inputs
-            CM = cellfun(@(M, p)M/sqrt(p), Ms, num2cell(this.mwidth2s), 'UniformOutput', false);
-            CV = cellfun(@(V, p)V/sqrt(p), Vs, num2cell(this.vwidth2s), 'UniformOutput', false);
-            SM = vertcat(CM{:});
-            SV = vertcat(CV{:});
-            In = [SM; SV];
+            this.initMap(X);
+            % In = stack of rescaled means and variances
+            In = this.toMVStack(X);
             Z = this.rfgMap.genFeatures(In);
 
+        end
+
+        function g=getGenerator(this, X)
+            this.initMap(X);
+            % In = stack of rescaled means and variances
+            In = this.toMVStack(X);
+            g = this.rfgMap.getGenerator(In);
+
+        end
+
+        function M=genFeaturesDynamic(this, X)
+            assert(isa(X, 'DistArray') || isa(X, 'TensorInstances'));
+            g=this.getGenerator(X);
+            n=X.count();
+            M=DefaultDynamicMatrix(g, this.numFeatures, n);
         end
 
         function s=shortSummary(this)
@@ -78,12 +78,38 @@ classdef RandFourierGaussMVMap < FeatureMap
         end
     end
 
-    methods (Access=private)
+    methods(Access=private)
+        function initMap(this, X)
+            % Initialize the map only once. 
+            if isempty(this.rfgMap)
+                dim = RandFourierGaussMVMap.getTotalDim(X);
+                nf = this.numFeatures;
+                % Set width to 1 because we will rescale the input here.
+                this.rfgMap = RandFourierGaussMap(1, nf, dim);
+            end
+        end
 
+        function [In, Ms, Vs] = toMVStack(this, X)
+            % X is a Distribution or DistArray or TensorInstances of DistArray
+            % Z = numFeatures x n
+            assert(isa(X, 'DistArray') || isa(X, 'TensorInstances'));
+            [Ms, Vs]=RandFourierGaussMVMap.getAllMV(X);
 
-    end % end private methods
+            % rescale the inputs
+            CM = cellfun(@(M, p)M/sqrt(p), Ms, num2cell(this.mwidth2s), ...
+                'UniformOutput', false);
+            CV = cellfun(@(V, p)V/sqrt(p), Vs, num2cell(this.vwidth2s), ...
+                'UniformOutput', false);
+            SM = vertcat(CM{:});
+            SV = vertcat(CV{:});
+
+            In = [SM; SV];
+        end
+
+    end %end private methods
 
     methods (Static)
+
 
         function [Means, Vars]=getMV( X)
             % Get mean and variance from a DistArray
@@ -97,6 +123,16 @@ classdef RandFourierGaussMVMap < FeatureMap
                 Vars = [X.variance];
             end
             Means = [X.mean];
+        end
+
+        function dim=getTotalDim(X)
+            assert(X.count()>0, 'X is empty');
+            x = X.instances(1);
+            [Ms, Vs]=RandFourierGaussMVMap.getAllMV(x);
+            dms = cellfun(@(M)size(M,1), Ms );
+            dvs = cellfun(@(V)size(V,1), Vs);
+            dim = sum(dms) + sum(dvs);
+            
         end
 
         function [Ms, Vs]=getAllMV(X)

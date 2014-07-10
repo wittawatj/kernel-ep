@@ -1,5 +1,6 @@
 function [ C] = cond_fm_finiteout( In, Out, op )
-%COND_FM_FINITEOUT Generic leave-one-out cross validation procesure for selecting FeatureMap candidates 
+%COND_FM_FINITEOUT Generic leave-one-out cross validation procesure for
+%selecting FeatureMap candidates 
 % for conditional mean embedding
 %   - Learn C_{Out|In}
 %   - The conditional mean embedding can take any number of inputs. This
@@ -84,21 +85,37 @@ reglist = op.reglist;
 R = inf(length(reglist), 1);
 % Phi hat matrix. Call it P (D x n) where D is the number of primal features.
 % Fixed for all regularization parameters.
-P = fm.genFeatures(In);
-[D, n] = size(P);
-PPt = P*P';
-C = Z*P';    
+%
+% !! Not a good idea to explicitly form P.
+
+%P = fm.genFeatures(In);
+%[D, n] = size(P);
+%PPt = P*P';
+%C = Z*P';    
+
+% Do the above lines with DynamicMatrix
+dm = fm.genFeaturesDynamic(In);
+[D, n] = size(dm);
+PPt = dm.mmt();
+C = dm.rmult(Z')'; % dz x D
+
 for ri=1:length(reglist)
     lambda = reglist(ri);
     
+    A = PPt + lambda*eye(D);
+    opts.POSDEF = true;
+    opts.SYM = true;
     % this line can be expensive. DxD inverse. O(D^3) complexity.
     % D may be large enough so that O(D^3) is expensive. 
     % But, this is certainly better than O(N^3) where dual solution is used.
-    AIP = (PPt + lambda*eye(D))\P;
+    T = linsolve(A', C')'; % dz x D
+    clear A
+    hdiag = dm.dmtim(lambda, PPt);
     % H tilde inverted
-    HTI =  1./(1- sum(P.*AIP, 1)); % 1xn
+    HTI =  1./(1- hdiag); % 1xn
+
     B = bsxfun(@times, Z, HTI); % dz x n
-    E = C*AIP; % dz x n
+    E = dm.lmult(T); % dz x n
     EHTI = bsxfun(@times, E, HTI); % dz x n
     mse = ( B(:)'*B(:) - 2*EHTI(:)'*B(:) + EHTI(:)'*EHTI(:) )/n;
 
