@@ -171,11 +171,20 @@ classdef DistNormal < handle & GKConvolvable & Sampler ...
             var = inv(prec);
             D = DistNormal(nmean, var);
         end
+
+        %%%%%%%%%%%%%%%%%%%%5
+        function s=saveobj(this)
+            s.mean=this.mean;
+            s.variance=this.variance;
+        end
         
     end %end methods
     
     
     methods (Static)
+        function obj=loadobj(s)
+            obj=DistNormal(s.mean, s.variance);
+        end
         
         function S=suffStat(X)
             ssb = DistNormalBuilder();

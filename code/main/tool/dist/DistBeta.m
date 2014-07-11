@@ -84,9 +84,18 @@ classdef DistBeta < handle &  Sampler & Density & Distribution ...
             
         end
         
+        %%%%%%%%%%%%%%%%%%%%%%
+        function s=saveobj(this)
+            s.alpha=this.alpha;
+            s.beta=this.beta;
+        end
     end
     
     methods (Static)
+        function obj=loadobj(s)
+            obj=DistBeta(s.alpha, s.beta);
+        end
+
         function builder = getDistBuilder()
             builder=DistBetaBuilder();
         end
