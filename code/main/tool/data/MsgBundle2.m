@@ -4,6 +4,8 @@ classdef MsgBundle2 < handle
     % The container contains left messages x, right messages t and target
     % output messages.
     %
+    % Deprecated. This class is superseded by MsgBundle.
+    %
     %
     
     properties
