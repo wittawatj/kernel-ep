@@ -14,18 +14,17 @@ classdef OptionsDescription < handle
             this.keyValueStruct=kv;
         end
 
+        function newOd=merge(this, od)
+            % merge OptionsDescription od into this.
+            % If there are duplicate keys, keys (and values) 
+            % in od are kept.
+            assert(isa(od, 'OptionsDescription'));
+            newStruct=dealstruct(this.keyValueStruct, od);
+            newOd=OptionsDescription(newStruct);
+        end
+
         function show(this)
-            % longest key length
-            L=length(OptionsDescription.longestKey(this.keyValueStruct));
-            L=max(L, 8);
-            F=fieldnames(this.keyValueStruct);
-            st=this.keyValueStruct;
-            format=['%', num2str(L), 's -> %s'];
-            display(sprintf(format, 'options', 'description'));
-            for i=1:length(F)
-                k=F{i};
-                display(sprintf(format, k, st.(F{i})));
-            end
+            display(this.keyValueStruct);
         end
 
     end

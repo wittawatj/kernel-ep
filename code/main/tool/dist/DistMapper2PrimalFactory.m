@@ -72,7 +72,7 @@ classdef DistMapper2PrimalFactory
             % learn operator
             outStat = outBuilder.getStat(Out);
             [Op, C] = CondFMFiniteOut.learn_operator(tensorIn, outStat,  op);
-            Map = GenericMapper2In(Op, outBuilder);
+            Map = GenericMapper(Op, outBuilder, 2);
             
         end
         

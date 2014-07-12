@@ -7,6 +7,7 @@ function [ X, T, Xout, Tout ] = gentrain_dist2(X, T, op)
 % Xout, Tout contain outgoing messages without dividing by the cavity i.e.,
 % q(.).
 %
+% TODO: use multicore package to generate in parallel
 
 % Typically an array of DistNormal
 assert(isa(X, 'Density'));

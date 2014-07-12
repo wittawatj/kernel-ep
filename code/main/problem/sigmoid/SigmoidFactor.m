@@ -2,6 +2,8 @@ classdef SigmoidFactor
     %SIGMOIDFACTOR A deterministic sigmoid factor.
     %   Assume convention p(x|t) where p(.|t) is a delta distribution
     %   because the factor is deterministic.
+    %
+    %   This class is deprecated. See SigmoidBundleGenerator
     
     properties
     end
@@ -21,6 +23,8 @@ classdef SigmoidFactor
         end
         
         function [ X, T, Xout, Tout, op ] = genData(op)
+            %Deprecated: see SigmoidBundleGenerator
+            %
             %Generate training set (messages) for sigmoid factor.
             %
             % T = theta

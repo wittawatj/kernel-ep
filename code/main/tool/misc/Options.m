@@ -1,15 +1,27 @@
 classdef Options < handle
     %OPTIONS A set of key-value pairs to be used to specify options.
-    %    .
+    %    Usage: let o=this. 
+    %    o.opt('a') to get option setting of key 'a'
+    %    o.opt('a', 5) set key 'a' to 5
     
-    properties(SetAccess=protected)
+    properties(SetAccess=protected )
         % struct storing options
         opStruct;
     end
     
     methods
-        function this=Options()
-            this.opStruct=struct();
+
+        function this=Options(st)
+            if nargin<1
+                st=struct();
+            end
+
+            assert(isstruct(st));
+            this.opStruct=st;
+        end
+
+        function st=toStruct(this)
+            st=this.opStruct;
         end
 
         function addOptions(this, options)
@@ -28,14 +40,29 @@ classdef Options < handle
 
         end
 
+        function v=opt(this, key, value)
+            if nargin < 3
+                % no value is specified
+                v=this.opStruct.(key);
+                return;
+            end
+            this.setOption(key, value);
+        end
+
+
         function setOption(this, key, value)
             assert(ischar(key));
             s=this.opStruct;
             % raise an error if key contains space
             s.(key)=value;
+            this.opStruct=s;
         end
 
-    end
+        function show(this)
+            % longest key length
+            display(this.opStruct);
+        end
+    end % end methods
     
 end
 

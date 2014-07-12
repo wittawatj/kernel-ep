@@ -32,11 +32,14 @@ classdef DefaultDynamicMatrix < DynamicMatrix
             this.cols = cols;
                 % number of elements to process at a time
                 % 1e6 -> 8MB
-            this.chunkSize = 1e6;
+            this.chunkSize = 2e6;
         end
 
 
         % override to allow indexing with M(:, 2:5) for example.
+        % This interferes with the usual method calls.
+        % this.method() will also trigger subsref(). 
+        %
         % assert(isnumeric(B));
         %function B = subsref(this, S)
         %    if ~strcmp(S.type, '()')

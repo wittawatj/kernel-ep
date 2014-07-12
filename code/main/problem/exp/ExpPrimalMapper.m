@@ -9,7 +9,6 @@ classdef ExpPrimalMapper
     methods (Static)
         
         
-        
         function [mapper, op, Helling, C] = runSigmoidMapperTestRight(opnew)
             % Test sending to t in p(x|t). In SigmoidFactor t is Gaussian, x is Beta.
             if nargin < 1

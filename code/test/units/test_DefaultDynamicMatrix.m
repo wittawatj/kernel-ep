@@ -8,7 +8,7 @@ function test_mult()
     doMult(1);
     doMult(6);
     doMult(13);
-    doMult(1e4);
+    doMult(1e5);
 end
 
 function doMult(chunkSize)
