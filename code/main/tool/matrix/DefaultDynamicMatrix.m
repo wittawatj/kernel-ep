@@ -129,7 +129,8 @@ classdef DefaultDynamicMatrix < DynamicMatrix
             if nargin < 3
                 mmt = this.mmt();
             end
-            [D, n] = size(mmt);
+            D = size(mmt, 1);
+            assert(D==this.rows);
             % such that R'*R = A
             A = mmt + lambda*eye(D);
             R = chol(A);
@@ -138,7 +139,7 @@ classdef DefaultDynamicMatrix < DynamicMatrix
             chunkCols = floor(this.chunkSize/this.rows);
             chunkCols = max(1, chunkCols);
             display(sprintf('chunkCols: %d', chunkCols));
-            v = zeros(1, n);
+            v = zeros(1, this.cols);
             colStart = 1;
             g = this.generator;
             % linsolve options 

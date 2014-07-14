@@ -13,7 +13,7 @@ classdef MsgBundle < handle
         distArray=getInputBundle(this, index);
 
         % Return all input DistArray's in a cell array.
-        daCell=getInputbundles(this);
+        daCell=getInputBundles(this);
         
         % return the number of incoming variables (connected variables to a factor)
         d=numInVars(this);

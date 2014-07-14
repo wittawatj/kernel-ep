@@ -67,11 +67,27 @@ classdef RandFourierGaussMap < FeatureMap
             s = sprintf('RandFourierGaussMap(w^2=%.3f, #feat=%d)', ...
                 this.gwidth2, this.numFeatures);
         end
+
+        function s=saveobj(this)
+            s.gwidth2=this.gwidth2;
+            s.numFeatures=this.numFeatures;
+            s.dim=this.dim;
+            s.W=this.W;
+            s.B=this.B;
+        end
     end
 
-    methods (Access=private)
-        
+    methods(Static)
+        function obj=loadobj(s)
+            % constructor will draw W, B. Inefficient because they will be 
+            % replaced anyway.
+            obj=RandFourierGaussMap(s.gwidth2, s.numFeatures, s.dim);
+            % Whatever... for now
+            obj.W=s.W;
+            obj.B=s.B;
+        end
     end
+
 
 end
 

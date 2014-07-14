@@ -107,10 +107,21 @@ classdef RandFourierGaussMVMap < FeatureMap
             In = [SM; SV];
         end
 
+        function s=saveobj(this)
+            s.mwidth2s=this.mwidth2s;
+            s.vwidth2s=this.vwidth2s;
+            s.numFeatures=this.numFeatures;
+            s.rfgMap=this.rfgMap;
+        end
+
     end %end private methods
 
     methods (Static)
 
+        function obj=loadobj(s)
+            obj=RandFourierGaussMVMap(s.mwidth2s, s.vwidth2s, s.numFeatures );
+            obj.rfgMap=s.rfgMap;
+        end
 
         function [Means, Vars]=getMV( X)
             % Get mean and variance from a DistArray

@@ -12,7 +12,7 @@ classdef GenericMapper < DistMapper2 & DistMapper
         distBuilder;
 
         %number of incoming variables
-        numInVars;
+        nv;
     end
     
     methods
@@ -23,7 +23,7 @@ classdef GenericMapper < DistMapper2 & DistMapper
             
             this.operator = operator;
             this.distBuilder = distBuilder;
-            this.numInVars=numInVars;
+            this.nv=numInVars;
         end
         
         
@@ -97,7 +97,7 @@ classdef GenericMapper < DistMapper2 & DistMapper
         % return the number of incoming messages
         % this mapper expects to take.
         function nv=numInVars(this)
-            nv=this.numInVars;
+            nv=this.nv;
         end
 
 
@@ -105,8 +105,24 @@ classdef GenericMapper < DistMapper2 & DistMapper
             s = sprintf('%s(%s, %s)', mfilename, this.operator.shortSummary(),...
                 this.distBuilder.shortSummary);
         end
+
+        function s=saveobj(this)
+            s.operator=this.operator;
+            s.distBuilder=this.distBuilder;
+            s.nv=this.nv;
+        end
+
     end
     
       
+    methods(Static)
+        function obj=loadobj(s)
+
+            operator=s.operator;
+            distBuilder=s.distBuilder;
+            nv=s.nv;
+            obj=GenericMapper(operator, distBuilder, nv);
+        end
+    end
 end
 

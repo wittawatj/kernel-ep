@@ -37,7 +37,8 @@ classdef DynamicMatrix < handle
         % d = diag, m=M, t=transpose, i=inverse
         % Input: mmt = M*M'. If not specified, it should be computed by 
         % this.mmt()
-        P = dmtim(this, lambda, mmt);
+        % return a row vector of length this.cols.
+        v = dmtim(this, lambda, mmt);
 
         % convert back to numerical matrix 
         M = toNumeric(this);

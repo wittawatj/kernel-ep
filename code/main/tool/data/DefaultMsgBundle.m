@@ -40,7 +40,7 @@ classdef DefaultMsgBundle < MsgBundle
             distArray=this.inDistArrays{index};
         end
 
-        function daCell=getInputbundles(this)
+        function daCell=getInputBundles(this)
             daCell=this.inDistArrays;
 
         end

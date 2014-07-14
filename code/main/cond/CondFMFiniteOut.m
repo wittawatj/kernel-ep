@@ -25,6 +25,7 @@ classdef CondFMFiniteOut < InstancesMapper
             % lambda = regularization parameter
             %
             assert(isnumeric(Out));
+            assert(isa(In, 'Instances'));
             assert(isa(fm, 'FeatureMap'));
             assert(isnumeric(lambda) && lambda >= 0, ...
                 'regularization param must be non-negative.');
@@ -71,10 +72,27 @@ classdef CondFMFiniteOut < InstancesMapper
         function s = shortSummary(this)
             s = sprintf('%s(%s)', mfilename, this.featureMap.shortSummary());
         end
+
+        function s=saveobj(this)
+            s.featureMap=this.featureMap;
+            s.regParam=this.regParam;
+            s.mapMatrix=this.mapMatrix;
+        end
+
     end %end methods
     
     methods (Static)
         
+        function obj=loadobj(s)
+            % This values are just to make the constructor happy.
+            fakeIn=DistArray(DistNormal(0, 1));
+            fakeOut=[1,2]';
+            obj= CondFMFiniteOut(s.featureMap, fakeIn, fakeOut, s.regParam);
+            obj.featureMap=s.featureMap;
+            obj.mapMatrix=s.mapMatrix;
+           
+        end
+
         function [Op, C] = learn_operator(In, Out,  op)
             % In is likely to be a TensorInstances
             assert(isa(In, 'Instances'));

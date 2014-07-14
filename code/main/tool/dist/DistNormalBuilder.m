@@ -12,7 +12,8 @@ classdef DistNormalBuilder < DistBuilder
         end
         
         function S=getStat(this, D)
-            assert(isa(D, 'DistNormal'));
+            assert(isa(D, 'DistNormal') || isa(D, 'DistArray'));
+            assert(~isa(D, 'DistArray') || isa(D.distArray, 'DistNormal'));
             assert(D(1).d==1, 'Only 1d Gaussian is supported');
             M = [D.mean];
             M2 = [D.variance] + M.^2;

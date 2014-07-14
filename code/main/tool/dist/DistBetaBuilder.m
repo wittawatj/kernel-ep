@@ -6,7 +6,8 @@ classdef DistBetaBuilder < DistBuilder
     
     methods
         function S=getStat(this, D)
-            assert(isa(D, 'DistBeta'));
+            assert(isa(D, 'DistBeta') || isa(D, 'DistArray'));
+            assert(~isa(D, 'DistArray') || isa(D.distArray, 'DistBeta'));
             % stat is the first two moments.
             M = [D.mean];
             M2 = [D.variance] + M.^2;
