@@ -1,5 +1,6 @@
 classdef DistNormalBuilder < DistBuilder
     %DISTNORMALBUILDER DistBuilder for DistNormal
+    %    Work for 1d DistNormal currently. Support DistArray.
     
     properties
     end

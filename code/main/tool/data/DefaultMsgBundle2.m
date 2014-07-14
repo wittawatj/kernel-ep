@@ -1,6 +1,8 @@
 classdef DefaultMsgBundle2 < MsgBundle2
     %DEFAULTMSGBUNDLE2 Default implementation of MsgBundle2
     %
+    % This class is deprecated. Consider using DefaultMsgBundle.
+    %
     
     properties (SetAccess=protected)
         % X messages in p(x|t).

@@ -34,7 +34,7 @@ classdef GenericMapper < DistMapper2 & DistMapper
             dout=this.mapDists(din1, din2);
         end
 
-        %%%%%%%%% Methods frim DistMapper %%%%%
+        %%%%%%%%% Methods from DistMapper %%%%%
 
         % Produce an output distribution dout from input distributions 
         % (instances of Distribution)

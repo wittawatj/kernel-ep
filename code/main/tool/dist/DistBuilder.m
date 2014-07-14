@@ -1,5 +1,6 @@
 classdef DistBuilder < handle
     %DISTBuilder A Distribution object builder from samples.
+    %    Subclasses should support Distribution and DistArray.
     
     properties
     end

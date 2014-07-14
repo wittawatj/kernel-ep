@@ -4,6 +4,7 @@ classdef DistMapper2 < handle
     %   This is useful for representing an operation of gathering all
     %   incoming messages (two in this case) and output a projected message
     %   in EP.
+    %
     %   Superseded by DistMapper. This class is deprecated.
     
     properties

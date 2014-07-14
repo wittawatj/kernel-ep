@@ -40,7 +40,11 @@ classdef DefaultMsgBundle < MsgBundle
             distArray=this.inDistArrays{index};
         end
 
-        
+        function daCell=getInputbundles(this)
+            daCell=this.inDistArrays;
+
+        end
+
         % return the number of incoming variables (connected variables to a factor)
         function d=numInVars(this)
             d=length(this.inDistArrays);
@@ -94,6 +98,25 @@ classdef DefaultMsgBundle < MsgBundle
             assert(isa(teOut, 'DistArray'));
             trBundle=DefaultMsgBundle(trOut, trInDists{:});
             teBundle=DefaultMsgBundle(teOut, teInDists{:});
+
+        end
+
+        function msgBundle=subsample(this, n)
+            assert(n>0, 'subsample size must be positive');
+            if n>=this.count()
+                msgBundle=this;
+                return;
+            end
+
+            nv=this.numInVars();
+            newInDas=cell(1, nv);
+            I=randperm(this.count(), n);
+            for i=1:nv
+                da=this.inDistArrays{i};
+                newInDas{i}=da.instances(I);
+            end
+            newOutDa=this.outDistArray.instances(I);
+            msgBundle=DefaultMsgBundle(newOutDa, newInDas{:});
 
         end
 

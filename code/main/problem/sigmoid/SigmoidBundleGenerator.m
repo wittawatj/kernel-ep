@@ -66,7 +66,7 @@ classdef SigmoidBundleGenerator < BundleGenerator & HasOptions
 
         function fbundles=genBundles(this, n)
 
-            op=this.getDefaultOptions().toStruct();
+            op=this.options.toStruct();
             [ X, T, Xout, Tout ]=SigmoidBundleGenerator.genOutBundles(n, op);
             Xda=DistArray(X);
             Tda=DistArray(T);
@@ -84,9 +84,18 @@ classdef SigmoidBundleGenerator < BundleGenerator & HasOptions
             s=mfilename;
         end
 
+        function s=saveobj(this)
+            s.options=this.options;
+        end
+
     end
     
     methods(Static)
+        function obj=loadobj(s)
+            obj=SigmoidBundleGenerator();
+            obj.options=s.options;
+        end
+
         function s=sigmoid(z)
             s = 1./(1+exp(-z));
         end

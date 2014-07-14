@@ -17,6 +17,7 @@ classdef DistArray < Distribution & Instances
         % cached parameters. This is a cell array of parameters (which is also
         % a cell array).
         parameters;
+
     end
     
     methods
@@ -68,6 +69,9 @@ classdef DistArray < Distribution & Instances
             p = arrayfun(@(x)(x.isProper()), this.distArray);
         end
 
+        function names=getParamNames(this)
+            names=this.distArray(1).getParamNames();
+        end
         %%%%%%%%%%%%%%%%
         %%% For Instances interface
         
