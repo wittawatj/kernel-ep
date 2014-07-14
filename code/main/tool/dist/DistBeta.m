@@ -61,6 +61,10 @@ classdef DistBeta < handle &  Sampler & Density & Distribution ...
             b = this.beta;
             p = isfinite(a) && isfinite(b) && a>0 && b>0;
         end
+
+        function names=getParamNames(this)
+            names={'alpha', 'beta'};
+        end
         
         
         function X = sampling0(this, N)

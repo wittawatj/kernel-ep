@@ -116,6 +116,10 @@ classdef DistNormal < handle & GKConvolvable & Sampler ...
             mm = norm(this.mean);
             p = isfinite(vv) && isfinite(mm) && this.variance >0;
         end
+
+        function names=getParamNames(this)
+            names={'mean', 'variance'};
+        end
         
         function dist=distHellinger(this, d2)
             % Compute Hellinger distance from this DistNormal to d2,

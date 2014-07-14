@@ -15,6 +15,10 @@ classdef Distribution < handle
         % variance, not having inf mean, etc.
         p=isProper(this);
         
+        % Return the names in cell array corresponding to this.parameters
+        % The cell array must have the same length as this.parameters.
+        names=getParamNames(this);
+
     end
     
     methods (Static)
