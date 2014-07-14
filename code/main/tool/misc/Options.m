@@ -49,6 +49,11 @@ classdef Options < handle
             this.setOption(key, value);
         end
 
+        function has=hasKey(this, key)
+            % return true if key exists in the opStruct.
+            has=isfield(this.opStruct, key);
+
+        end
 
         function setOption(this, key, value)
             assert(ischar(key));
@@ -62,7 +67,17 @@ classdef Options < handle
             % longest key length
             display(this.opStruct);
         end
+
+        function s=saveobj(this)
+            s.opStruct=this.opStruct;
+        end
     end % end methods
+
+    methods(Static)
+        function obj=loadobj(s)
+            obj=Options(s.opStruct);
+        end
+    end
     
 end
 

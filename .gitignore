@@ -22,5 +22,9 @@ code/3rdparty/kernelBP_chol
 code/3rdparty/kernelBP_loopy
 code/3rdparty/qsub
 code/3rdparty/slurm
+code/3rdparty/m2html/
+code/3rdparty/ApproximateGram/
+code/3rdparty/mtimesx/
 *.mbak
 *.swp
+code/doc/*

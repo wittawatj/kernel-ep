@@ -44,6 +44,7 @@ classdef RandFourierGaussMVMap < FeatureMap
             this.initMap(X);
             % In = stack of rescaled means and variances
             In = this.toMVStack(X);
+            assert(isnumeric(In));
             Z = this.rfgMap.genFeatures(In);
 
         end
@@ -90,7 +91,7 @@ classdef RandFourierGaussMVMap < FeatureMap
         end
 
         function [In, Ms, Vs] = toMVStack(this, X)
-            % X is a Distribution or DistArray or TensorInstances of DistArray
+            % X is a DistArray or TensorInstances of DistArray
             % Z = numFeatures x n
             assert(isa(X, 'DistArray') || isa(X, 'TensorInstances'));
             [Ms, Vs]=RandFourierGaussMVMap.getAllMV(X);

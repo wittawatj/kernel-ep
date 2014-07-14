@@ -12,7 +12,8 @@ One saved file should contain only one object. The object may contain a hierarch
 of datasets.
 
 ### To do 
-* Comsider mex for DefaultDynamicMatrix.mmt(). This is the bottleneck.
+
+* save/load for frequently used classes.
 
 * Test a learned operator with more test messages (2000 in Nicolas's paper). 
 Plot the histogram of Hellinger distances to the ground truth.  Treat an
