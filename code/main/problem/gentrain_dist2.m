@@ -22,7 +22,7 @@ N = length(X);
 seed = myProcessOptions(op, 'seed', 1);
 
 % importance sampling data size. K in Nicolas's paper.
-iw_samples = myProcessOptions(op, 'iw_samples', 5e4);
+iw_samples = myProcessOptions(op, 'iw_samples', 1e5);
 
 % Importance weight vector can be a numerically zero vector when, for
 % example, the messages have very small variance. iw_trials specifies the
@@ -30,12 +30,12 @@ iw_samples = myProcessOptions(op, 'iw_samples', 5e4);
 % messages.
 iw_trials = myProcessOptions(op, 'iw_trials', 5);
 
-% Instead of samplilng from the in_proposal, if sample_cond_msg is true,
+% Instead of sampling from the in_proposal, if sample_cond_msg is true,
 % then sample from mt (message from T) instead. T is the conditioned
 % variable. If true, in_proposal is not needed and ignored.
 sample_cond_msg = myProcessOptions(op, 'sample_cond_msg', false);
 
-% The DistBuilder for x in p(x|t) i.e., the left variable. This SSBuilder will
+% The DistBuilder for x in p(x|t) i.e., the left variable. This DistBuilder will
 % determine the output distribution of x. If [], Xout will be [].
 % Output DistNormal by default.
 if isfield(op, 'left_distbuilder')
@@ -49,7 +49,7 @@ else
 end
 assert(isa(left_distbuilder, 'DistBuilder') || isempty(left_distbuilder));
 
-% The DistBuilder for t in p(x|t) i.e., the right variable. This SSBuilder will
+% The DistBuilder for t in p(x|t) i.e., the right variable. This DistBuilder will
 % determine the output distribution of t. If [], Tout will be [].
 % Output DistNormal by default.
 if isfield(op, 'right_distbuilder')
@@ -139,7 +139,7 @@ for i=1:N
         else
             if j==iw_trials
                 % not successful 
-                BadInd(end+1) = index;
+                BadInd(end+1) = i;
                 % Assume mx and mt are somehow hard to deal with. Skip
             end
             % Try again
@@ -153,12 +153,18 @@ end
 X(BadInd) = [];
 T(BadInd) = [];
 if isempty(left_distbuilder)
-   Xout=[];
+    Xout=[];
+else
+    assert(length(Xout)==length(X));
 end
 
 if isempty(right_distbuilder)
     Tout = [];
+else
+    assert(length(Tout)==length(T));
 end
+
+assert(length(X)==length(T));
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 RandStream.setGlobalStream(oldRs);
