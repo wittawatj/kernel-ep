@@ -1,5 +1,5 @@
 classdef DistBeta < handle &  Sampler & Density & Distribution ...
-        & HasHellingerDistance
+        & HasHellingerDistance & HasKLDivergence
     %DISTBETA Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -86,6 +86,22 @@ classdef DistBeta < handle &  Sampler & Density & Distribution ...
             r = beta( (a1+a2)/2, (b1+b2)/2 )/sqrt(beta(a1,b1)*beta(a2,b2));
             dist = sqrt(1 - r);
             
+        end
+
+        function div=klDivergence(this, d2)
+
+            assert(this.isProper(), 'This DistBeta is not proper.')
+            assert(d2.isProper(), 'd2 is not a proper DistBeta');
+
+            a1 = this.alpha;
+            b1 = this.beta;
+            a2 = d2.alpha;
+            b2 = d2.beta;
+
+            %https://en.wikipedia.org/wiki/Beta_distribution
+            div=betaln(a2, b2)-betaln(a1, b1) +(a1-a2)*psi(a1) ...
+                +(b1-b2)*psi(b1) +(a2-a1+b2-b1)*psi(a1+b1);
+
         end
         
         %%%%%%%%%%%%%%%%%%%%%%

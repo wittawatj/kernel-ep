@@ -47,6 +47,8 @@ classdef CondFMFiniteOut < InstancesMapper
             dm = fm.genFeaturesDynamic(In);
             D = size(dm, 1);
             Q = dm.rmult(Out')';
+            % PPT is DxD where D is the number of primal features.
+            % D > 1e4 and it may take up too much memory.
             PPT = dm.mmt();
             clear dm
             A = PPT + lambda*eye(D);
@@ -73,25 +75,27 @@ classdef CondFMFiniteOut < InstancesMapper
             s = sprintf('%s(%s)', mfilename, this.featureMap.shortSummary());
         end
 
-        function s=saveobj(this)
-            s.featureMap=this.featureMap;
-            s.regParam=this.regParam;
-            s.mapMatrix=this.mapMatrix;
-        end
+        %function s=saveobj(this)
+            %s.featureMap=this.featureMap;
+            %s.regParam=this.regParam;
+            %s.mapMatrix=this.mapMatrix;
+        %end
 
     end %end methods
     
     methods (Static)
         
-        function obj=loadobj(s)
-            % This values are just to make the constructor happy.
-            fakeIn=DistArray(DistNormal(0, 1));
-            fakeOut=[1,2]';
-            obj= CondFMFiniteOut(s.featureMap, fakeIn, fakeOut, s.regParam);
-            obj.featureMap=s.featureMap;
-            obj.mapMatrix=s.mapMatrix;
+        %function obj=loadobj(s)
+            %% This values are just to make the constructor happy.
+            %fakeIn=DistArray(DistNormal(0, 1));
+            %fakeOut=[1,2]';
+            %obj= CondFMFiniteOut(s.featureMap, fakeIn, fakeOut, s.regParam);
+            %assert(isa(s.featureMap, 'FeatureMap'));
+            %obj.featureMap=s.featureMap;
+            %assert(isnumeric(s.mapMatrix));
+            %obj.mapMatrix=s.mapMatrix;
            
-        end
+        %end
 
         function [Op, C] = learn_operator(In, Out,  op)
             % In is likely to be a TensorInstances
@@ -102,7 +106,7 @@ classdef CondFMFiniteOut < InstancesMapper
             % Allow the change of numFeatures in case the number is reduced 
             % during  LOOCV.
             op.num_primal_features = myProcessOptions(op, 'num_primal_features', ...
-                2000);
+                1e4);
             map = bestMap.cloneParams(op.num_primal_features);
             Op = CondFMFiniteOut(map, In, Out, lambda);
         end

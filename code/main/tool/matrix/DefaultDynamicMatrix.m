@@ -138,7 +138,7 @@ classdef DefaultDynamicMatrix < DynamicMatrix
 
             chunkCols = floor(this.chunkSize/this.rows);
             chunkCols = max(1, chunkCols);
-            display(sprintf('chunkCols: %d', chunkCols));
+            %display(sprintf('chunkCols: %d', chunkCols));
             v = zeros(1, this.cols);
             colStart = 1;
             g = this.generator;

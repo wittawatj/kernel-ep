@@ -31,7 +31,7 @@ classdef SigmoidBundleGenerator < BundleGenerator & HasOptions
         function Op=getDefaultOptions(this)
             st=struct();
             st.seed=1;
-            st.in_proposal=DistNormal(0, 6);
+            st.in_proposal=DistNormal(0, 8);
             % X is beta in p(x|t)
             st.var1_distbuilder = DistBetaBuilder();
             % T is Gaussian in p(x|t)
@@ -145,6 +145,11 @@ classdef SigmoidBundleGenerator < BundleGenerator & HasOptions
             op.right_distbuilder=op.var2_distbuilder;
             
             [ X, T, Xout, Tout ] = gentrain_dist2(X, T, op);
+
+            assert(length(X)==length(T));
+            assert(length(T)==length(Xout));
+            assert(length(Xout)==length(Tout));
+
             rng(oldRng);
         end
     end

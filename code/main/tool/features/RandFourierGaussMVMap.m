@@ -77,6 +77,13 @@ classdef RandFourierGaussMVMap < FeatureMap
             map = RandFourierGaussMVMap(this.mwidth2s, ...
                 this.vwidth2s, numFeatures);
         end
+
+        function s=saveobj(this)
+            s.mwidth2s=this.mwidth2s;
+            s.vwidth2s=this.vwidth2s;
+            s.numFeatures=this.numFeatures;
+            s.rfgMap=this.rfgMap;
+        end
     end
 
     methods(Access=private)
@@ -107,12 +114,6 @@ classdef RandFourierGaussMVMap < FeatureMap
             In = [SM; SV];
         end
 
-        function s=saveobj(this)
-            s.mwidth2s=this.mwidth2s;
-            s.vwidth2s=this.vwidth2s;
-            s.numFeatures=this.numFeatures;
-            s.rfgMap=this.rfgMap;
-        end
 
     end %end private methods
 

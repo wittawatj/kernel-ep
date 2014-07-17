@@ -2,7 +2,7 @@ classdef DistMapperTester < handle & HasOptions
     %DISTMAPPERTESTER Generic class to test a DistMapper.
     %    What to test depends on the implementation of a subclass.
     
-    properties(SetAccess=protected)
+    properties(Abstract, SetAccess=protected)
         % The DistMapper to test
         distMapper;
     end
@@ -16,6 +16,9 @@ classdef DistMapperTester < handle & HasOptions
 
         % summary in string of this DistMapperTester
         s=shortSummary(this);
+
+        % Compare the output DistArray to the groundTruth DistArray.
+        %compareOutputs(output, groundTruth);
 
     end
     

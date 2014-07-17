@@ -17,6 +17,7 @@ classdef DistMapper < handle
         % input Distribution's. varargin is a cell array of DistArray. 
         % Each DistArray corresponds to messages of a variable. 
         % All DistArray's must have the same length.
+        % Return a DistArray
         douts=mapDistArrays(this, varargin);
 
         % Same as mapDists() with input messages represented by an instance 
@@ -29,6 +30,19 @@ classdef DistMapper < handle
 
         % Return a short summary string for this mapper
         s = shortSummary(this);
+    end
+
+    methods
+        % convenient method to map all incoming messages in MsgBundle.
+        % Return a DistArray of output messages.
+        function outDa=mapMsgBundle(this, msgBundle)
+            assert(isa(msgBundle, 'MsgBundle'));
+            % cell array of DistArray's
+            inDas=msgBundle.getInputBundles();
+            outDa=this.mapDistArrays(inDas{:});
+            
+        end
+
     end
     
 end

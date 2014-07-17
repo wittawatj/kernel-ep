@@ -1,4 +1,4 @@
-classdef Distribution < handle
+classdef Distribution < handle & Density
     %DIST A semantic tag for distributions.
     
     properties (Abstract, SetAccess=protected)

@@ -56,6 +56,11 @@ classdef DistArray < Distribution & Instances
             V = this.variance; 
         end
 
+        function D=density(this, X)
+            error('density() evaluated on a DistArray is not supported yet.');
+
+        end
+
         function P = get.parameters(this)
             if isempty(this.parameters)
                 this.parameters = { this.distArray.parameters };

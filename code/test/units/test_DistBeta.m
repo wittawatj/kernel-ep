@@ -61,3 +61,19 @@ function test_distHellinger()
 end
 
 
+function test_klDivergence()
+    %https://en.wikipedia.org/wiki/Beta_distribution
+    d1=DistBeta(1, 1);
+    d2=DistBeta(3, 3);
+    assert(abs(d1.klDivergence(d2)- 0.598803)<1e-4);
+    assert(abs(d2.klDivergence(d1)- 0.267864)<1e-4);
+
+    d3=DistBeta(3, 0.5);
+    d4=DistBeta(0.5, 3);
+    assert(abs(d3.klDivergence(d4)- 7.21574)<1e-4);
+    assert(abs(d4.klDivergence(d3)- 7.21574)<1e-4);
+
+
+end
+
+

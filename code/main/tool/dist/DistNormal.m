@@ -1,5 +1,5 @@
 classdef DistNormal < handle & GKConvolvable & Sampler ...
-        & Density & Distribution & HasHellingerDistance
+        & Density & Distribution & HasHellingerDistance & HasKLDivergence
     %DIST_NORMAL Gaussian distribution object for kernel EP framework.
     
     properties (SetAccess=protected)
@@ -139,10 +139,29 @@ classdef DistNormal < handle & GKConvolvable & Sampler ...
             
         end
         
+        function div=klDivergence(this, d2)
+
+            assert(this.d==d2.d, 'The two dists must have the same dimension to compute KL');
+            assert(this.isProper(), 'This DistNormal is not proper.')
+            assert(d2.isProper(), 'd2 is not a proper DistNormal');
+
+            if this.d==1
+                v1 = this.variance;
+                v2 = d2.variance;
+                m1 = this.mean;
+                m2 = d2.mean;
+
+                div = ( v1/v2 + ((m1-m2)^2)/v2 -1 -log(v1/v2) )/2;
+            else
+                error('KL for multivariate normal is not supported yet.');
+            end
+
+        end
+
         function X = sampling0(this, N)
             X = this.draw( N);
         end
-        
+
         function D = mtimes(this, distNorm)
             if ~isa(distNorm, 'DistNormal')
                 error('mtimes only works with DistNormal obj.');
@@ -151,14 +170,14 @@ classdef DistNormal < handle & GKConvolvable & Sampler ...
             p1 = this.precision;
             m2 = distNorm.mean;
             p2 = distNorm.precision;
-            
+
             prec = p1+p2;
             nmean = prec \ (p1*m1 + p2*m2);
             %  bad idea to invert ?
             var = inv(prec);
             D = DistNormal(nmean, var);
         end
-        
+
         function D = mrdivide(this, distNorm)
             if ~isa(distNorm, 'DistNormal')
                 error('mrdivide only works with DistNormal obj.');
@@ -167,7 +186,7 @@ classdef DistNormal < handle & GKConvolvable & Sampler ...
             p1 = this.precision;
             m2 = distNorm.mean;
             p2 = distNorm.precision;
-           
+
             % create a problem if p1=p2 ***
             prec = p1-p2;
             nmean = prec \ (p1*m1 - p2*m2);
@@ -181,28 +200,28 @@ classdef DistNormal < handle & GKConvolvable & Sampler ...
             s.mean=this.mean;
             s.variance=this.variance;
         end
-        
+
     end %end methods
-    
-    
+
+
     methods (Static)
         function obj=loadobj(s)
             obj=DistNormal(s.mean, s.variance);
         end
-        
+
         function S=suffStat(X)
             ssb = DistNormalBuilder();
             S = ssb.suffStat(X);
         end
-        
+
         function D=fromSuffStat(S)
             ssb = DistNormalBuilder();
             D = ssb.fromSuffStat(S);
         end
-        
+
         function ssb=getDistBuilder()
             ssb = DistNormalBuilder();
         end
-        
+
     end %end static methods
 end
