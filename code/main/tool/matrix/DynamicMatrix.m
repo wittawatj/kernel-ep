@@ -58,6 +58,9 @@ classdef DynamicMatrix < handle
         % access column j. C is a column vector.
         C = col(this, j);
 
+        % Return the transposed version of this DynamicMatrix
+        % D is a DynamicMatrix.
+        D = t(this);
 
     end
     

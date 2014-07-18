@@ -184,6 +184,7 @@ classdef DefaultDynamicMatrix < DynamicMatrix
                 colEnd = min(colStart+chunkCols-1, this.cols);
                 colRange = colStart:colEnd;
                 subM = g(1:this.rows, colRange);
+                assert(all(size(subM)==[this.rows, length(colRange)]));
                 %subR = R(colRange, 1:c2);
                 subR = DefaultDynamicMatrix.subIndex(R, colRange, 1:c2);
                 B = B + subM*subR;
@@ -235,6 +236,18 @@ classdef DefaultDynamicMatrix < DynamicMatrix
             g = this.generator;
             I = 1:this.rows;
             C = g(I, j);
+        end
+
+        function D=t(this)
+            % transposed generator 
+            % Calling t() multiple times may result in nested calls to 
+            % this.generator. Hopefully there is no need to call multiple times 
+            % in practice. 
+            tg=@(I, J)( this.generator(J, I)' );
+            r=this.cols;
+            c=this.rows;
+            D=DefaultDynamicMatrix(tg, r, c);
+            
         end
 
     end %end methods
