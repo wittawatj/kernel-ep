@@ -12,26 +12,31 @@ if sample_cond_msg
 else
     anno='proposal';
 end
-%bunName=sprintf('sigmoid_fw_%s_5000', anno);
+%bunName=sprintf('sigmoid_bw_%s_5000', anno);
 % Nicolas's data. Has almost 50000 pairs.
 bunName=sprintf('nicolas_sigmoid_fw');
 bundle=se.loadBundle(bunName);
 
-n=40000;
+%n=40000;
+n=2000;
 smallBundle=bundle.subsample(n);
 n=min(n, smallBundle.count());
-% train 70%
+% train 80%
 [trBundle, teBundle]=smallBundle.splitTrainTest(.8);
 
 learner=RFGMVMapperLearner(trBundle);
 od=learner.getOptionsDescription();
+display(' Learner options: ');
 od.show();
 % set my options
-learner.opt('mean_med_factors', [1/5, 1, 5]);
-learner.opt('variance_med_factors', [1/5, 1, 5]);
+%learner.opt('mean_med_factors', [1/4, 1, 4]);
+%learner.opt('variance_med_factors', [1/4, 1, 4]);
+learner.opt('mean_med_factors', [1]);
+learner.opt('variance_med_factors', [1]);
 learner.opt('num_primal_features', 10000);
 learner.opt('candidate_primal_features', 2000);
 learner.opt('use_multicore', true);
+learner.opt('reglist', [1e-2, 1, 1e2]);
 
 % name used to identify the learned DistMapper for serialization purpose. 
 dmName=sprintf('learnDistMapper_%s_%d', bunName, n);
