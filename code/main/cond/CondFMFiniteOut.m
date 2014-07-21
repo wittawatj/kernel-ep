@@ -11,13 +11,24 @@ classdef CondFMFiniteOut < InstancesMapper
         
         featureMap;
         regParam; %regularization parameter
-        
+
         % matrix needed in mapInstances(). dz x numFeatures
         mapMatrix;
     end
-    
+
+    methods (Static)
+        function Ax=ax(x, dm, lambda)
+            % Return (P*P'+lambda*eye(D))x without forming P*P'
+            %D=size(dm, 1);
+            %Ptx=dm.t().rmult(x);
+            Ptx=dm.lmult(x')';
+            Ax=dm.rmult(Ptx)+lambda*x;
+
+        end
+    end
+
     methods
-        
+
         function this = CondFMFiniteOut(fm, In, Out, lambda)
             % fm = a FeatureMap
             % In = training Instances 
@@ -29,11 +40,11 @@ classdef CondFMFiniteOut < InstancesMapper
             assert(isa(fm, 'FeatureMap'));
             assert(isnumeric(lambda) && lambda >= 0, ...
                 'regularization param must be non-negative.');
-            
+
             %this.Out = Out;
             this.featureMap = fm;
             this.regParam = lambda;
-            
+
             %% It is not a good idea to explicitly form P (Dxn)
             %P = fm.genFeatures(In); % D x n where D = numFeatures
             %D = size(P, 1);
@@ -46,21 +57,39 @@ classdef CondFMFiniteOut < InstancesMapper
             % dm should be treated as P (Dxn) but dynamically generated.
             dm = fm.genFeaturesDynamic(In);
             D = size(dm, 1);
-            Q = dm.rmult(Out')';
+            Q = dm.rmult(Out')'; %dyxD
             % PPT is DxD where D is the number of primal features.
             % D > 1e4 and it may take up too much memory.
-            PPT = dm.mmt();
-            clear dm
-            A = PPT + lambda*eye(D);
+            if false
+                PPT = dm.mmt();
+                clear dm
+                A = PPT + lambda*eye(D);
 
-            opts.POSDEF = true;
-            opts.SYM = true;
-            T = linsolve(A', Q', opts)';
+                opts.POSDEF = true;
+                opts.SYM = true;
+                T = linsolve(A', Q', opts)';
+            else 
+                F=Q'; %Dxdy
+                % Forming PPT (DxD) can take up too much memory and computation.
+                % Try conjugate gradient.
+                % Solve for T in AT=F
+                dout=size(Out,1);
+                T=zeros(dout, D);
+                afunc=@(x)CondFMFiniteOut.ax(x, dm, lambda);
+                tol=1e-6;
+                maxit=40;
+                % This part can be parallelized.
+                for i=1:dout
+                    fi=F(:, i);
+                    T(i, :)=pcg(afunc, fi, tol, maxit)';
+                end
+            end
+
             this.mapMatrix = T;
 
         end
-        
-        
+
+
         function Zout = mapInstances(this, Xin)
             % Map Instances in Xin to Zout with this operator.
             assert(isa(Xin, 'Instances'));
@@ -70,31 +99,31 @@ classdef CondFMFiniteOut < InstancesMapper
 
             Zout = T*Pin;
         end
-        
+
         function s = shortSummary(this)
             s = sprintf('%s(%s)', mfilename, this.featureMap.shortSummary());
         end
 
         %function s=saveobj(this)
-            %s.featureMap=this.featureMap;
-            %s.regParam=this.regParam;
-            %s.mapMatrix=this.mapMatrix;
+        %s.featureMap=this.featureMap;
+        %s.regParam=this.regParam;
+        %s.mapMatrix=this.mapMatrix;
         %end
 
     end %end methods
-    
+
     methods (Static)
-        
+
         %function obj=loadobj(s)
-            %% This values are just to make the constructor happy.
-            %fakeIn=DistArray(DistNormal(0, 1));
-            %fakeOut=[1,2]';
-            %obj= CondFMFiniteOut(s.featureMap, fakeIn, fakeOut, s.regParam);
-            %assert(isa(s.featureMap, 'FeatureMap'));
-            %obj.featureMap=s.featureMap;
-            %assert(isnumeric(s.mapMatrix));
-            %obj.mapMatrix=s.mapMatrix;
-           
+        %% This values are just to make the constructor happy.
+        %fakeIn=DistArray(DistNormal(0, 1));
+        %fakeOut=[1,2]';
+        %obj= CondFMFiniteOut(s.featureMap, fakeIn, fakeOut, s.regParam);
+        %assert(isa(s.featureMap, 'FeatureMap'));
+        %obj.featureMap=s.featureMap;
+        %assert(isnumeric(s.mapMatrix));
+        %obj.mapMatrix=s.mapMatrix;
+
         %end
 
         function [Op, C] = learn_operator(In, Out,  op)
@@ -110,9 +139,9 @@ classdef CondFMFiniteOut < InstancesMapper
             map = bestMap.cloneParams(op.num_primal_features);
             Op = CondFMFiniteOut(map, In, Out, lambda);
         end
-        
-      
+
+
     end
-    
+
 end
 

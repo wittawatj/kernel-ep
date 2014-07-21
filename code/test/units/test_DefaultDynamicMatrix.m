@@ -104,8 +104,6 @@ function test_t()
     assertVectorsAlmostEqual(A*C', dma.rmult(dmc.t()));
     assertVectorsAlmostEqual(A*C', dmc.t().lmult(dma));
 
-    dmct=dmc.t();
-    %assertVectorsAlmostEqual(C'*C, dmc.t().rmult(C) );
 end
 
 

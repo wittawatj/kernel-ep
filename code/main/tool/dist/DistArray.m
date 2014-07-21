@@ -98,6 +98,11 @@ classdef DistArray < Distribution & Instances
             l = length(this.distArray);
         end
 
+        function l=length(this)
+            l = length(this.distArray);
+
+        end
+
         %%%%%%%%%%%%
         function s=saveobj(this)
             % an array of Distribution's

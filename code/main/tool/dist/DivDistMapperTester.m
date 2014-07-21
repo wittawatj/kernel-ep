@@ -3,7 +3,9 @@ classdef DivDistMapperTester < DistMapperTester
     %values to the groundtruth messages.
     %    Plot a histogram like in Figure 1 of 
     %    “Learning to Pass Expectation Propagation Messages.”
-    %    * Work only for 1d Distribution
+    %    * Work only for 1d Distribution because the second plot will show sample 
+    %    plots of output distributions from different locations of the histogram.
+    %
 
     properties(SetAccess=protected)
         % Instance of Options
@@ -99,7 +101,8 @@ classdef DivDistMapperTester < DistMapperTester
             set(gca, 'fontsize', 20);
             xlabel(sprintf('Log divergence of %s', class(outDa.get(1)) ));
             ylabel('Frequency');
-            title(sprintf('%d out of %d messages are improper', imCount, outDa.count()));
+            title(sprintf('%d/%d improper messages. Mean: %.3f, SD: %.3f',...
+                imCount, outDa.count(), mean(logDivs), std(logDivs)));
             grid on;
             hold off
 
