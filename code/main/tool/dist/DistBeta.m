@@ -10,6 +10,7 @@ classdef DistBeta < handle &  Sampler & Density & Distribution ...
         variance;
         % from Distribution
         parameters;
+        d;
     end
     
     methods
@@ -33,6 +34,7 @@ classdef DistBeta < handle &  Sampler & Density & Distribution ...
                 this.mean =this.alpha/(this.alpha+this.beta);
                 this.variance=a*b/( ((a+b)^2)*(a+b+1) );
                 this.parameters = {a, b};
+                this.d=1;
             end
             
         end

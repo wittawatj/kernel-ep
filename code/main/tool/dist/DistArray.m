@@ -17,6 +17,9 @@ classdef DistArray < Distribution & Instances
         % cached parameters. This is a cell array of parameters (which is also
         % a cell array).
         parameters;
+        
+        % list of dimensions for DistArray. From Distribution interface.
+        d;
 
     end
     
@@ -40,6 +43,13 @@ classdef DistArray < Distribution & Instances
                 this.mean = [this.distArray.mean];
             end
             M = this.mean;
+        end
+
+        function dim=get.d(this)
+            if isempty(this.d)
+                this.d=[this.distArray.d];
+            end
+            dim=this.d;
         end
 
         function V = get.variance(this)

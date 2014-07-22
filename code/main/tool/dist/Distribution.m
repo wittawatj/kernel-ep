@@ -8,6 +8,9 @@ classdef Distribution < handle & Density
         % A cell array of parameters in the usual parametrization. For
         % Gaussian for example, this should be {mean, variance}.
         parameters;
+
+        % dimension of the domain. For example, 1 for beta distribution.
+        d;
     end
     
     methods (Abstract)
