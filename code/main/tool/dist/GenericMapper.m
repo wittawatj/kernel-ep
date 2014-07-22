@@ -3,6 +3,8 @@ classdef GenericMapper < DistMapper2 & DistMapper
     % and outputs statistics used for constructing 
     % another Distribution using the specified DistBuilder.
     %   - Use an InstancesMapper supporting TensorInstances of 2 DistArray's
+    %   - Assume the InstancesMapper outputs statistics to be used with 
+    %   distBuilder.fromStat()
     %    
     
     properties (SetAccess=private)
@@ -44,6 +46,7 @@ classdef GenericMapper < DistMapper2 & DistMapper
             C=varargin;
             in=cell(1,length(C));
             for i=1:length(C)
+                assert(isa(C{i}, 'Distribution'));
                 in{i}=DistArray(C{i});
             end
             tensorIn = TensorInstances(in);
@@ -118,10 +121,7 @@ classdef GenericMapper < DistMapper2 & DistMapper
     methods(Static)
         function obj=loadobj(s)
 
-            operator=s.operator;
-            distBuilder=s.distBuilder;
-            nv=s.nv;
-            obj=GenericMapper(operator, distBuilder, nv);
+            obj=GenericMapper(s.operator, s.distBuilder, s.nv);
         end
     end
 end

@@ -26,7 +26,8 @@ classdef KParams2Gauss1 < Kernel
             this.param1_width2 = p1width2;
             this.param2_width2 = p2width2;
             
-            warning('usage of %s is discouraged. Should try to unify it with DistArray.');
+            warning(['usage of %s is discouraged. '...
+                'Should try to unify it with DistArray.'], mfilename);
         end
         
         function Kmat = eval(this, s1, s2)
@@ -76,7 +77,6 @@ classdef KParams2Gauss1 < Kernel
     
     
     methods (Static)
-        asdf
         function Kcell = candidates(s, param1_medf, param2_medf, subsamples)
             % - Generate a cell array of kernel candidates from a list of
             % param1_medf, a list of factors to be  multipled with the
