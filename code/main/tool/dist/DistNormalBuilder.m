@@ -27,6 +27,21 @@ classdef DistNormalBuilder < DistBuilder
             V = S(2,:)-M.^2;
             D = DistNormal(M, V);
         end
+
+        function Mcell=getMoments(this, D)
+            assert(isa(D, 'DistNormal'));
+            assert(length(D)==1);
+            m1=D.mean(:);
+            m2=D.variance+ m1*m1';
+            Mcell={m1, m2};
+        end
+
+        function D=fromMoments(this, Mcell)
+            assert(iscell(Mcell));
+            m=Mcell{1};
+            v=Mcell{2}-m*m';
+            D=DistNormal(m, v);
+        end
         
         function D= fromSamples(this, samples, weights)
             assert(size(samples, 1)==1, 'Only 1d Gaussian is supported');

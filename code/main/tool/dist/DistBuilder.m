@@ -1,5 +1,5 @@
 classdef DistBuilder < handle
-    %DISTBuilder A Distribution object builder from samples.
+    %DISTBuilder A Distribution object builder from samples or list of statistics.
     %    Subclasses should support Distribution and DistArray.
     
     properties
@@ -11,15 +11,33 @@ classdef DistBuilder < handle
         % Distributions).
         % For example for a 1d Gaussian,
         % S = [x; x.^2]. S(:,i) is the statistic for D(i).
-        % In general, statistic returned may not be sufficient. It is meant
-        % to be some values which can be taken as input in fromStat().
-        % Basically, S represents D.
+        % The statistic is meant 
+        % to be some value which can be used as input in fromStat().
+        % Basically, S represents D. 
         S=getStat(this, D);
         
         % construct a list of distributions D from a list of 
-        % statistics (e.g., moment parameters, expected sufficient statistic)
-        % S. Typically S is what returned by getStat().
+        % statistics (e.g., moments) S.
+        % Typically S is what returns by getStat().
         D=fromStat(this, S)
+
+        % Get a list of uncentred moments characterizing the Distribution D.
+        % The output is a cell array and is such that this.fromMoments(Mcell) 
+        % will give back D.
+        % Mcell{1} gives the first moment.
+        % Mcell{2} gives the second moment (a covariance matrix for multivariate
+        % Distribution).
+        % And so on for Mcell{3}...
+        %
+        % Subclasses should ensure that Mcell can be used on other DistBuilder's
+        % so that a set of moments from a Distribution can be used to construct
+        % another Distribution of different parametric form.
+        %
+        Mcell=getMoments(this, D);
+
+        % Construct a Distribution D from a cell array of moments Mcell.
+        % Mcell is likely returned from this.getMoments(...).
+        D=fromMoments(this, Mcell);
         
         % Return a row vector T such that length(T)==size(S,2).
         % T(i)==true if S(:,i) is a stable and valid sufficient statistic

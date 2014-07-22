@@ -26,6 +26,23 @@ classdef DistBetaBuilder < DistBuilder
             D = DistBeta(A, B);
         end
         
+        function Mcell=getMoments(this, D)
+            assert(isa(D, 'DistBeta'));
+            assert(length(D)==1);
+            m1=D.mean;
+            m2=D.variance+m1^2;
+            Mcell={m1, m2};
+        end
+
+        function D=fromMoments(this, Mcell)
+            assert(iscell(Mcell));
+            m1=Mcell{1};
+            assert(isscalar(m), 'Cannot construct DistBeta from a multivariate mean');
+            m2=Mcell{2};
+            S=[m1; m2];
+            D=this.fromStat(S);
+        end
+
         function D= fromSamples(this, samples, weights)
             assert(size(samples, 1)==1, 'Beta samples must be 1d');
             assert(all(samples>=0 & samples <=1), 'Beta samples must be in [0,1].');
