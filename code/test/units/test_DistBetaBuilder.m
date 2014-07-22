@@ -48,3 +48,23 @@ function test_fromSamples()
     
     rng(oldRng);
 end
+
+function test_moments()
+    a=2;
+    b=3;
+    D=DistBeta(a, b);
+    builder=DistBetaBuilder();
+    Mcell=builder.getMoments(D);
+    assert(length(Mcell)==1);
+    assert(length(Mcell{1})==2);
+    assertElementsAlmostEqual(Mcell{1}{1}, D.mean);
+    assertElementsAlmostEqual(Mcell{1}{2}, D.variance+D.mean^2);
+
+    D2=builder.fromMoments(Mcell);
+    assertElementsAlmostEqual(D.alpha, D2.alpha);
+    assertElementsAlmostEqual(D.beta, D2.beta);
+
+
+end
+
+

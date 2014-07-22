@@ -11,9 +11,10 @@ function test_moments()
     builder=DistNormalBuilder();
     Mcell=builder.getMoments(D1);
     assert(iscell(Mcell));
-    assert(length(Mcell)==2);
-    assertVectorsAlmostEqual(Mcell{1}, m1);
-    assertVectorsAlmostEqual(Mcell{2}-m1*m1', v1);
+    assert(length(Mcell)==1);
+    assert(length(Mcell{1})==2);
+    assertVectorsAlmostEqual(Mcell{1}{1}, m1);
+    assertVectorsAlmostEqual(Mcell{1}{2}-m1*m1', v1);
 
     
 end

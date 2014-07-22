@@ -30,17 +30,24 @@ classdef DistNormalBuilder < DistBuilder
 
         function Mcell=getMoments(this, D)
             assert(isa(D, 'DistNormal'));
-            assert(length(D)==1);
-            m1=D.mean(:);
-            m2=D.variance+ m1*m1';
-            Mcell={m1, m2};
+            n=length(D);
+            Mcell=cell(1, n);
+            for i=1:n
+                m1=D(i).mean(:);
+                m2=D(i).variance+ m1*m1';
+                Mcell{i}={m1, m2};
+            end
         end
 
         function D=fromMoments(this, Mcell)
             assert(iscell(Mcell));
-            m=Mcell{1};
-            v=Mcell{2}-m*m';
-            D=DistNormal(m, v);
+            n=length(Mcell);
+            D=DistNormal.empty(0, n);
+            for i=1:n
+                m=Mcell{i}{1};
+                v=Mcell{i}{2}-m*m';
+                D(i)=DistNormal(m, v);
+            end
         end
         
         function D= fromSamples(this, samples, weights)

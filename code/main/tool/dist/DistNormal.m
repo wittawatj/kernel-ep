@@ -31,6 +31,8 @@ classdef DistNormal < handle & GKConvolvable & Sampler ...
                 for i=1:n
                     this(i) = DistNormal(m(i), var(i));
                 end
+            elseif size(m, 1)>1 && size(m, 2)>1
+                error('Multiple multivariate DistNormal constuction is not supported yet');
             else
                 % one object
                 this.mean = m(:);

@@ -24,10 +24,11 @@ classdef DistBuilder < handle
         % Get a list of uncentred moments characterizing the Distribution D.
         % The output is a cell array and is such that this.fromMoments(Mcell) 
         % will give back D.
-        % Mcell{1} gives the first moment.
-        % Mcell{2} gives the second moment (a covariance matrix for multivariate
-        % Distribution).
-        % And so on for Mcell{3}...
+        % Mcell{i}{1} gives the first moment.
+        % Mcell{i}{2} gives the second moment (a covariance matrix for multivariate
+        % Distribution)  
+        % And so on ...
+        % where i is the Distribution index to support array of Distribution.
         %
         % Subclasses should ensure that Mcell can be used on other DistBuilder's
         % so that a set of moments from a Distribution can be used to construct
