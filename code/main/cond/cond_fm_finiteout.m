@@ -26,7 +26,8 @@ reglist = myProcessOptions(op, 'reglist', [1e-2, 1e-0, 10]);
 op.reglist = reglist;
 
 % Boolean to use or not use multicore package
-use_multicore = myProcessOptions(op, 'use_multicore', true);
+gop=globalOptions();
+use_multicore = myProcessOptions(op, 'use_multicore', gop.use_multicore);
 
 % multicore settings. A structure.
 multicore_settings = myProcessOptions(op, 'multicore_settings', struct());
@@ -39,8 +40,9 @@ fmEvalFunc = @(fm)(evalFeatureMap(fm, In, Out, op));
 if use_multicore
     % call multicore package. Evaluate one FeatureMap with one slave.
     % resultCell = cell of HR
+    gop=globalOptions();
     multicore_settings.multicoreDir= myProcessOptions(multicore_settings, ...
-        'multicoreDir', '/nfs/nhome/live/wittawat/SHARE/gatsby/research/code/tmp');
+        'multicoreDir', gop.multicoreDir);
     resultCell = startmulticoremaster(fmEvalFunc, featuremap_candidates, multicore_settings);
     
     CErr = [resultCell{:}];

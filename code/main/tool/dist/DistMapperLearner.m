@@ -7,7 +7,9 @@ classdef DistMapperLearner < handle & HasOptions
     
     methods (Abstract)
         % learn a DistMapper given the training data in MsgBundle.
-        dm=learnDistMapper(this);
+        % Log is some side information generated during the learning of the 
+        % DistMapper dm. Log is a struct.
+        [ dm, Log ]=learnDistMapper(this);
 
         s=shortSummary(this);
 
