@@ -77,7 +77,7 @@ classdef KEGauss1 < Kernel
         end
         
         function s=shortSummary(this)
-            s = sprintf('KEGaussian(%.3g)', this.sigma2 );
+            s = sprintf('KEGauss1(%.3g)', this.sigma2 );
         end
     end
     

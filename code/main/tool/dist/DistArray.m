@@ -87,6 +87,31 @@ classdef DistArray < Distribution & Instances
         function names=getParamNames(this)
             names=this.distArray(1).getParamNames();
         end
+
+        % subsref override 
+        function D=subsref(this, S)
+            % Only overriding the usage of this(1:3) so that it behaves like 
+            % an array of Distribution's 
+            if length(S)==1 && strcmp(S.type, '()')
+                subs=S.subs;
+                if length(subs)>1
+                    error('multidimensional indexing not supported');
+                end
+                assert(length(subs)==1);
+                assert(iscell(subs));
+                if strcmp(subs{1}, ':')
+                    D=this.distArray;
+                else 
+                    % assume a list of indices
+                    D=this.distArray(subs{1});
+                end
+            else
+                % call built-in subsref(). Not recursion.
+                D=builtin('subsref', this, S);
+            end
+
+        end
+
         %%%%%%%%%%%%%%%%
         %%% For Instances interface
         

@@ -14,6 +14,7 @@ function K = kerEGaussian(X1, X2, sigma2)
 
 % [~, n1] = size(X1);
 % [~, n2] = size(X2);
+warning('%s is deprecated. Consider using KEGaussian');
 assert(isa(X1, 'DistNormal'));
 assert(isa(X2, 'DistNormal'));
 

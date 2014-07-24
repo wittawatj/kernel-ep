@@ -15,3 +15,18 @@ function test_basic()
 
 end
 
+function test_subsref()
+    D=DistNormal(randn(2, 5), reshape(1:20, [2,2,5]));
+    da=DistArray(D);
+
+    d2=da(2);
+    % DistArray does not support da(2).mean. 
+    assertVectorsAlmostEqual(d2.mean, D(2).mean);
+    assertVectorsAlmostEqual(d2.variance, D(2).variance);
+
+    d23=da(2:3);
+    assertVectorsAlmostEqual([d23.mean], [D(2:3).mean]);
+    assertVectorsAlmostEqual(cat(3, d23.variance), cat(3, D(2:3).variance));
+
+end
+

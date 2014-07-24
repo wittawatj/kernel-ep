@@ -76,7 +76,7 @@ classdef CondFMFiniteOut < InstancesMapper
                 dout=size(Out,1);
                 T=zeros(dout, D);
                 afunc=@(x)CondFMFiniteOut.ax(x, dm, lambda);
-                tol=1e-6;
+                tol=1e-5;
                 maxit=40;
                 % This part can be parallelized.
                 for i=1:dout

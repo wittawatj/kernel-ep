@@ -25,16 +25,24 @@ classdef DistNormal < handle & GKConvolvable & Sampler ...
             assert(~isempty(var));
             if size(m, 1)==1 && size(var, 1)==1 && size(m, 2) > 1
                 % object array of many 1d Gaussians
-                assert(size(m, 2)==size(var, 2));
+                assert(size(m, 2)==size(var, 2), '1d Gaussians: #means and #variances do not match');
                 n = size(m, 2);
                 this = DistNormal.empty();
                 for i=1:n
                     this(i) = DistNormal(m(i), var(i));
                 end
             elseif size(m, 1)>1 && size(m, 2)>1
-                error('Multiple multivariate DistNormal constuction is not supported yet');
+                % object array of many multivariate Gaussians
+                assert(ndims(var)==3, ['multidimensional means must be '...
+                    'accompanied with 3-d variance variable.']);
+                assert(size(var,3)==size(m, 2), '#means and #variances do not match');
+                n = size(m, 2);
+                this = DistNormal.empty();
+                for i=1:n
+                    this(i) = DistNormal(m(:, i), var(:, :, i));
+                end
             else
-                % one object
+                % one object, any dimension
                 this.mean = m(:);
                 this.d = length(this.mean);
                 assert(all(size(var)==size(var'))) %square

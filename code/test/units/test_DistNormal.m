@@ -4,6 +4,25 @@ initTestSuite;
 
 end
 
+function test_constructor()
+    % multiple 1d's
+    D1=DistNormal(1:10, 1:10);
+    assert(length(D1)==10);
+    assertElementsAlmostEqual(D1(3).mean, 3);
+    assertElementsAlmostEqual(D1(4).variance, 4);
+
+    % multiple 2d's 
+    Means2=reshape(1:20, 2, 10);
+    Vars2=zeros(2, 2, 10);
+    for i=1:10
+        % Draw covariance matrix from Wishart distribution
+        Vars2(:, :, i)=wishrnd(eye(2), 5);
+    end
+    D2=DistNormal(Means2, Vars2);
+    assertVectorsAlmostEqual(D2(2).mean, [3;4]);
+    assertVectorsAlmostEqual(size([D2.variance]), [2, 20]);
+end
+
 function test_distHellinger()
 
 % test bound [0,1], symmetry

@@ -20,6 +20,12 @@ classdef Instances < handle
         % total number of instances 
         l = count(this);
     end
+
+    methods
+        function l=length(this)
+            l=this.count();
+        end
+    end
     
 end
 
