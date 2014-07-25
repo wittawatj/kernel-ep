@@ -100,6 +100,10 @@ classdef RFGEProdMap < FeatureMap
             Z=Z.*C*sqrt(2/this.numFeatures);
         end
 
+        function fm=cloneParams(this, numFeatures)
+            fm=RFGEProdMap(this.gwidth2, numFeatures);
+        end
+
         function s=shortSummary(this)
             s = sprintf('%s(w^2=%.3f, #feat=%d)', ...
                 mfilename, this.gwidth2, this.numFeatures);
@@ -176,6 +180,54 @@ classdef RFGEProdMap < FeatureMap
 
         end
 
+        function baseMed=getBaseMedianHeuristic(X, subsamples)
+            % Compute the base median heuristic to which factors will be multiplied
+            % to generate a list of FeatureMap candidates.
+            %
+            assert(isa(X, 'DistArray') || isa(X, 'Distribution'));
+            if nargin < 2
+                subsamples=1500;
+            end
+            n=length(X);
+
+            I=randperm(n, min(n, subsamples));
+            RX=X(I);
+            Means=[RX.mean];
+            d=unique([RX.d]);
+            if d==1
+                Vars=[RX.variance];
+            else
+                Vars=cat(3, RX.variance);
+                Vars=reshape(Vars, [d^2, length(I)]);
+            end
+            mmed2=meddistance(Means)^2;
+            vmed=meddistance(Vars);
+            % my own heuristic
+            baseMed=mmed2/vmed;
+        end
+
+        function FMs = candidates(X, medf,  numFeatures, subsamples )
+            % - Generate a cell array of FeatureMap candidates from medf 
+            % a list  of factors to be  multipled with the 
+            % median heuristic.
+            %
+            % - subsamples can be used to limit the samples used to compute
+            % median distance.
+            assert(isa(X, 'DistArray') || isa(X, 'Distribution'));
+            assert(isnumeric(medf));
+            assert(~isempty(medf));
+            assert(all(medf > 0));
+            if nargin < 4
+                subsamples = 1500;
+            end
+            baseMed=RFGEProdMap.getBaseMedianHeuristic(X, subsamples);
+            FMs=cell(1, length(medf));
+            for i=1:length(medf)
+                gw2=baseMed*medf(i);
+                FMs{i}=RFGEProdMap(gw2, numFeatures);
+            end
+
+        end %end candidates() method
     end
 end
 

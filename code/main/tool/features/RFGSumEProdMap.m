@@ -100,6 +100,10 @@ classdef RFGSumEProdMap < FeatureMap
 
         end
 
+        function fm=cloneParams(this, numFeatures)
+            fm=RFGSumEProdMap(this.gwidth2s, numFeatures);
+        end
+
         function s=shortSummary(this)
             s = sprintf('%s(mw2s=[%s])', ...
                 mfilename, num2str(this.gwidth2s)) ;
@@ -124,5 +128,49 @@ classdef RFGSumEProdMap < FeatureMap
             end
         end
     end %end private methods
+
+    methods(Static)
+        function FMs = candidates(T, medf, numFeatures, subsamples )
+            % - Generate a cell array of FeatureMap candidates from medf,
+            % a list of factors to be  multiplied with the 
+            % median heuristic.
+            %
+            % - subsamples can be used to limit the samples used to compute
+            % median distance.
+            %
+
+            assert(isa(X, 'TensorInstances'));
+            assert(isnumeric(medf));
+            assert(~isempty(medf));
+            assert(all(medf>0));
+            if nargin < 4
+                subsamples = 1500;
+            end
+            numInput=T.tensorDim();
+            % median heuristics for each input variables
+            baseMeds=zeros(1, numInput);
+            for i=1:numInput
+                da=T.instancesCell{i};
+                baseMeds(i)=RFGEProdMap.getBaseMedianHeuristic(da, subsamples);
+            end
+
+            % total number of candidats = len(medf)^numInput
+            % Total combinations can be huge ! Be careful. Exponential in the 
+            % number of inputs
+            totalComb = length(medf)^numInput;
+            FMs = cell(1, totalComb);
+            % temporary vector containing indices
+            I = cell(1, numInput);
+            for ci=1:totalComb
+                [I{:}] = ind2sub( length(medf)*ones(1, numInput), ci);
+                II=cell2mat(I);
+                inputWidth2s= medf(II).*baseMeds;
+                map = RFGSumEProdMap(inputWidth2s, numFeatures);
+                FMs{ci} = map;
+            end
+
+        end %end candidates() method
+
+    end %end static methods
 end
 

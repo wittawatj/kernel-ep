@@ -1,6 +1,6 @@
 base = pwd();
 fs = filesep();
-folders = {'helper', 'plot', 'script'};
+folders = {'helper', 'plot', 'script', 'test', '3rdparty'};
 addpath(pwd);
 
 for fi=1:length(folders)
@@ -11,7 +11,7 @@ for fi=1:length(folders)
 end
 
 % folders to be added by genpath
-gfolders = {'3rdparty/xunit', '3rdparty/multicore', 'main'};
+gfolders = {'3rdparty/xunit', '3rdparty/multicore', 'main', 'exp'};
 for i=1:length(gfolders)
     fol = gfolders{i};
     p = [base , fs, fol];

@@ -65,6 +65,11 @@ classdef RFGJointEProdMap < FeatureMap
 
         end
 
+        function fm=cloneParams(this, numFeatures)
+            fm=RFGJointEProdMap(this.gwidth2s, numFeatures);
+            
+        end
+
         function s=shortSummary(this)
             s = sprintf('%s(mw2s=[%s])', ...
                 mfilename, num2str(this.gwidth2s)) ;
@@ -80,7 +85,7 @@ classdef RFGJointEProdMap < FeatureMap
                 dimf=@(da)(unique(da.d));
                 dims=cellfun(dimf, T.instancesCell);
                 assert(length(this.gwidth2s)==c,['length of specified gwidth2s '...
-                   'does not match tensomDim()' ]);
+                   'does not match tensorDim()' ]);
                 totalDim=sum(dims);
                 % stretch gwidth2s to have the same length as totalDim
                 C=arrayfun(@(n, t)repmat(n, 1, t), this.gwidth2s, dims, ...
@@ -124,6 +129,57 @@ classdef RFGJointEProdMap < FeatureMap
             D=[Dcell{:}];
             assert(length(D)==n);
         end
+
+        function FMs = candidates(T, medf, numFeatures, subsamples )
+            % - Generate a cell array of FeatureMap candidates from medf,
+            % a list of factors to be  multiplied with the 
+            % median heuristic.
+            %
+            % - subsamples can be used to limit the samples used to compute
+            % median distance.
+            %
+
+            assert(isa(T, 'TensorInstances'));
+            assert(isnumeric(medf));
+            assert(~isempty(medf));
+            assert(all(medf>0));
+            if nargin < 4
+                subsamples = 1500;
+            end
+            numInput=T.tensorDim();
+            % list of dimensions
+            dims=cellfun(@(da)unique([ da.d ]), T.instancesCell);
+            assert(isnumeric(dims));
+
+            % median heuristics for each input variables
+            baseMeds=zeros(1, numInput);
+            for i=1:numInput
+                da=T.instancesCell{i};
+                baseMeds(i)=RFGEProdMap.getBaseMedianHeuristic(da, subsamples);
+            end
+
+            % total number of candidats = len(medf)^numInput
+            % Total combinations can be huge ! Be careful. Exponential in the 
+            % number of inputs
+            totalComb = length(medf)^numInput;
+            FMs = cell(1, totalComb);
+            % temporary vector containing indices
+            I = cell(1, numInput);
+            for ci=1:totalComb
+                [I{:}] = ind2sub( length(medf)*ones(1, numInput), ci);
+                II=cell2mat(I);
+                inputWidth2s= medf(II).*baseMeds;
+                % make gwidth2s the same size as numInput.
+                C=arrayfun(@(n, t)repmat(n, 1, t), inputWidth2s, dims,...
+                   'UniformOutput', false );
+                gwidth2s=[C{:}];
+                assert(length(gwidth2s)==sum(dims));
+                map = RFGJointEProdMap(gwidth2s, numFeatures);
+                FMs{ci} = map;
+            end
+
+        end %end candidates() method
+
     end % end static methods
 
     

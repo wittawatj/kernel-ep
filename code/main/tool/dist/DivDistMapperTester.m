@@ -87,7 +87,13 @@ classdef DivDistMapperTester < DistMapperTester
             trueOutDa=testBundle.getOutBundle();
             assert(isa(trueOutDa, 'DistArray'));
             Divs=this.getDivergence(outDa, trueOutDa);
-            imCount=sum(isnan(Divs));
+
+            impInd=arrayfun(@(d)d.isProper(), outDa.distArray);
+            impOut=outDa.distArray(impInd);
+            assert(isa(impOut, 'Distribution'));
+            impn=length(impOut);
+
+            imCount=impn;
             %improperPenalty=this.opt('improper_dist_div');
             %Divs(isnan(Divs))=improperPenalty;
 

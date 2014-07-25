@@ -1,8 +1,7 @@
-classdef RFGMVMapperLearner < DistMapperLearner
-    %RFGMVMAPPERLEARNER A DistMapperLearner which learns a DistMapper using 
-    %RandFourierGaussMVMap.
-    %   .
-    
+classdef RFGJointEProdLearner < DistMapperLearner
+    %RFGJOINTEPRODLEARNER A DistMapperLearner for RFGJointEProdMap
+    %    .
+
     properties(SetAccess=protected)
         % an instance of Options
         options;
@@ -10,9 +9,9 @@ classdef RFGMVMapperLearner < DistMapperLearner
         % training MsgBundle
         trainBundle;
     end
-    
+
     methods
-        function this=RFGMVMapperLearner(msgBundle)
+        function this=RFGJointEProdLearner(msgBundle)
             assert(isa(msgBundle, 'MsgBundle'), 'input to constructor not a MsgBundle' );
             assert(msgBundle.count()>0, 'empty training set')
             this.trainBundle=msgBundle;
@@ -22,11 +21,11 @@ classdef RFGMVMapperLearner < DistMapperLearner
             assert(isa(outDa, 'DistArray'));
             dout=outDa.get(1);
             assert(isa(dout, 'Distribution'));
-            
+
             % This ensures that the out_msg_distbuilder is of the same type 
             % as the output bundle in msgBundle. It can be different in general.
             this.options.opt('out_msg_distbuilder', dout.getDistBuilder());
-            
+
         end
 
         % Return an instance of OptionsDescription describing possible options.
@@ -34,24 +33,15 @@ classdef RFGMVMapperLearner < DistMapperLearner
             % key-value pairs of open-description
             kv=struct();
             kv.seed='random seed';
-            
+
             kv.med_subsamples= ['number of samples to be used for computing pairwise '...
                 'median distance. Subsampling makes it more efficient as an ' ...
                 'accurate median is not needed.'];
-            
-            % Numerical array of factors to be multiplied with the median
-            % distance on means. Used to generate FeatureMap candidates.
-            kv.mean_med_factors=['numerical array of scaling factors to be ' ...
-                'multiplied with the median distance on means.'];
-            
-            % Used to generate FeatureMap candidates.
-            kv.variance_med_factors = ['numerical array of scaling factors to be ' ...
-                'multiplied with the median distance on variances.'];            
 
-            % number of primal features to use for candidates. 
-            % This number is not necessarily the same during the test time.
-            % Typically during LOOCV, the number of features can be low to make
-            % it fast to select a candidate.
+            kv.med_factors=['numerical array of scaling factors to be ' ...
+                'multiplied with the median distance heuristic. '...
+                'Used to generate RFGJointEProdMap candidates'];
+
             kv.candidate_primal_features=['number of random features to use for '...
                 'candidate selection. During cross-validation, the number of '...
                 'features can be low to be efficient.'];
@@ -72,13 +62,13 @@ classdef RFGMVMapperLearner < DistMapperLearner
 
             kv.featuremap_candidates=['A cell array of FeatureMap.'...
                 'This is not expected to be set directly.'...
-                'If mean_med_factors and variance_med_factors '...
-                'are set, and featuremap_candidates'...
+                'If med_factors '...
+                'is set, and featuremap_candidates'...
                 'is set to [], median distance heuristic will be used to automatically '...
                 'generate a cell array of candidates.' ];
-            
+
             kv.reglist=['list of regularization parameter candidates for conditional '... 
-            'mean embedding operator'];
+                'mean embedding operator'];
             kv.use_multicore=['If true, use multicore package.'];
 
             od=OptionsDescription(kv);
@@ -88,8 +78,7 @@ classdef RFGMVMapperLearner < DistMapperLearner
             st=struct();
             st.seed=1;
             st.med_subsamples=1500;
-            st.mean_med_factors=[1/3, 1, 3];
-            st.variance_med_factors=[1/3, 1, 3];
+            st.med_factors=[1/10, 1, 10];
             st.candidate_primal_features=2000;
             % 1e4 random features 
             st.num_primal_features=1e4;
@@ -101,7 +90,7 @@ classdef RFGMVMapperLearner < DistMapperLearner
 
             Op=Options(st);
         end
-        
+
         % learn a DistMapper given the training data in MsgBundle.
         function [gm, C]=learnDistMapper(this )
             op=this.options.toStruct();
@@ -116,17 +105,15 @@ classdef RFGMVMapperLearner < DistMapperLearner
                 % compute ones
 
                 % FeatureMap candidates
-                mean_med_factors=op.mean_med_factors;
-                variance_med_factors=op.variance_med_factors;
-                assert(all(mean_med_factors>0));
-                assert(all(variance_med_factors>0));
+                med_factors=op.med_factors;
+                assert(all(med_factors>0));
 
                 candidate_primal_features=op.candidate_primal_features;
                 assert(candidate_primal_features>0);
                 med_subsamples=op.med_subsamples;
                 assert(med_subsamples>0);
-                FMcell=RandFourierGaussMVMap.candidates(tensorIn, mean_med_factors, ...
-                    variance_med_factors, candidate_primal_features, med_subsamples);
+                FMcell=RFGJointEProdMap.candidates(tensorIn, med_factors, ...
+                    candidate_primal_features, med_subsamples);
                 % set to options
                 this.opt('featuremap_candidates', FMcell);
             end
@@ -146,21 +133,12 @@ classdef RFGMVMapperLearner < DistMapperLearner
             s=mfilename;
         end
 
-        function s=saveobj(this)
-            s.trainBundle=this.trainBundle;
-            s.options=this.options;
-        end
-
 
     end
 
     methods(Static)
-        function obj=loadobj(s)
-            obj=RFGMVMapperLearner(s.trainBundle);
-            obj.options=s.options;
-        end
+
     end
 
-    
 end
 

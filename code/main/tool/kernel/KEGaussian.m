@@ -24,7 +24,8 @@ classdef KEGaussian < Kernel
         function this=KEGaussian(gwidth2s)
             % sigma2 = Gaussian width^2 used for embedding into Gaussian
             % RKHS
-            assert(all(gwidth2s>0), 'Gaussian width must be > 0');
+            assert(isnumeric(gwidth2s));
+            assert(all(gwidth2s>0));
             this.gwidth2s=gwidth2s;
         end
         
