@@ -42,6 +42,12 @@ classdef MsgBundle < handle
         s=getDescription(this);
         
     end
-    
+
+    methods
+        function n=length(this)
+            n=this.count();
+        end
+    end
+
 end
 

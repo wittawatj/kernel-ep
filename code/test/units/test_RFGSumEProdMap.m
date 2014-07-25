@@ -9,9 +9,13 @@ function test_compareToExact()
     oldRng=rng();
     rng(11 );
 
-    n=500;
-    Means1=3*randn(1, n);
-    Vars1=gamrnd(3, 4, 1, n);
+    n=200;
+    Means1=3*randn(2, n);
+    %Vars1=gamrnd(3, 4, 1, n);
+    Vars1=zeros(2, 2, n);
+    for i=1:n
+        Vars1(:, :, i)=wishrnd(eye(2), 7);
+    end
     %fplot(@(x)gampdf(x, 3, 2), [0, 20])
     % set of Gaussian messages
     D1=DistNormal(Means1, Vars1);
@@ -23,7 +27,7 @@ function test_compareToExact()
     % kernel parameter
     gwidth2s=[0.5, 5];
 
-    ker1=KEGaussian(gwidth2s(1));
+    ker1=KEGaussian(gwidth2s(1)*ones(1, 2));
     ker2=KEGaussian(gwidth2s(2));
     K1=ker1.eval(D1, D1);
     K2=ker2.eval(D2, D2);

@@ -2,7 +2,7 @@ classdef RFGJointEProdMap < FeatureMap
     %RFGJOINTEPRODMAP Random Fourier features for expected product kernel 
     %using Gaussian kernel on joint mean embeddings. 
     %    - Input is a TensorInstances of DistArray representing multiple incoming 
-    %    messages
+    %    messages 
     %    - All non-DistNormal will be converted to converted by  moment 
     %    matching to DistNormal when computing the expected product kernel.
     %    - Merge all (converted) incoming messages into a big Gaussian distribution 
@@ -36,7 +36,7 @@ classdef RFGJointEProdMap < FeatureMap
 
         function Z=genFeatures(this, T)
             % Z = numFeatures x n
-            assert(isa(T, 'TensorInstances'));
+            assert(isa(T, 'TensorInstances') ); 
             this.initMap(T);
             D=RFGJointEProdMap.tensorToJointGaussians(T);
             Z=this.eprodMap.genFeatures(D);
@@ -46,8 +46,11 @@ classdef RFGJointEProdMap < FeatureMap
         function M=genFeaturesDynamic(this, T)
             % Generate feature vectors in the form of DynamicMatrix.
             assert(isa(T, 'TensorInstances'));
-            g=this.getGenerator(T);
+            this.initMap(T);
+            D=RFGJointEProdMap.tensorToJointGaussians(T);
+            g=@(I, J)this.eprodMap.generator(D, I, J);
             n=length(T);
+            assert(length(T)==length(D));
             M=DefaultDynamicMatrix(g, this.numFeatures, n);
         end
 
@@ -60,8 +63,9 @@ classdef RFGJointEProdMap < FeatureMap
             % I=indices of features, J=sample indices 
             assert(isa(T, 'TensorInstances'));
             this.initMap(T);
-            D=RFGJointEProdMap.tensorToJointGaussians(T);
-            Z=this.eprodMap.generator(D, I, J);
+            RT=T.instances(J);
+            D=RFGJointEProdMap.tensorToJointGaussians(RT);
+            Z=this.eprodMap.generator(D, I, 1:length(D));
 
         end
 
@@ -71,7 +75,7 @@ classdef RFGJointEProdMap < FeatureMap
         end
 
         function s=shortSummary(this)
-            s = sprintf('%s(mw2s=[%s])', ...
+            s = sprintf('%s(gw2s=[%s])', ...
                 mfilename, num2str(this.gwidth2s)) ;
         end
     end %end methods
@@ -116,10 +120,10 @@ classdef RFGJointEProdMap < FeatureMap
                 % cell array of covariance matrices
                 Vs=cell(1, nvars);
                 for i=1:nvars
-                    Dji=C{i}.get(j);
-                    assert(isa(Dji, 'Distribution'));
-                    Ms{i}=Dji.mean(:);
-                    Vs{i}=Dji.variance;
+                    Dij=C{i}.get(j);
+                    assert(isa(Dij, 'Distribution'));
+                    Ms{i}=Dij.mean(:);
+                    Vs{i}=Dij.variance;
                 end
                 % Stack all means and variances
                 M=vertcat(Ms{:});

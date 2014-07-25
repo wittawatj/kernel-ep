@@ -105,7 +105,7 @@ classdef RFGSumEProdMap < FeatureMap
         end
 
         function s=shortSummary(this)
-            s = sprintf('%s(mw2s=[%s])', ...
+            s = sprintf('%s(gw2s=[%s])', ...
                 mfilename, num2str(this.gwidth2s)) ;
         end
     end
@@ -139,7 +139,7 @@ classdef RFGSumEProdMap < FeatureMap
             % median distance.
             %
 
-            assert(isa(X, 'TensorInstances'));
+            assert(isa(T, 'TensorInstances'));
             assert(isnumeric(medf));
             assert(~isempty(medf));
             assert(all(medf>0));

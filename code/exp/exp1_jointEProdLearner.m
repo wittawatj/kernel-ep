@@ -71,6 +71,7 @@ impOut=impTester.testDistMapper(teBundle);
 expNumFolder=Expr.expSavedFolder(1);
 iden=sprintf('%s_%s_%d.mat', class(learner), bunName, n);
 fname=fullfile(expNumFolder, iden);
+commit=GitTool.getCurrentCommit();
 save(fname)
 rng(oldRng);
 

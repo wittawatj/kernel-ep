@@ -61,6 +61,10 @@ classdef RandFourierGaussMap < FeatureMap
             M=DefaultDynamicMatrix(g, this.numFeatures, n);
         end
 
+        function fm=cloneParams(this, numFeatures)
+            fm=RandFourierGaussMap(this.gwidth2, numFeatures, this.dim);
+        end
+
         function s=shortSummary(this)
             s = sprintf('%s(w^2=%.3f, #feat=%d)', ...
                 mfilename, this.gwidth2, this.numFeatures);

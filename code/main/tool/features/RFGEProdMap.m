@@ -45,8 +45,8 @@ classdef RFGEProdMap < FeatureMap
             [M, V]=RFGEProdMap.getMVs(D);
             % always make V 3d
             if size(V, 1)==1
+                assert(ndims(V)<3);
                 V=shiftdim(V, -1);
-                assert(ndims(V)==3);
             end
 
             Z=zeros(this.numFeatures, n );
@@ -84,8 +84,8 @@ classdef RFGEProdMap < FeatureMap
             [M, V]=RFGEProdMap.getMVs(DJ);
             % always make V 3d
             if size(V, 1)==1
+                assert(ndims(V)<3);
                 V=shiftdim(V, -1);
-                assert(ndims(V)==3);
             end
 
             Z=zeros(length(I), length(J) );

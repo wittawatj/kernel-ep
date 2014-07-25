@@ -73,15 +73,31 @@ classdef CondFMFiniteOut < InstancesMapper
                 % Forming PPT (DxD) can take up too much memory and computation.
                 % Try conjugate gradient.
                 % Solve for T in AT=F
-                dout=size(Out,1);
-                T=zeros(dout, D);
                 afunc=@(x)CondFMFiniteOut.ax(x, dm, lambda);
                 tol=1e-5;
-                maxit=40;
+                maxit=30;
                 % This part can be parallelized.
-                for i=1:dout
-                    fi=F(:, i);
-                    T(i, :)=pcg(afunc, fi, tol, maxit)';
+                % !1 should implement with multicore here !!
+                use_multicore=true;
+                if use_multicore
+                    gop=globalOptions();
+                    multicore_settings.multicoreDir= gop.multicoreDir;                    
+                    colSolve=@(col)pcg(afunc, col, tol, maxit)';
+                    % Gather columns
+                    cols=cell(1, size(F, 2));
+                    for i=1:length(cols)
+                        cols{i}=F(:, i);
+                    end
+                    resultCell = startmulticoremaster(colSolve, cols, multicore_settings);
+                    T=vertcat(resultCell{:});
+                else
+                    dout=size(Out,1);
+                    T=zeros(dout, D);
+                    % not use multicore 
+                    for i=1:dout
+                        fi=F(:, i);
+                        T(i, :)=pcg(afunc, fi, tol, maxit)';
+                    end
                 end
             end
 

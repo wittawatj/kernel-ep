@@ -1,4 +1,4 @@
-classdef Git < handle 
+classdef GitTool < handle 
     %GIT Class containing static methods to communicate with git .
     
     properties
@@ -8,7 +8,8 @@ classdef Git < handle
         function str=getCurrentCommit()
             % return the hash of the current commit 
             % use git.m 
-            str=git('rev-parse --short=10 HEAD');
+            str=git('rev-parse --short=8 HEAD');
+            str=strtrim(str);
         end
     end
     
