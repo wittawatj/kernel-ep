@@ -18,8 +18,12 @@ classdef MatUtils < handle
             rx=size(X, 1);
             ry=size(Y, 1);
 
-            I=repmat(1:ry, rx, 1);
-            Z=repmat(X, ry, 1).*Y(I, :);
+            %I=repmat(1:ry, rx, 1);
+            %Z=repmat(X, ry, 1).*Y(I, :);
+            
+            % Behave like a Kronecker product for column vectors.
+            I=repmat(1:rx, ry, 1);
+            Z=X(I, :).*repmat(Y, rx, 1);
         end
     end
 
