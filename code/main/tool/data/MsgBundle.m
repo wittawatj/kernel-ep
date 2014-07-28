@@ -47,6 +47,12 @@ classdef MsgBundle < handle
         function n=length(this)
             n=this.count();
         end
+
+        function T=getInputTensorInstances(this)
+            % Return all input bundles in a TensorInstances.
+            % Useful for training.
+            T=TensorInstances(this.getInputBundles());
+        end
     end
 
 end

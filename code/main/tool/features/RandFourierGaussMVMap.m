@@ -172,6 +172,49 @@ classdef RandFourierGaussMVMap < FeatureMap
 
         end
 
+        function FMs = candidatesFlatMedf(X, medf, numFeatures, subsamples )
+            % - Generate a cell array of FeatureMap candidates from medf,
+            % a list of factors to be  multiplied with the 
+            % median of all means, variances.
+            % - Steps
+            %  1. compute median of means mmeds of all incoming variables
+            %  2. compute median of variances vmeds of all incoming variables
+            %  3. Generate (mmeds, vmeds)*medf(i) for all i
+            %
+            % - subsamples can be used to limit the samples used to compute
+            % median distance.
+            %
+            assert(isa(X, 'DistArray') || isa(X, 'TensorInstances'));
+            assert(isnumeric(medf));
+            assert(~isempty(medf));
+            assert(all(medf>0));
+            if nargin < 4
+                subsamples = 1500;
+            end
+            [Ms, Vs] = RandFourierGaussMVMap.getAllMV(X);
+            n = size(Ms{1}, 2);
+            numInput = length(Ms);
+            % mmeds contains median for each input
+            mmeds = zeros(1, numInput);
+            vmeds = zeros(1, numInput);
+            I = randperm(n, min(n, subsamples));
+            for i=1:numInput
+                M = Ms{i};
+                V = Vs{i};
+
+                mmeds(i) = meddistance(M(:, I))^2;
+                vmeds(i) = meddistance(V(:, I))^2;
+            end
+
+            % total number of candidats = len(medf). Quite cheap.
+            FMs = cell(1, length(medf));
+            for ci=1:length(medf)
+                map=RandFourierGaussMVMap(mmeds*medf(ci), vmeds*medf(ci), numFeatures);
+                FMs{ci} = map;
+            end
+
+        end %end candidates() method
+
         function FMs = candidates(X, mean_medf, var_medf, numFeatures, subsamples )
             % - Generate a cell array of FeatureMap candidates from a list of
             % mean_medf, a list of factors to be  multipled with the 

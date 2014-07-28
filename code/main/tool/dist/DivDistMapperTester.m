@@ -88,7 +88,7 @@ classdef DivDistMapperTester < DistMapperTester
             assert(isa(trueOutDa, 'DistArray'));
             Divs=this.getDivergence(outDa, trueOutDa);
 
-            impInd=arrayfun(@(d)d.isProper(), outDa.distArray);
+            impInd=arrayfun(@(d)~d.isProper(), outDa.distArray);
             impOut=outDa.distArray(impInd);
             assert(isa(impOut, 'Distribution'));
             impn=length(impOut);
@@ -124,7 +124,13 @@ classdef DivDistMapperTester < DistMapperTester
             % Take the best, 2 median, and worst
             % green=predicted, red=ground truth
             figure
-            %title(sprintf('Output messages: %s', class(outDa.get(1))));
+            superTitle=sprintf('%s. Outputs %s', this.distMapper.shortSummary(), ...
+                class(outDa.get(1)));
+                annotation('textbox', [0 0.9 1 0.1], ...
+                    'String', superTitle, ...
+                    'EdgeColor', 'none', ...
+                    'HorizontalAlignment', 'center', ...
+                    'FontSize', 12)
             % best
             subplot(2, 2, 1);
             this.plotOutputPairs(soOutDa.get(1), soTrueOutDa.get(1), ...
@@ -158,7 +164,7 @@ classdef DivDistMapperTester < DistMapperTester
             sd=max([predictDist.variance, trueDist.variance])^0.5;
             center=mean( [predictDist.mean, trueDist.mean] );
 
-            xrange=linspace(center-3*sd, center+3*sd, 2e4);
+            xrange=linspace(center-4*sd, center+4*sd, 2e4);
             hold on 
             plot(xrange, predictDist.density(xrange), 'g-', 'LineWidth', 2);
             plot(xrange, trueDist.density(xrange), 'r-', 'LineWidth', 2);

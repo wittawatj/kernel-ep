@@ -183,6 +183,8 @@ classdef RFGEProdMap < FeatureMap
         function baseMed=getBaseMedianHeuristic(X, subsamples)
             % Compute the base median heuristic to which factors will be multiplied
             % to generate a list of FeatureMap candidates.
+            % baseMed = meddist(means)^2/meddist(variances)
+            % I have no strong justification for this heuristic.
             %
             assert(isa(X, 'DistArray') || isa(X, 'Distribution'));
             if nargin < 2
@@ -204,6 +206,55 @@ classdef RFGEProdMap < FeatureMap
             vmed=meddistance(Vars);
             % my own heuristic
             baseMed=mmed2/vmed;
+        end
+
+        function avgCov=getAverageCovariance(D, subsamples)
+            % compute the average of the covariance matrices.
+            assert(isa(D, 'DistArray') || isa(D, 'Distribution'));
+            if nargin<2
+                subsamples=1500;
+            end
+
+            n=length(D);
+            I=randperm(n, min(n, subsamples));
+            RD=D(I);
+            d=unique([RD.d]);
+            if d==1
+                Vars=[RD.variance];
+                avgCov=mean(Vars);
+            else
+                Vars=cat(3, RD.variance);
+                avgCov=mean(Vars, 3);
+            end
+        end
+
+        function FMs=candidatesAvgCov(X, medf, numFeatures, subsamples)
+
+            % - Generate a cell array of FeatureMap candidates from medf 
+            % a list  of factors to be  multipled with the average variances.
+            % The average variance is computed by taking the average of 
+            % the diagonal entries in the average of all covariance matrices.
+            %
+            % - By convention, we call it medf even though the factors are not 
+            % multiplied with a median.
+            %
+            % - subsamples can be used to limit the samples used to compute
+            % the heuristic.
+            assert(isa(X, 'DistArray') || isa(X, 'Distribution'));
+            assert(isnumeric(medf));
+            assert(~isempty(medf));
+            assert(all(medf>0));
+            assert(numFeatures>0);
+            if nargin < 4
+                subsamples = 5000;
+            end
+            avgCov=RFGEProdMap.getAverageCovariance(X, subsamples);
+            meanVar=mean(diag(avgCov));
+            FMs=cell(1, length(medf));
+            for i=1:length(medf)
+                gw2=meanVar*medf(i);
+                FMs{i}=RFGEProdMap(gw2, numFeatures);
+            end
         end
 
         function FMs = candidates(X, medf,  numFeatures, subsamples )

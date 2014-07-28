@@ -97,9 +97,7 @@ classdef RFGJointEProdMap < FeatureMap
                 W=diag(1./sqrt([C{:}]))*randn(totalDim, this.numFeatures);
                 B=rand(1, this.numFeatures)*2*pi;
                 this.eprodMap=RFGEProdMap.createFromWeights(W, B);
-
             end
-
         end
     end
 
@@ -134,6 +132,41 @@ classdef RFGJointEProdMap < FeatureMap
             assert(length(D)==n);
         end
 
+        function FMs = candidatesAvgCov(T, medf, numFeatures, subsamples )
+            % - Generate a cell array of FeatureMap candidates from medf,
+            % a list of factors to be  multiplied with the 
+            % diagonal of the average covariance matrices.
+            %
+            % - subsamples can be used to limit the samples used to compute
+            % median distance.
+            %
+            assert(isa(T, 'TensorInstances'));
+            assert(isnumeric(medf));
+            assert(~isempty(medf));
+            assert(all(medf>0));
+            if nargin < 4
+                subsamples = 5000;
+            end
+            numInput=T.tensorDim();
+
+            % median heuristics for each input variables
+            meanVars=zeros(1, numInput);
+            for i=1:numInput
+                da=T.instancesCell{i};
+                avgCov=RFGEProdMap.getAverageCovariance(da, subsamples);
+                meanVars(i)=mean(diag(avgCov));
+            end
+
+            % total number of candidats = len(medf). Quite cheap.
+            FMs = cell(1, length(medf));
+            for ci=1:length(medf)
+                gwidth2s=meanVars*medf(ci);
+                map = RFGJointEProdMap(gwidth2s, numFeatures);
+                FMs{ci} = map;
+            end
+
+        end %end candidates() method
+        
         function FMs = candidates(T, medf, numFeatures, subsamples )
             % - Generate a cell array of FeatureMap candidates from medf,
             % a list of factors to be  multiplied with the 

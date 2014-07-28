@@ -64,6 +64,7 @@ end
 % At this point, we have bri, bfi
 C.minerr = minerr;
 C.bfeaturemap= featuremap_candidates{bfi};
+C.bfeaturemap_index=bfi;
 C.blambda = reglist(bri);
 
 C.reglist = reglist;
