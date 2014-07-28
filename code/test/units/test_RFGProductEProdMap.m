@@ -1,4 +1,4 @@
-function test_suite = test_RFGSumEProdMap()
+function test_suite = test_RFGProductEProdMap()
     %
     initTestSuite;
 
@@ -7,9 +7,9 @@ end
 function test_compareToExact()
     % compare to exact kernel evaluation 
     oldRng=rng();
-    rng(11 );
+    rng(32 );
 
-    n=200;
+    n=100;
     Means1=3*randn(2, n);
     %Vars1=gamrnd(3, 4, 1, n);
     Vars1=zeros(2, 2, n);
@@ -25,22 +25,21 @@ function test_compareToExact()
     D2=DistNormal(Means2, Vars2);
 
     % kernel parameter
-    gwidth2s=[0.5, 5];
+    gwidth2s=[1, 4];
 
     ker1=KEGaussian(gwidth2s(1)*ones(1, 2));
     ker2=KEGaussian(gwidth2s(2));
     K1=ker1.eval(D1, D1);
     K2=ker2.eval(D2, D2);
-    % sum of kernels
-    K=K1+K2;
+    % product of 2 kernels
+    K=K1.*K2;
 
     % number of random features
     numFeatures=499;
-    randMap=RFGSumEProdMap(gwidth2s, numFeatures);
+    randMap=RFGProductEProdMap(gwidth2s, numFeatures);
 
     T=TensorInstances({DistArray(D1), DistArray(D2)});
     Z=randMap.genFeatures(T);
-    assert(all(Z(:)>=-2 & Z(:)<=2));
     Kapprox= Z'*Z;
     Diff = abs(Kapprox-K);
 

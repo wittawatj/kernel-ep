@@ -1,6 +1,5 @@
-classdef RFGSumEProdLearner < DistMapperLearner
-    %RFGSUMEPRODLEARNER DistMapperLearner for RFGSumEProdMap
-    
+classdef RFGProductEProdLearner < DistMapperLearner
+    %RFGPRODUCTEPRODLEARNER DistMapperLearner for RFGProductEProdMap
 
     properties(SetAccess=protected)
         % an instance of Options
@@ -11,7 +10,7 @@ classdef RFGSumEProdLearner < DistMapperLearner
     end
 
     methods
-        function this=RFGSumEProdLearner(msgBundle)
+        function this=RFGProductEProdLearner(msgBundle)
             assert(isa(msgBundle, 'MsgBundle'), 'input to constructor not a MsgBundle' );
             assert(msgBundle.count()>0, 'empty training set')
             this.trainBundle=msgBundle;
@@ -112,7 +111,7 @@ classdef RFGSumEProdLearner < DistMapperLearner
                 assert(candidate_primal_features>0);
                 med_subsamples=op.med_subsamples;
                 assert(med_subsamples>0);
-                FMcell=RFGSumEProdMap.candidates(tensorIn, med_factors, ...
+                FMcell=RFGProductEProdMap.candidates(tensorIn, med_factors, ...
                     candidate_primal_features, med_subsamples);
                 % set to options
                 this.opt('featuremap_candidates', FMcell);

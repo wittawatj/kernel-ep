@@ -64,6 +64,7 @@ classdef RFGEProdMap < FeatureMap
         function M=genFeaturesDynamic(this, D)
             % Generate feature vectors in the form of DynamicMatrix.
             assert(isa(D, 'Distribution') || isa(D, 'DistArray'));
+            this.initMap(D);
             g=this.getGenerator(D);
             n=length(D);
             M=DefaultDynamicMatrix(g, this.numFeatures, n);

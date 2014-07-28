@@ -35,17 +35,18 @@ trTensor=trBundle.getInputTensorInstances();
 
 %---------- options -----------
 candidate_primal_features=2000;
+%candidate_primal_features=200;
 % median factors
 medf=[1/40, 1/20, 1/10, 1/5, 1/3, 1/2, 1, 2, 3, 5, 10, 20, 40];
 % run multicore
 use_multicore=true;
 %use_multicore=false;
 %----------
-
 % learners
 mvLearner=RFGMVMapperLearner(trBundle);
 jointLearner=RFGJointEProdLearner(trBundle);
 sumLearner=RFGSumEProdLearner(trBundle);
+prodLearner=RFGProductEProdLearner(trBundle);
 % learner-specific options
 mvCandidates=RandFourierGaussMVMap.candidatesFlatMedf(trTensor, medf, ...
     candidate_primal_features, 1500);
@@ -53,13 +54,16 @@ jointCandidates=RFGJointEProdMap.candidatesAvgCov(trTensor, medf, ...
     candidate_primal_features, 5000);
 sumCandidates=RFGSumEProdMap.candidatesAvgCov(trTensor, medf, ...
     candidate_primal_features, 5000);
-
+prodCandidates=RFGProductEProdMap.candidatesAvgCov(trTensor, medf, ...
+    candidate_primal_features, 5000);
 % set candidates for each learner
 mvLearner.opt('featuremap_candidates', mvCandidates);
 jointLearner.opt('featuremap_candidates', jointCandidates);
 sumLearner.opt('featuremap_candidates', sumCandidates);
+prodLearner.opt('featuremap_candidates', prodCandidates);
 
-learners={ mvLearner, jointLearner, sumLearner};
+%learners={ mvLearner, jointLearner, sumLearner, prodLearner};
+learners={ prodLearner};
 
 for i=1:length(learners)
     learner=learners{i};
@@ -137,7 +141,7 @@ function s=learnMap(learner, trBundle, teBundle, bunName, relearn)
     divTester.opt('div_function', 'KL'); 
     % test on the test MsgBundle
     %keyboard
-    [KL, outDa]=divTester.testDistMapper(teBundle);
+    [Divs, outDa]=divTester.testDistMapper(teBundle);
     assert(isa(outDa, 'DistArray'));
 
     % Check improper messages
@@ -157,7 +161,7 @@ function s=learnMap(learner, trBundle, teBundle, bunName, relearn)
     s.dist_mapper=dm;
     s.learner_log=learnerLog;
     s.div_tester=divTester;
-    s.kl=KL;
+    s.divs=Divs;
     s.out_distarray=outDa;
     s.imp_tester=impTester;
     s.imp_out=impOut;
