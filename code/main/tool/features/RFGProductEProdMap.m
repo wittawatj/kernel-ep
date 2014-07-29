@@ -50,9 +50,8 @@ classdef RFGProductEProdMap < FeatureMap
             end
             Z=Zs{1};
             for i=2:numVars
-                Zi=Zs{i};
                 % Kronecker product.
-                Z=MatUtils.colOutputProduct(Z, Zi );
+                Z=MatUtils.colOutputProduct(Z, Zs{i} );
             end
             assert(size(Z, 2)==n);
             assert(size(Z, 1)==this.numFeatures);
@@ -75,18 +74,30 @@ classdef RFGProductEProdMap < FeatureMap
 
         function Z=generator(this, T, I, J )
             % I=indices of features, J=sample indices 
-            % This generator gives the correct answer but not efficient
-            % since all rows are generated then selected with I.
-            % *** Need to improve ***
             assert(isa(T, 'TensorInstances') );
             this.initMap(T);
+            C=T.instancesCell;
             c=T.tensorDim();
             nfEach=this.numFeatures^(1/c);
             assert(mod(nfEach, 1)==0); % this should be integer 
 
-            TJ=T.instances(J);
-            ZJ=this.genFeatures(TJ);
-            Z=ZJ(I, :);
+            % Indices needed from each feature map 
+            mapI=cell(1, c);
+            [mapI{:}]=ind2sub(nfEach*ones(1, c), I);
+            % reverse mapI so that the last index changes first.
+            mapI=mapI(end:-1:1);
+            
+            Z=1;
+            for i=1:c
+                % Each DistArray must have the same length
+                assert(isa(C{i}, 'DistArray'), ['Each input in TensorInstances '...
+                    'is expected to be a DistArray']);
+                g=this.eprodMaps{i}.getGenerator(C{i});
+                % This can be improved. mapI{i} may contain many duplicate indices.
+                % We should not need to recompute. Just compute once and repmat it.
+                % **** Improve later ***
+                Z=Z.*g(mapI{i}, J);
+            end
             assert(size(Z,1)==length(I));
             assert(size(Z,2)==length(J));
 
