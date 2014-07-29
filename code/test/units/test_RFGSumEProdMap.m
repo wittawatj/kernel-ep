@@ -43,6 +43,7 @@ function test_compareToExact()
     assert(all(Z(:)>=-2 & Z(:)<=2));
     Kapprox= Z'*Z;
     Diff = abs(Kapprox-K);
+    RelDiff= abs( (Kapprox-K)./K );
 
     % plot kernels
     %figure
@@ -56,6 +57,7 @@ function test_compareToExact()
     %title('approx kernel matrix');
 
     display(sprintf('%s: mean abs diff: %.3f', mfilename, mean(Diff(:))));
+    display(sprintf('%s: mean rel diff: %.3f', mfilename, mean(RelDiff(:))));
     % should be much less than 1
     assert(mean(Diff(:))<1);
 

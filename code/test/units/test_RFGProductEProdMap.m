@@ -35,13 +35,14 @@ function test_compareToExact()
     K=K1.*K2;
 
     % number of random features
-    numFeatures=499;
+    numFeatures=1499;
     randMap=RFGProductEProdMap(gwidth2s, numFeatures);
 
     T=TensorInstances({DistArray(D1), DistArray(D2)});
     Z=randMap.genFeatures(T);
     Kapprox= Z'*Z;
     Diff = abs(Kapprox-K);
+    RelDiff= abs( (Kapprox-K)./K );
 
     % plot kernels
     %figure
@@ -55,6 +56,7 @@ function test_compareToExact()
     %title('approx kernel matrix');
 
     display(sprintf('%s: mean abs diff: %.3f', mfilename, mean(Diff(:))));
+    display(sprintf('%s: mean rel diff: %.3f', mfilename, mean(RelDiff(:))));
     % should be much less than 1
     assert(mean(Diff(:))<1);
 
@@ -62,10 +64,16 @@ function test_compareToExact()
     dmZ=dm.toNumeric();
     assertVectorsAlmostEqual(dmZ, Z);
 
+    % test generator on a bunch of indices
+    II={20:200, 100:600, 400:1200, 1100:1400};
+    JJ={2, 2:10, 50:100, 1:100};
+
     g=randMap.getGenerator(T);
-    I=200:300;
-    J=50:100;
-    assertVectorsAlmostEqual(g(I, J), Z(I, J));
+    for i=1:length(II)
+        I=II{i};
+        J=JJ{i};
+        assertVectorsAlmostEqual(g(I, J), Z(I, J));
+    end
 
     rng(oldRng);
 end

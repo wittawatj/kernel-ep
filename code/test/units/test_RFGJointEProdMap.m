@@ -47,19 +47,20 @@ function test_basic()
     T=TensorInstances({DistArray(D1), DistArray(D2)});
     D=RFGJointEProdMap.tensorToJointGaussians(T);
     % kernel parameter
-    gwidth2s=[1.5, 0.5];
+    gwidth2s=[2, 3];
     ker=KEGaussian( [gwidth2s(1), gwidth2s(1), gwidth2s(2)]);
 
     K=ker.eval(D, D);
 
     % number of random features
-    numFeatures=499;
+    numFeatures=799;
     randMap=RFGJointEProdMap(gwidth2s, numFeatures);
 
     Z=randMap.genFeatures(T);
     assert(all(Z(:)>=-1 & Z(:)<=1));
     Kapprox= Z'*Z;
     Diff = abs(Kapprox-K);
+    RelDiff= abs( (Kapprox-K)./K );
 
     % plot kernels
     %figure
@@ -73,6 +74,7 @@ function test_basic()
     %title('approx kernel matrix');
 
     display(sprintf('%s: mean abs diff: %.3f', mfilename, mean(Diff(:))));
+    display(sprintf('%s: mean rel diff: %.3f', mfilename, mean(RelDiff(:))));
     % should be much less than 1
     assert(mean(Diff(:))<1);
 
@@ -81,7 +83,7 @@ function test_basic()
     assertVectorsAlmostEqual(dmZ, Z);
 
     g=randMap.getGenerator(T);
-    I=200:300;
+    I=300:500;
     J=50:100;
     assertVectorsAlmostEqual(g(I, J), Z(I, J));
 
