@@ -53,11 +53,14 @@ classdef CondCholFiniteOut < InstancesMapper
         
         function Zout = mapInstances(this, Xin)
             % Map Instances in Xin to Zout with this operator.
+            % The Instances Xin must be compatible with the Kernel kfunc.
             assert(isa(Xin, 'Instances'));
             R = this.R;
             In = this.In;
             Z = this.Out;
             kfunc = this.kfunc;
+            % Generating Krs then multiply may take a lot of memory.
+            % ** We should interleave feature generation and the multiplication.
             Krs = kfunc.eval(In.getAll(), Xin.getAll());
             
 %             B = (R*R' + lamb*eye(ra)) \ RKrs;

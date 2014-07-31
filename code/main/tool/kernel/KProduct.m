@@ -55,7 +55,6 @@ classdef KProduct < Kernel
         end
         
         function Kvec = pairEval(this, X, Y)
-             % lazy implmentation. Obviously this can be improved.
             assert(iscell(X));
             assert(iscell(Y));
             
@@ -102,7 +101,7 @@ classdef KProduct < Kernel
         end
         
         function Ks=cross_product(ker_list1, ker_list2)
-            % return a lsit of kernels Ks of length l1xl2 by considering
+            % return a list of kernels Ks of length l1xl2 by considering
             % all combinations of kernels in the two lists.
             % ### Add varargin later for more than two lists #####
             l1 = length(ker_list1);

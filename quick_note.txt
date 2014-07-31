@@ -5,13 +5,18 @@
 * Memory scales up only with D (#random features) not n in DefaultDynamicMatrix
 which is good. Memory needed = D^2 which is still quite large.
 
+* How to construct the mapMatrix (representative matrix for the opeartor) given 
+D (number of random features) is very large ? We need to solve a DxD linear system
+without forming DxD matrix.
+
 ### Implementation details
 
-* The saved dataset should follow a uniform interface. 
-One saved file should contain only one object. The object may contain a hierarchy
-of datasets.
 
 ### To do 
+
+* genFeatures() in RandFourierGaussMap with mex.
+
+* Try conjugate gradient on solving the primal form of conditional mean embedding.
 
 * save/load for frequently used classes.
 
