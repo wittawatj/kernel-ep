@@ -19,6 +19,7 @@ classdef CondFMFiniteOut < InstancesMapper
     methods (Static)
         function Ax=ax(x, dm, lambda)
             % Return (P*P'+lambda*eye(D))x without forming P*P'
+            assert(isa(dm, 'DynamicMatrix'));
             %D=size(dm, 1);
             %Ptx=dm.t().rmult(x);
             Ptx=dm.lmult(x')';
@@ -76,9 +77,8 @@ classdef CondFMFiniteOut < InstancesMapper
                 afunc=@(x)CondFMFiniteOut.ax(x, dm, lambda);
                 tol=1e-5;
                 maxit=30;
-                % This part can be parallelized.
-                % !1 should implement with multicore here !!
                 use_multicore=true;
+
                 if use_multicore
                     gop=globalOptions();
                     multicore_settings.multicoreDir= gop.multicoreDir;                    

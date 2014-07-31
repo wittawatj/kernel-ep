@@ -10,6 +10,7 @@ oldRng=rng();
 rng(seed);
 % true to relearn everything 
 relearn=false;
+%relearn=true;
 
 se=BundleSerializer();
 sample_cond_msg=false;

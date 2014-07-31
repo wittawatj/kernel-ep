@@ -1,6 +1,5 @@
 classdef SigmoidBundleGenerator < BundleGenerator & HasOptions
-    %SIGMOIDBUNDLEGENERATOR Summary of this class goes here
-    %   Detailed explanation goes here
+    %SIGMOIDBUNDLEGENERATOR Generate MsgBundle for sigmoid factor problem.
     
     properties (SetAccess=protected)
         % instance of Options
@@ -20,7 +19,7 @@ classdef SigmoidBundleGenerator < BundleGenerator & HasOptions
             kv.in_proposal=['proposal distribution for conditioning variable'...
                  'A class extending Sampler & Density'];
             kv.var1_distbuilder='DistBuilder for x in p(x|t)';
-            kv.var2_distbuilder='DistBetaBuilder for t in p(x|t)';
+            kv.var2_distbuilder='DistBuilder for t in p(x|t)';
             kv.iw_samples='Number of importance weights to draw';
             kv.sample_cond_msg=['If true, sample from the conditioning variable '...
                 'messages instead. If false, use in_proposal.'];
@@ -152,6 +151,6 @@ classdef SigmoidBundleGenerator < BundleGenerator & HasOptions
 
             rng(oldRng);
         end
-    end
+    end % end static methods 
 end
 

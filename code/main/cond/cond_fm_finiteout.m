@@ -77,7 +77,7 @@ end
 
 function [R] = evalFeatureMap(fm, In, Out, op)
 % Evaluate a FeatureMap fm 
-% Return a column R vector containings errors for each regularization parameter. 
+% Return a column R vector containing errors for each regularization parameter. 
 %
 % dz x n
 Z = Out;
@@ -111,6 +111,8 @@ for ri=1:length(reglist)
     % this line can be expensive. DxD inverse. O(D^3) complexity.
     % D may be large enough so that O(D^3) is expensive. 
     % But, this is certainly better than O(N^3) where dual solution is used.
+    % *** Should use conjugate gradient here ***
+    % *** Improve later *** 
     T = linsolve(A', C')'; % dz x D
     clear A
     hdiag = dm.dmtim(lambda, PPt);

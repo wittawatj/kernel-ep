@@ -70,7 +70,7 @@ classdef CondCholFiniteOut < InstancesMapper
 
         
         function s = shortSummary(this)
-            s = sprintf('%s', mfilename);
+            s = sprintf('%s(r=%d)', mfilename, size(this.R, 1));
         end
 
         
