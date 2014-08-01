@@ -213,7 +213,7 @@ classdef RFGEProdMap < FeatureMap
             % compute the average of the covariance matrices.
             assert(isa(D, 'DistArray') || isa(D, 'Distribution'));
             if nargin<2
-                subsamples=1500;
+                subsamples=5000;
             end
 
             n=length(D);

@@ -33,8 +33,8 @@ classdef KEGaussian < Kernel
         function Kmat = eval(this, D1, D2)
             assert(isa(D1, 'Distribution') || isa(D1, 'DistArray'));
             assert(isa(D2, 'Distribution') || isa(D2, 'DistArray'));
-            d1=unique([ D1.d ]);
-            d2=unique([ D2.d ]);
+            d1=D1(1).d;
+            d2=D2(1).d;
             assert(isscalar(d1));
             assert(isscalar(d2));
             assert(d1==d2, 'Dimension of two Distributions must match');
@@ -69,6 +69,7 @@ classdef KEGaussian < Kernel
                 Kmat=zeros(n1, n2);
                 % do by columns
                 Sigma=diag(this.gwidth2s);
+                assert(~isscalar(Sigma));
                 detSigmaInv=1/det(Sigma);
                 for j=1:n2
                     dj=D2(j);
@@ -146,7 +147,53 @@ classdef KEGaussian < Kernel
         function s=shortSummary(this)
             s = sprintf('%s([%s])', mfilename, num2str(this.gwidth2s) );
         end
-    end
+    end %end methods
+
+    methods (Static)
+
+        function KCs = productCandidatesAvgCov(T, medf, subsamples )
+            % - Generate a cell array of KProduct candidates from medf,
+            % a list of factors to be  multiplied with the 
+            % diagonal of the average covariance matrices.
+            %
+            % - subsamples can be used to limit the samples used to compute
+            % the average
+            %
+            assert(isa(T, 'TensorInstances'));
+            assert(isnumeric(medf));
+            assert(~isempty(medf));
+            assert(all(medf>0));
+            if nargin < 3
+                subsamples = 5000;
+            end
+            numInput=T.tensorDim();
+            meanVars=zeros(1, numInput);
+            for i=1:numInput
+                da=T.instancesCell{i};
+                avgCov=RFGEProdMap.getAverageCovariance(da, subsamples);
+                % keep just one number, the mean, instead of the diagonal covariance.
+                % KEGaussian accepts one parameter for each dimension.
+                % But to be consistent with other methods, we use one scalar 
+                % parameter for each incoming variable.
+                meanVars(i)=mean(diag(avgCov));
+            end
+
+            % total number of candidats = len(medf). Quite cheap.
+            KCs = cell(1, length(medf));
+            for ci=1:length(medf)
+                gwidth2s=meanVars*medf(ci);
+                Ks=cell(1, numInput);
+                for i=1:numInput
+                    di=unique(T.instancesCell{i}.d);
+                    assert(isscalar(di), 'DistArray does not contain Distributions with the same dimension');
+                    Ks{i}=KEGaussian(gwidth2s(i)*ones(di, 1));
+                end
+                ker=KProduct(Ks);
+                KCs{ci}=ker;
+            end
+        end %end candidates() method
+
+    end %end static methods
 
 end
 

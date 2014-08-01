@@ -45,7 +45,7 @@ op.test_size = test_size;
 chol_tol = myProcessOptions(op, 'chol_tol', 1e-2);
 op.chol_tol = chol_tol;
 
-% Maximum rank (column of R) K~R'*R in incomplete Cholesky.
+% Maximum rank (#rows of R) K~R'*R in incomplete Cholesky.
 chol_maxrank = myProcessOptions(op, 'chol_maxrank', max(n, 500) );
 op.chol_maxrank = chol_maxrank;
 

@@ -68,25 +68,23 @@ classdef GenericMapper < DistMapper2 & DistMapper
             assert(nv==this.numInVars(), ...
                 'expect %d incoming messages.', this.numInVars());
             C=varargin;
+            for i=1:length(C)
+                assert(isa(C{i}, 'DistArray'));
+            end
             flength=@(da)da.count();
             L=cellfun(flength, C);
             % check that all DistArray's have the same length
             assert(length(unique(L))==1);
-            n=unique(L);
-            douts=cell(1, n);
-            for i=1:n
-                in=cell(1, nv);
-                for j=1:nv
-                    da=C{j};
-                    assert(isa(da, 'DistArray'));
-                    in{j}=da.get(i);
-                    assert(isa(in{j}, 'Distribution'));
-                end
-                douts{i}=this.mapDists(in{:});
-            end
-            % convert to DistArray
-            arrOfDists=[douts{:}];
-            douts=DistArray(arrOfDists);
+            tensorIn=TensorInstances(C);
+            % Assume the operator outputs a matrix containing distribution 
+            % statistics.
+            zoutStat = this.operator.mapInstances(tensorIn);
+            
+            builder = this.distBuilder;
+            dout = builder.fromStat(zoutStat);
+            assert(isa(dout, 'Distribution'), ...
+                'distBuilder should construct a Distribution.');
+            douts=DistArray(dout);
         end
 
         % Same as mapDists() with input messages represented by an instance 

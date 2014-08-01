@@ -86,6 +86,31 @@ classdef DivDistMapperTester < DistMapperTester
             assert(isa(outDa, 'DistArray'));
             trueOutDa=testBundle.getOutBundle();
             assert(isa(trueOutDa, 'DistArray'));
+            Divs=this.compareOutputs(trueOutDa, outDa);
+
+        end
+
+        function plotOutputPairs(this, predictDist, trueDist, titleText)
+            % plot the two Distributions 
+            % This function works only for 1d Distribution's
+            assert(isa(predictDist, 'Distribution'))
+            assert(isa(trueDist, 'Distribution'))
+            % Distribution implies Density
+            sd=max([predictDist.variance, trueDist.variance])^0.5;
+            center=mean( [predictDist.mean, trueDist.mean] );
+
+            xrange=linspace(center-4*sd, center+4*sd, 2e4);
+            hold on 
+            plot(xrange, predictDist.density(xrange), 'g-', 'LineWidth', 2);
+            plot(xrange, trueDist.density(xrange), 'r-', 'LineWidth', 2);
+            legend('predicted', 'ground truth');
+            set(gca, 'fontsize', 18);
+            title(titleText);
+            grid on
+            hold off
+        end
+
+        function Divs=compareOutputs(this, trueOutDa, outDa)
             Divs=this.getDivergence(outDa, trueOutDa);
 
             impInd=arrayfun(@(d)~d.isProper(), outDa.distArray);
@@ -152,27 +177,6 @@ classdef DivDistMapperTester < DistMapperTester
             subplot(2, 2, 4);
             this.plotOutputPairs(soOutDa.get(nte), soTrueOutDa.get(nte), ...
                 sprintf('Worst prediction. Div: %.3f', soLogDivs(nte)));
-
-        end
-
-        function plotOutputPairs(this, predictDist, trueDist, titleText)
-            % plot the two Distributions 
-            % This function works only for 1d Distribution's
-            assert(isa(predictDist, 'Distribution'))
-            assert(isa(trueDist, 'Distribution'))
-            % Distribution implies Density
-            sd=max([predictDist.variance, trueDist.variance])^0.5;
-            center=mean( [predictDist.mean, trueDist.mean] );
-
-            xrange=linspace(center-4*sd, center+4*sd, 2e4);
-            hold on 
-            plot(xrange, predictDist.density(xrange), 'g-', 'LineWidth', 2);
-            plot(xrange, trueDist.density(xrange), 'r-', 'LineWidth', 2);
-            legend('predicted', 'ground truth');
-            set(gca, 'fontsize', 18);
-            title(titleText);
-            grid on
-            hold off
         end
 
         function [Divs, outDa]=plotMeanVarianceErrors(this, testBundle)

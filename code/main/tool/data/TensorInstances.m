@@ -31,7 +31,9 @@ classdef TensorInstances < Instances
         end
         
         function Data=getAll(this)
-            Data = this.get(1:this.count());
+            Ins = this.instancesCell;
+            f = @(in)(in.getAll());
+            Data = cellfun(f, Ins, 'UniformOutput', false);
         end
         
 

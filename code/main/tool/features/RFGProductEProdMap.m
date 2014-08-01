@@ -140,7 +140,7 @@ classdef RFGProductEProdMap < FeatureMap
             % diagonal of the average covariance matrices.
             %
             % - subsamples can be used to limit the samples used to compute
-            % median distance.
+            % the average
             %
             assert(isa(T, 'TensorInstances'));
             assert(isnumeric(medf));
@@ -150,8 +150,6 @@ classdef RFGProductEProdMap < FeatureMap
                 subsamples = 5000;
             end
             numInput=T.tensorDim();
-
-            % median heuristics for each input variables
             meanVars=zeros(1, numInput);
             for i=1:numInput
                 da=T.instancesCell{i};

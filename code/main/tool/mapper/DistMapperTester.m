@@ -14,6 +14,12 @@ classdef DistMapperTester < handle & HasOptions
         % message pairs. 
         S=testDistMapper(this, testBundle);
 
+
+        % Compare the  groundTruth DistArray to the output outDa. 
+        % Both DistArray's must have the same length. 
+        % Typically the outDa is DistArray output from this.distMapper.
+        compareOutputs(this, groundTruth, outDa);
+
         % summary in string of this DistMapperTester
         s=shortSummary(this);
 

@@ -1,7 +1,10 @@
-classdef RFGSumEProdLearner < DistMapperLearner
-    %RFGSUMEPRODLEARNER DistMapperLearner for RFGSumEProdMap
+classdef ICholMapperLearner < DistMapperLearner
+    %ICHOLMAPPERLEARNER DistMapperLearner based on incomplete Cholesky factorization.
+    %    * This DistMapperLearner works on any Kernel.
+    %    * The data is of type TensorInstances 
+    %    * Kernel is usually a KProduct
+    %
     
-
     properties(SetAccess=protected)
         % an instance of Options
         options;
@@ -11,7 +14,7 @@ classdef RFGSumEProdLearner < DistMapperLearner
     end
 
     methods
-        function this=RFGSumEProdLearner(msgBundle)
+        function this=ICholMapperLearner(msgBundle)
             assert(isa(msgBundle, 'MsgBundle'), 'input to constructor not a MsgBundle' );
             assert(msgBundle.count()>0, 'empty training set')
             this.trainBundle=msgBundle;
@@ -34,21 +37,6 @@ classdef RFGSumEProdLearner < DistMapperLearner
             kv=struct();
             kv.seed='random seed';
 
-            kv.med_subsamples= ['number of samples to be used for computing pairwise '...
-                'median distance. Subsampling makes it more efficient as an ' ...
-                'accurate median is not needed.'];
-
-            kv.med_factors=['numerical array of scaling factors to be ' ...
-                'multiplied with the median distance heuristic. '...
-                'Used to generate candidates'];
-
-            kv.candidate_primal_features=['number of random features to use for '...
-                'candidate selection. During cross-validation, the number of '...
-                'features can be low to be efficient.'];
-
-            kv.num_primal_features=['number of actual random features to use ' ...
-                'after a candidate FeatureMap is chosen'];
-
             % The DistBuilder for the output distribution. For example, if
             % Out is an array of DistBeta, it makes sense to use
             % DistBetaBuilder. However in general one can use
@@ -60,13 +48,18 @@ classdef RFGSumEProdLearner < DistMapperLearner
                 'sense to use the DistBuilder corresponding to the type '...
                 'of the variable to send to. Set to [] to do so.'];
 
-            kv.featuremap_candidates=['A cell array of FeatureMap.'...
-                'This is not expected to be set directly.'...
-                'If med_factors '...
-                'is set, and featuremap_candidates'...
-                'is set to [], median distance heuristic will be used to automatically '...
-                'generate a cell array of candidates.' ];
+            kv.kernel_candidates=['A cell array of Kernels to be selected '...
+                'by repeated holdouts. Make sure that the Kernels are compatible '...
+                'with the data Instances. This must not be empty.'];
+            kv.num_ho=['number of repeated holdouts to perform. Train h times '...
+                'on different randomly drawn h sets and test on a separete '...
+                'nonoverlapping test set.'];
 
+            kv.ho_train_size=['Training size (#samples) in the repeated holdouts'];
+            kv.ho_test_size=['Test size (#samples) in the repeated holdouts'];
+            kv.chol_tol=['Tolerance for incomplete Cholesky on kernel matrix.'];
+            kv.chol_maxrank=['Maximum incomplete Cholesky rank. #rows of R in '...
+                'K~R''R.'];
             kv.reglist=['list of regularization parameter candidates for ridge '...
                 'regression.'];
             kv.use_multicore=['If true, use multicore package.'];
@@ -77,64 +70,60 @@ classdef RFGSumEProdLearner < DistMapperLearner
         function Op=getDefaultOptions(this)
             st=struct();
             st.seed=1;
-            st.med_subsamples=1500;
-            st.med_factors=[1/10, 1, 10];
-            st.candidate_primal_features=2000;
-            % 1e4 random features 
-            st.num_primal_features=1e4;
             st.out_msg_distbuilder=[]; % override in constructor
-            st.featuremap_candidates=[];
-            % options used in cond_fm_finiteout
+            % options used in cond_ho_finiteout
+            %
+            % Must be manually set
+            st.kernel_candidates=[]; 
+            st.num_ho=5;
+            n=length(this.trainBundle);
+            st.ho_train_size=floor(0.7*n);
+            st.ho_test_size=floor(0.3*n);
+            st.chol_tol=1e-8;
+            st.chol_maxrank=600;
             st.reglist=[1e-2, 1, 100];
             st.use_multicore=true;
 
             Op=Options(st);
         end
 
-        % learn a DistMapper given the training data in MsgBundle.
         function [gm, C]=learnDistMapper(this )
+            % learn a DistMapper given the training data in MsgBundle.
             op=this.options.toStruct();
+
+            if ~(isfield(op, 'kernel_candidates') ...
+                    && ~isempty(op.kernel_candidates))
+                error('option kernel_candidates must be set.')
+            end
+
             bundle=this.trainBundle;
+            n=length(bundle);
             % cell array of DistArray's
             inputDistArrays=bundle.getInputBundles();
             tensorIn=TensorInstances(inputDistArrays);
-
-            if ~(isfield(op, 'featuremap_candidates') ...
-                    && ~isempty(op.featuremap_candidates))
-                % featuremap_candidates not set or set to []
-                % compute ones
-
-                % FeatureMap candidates
-                med_factors=op.med_factors;
-                assert(all(med_factors>0));
-
-                candidate_primal_features=op.candidate_primal_features;
-                assert(candidate_primal_features>0);
-                med_subsamples=op.med_subsamples;
-                assert(med_subsamples>0);
-                FMcell=RFGSumEProdMap.candidates(tensorIn, med_factors, ...
-                    candidate_primal_features, med_subsamples);
-                % set to options
-                this.opt('featuremap_candidates', FMcell);
-            end
-
-            op=this.options.toStruct();
             out_msg_distbuilder=op.out_msg_distbuilder;
             % learn operator
             outDa=bundle.getOutBundle();
             outStat=out_msg_distbuilder.getStat(outDa);
-            [Op, C]=CondFMFiniteOut.learn_operator(tensorIn, outStat, op);
+            op.train_size=op.ho_train_size;
+            op.test_size=op.ho_test_size;
+            assert(op.train_size+op.test_size<=n, '#Train and test samples exceed total samples');
+
+            [Op, C]=CondCholFiniteOut.learn_operator(tensorIn, outStat, op);
             assert(isa(Op, 'InstancesMapper'));
             gm=GenericMapper(Op, out_msg_distbuilder, bundle.numInVars());
 
         end
 
         function s=shortSummary(this)
-            s=mfilename;
+            s=sprintf('%s(maxrank=%d)', mfilename, this.opt('chol_maxrank'));
         end
 
 
     end
-    
+
+    methods(Static)
+
+    end
 end
 

@@ -45,9 +45,14 @@ classdef ImproperDistMapperTester < DistMapperTester
             trueOutDa=testBundle.getOutBundle();
             assert(isa(trueOutDa, 'DistArray'));
 
+            impOut=this.compareOutputs(trueOutDa, outDa);
+
+        end
+
+        function impOut=compareOutputs(this, trueOutDa, outDa)
             nte=outDa.count();
             % indices of improper output messages
-            impInd=arrayfun(@(d)d.isProper(), outDa.distArray);
+            impInd=arrayfun(@(d)~d.isProper(), outDa.distArray);
             impOut=outDa.distArray(impInd);
             assert(isa(impOut, 'Distribution'));
             impn=length(impOut);
@@ -83,10 +88,7 @@ classdef ImproperDistMapperTester < DistMapperTester
             grid on
             %axis square
             hold off
-
-
         end
-
 
         % summary in string of this DistMapperTester
         function s=shortSummary(this)

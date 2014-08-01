@@ -67,8 +67,8 @@ classdef RFGJointEProdLearner < DistMapperLearner
                 'is set to [], median distance heuristic will be used to automatically '...
                 'generate a cell array of candidates.' ];
 
-            kv.reglist=['list of regularization parameter candidates for conditional '... 
-                'mean embedding operator'];
+            kv.reglist=['list of regularization parameter candidates for ridge '...
+                'regression.'];
             kv.use_multicore=['If true, use multicore package.'];
 
             od=OptionsDescription(kv);

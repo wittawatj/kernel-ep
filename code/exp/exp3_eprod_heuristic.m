@@ -23,7 +23,9 @@ end
 %bunName=sprintf('sigmoid_bw_%s_2000', anno);
 % Nicolas's data. Has almost 30000 pairs.
 %bunName=sprintf('nicolas_sigmoid_bw');
-bunName=sprintf('nicolas_sigmoid_fw');
+%bunName=sprintf('nicolas_sigmoid_fw');
+%bunName=sprintf('simplegauss_d1_bw_samcond_30000' );
+bunName=sprintf('simplegauss_d1_fw_samcond_30000' );
 bundle=se.loadBundle(bunName);
 
 %n=200;
@@ -48,6 +50,15 @@ mvLearner=RFGMVMapperLearner(trBundle);
 jointLearner=RFGJointEProdLearner(trBundle);
 sumLearner=RFGSumEProdLearner(trBundle);
 prodLearner=RFGProductEProdLearner(trBundle);
+icholEGaussLearner=ICholMapperLearner(trBundle);
+icholEGaussLearner.opt('num_ho', 5);
+ntr=length(trBundle);
+icholEGaussLearner.opt('ho_train_size', min(2e4, floor(0.7*ntr)) );
+% internally form tr x te matrix. ho_test_size cannot be too large.
+icholEGaussLearner.opt('ho_test_size', min(3e3, floor(0.3*ntr)) );
+icholEGaussLearner.opt('chol_tol', 1e-8);
+icholEGaussLearner.opt('chol_maxrank', 800);
+
 % learner-specific options
 mvCandidates=RandFourierGaussMVMap.candidatesFlatMedf(trTensor, medf, ...
     candidate_primal_features, 1500);
@@ -57,14 +68,17 @@ sumCandidates=RFGSumEProdMap.candidatesAvgCov(trTensor, medf, ...
     candidate_primal_features, 5000);
 prodCandidates=RFGProductEProdMap.candidatesAvgCov(trTensor, medf, ...
     candidate_primal_features, 5000);
+icholEGaussCandidates=KEGaussian.productCandidatesAvgCov(trTensor, medf, 5000);
 % set candidates for each learner
 mvLearner.opt('featuremap_candidates', mvCandidates);
 jointLearner.opt('featuremap_candidates', jointCandidates);
 sumLearner.opt('featuremap_candidates', sumCandidates);
 prodLearner.opt('featuremap_candidates', prodCandidates);
+icholEGaussLearner.opt('kernel_candidates', icholEGaussCandidates);
 
-%learners={ mvLearner, jointLearner, sumLearner, prodLearner};
-learners={ prodLearner};
+learners={ mvLearner, jointLearner, sumLearner, prodLearner, icholEGaussLearner};
+%learners={ prodLearner};
+%learners={icholEGaussLearner};
 
 for i=1:length(learners)
     learner=learners{i};

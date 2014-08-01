@@ -60,15 +60,30 @@ classdef CondCholFiniteOut < InstancesMapper
             Z = this.Out;
             kfunc = this.kfunc;
             % Generating Krs then multiply may take a lot of memory.
-            % ** We should interleave feature generation and the multiplication.
-            Krs = kfunc.eval(In.getAll(), Xin.getAll());
+            % Chunk Xin into many subsets.
+            %Krs = kfunc.eval(In.getAll(), Xin.getAll());
+            %Zout = this.ZOutR3*Krs;
             
+            nte=length(Xin);
+            Zout=zeros(size(this.ZOutR3, 1), nte);
+            % process (cols) instances at a time
+            cols=200;
+            fi=1;
+            InAll=In.getAll();
+
+            while fi<=nte
+                ti=min(fi+cols-1, nte);
+                I=fi:ti;
+                subIn=Xin.get(I);
+                Zout(:, I)=this.ZOutR3*kfunc.eval(InAll, subIn);
+
+                fi=ti+1;
+            end
 %             B = (R*R' + lamb*eye(ra)) \ RKrs;
 %             B = (this.RRT + lamb*eye(ra)) \ RKrs;
 %             y = linsolve(this.L, this.P*RKrs, struct('LT', true));
 %             B = linsolve(this.U, y, struct('UT', true));
 %             Zout = (Z*Krs - (Z*R')*B)/lamb;
-            Zout = this.ZOutR3*Krs;
         end
 
         

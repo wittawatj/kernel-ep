@@ -86,7 +86,7 @@ classdef IncompChol < handle
         
         function [R, I, nu] = incomp_chol(X, kfunc, eta, maxrank)
             % Perform incomplete Cholesky factorization on the full kernel
-            % matrix K using the tolerance level (tol). The factorization
+            % matrix K using the tolerance level (tol) eta. The factorization
             % is such that K is approximately R'*R.
             % - eta gives threshold residual cutoff
             % Return R = new features stored in matrix R of size T x ell
