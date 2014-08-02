@@ -24,8 +24,10 @@ end
 % Nicolas's data. Has almost 30000 pairs.
 %bunName=sprintf('nicolas_sigmoid_bw');
 %bunName=sprintf('nicolas_sigmoid_fw');
-%bunName=sprintf('simplegauss_d1_bw_samcond_30000' );
-bunName=sprintf('simplegauss_d1_fw_samcond_30000' );
+bunName=sprintf('simplegauss_d1_bw_samcond_30000' );
+%bunName=sprintf('simplegauss_d1_fw_samcond_30000' );
+%bunName=sprintf('simplegauss_d1_bw_proposal_30000' );
+%bunName=sprintf('simplegauss_d1_fw_proposal_30000' );
 bundle=se.loadBundle(bunName);
 
 %n=200;
@@ -56,7 +58,7 @@ ntr=length(trBundle);
 icholEGaussLearner.opt('ho_train_size', min(2e4, floor(0.7*ntr)) );
 % internally form tr x te matrix. ho_test_size cannot be too large.
 icholEGaussLearner.opt('ho_test_size', min(3e3, floor(0.3*ntr)) );
-icholEGaussLearner.opt('chol_tol', 1e-8);
+icholEGaussLearner.opt('chol_tol', 1e-12);
 icholEGaussLearner.opt('chol_maxrank', 800);
 
 % learner-specific options
