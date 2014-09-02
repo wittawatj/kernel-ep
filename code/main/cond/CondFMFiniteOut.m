@@ -1,5 +1,5 @@
 classdef CondFMFiniteOut < InstancesMapper
-    %CONDFMFINITEOUT Generic conditional mean embedding operator using 
+    %CONDFMFINITEOUT Generic perator using 
     %finite-dimensional feature map (primal solution) i.e., k(x,y)=phi(x)*phi(y)
     %where phi(x) is explicit and finite-dimensional.
     %

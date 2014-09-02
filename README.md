@@ -23,23 +23,26 @@ This project extends the following work
     3219–27, 2013. 
     http://media.nips.cc/nipsbooks/nipspapers/paper_files/nips26/1493.pdf.
 
-Useful Functions
-----------------
+
+### Useful Functions
 
 In the development of the code for learning an EP message operator, some commonly 
 used functions are reimplemented to better suit the need of this project. 
-These functions might be useful for other researches. These include
+These functions might be useful for other works. These include
 
 * **Incomplete Cholesky factorization**. This is implemented in such a way that 
-any kernel and any type of data (does not have to be points from Euclidean space)
+any kernel and any type of data (not necessarily points from Euclidean space)
 can be used. The full kernel matrix is not pre-loaded.
 Only one row of the kernel matrix is computed at a time, allowing a large kernel 
-matrix to be factorized. 
+matrix to be factorized. In this project, points are distributions and the kernel 
+takes two distributions as input. See `IncompChol`.
 
 * **Dynamic matrix**. This is a matrix whose entries are given by a function 
 `f: (I, J) -> M` where `I, J` are index list and `M` is a submatrix specified by 
-`I, J`. The dynamic matrix is useful when the underlying matrix is very large but 
-entries can be computed on the fly when needed. In this project, this object is 
-used to represent the data matrix when a large number of random features are used.
+`I, J`. The dynamic matrix is useful when the underlying matrix is too large to
+fit into memory but entries can be computed on the fly when needed. In this
+project, this object is used to represent the data matrix when a large number
+of random features are used.
 Multiplication (to a regular matrix or a dynamic matrix) operations are implemented.
+See `DynamicMatrix` and `DefaultDynamicMatrix`.
 

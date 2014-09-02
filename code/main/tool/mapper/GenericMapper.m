@@ -1,5 +1,5 @@
 classdef GenericMapper < DistMapper2 & DistMapper
-    %GENERICMAPPER2IN A distribution mapper taking 2 Distribution's.
+    %GENERICMAPPER2IN A distribution mapper taking Distribution's.
     % and outputs statistics used for constructing 
     % another Distribution using the specified DistBuilder.
     %   - Use an InstancesMapper supporting TensorInstances of 2 DistArray's
@@ -8,8 +8,9 @@ classdef GenericMapper < DistMapper2 & DistMapper
     %    
     
     properties (SetAccess=private)
-        % a conditional mean embedding operator
+        % an operator mapping Distribution to a vector of statistics 
         operator;
+
         % DistBuilder used for constructing the right output Distribution.
         distBuilder;
 
