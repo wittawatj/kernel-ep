@@ -1,4 +1,4 @@
-classdef FeatureMap < handle 
+classdef FeatureMap < handle & PrimitiveSerializable
     %FEATUREMAP A finite-dimensional features generator.
     %This is useful for implementing primal solutions using random features, for instance. 
 

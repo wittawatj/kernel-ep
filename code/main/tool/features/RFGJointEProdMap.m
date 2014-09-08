@@ -1,4 +1,4 @@
-classdef RFGJointEProdMap < FeatureMap
+classdef RFGJointEProdMap < FeatureMap & PrimitiveSerializable
     %RFGJOINTEPRODMAP Random Fourier features for expected product kernel 
     %using Gaussian kernel on joint mean embeddings. 
     %    - Input is a TensorInstances of DistArray representing multiple incoming 
@@ -78,6 +78,15 @@ classdef RFGJointEProdMap < FeatureMap
             s = sprintf('%s(gw2s=[%s])', ...
                 mfilename, num2str(this.gwidth2s)) ;
         end
+
+        % from PrimitiveSerializable interface
+        function s=toStruct(this)
+            s.className=class(this);
+            s.gwidth2s=this.gwidth2s;
+            s.numFeatures=this.numFeatures;
+            s.eprodMap=this.eprodMap.toStruct();
+        end
+
     end %end methods
 
     methods(Access=private)

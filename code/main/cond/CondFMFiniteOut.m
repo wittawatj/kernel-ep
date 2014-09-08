@@ -1,5 +1,5 @@
-classdef CondFMFiniteOut < InstancesMapper
-    %CONDFMFINITEOUT Generic perator using 
+classdef CondFMFiniteOut < InstancesMapper & PrimitiveSerializable
+    %CONDFMFINITEOUT Generic operator using 
     %finite-dimensional feature map (primal solution) i.e., k(x,y)=phi(x)*phi(y)
     %where phi(x) is explicit and finite-dimensional.
     %
@@ -13,6 +13,7 @@ classdef CondFMFiniteOut < InstancesMapper
         regParam; %regularization parameter
 
         % matrix needed in mapInstances(). dz x numFeatures
+        % where dz = dimension of output sufficient statistic.
         mapMatrix;
     end
 
@@ -118,6 +119,13 @@ classdef CondFMFiniteOut < InstancesMapper
 
         function s = shortSummary(this)
             s = sprintf('%s(%s)', mfilename, this.featureMap.shortSummary());
+        end
+
+        function s=toStruct(this)
+            s.className=class(this);
+            s.featureMap=this.featureMap.toStruct();
+            s.regParam=this.regParam;
+            s.mapMatrix=this.mapMatrix;
         end
 
         %function s=saveobj(this)

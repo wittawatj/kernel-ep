@@ -1,4 +1,4 @@
-classdef RFGEProdMap < FeatureMap
+classdef RFGEProdMap < FeatureMap & PrimitiveSerializable
     %RFGEPRODMAP Random Fourier features for expected product kernel 
     %using Gaussian kernel for mean embeddings.
     %    - Input is a Distribution or a DistArray
@@ -108,6 +108,15 @@ classdef RFGEProdMap < FeatureMap
         function s=shortSummary(this)
             s = sprintf('%s(w^2=%.3f, #feat=%d)', ...
                 mfilename, this.gwidth2, this.numFeatures);
+        end
+
+        % from PrimitiveSerializable interface
+        function s=toStruct(this)
+            s.className=class(this);
+            s.gwidth2=this.gwidth2;
+            s.numFeatures=this.numFeatures;
+            s.W=this.W;
+            s.B=this.B;
         end
 
         %function s=saveobj(this)

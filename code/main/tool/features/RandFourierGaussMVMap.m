@@ -1,4 +1,4 @@
-classdef RandFourierGaussMVMap < FeatureMap
+classdef RandFourierGaussMVMap < FeatureMap & PrimitiveSerializable
     %RANDFOURIERGAUSSMVMAP RandFourierGaussMap for Distribution using its mean
     %and variance as input.    
     %   - Input to genFeatures() is expected to be a  DistArray
@@ -83,6 +83,17 @@ classdef RandFourierGaussMVMap < FeatureMap
             s.vwidth2s=this.vwidth2s;
             s.numFeatures=this.numFeatures;
             s.rfgMap=this.rfgMap;
+        end
+
+        % from PrimitiveSerializable interface
+        function s=toStruct(this)
+            s.className=class(this);
+            % A list of width^2 for mean. One parameter for each input.
+            s.mwidth2s=this.mwidth2s;
+            % A list of width^2 for variance. One parameter for each input.
+            s.vwidth2s=this.vwidth2s;
+            s.numFeatures=this.numFeatures;
+            s.rfgMap=this.rfgMap.toStruct();
         end
     end
 

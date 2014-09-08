@@ -1,4 +1,4 @@
-classdef RandFourierGaussMap < FeatureMap
+classdef RandFourierGaussMap < FeatureMap & PrimitiveSerializable
     %RANDFOURIERGAUSSMAP Random Fourier map as in Rahimi & Recht for Gaussian kernel.
     %   - Input to genFeatures() is expected to be a vector/matrix.
     %   - dim must match the dimension of the input.
@@ -71,6 +71,12 @@ classdef RandFourierGaussMap < FeatureMap
         end
 
         function s=saveobj(this)
+            s=this.toStruct();
+        end
+
+        % from PrimitiveSerializable interface
+        function s=toStruct(this)
+            s.className = class(this);
             s.gwidth2=this.gwidth2;
             s.numFeatures=this.numFeatures;
             s.dim=this.dim;

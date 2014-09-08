@@ -1,4 +1,4 @@
-classdef RFGSumEProdMap < FeatureMap
+classdef RFGSumEProdMap < FeatureMap & PrimitiveSerializable
     %RFGSUMEPRODMAP Random Fourier features for sum of expected product kernel 
     %using Gaussian kernel for mean embeddings
     %    - Input is a TensorInstances of DistArray representing multiple incoming 
@@ -108,6 +108,20 @@ classdef RFGSumEProdMap < FeatureMap
         function s=shortSummary(this)
             s = sprintf('%s(gw2s=[%s])', ...
                 mfilename, num2str(this.gwidth2s)) ;
+        end
+
+        % from PrimitiveSerializable interface
+        function s=toStruct(this)
+            s.className=class(this);
+            % A list of width^2 
+            s.gwidth2s=this.gwidth2s;
+            s.numFeatures=this.numFeatures;
+            % eprodMaps is a cell array of RFGEProdMap's
+            maps = cell();
+            for i=1:length(this.eprodMaps)
+                maps{i} = this.eprodMaps{i}.toStruct();
+            end
+            s.eprodMaps=maps;
         end
     end
     
