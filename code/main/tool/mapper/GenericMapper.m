@@ -1,4 +1,4 @@
-classdef GenericMapper < DistMapper2 & DistMapper
+classdef GenericMapper < DistMapper2 & DistMapper & PrimitiveSerializable
     %GENERICMAPPER2IN A distribution mapper taking Distribution's.
     % and outputs statistics used for constructing 
     % another Distribution using the specified DistBuilder.
@@ -9,6 +9,7 @@ classdef GenericMapper < DistMapper2 & DistMapper
     
     properties (SetAccess=private)
         % an operator mapping Distribution to a vector of statistics 
+        % An InstancesMapper. Need to be PrimitiveSerializable.
         operator;
 
         % DistBuilder used for constructing the right output Distribution.
@@ -22,6 +23,12 @@ classdef GenericMapper < DistMapper2 & DistMapper
         function this=GenericMapper(operator, distBuilder, numInVars)
             assert(isa(operator, 'InstancesMapper'));
             assert(isa(distBuilder, 'DistBuilder'));
+            if ~isa(operator, 'PrimitiveSerializable')
+                warning('operator must be PrimitiveSerializable for toStruct() to work.');
+            end
+            if ~isa(distBuilder, 'PrimitiveSerializable')
+                warning('distBuilder must be PrimitiveSerializable for toStruct() to work.');
+            end
             assert(numInVars > 0);
             
             this.operator = operator;
@@ -106,6 +113,15 @@ classdef GenericMapper < DistMapper2 & DistMapper
         function s = shortSummary(this)
             s = sprintf('%s(%s, %s)', mfilename, this.operator.shortSummary(),...
                 this.distBuilder.shortSummary);
+        end
+
+        % From PrimitiveSerializable interface 
+        function s=toStruct(this)
+            s.className=class(this);
+            s.operator=this.operator.toStruct();
+            s.distBuilder=this.distBuilder.toStruct();
+            % an int (number of incoming variables)
+            s.nv=this.nv;
         end
 
         function s=saveobj(this)

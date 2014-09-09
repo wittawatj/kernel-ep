@@ -26,7 +26,6 @@ function test_saveload()
     %load
     load(fname);
     assertVectorsAlmostEqual(oldFm.mapMatrix, condFm.mapMatrix);
-    assertElementsAlmostEqual(oldFm.regParam, condFm.regParam);
     assertVectorsAlmostEqual(oldFm.featureMap.rfgMap.W, condFm.featureMap.rfgMap.W);
     assertVectorsAlmostEqual(oldFm.featureMap.rfgMap.B, condFm.featureMap.rfgMap.B);
 

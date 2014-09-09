@@ -1,4 +1,4 @@
-classdef DistBuilder < handle
+classdef DistBuilder < handle & PrimitiveSerializable
     %DISTBuilder A Distribution object builder from samples or list of statistics.
     %    Subclasses should support Distribution and DistArray.
     

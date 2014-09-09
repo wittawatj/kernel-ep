@@ -72,7 +72,11 @@ classdef DistBetaBuilder < DistBuilder
             s = mfilename;
         end
         
-    end
+        % From PrimitiveSerializable interface 
+        function s=toStruct(this)
+            s.className=class(this);
+        end
+    end % end methods
     
 end
 

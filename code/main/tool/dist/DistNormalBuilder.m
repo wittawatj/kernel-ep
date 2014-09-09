@@ -62,6 +62,11 @@ classdef DistNormalBuilder < DistBuilder
         function s = shortSummary(this)
             s = mfilename;
         end
+
+        % From PrimitiveSerializable interface 
+        function s=toStruct(this)
+            s.className=class(this);
+        end
         %%%%%%%%%%%%%%%%%%%%5
         
         function S=suffStat(this, X)

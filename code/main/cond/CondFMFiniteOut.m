@@ -10,7 +10,7 @@ classdef CondFMFiniteOut < InstancesMapper & PrimitiveSerializable
     properties (SetAccess=private)
         
         featureMap;
-        regParam; %regularization parameter
+        %regParam; %regularization parameter
 
         % matrix needed in mapInstances(). dz x numFeatures
         % where dz = dimension of output sufficient statistic.
@@ -45,7 +45,7 @@ classdef CondFMFiniteOut < InstancesMapper & PrimitiveSerializable
 
             %this.Out = Out;
             this.featureMap = fm;
-            this.regParam = lambda;
+            %this.regParam = lambda;
 
             %% It is not a good idea to explicitly form P (Dxn)
             %P = fm.genFeatures(In); % D x n where D = numFeatures
@@ -121,10 +121,11 @@ classdef CondFMFiniteOut < InstancesMapper & PrimitiveSerializable
             s = sprintf('%s(%s)', mfilename, this.featureMap.shortSummary());
         end
 
+        % From PrimitiveSerializable interface 
         function s=toStruct(this)
             s.className=class(this);
             s.featureMap=this.featureMap.toStruct();
-            s.regParam=this.regParam;
+            %s.regParam=this.regParam;
             s.mapMatrix=this.mapMatrix;
         end
 

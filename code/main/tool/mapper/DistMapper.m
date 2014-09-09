@@ -1,4 +1,4 @@
-classdef DistMapper < handle
+classdef DistMapper < handle & PrimitiveSerializable
     %DISTMAPPER A map taking incoming messages (Distribution) as input and outputs
     %another distribution
     %   This is useful for representing an operation of gathering all
