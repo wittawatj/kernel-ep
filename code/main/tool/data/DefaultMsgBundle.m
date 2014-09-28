@@ -13,6 +13,9 @@ classdef DefaultMsgBundle < MsgBundle
     properties
         % string description
         description;
+
+        % short string identifier for the bundle 
+        bundleName;
     end
     
     methods
@@ -101,6 +104,38 @@ classdef DefaultMsgBundle < MsgBundle
 
         end
 
+        function [trBundle, teBundle]=partitionTrainTest(this, trN, teN)
+            % trBundle, teBundle are DefaultMsgBundle.
+            nv=this.numInVars();
+            n=this.count();
+            assert(trN > 0);
+            assert(trN < n, 'trN must be < current n');
+            assert(teN > 0);
+            assert(teN < n, 'teN must be < current n');
+            assert(trN + teN <= n, 'trN + teN cannot exceed current n');
+
+            trInDists=cell(1, nv);
+            teInDists=cell(1, nv);
+            
+            I = randperm(n);
+            trI = I(1:trN);
+            teI = I( (trN+1):(trN+teN) );
+            for i=1:nv
+                % da is a DistArray for one variable
+                da=this.inDistArrays{i};
+                trInDists{i}=da.instances(trI);
+                assert(isa(trInDists{i}, 'DistArray'));
+                teInDists{i}=da.instances(teI);
+                assert(isa(teInDists{i}, 'DistArray'));
+            end
+            trOut=this.outDistArray.instances(trI);
+            assert(isa(trOut, 'DistArray'));
+            teOut=this.outDistArray.instances(teI);
+            assert(isa(teOut, 'DistArray'));
+            trBundle=DefaultMsgBundle(trOut, trInDists{:});
+            teBundle=DefaultMsgBundle(teOut, teInDists{:});
+        end
+
         function msgBundle=subsample(this, n)
             assert(n>0, 'subsample size must be positive');
             if n>=this.count()
@@ -133,6 +168,10 @@ classdef DefaultMsgBundle < MsgBundle
 
         function s=getDescription(this)
             s=this.description;
+        end
+
+        function s=getBundleName(this)
+            s=this.bundleName;
         end
 
         %%%%%%%%%%%%%

@@ -31,6 +31,10 @@ classdef MsgBundle < handle
         % trProportion is in (0,1) for proportion of training samples.
         [trBundle, teBundle]=splitTrainTest(this, trProportion);
 
+        % Partition this bundle into non-overlapping trBundle and teBundle whose 
+        % sizes are given by the two arguments.
+        [trBundle, teBundle]=partitionTrainTest(this, trN, teN)
+
         % Create a new MsgBundle by subsampling without replacement 
         % n is the number of instances. This MsgBundle should not change. 
         msgBundle=subsample(this, n);
@@ -41,6 +45,8 @@ classdef MsgBundle < handle
         % return a string description
         s=getDescription(this);
         
+        % short identifier for the message bundle. Useful for naming.
+        s=getBundleName(this);
     end
 
     methods

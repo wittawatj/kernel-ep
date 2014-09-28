@@ -18,6 +18,11 @@ classdef BundleSerializer < handle
             load(fpath);
             assert(isa(msgBundle, 'MsgBundle'));
             bundle=msgBundle;
+            
+            % assign a name if empty 
+            if isempty(bundle.bundleName)
+                bundle.bundleName = name;
+            end
         end
 
         % save to the file path specified by (toPath)
