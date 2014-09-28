@@ -8,26 +8,11 @@ classdef ICholMapperLearner < DistMapperLearner
     properties(SetAccess=protected)
         % an instance of Options
         options;
-
-        % training MsgBundle
-        trainBundle;
     end
 
     methods
-        function this=ICholMapperLearner(msgBundle)
-            assert(isa(msgBundle, 'MsgBundle'), 'input to constructor not a MsgBundle' );
-            assert(msgBundle.count()>0, 'empty training set')
-            this.trainBundle=msgBundle;
+        function this=ICholMapperLearner()
             this.options=this.getDefaultOptions();
-
-            outDa=msgBundle.getOutBundle();
-            assert(isa(outDa, 'DistArray'));
-            dout=outDa.get(1);
-            assert(isa(dout, 'Distribution'));
-
-            % This ensures that the out_msg_distbuilder is of the same type 
-            % as the output bundle in msgBundle. It can be different in general.
-            this.options.opt('out_msg_distbuilder', dout.getDistBuilder());
 
         end
 
@@ -76,9 +61,6 @@ classdef ICholMapperLearner < DistMapperLearner
             % Must be manually set
             st.kernel_candidates=[]; 
             st.num_ho=5;
-            n=length(this.trainBundle);
-            st.ho_train_size=floor(0.7*n);
-            st.ho_test_size=floor(0.3*n);
             st.chol_tol=1e-8;
             st.chol_maxrank=600;
             st.reglist=[1e-2, 1, 100];
@@ -87,7 +69,28 @@ classdef ICholMapperLearner < DistMapperLearner
             Op=Options(st);
         end
 
-        function [gm, C]=learnDistMapper(this )
+        function [gm, C]=learnDistMapper(this, bundle )
+            assert(isa(bundle, 'MsgBundle'), 'input to constructor not a MsgBundle' );
+            assert(bundle.count()>0, 'empty training set')
+
+            outDa=bundle.getOutBundle();
+            assert(isa(outDa, 'DistArray'));
+            dout=outDa.get(1);
+            assert(isa(dout, 'Distribution'));
+
+            if ~this.options.hasKey('out_msg_distbuilder') || isempty(this.options.opt('out_msg_distbuilder'))
+                % This ensures that the out_msg_distbuilder is of the same type 
+                % as the output bundle in msgBundle. It can be different in general.
+                this.options.opt('out_msg_distbuilder', dout.getDistBuilder());
+            end
+
+            n=length(bundle);
+            if ~this.options.hasKey('ho_train_size')
+                st.ho_train_size=floor(0.7*n);
+            end
+            if ~this.options.hasKey('ho_test_size')
+                st.ho_test_size=floor(0.3*n);
+            end
             % learn a DistMapper given the training data in MsgBundle.
             op=this.options.toStruct();
 
@@ -96,8 +99,6 @@ classdef ICholMapperLearner < DistMapperLearner
                 error('option kernel_candidates must be set.')
             end
 
-            bundle=this.trainBundle;
-            n=length(bundle);
             % cell array of DistArray's
             inputDistArrays=bundle.getInputBundles();
             tensorIn=TensorInstances(inputDistArrays);

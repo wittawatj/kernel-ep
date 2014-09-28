@@ -48,11 +48,11 @@ use_multicore=true;
 %use_multicore=false;
 %----------
 % learners
-mvLearner=RFGMVMapperLearner(trBundle);
-jointLearner=RFGJointEProdLearner(trBundle);
-sumLearner=RFGSumEProdLearner(trBundle);
-prodLearner=RFGProductEProdLearner(trBundle);
-icholEGaussLearner=ICholMapperLearner(trBundle);
+mvLearner=RFGMVMapperLearner();
+jointLearner=RFGJointEProdLearner();
+sumLearner=RFGSumEProdLearner();
+prodLearner=RFGProductEProdLearner();
+icholEGaussLearner=ICholMapperLearner();
 icholEGaussLearner.opt('num_ho', 5);
 ntr=length(trBundle);
 icholEGaussLearner.opt('ho_train_size', min(2e4, floor(0.7*ntr)) );
@@ -150,7 +150,7 @@ function s=learnMap(learner, trBundle, teBundle, bunName, relearn)
 
 
     % learn a DistMapper
-    [dm, learnerLog]=learner.learnDistMapper();
+    [dm, learnerLog]=learner.learnDistMapper(trBundle);
 
     % test the learned DistMapper dm
     % KL or Hellinger

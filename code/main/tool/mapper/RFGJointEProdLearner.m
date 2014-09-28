@@ -5,26 +5,11 @@ classdef RFGJointEProdLearner < DistMapperLearner
     properties(SetAccess=protected)
         % an instance of Options
         options;
-
-        % training MsgBundle
-        trainBundle;
     end
 
     methods
-        function this=RFGJointEProdLearner(msgBundle)
-            assert(isa(msgBundle, 'MsgBundle'), 'input to constructor not a MsgBundle' );
-            assert(msgBundle.count()>0, 'empty training set')
-            this.trainBundle=msgBundle;
+        function this=RFGJointEProdLearner()
             this.options=this.getDefaultOptions();
-
-            outDa=msgBundle.getOutBundle();
-            assert(isa(outDa, 'DistArray'));
-            dout=outDa.get(1);
-            assert(isa(dout, 'Distribution'));
-
-            % This ensures that the out_msg_distbuilder is of the same type 
-            % as the output bundle in msgBundle. It can be different in general.
-            this.options.opt('out_msg_distbuilder', dout.getDistBuilder());
 
         end
 
@@ -92,9 +77,22 @@ classdef RFGJointEProdLearner < DistMapperLearner
         end
 
         % learn a DistMapper given the training data in MsgBundle.
-        function [gm, C]=learnDistMapper(this )
+        function [gm, C]=learnDistMapper(this, bundle)
+            assert(isa(bundle, 'MsgBundle'), 'input to constructor not a MsgBundle' );
+            assert(bundle.count()>0, 'empty training set')
+
+            outDa=bundle.getOutBundle();
+            assert(isa(outDa, 'DistArray'));
+            dout=outDa.get(1);
+            assert(isa(dout, 'Distribution'));
+
+            if ~this.hasKey('out_msg_distbuilder') || isempty(this.options.opt('out_msg_distbuilder'))
+                % This ensures that the out_msg_distbuilder is of the same type 
+                % as the output bundle in msgBundle. It can be different in general.
+                this.options.opt('out_msg_distbuilder', dout.getDistBuilder());
+            end
+
             op=this.options.toStruct();
-            bundle=this.trainBundle;
             % cell array of DistArray's
             inputDistArrays=bundle.getInputBundles();
             tensorIn=TensorInstances(inputDistArrays);

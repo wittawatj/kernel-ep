@@ -7,26 +7,11 @@ classdef RFGMVMapperLearner < DistMapperLearner
         % an instance of Options
         options;
 
-        % training MsgBundle
-        trainBundle;
     end
     
     methods
-        function this=RFGMVMapperLearner(msgBundle)
-            assert(isa(msgBundle, 'MsgBundle'), 'input to constructor not a MsgBundle' );
-            assert(msgBundle.count()>0, 'empty training set')
-            this.trainBundle=msgBundle;
+        function this=RFGMVMapperLearner()
             this.options=this.getDefaultOptions();
-
-            outDa=msgBundle.getOutBundle();
-            assert(isa(outDa, 'DistArray'));
-            dout=outDa.get(1);
-            assert(isa(dout, 'Distribution'));
-            
-            % This ensures that the out_msg_distbuilder is of the same type 
-            % as the output bundle in msgBundle. It can be different in general.
-            this.options.opt('out_msg_distbuilder', dout.getDistBuilder());
-            
         end
 
         % Return an instance of OptionsDescription describing possible options.
@@ -103,9 +88,22 @@ classdef RFGMVMapperLearner < DistMapperLearner
         end
         
         % learn a DistMapper given the training data in MsgBundle.
-        function [gm, C]=learnDistMapper(this )
+        function [gm, C]=learnDistMapper(this, bundle )
+            assert(isa(bundle, 'MsgBundle'), 'input to constructor not a MsgBundle' );
+            assert(bundle.count()>0, 'empty training set')
+
+            outDa=bundle.getOutBundle();
+            assert(isa(outDa, 'DistArray'));
+            dout=outDa.get(1);
+            assert(isa(dout, 'Distribution'));
+
+            if ~this.hasKey('out_msg_distbuilder') || isempty(this.options.opt('out_msg_distbuilder'))
+                % This ensures that the out_msg_distbuilder is of the same type 
+                % as the output bundle in msgBundle. It can be different in general.
+                this.options.opt('out_msg_distbuilder', dout.getDistBuilder());
+            end
+
             op=this.options.toStruct();
-            bundle=this.trainBundle;
             % cell array of DistArray's
             inputDistArrays=bundle.getInputBundles();
             tensorIn=TensorInstances(inputDistArrays);
@@ -146,19 +144,9 @@ classdef RFGMVMapperLearner < DistMapperLearner
             s=mfilename;
         end
 
-        function s=saveobj(this)
-            s.trainBundle=this.trainBundle;
-            s.options=this.options;
-        end
-
-
     end
 
     methods(Static)
-        function obj=loadobj(s)
-            obj=RFGMVMapperLearner(s.trainBundle);
-            obj.options=s.options;
-        end
     end
 
     

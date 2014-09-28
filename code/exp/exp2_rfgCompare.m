@@ -28,10 +28,10 @@ n=min(n, smallBundle.count());
 % train 80%
 [trBundle, teBundle]=smallBundle.splitTrainTest(.8);
 
-learners={RFGMVMapperLearner(trBundle), ...
-    RFGJointEProdLearner(trBundle),...
-    RFGSumEProdLearner(trBundle)};
-%learners={ RFGSumEProdLearner(trBundle)};
+learners={RFGMVMapperLearner(), ...
+    RFGJointEProdLearner(),...
+    RFGSumEProdLearner()};
+%learners={ RFGSumEProdLearner()};
 
 % run multicore
 use_multicore=true;
@@ -101,7 +101,7 @@ function s=learnMap(learner, trBundle, teBundle, bunName, relearn)
     learner.opt('reglist', [1e-4, 1e-2, 1]);
 
     % learn a DistMapper
-    [dm, learnerLog]=learner.learnDistMapper();
+    [dm, learnerLog]=learner.learnDistMapper(trBundle);
 
     % test the learned DistMapper dm
     % KL or Hellinger
