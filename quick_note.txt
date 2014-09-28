@@ -14,6 +14,10 @@ without forming DxD matrix.
 
 ### To do 
 
+* Generate training messages by simulating an actual EP inference so that 
+training messages are realistic. This may significantly boost up the inference 
+using the trained operator.
+
 * genFeatures() in RandFourierGaussMap with mex.
 
 * Try conjugate gradient on solving the primal form of conditional mean embedding.

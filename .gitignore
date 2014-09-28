@@ -27,4 +27,5 @@ code/3rdparty/ApproximateGram/
 code/3rdparty/mtimesx/
 *.mbak
 *.swp
+*.swo
 code/doc/*

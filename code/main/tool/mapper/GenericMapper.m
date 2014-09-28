@@ -118,6 +118,7 @@ classdef GenericMapper < DistMapper2 & DistMapper & PrimitiveSerializable
         % From PrimitiveSerializable interface 
         function s=toStruct(this)
             s.className=class(this);
+            % operator is InstancesMapper
             s.operator=this.operator.toStruct();
             s.distBuilder=this.distBuilder.toStruct();
             % an int (number of incoming variables)
