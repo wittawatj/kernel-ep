@@ -100,7 +100,9 @@ classdef DefaultMsgBundle < MsgBundle
             teOut=this.outDistArray.instances(teI);
             assert(isa(teOut, 'DistArray'));
             trBundle=DefaultMsgBundle(trOut, trInDists{:});
+            trBundle.bundleName = this.bundleName;
             teBundle=DefaultMsgBundle(teOut, teInDists{:});
+            teBundle.bundleName = this.bundleName;
 
         end
 
@@ -133,7 +135,9 @@ classdef DefaultMsgBundle < MsgBundle
             teOut=this.outDistArray.instances(teI);
             assert(isa(teOut, 'DistArray'));
             trBundle=DefaultMsgBundle(trOut, trInDists{:});
+            trBundle.bundleName = this.bundleName;
             teBundle=DefaultMsgBundle(teOut, teInDists{:});
+            teBundle.bundleName = this.bundleName;
         end
 
         function msgBundle=subsample(this, n)
@@ -152,6 +156,7 @@ classdef DefaultMsgBundle < MsgBundle
             end
             newOutDa=this.outDistArray.instances(I);
             msgBundle=DefaultMsgBundle(newOutDa, newInDas{:});
+            msgBundle.bundleName = this.bundleName;
 
         end
 

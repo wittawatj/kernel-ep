@@ -29,6 +29,10 @@ classdef HasOptions < handle
             this.options.setOption(key, value);
         end
 
+        function has=hasKey(this, key)
+            has = this.options.hasKey(key);
+        end
+
     end
     
 end
