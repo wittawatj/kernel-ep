@@ -19,9 +19,9 @@ if sample_cond_msg
 else
     anno='proposal';
 end
-%bunName=sprintf('sigmoid_bw_%s_50000', anno);
+bunName=sprintf('sigmoid_bw_%s_50000', anno);
 %bunName=sprintf('sigmoid_bw_%s_2000', anno);
-bunName=sprintf('sigmoid_fw_proposal_50000');
+%bunName=sprintf('sigmoid_fw_proposal_50000');
 % Nicolas's data. Has almost 30000 pairs.
 %bunName=sprintf('nicolas_sigmoid_bw');
 %bunName=sprintf('nicolas_sigmoid_fw');
