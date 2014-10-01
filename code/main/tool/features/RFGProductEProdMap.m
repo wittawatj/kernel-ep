@@ -51,7 +51,7 @@ classdef RFGProductEProdMap < FeatureMap & PrimitiveSerializable
             Z=Zs{1};
             for i=2:numVars
                 % Kronecker product.
-                Z=MatUtils.colOutputProduct(Z, Zs{i} );
+                Z=MatUtils.colKronecker(Z, Zs{i} );
             end
             assert(size(Z, 2)==n);
             assert(size(Z, 1)==this.numFeatures);

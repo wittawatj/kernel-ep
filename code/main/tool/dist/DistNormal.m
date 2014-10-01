@@ -119,12 +119,16 @@ classdef DistNormal < handle & GKConvolvable & Sampler ...
         function p=isProper(this)
             % return true if this is a proper distribution e.g., not have
             % negative variance.
-            if length(this.mean) > 1
-                error('Not yet supported for dim>1');
-            end
-            vv = norm(this.variance, 'fro');
+
             mm = norm(this.mean);
-            p = isfinite(vv) && isfinite(mm) && this.variance >0;
+            vv = norm(this.variance, 'fro');
+            if this.d == 1
+                p = isfinite(vv) && isfinite(mm) && this.variance >0;
+            else 
+                % multivariate Gaussian
+                p = isfinite(vv) && isfinite(mm) && all(eig(this.variance)>0);
+
+            end
         end
 
         function names=getParamNames(this)

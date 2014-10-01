@@ -125,20 +125,20 @@ classdef GenericMapper < DistMapper2 & DistMapper & PrimitiveSerializable
             s.nv=this.nv;
         end
 
-        function s=saveobj(this)
-            s.operator=this.operator;
-            s.distBuilder=this.distBuilder;
-            s.nv=this.nv;
-        end
+        %function s=saveobj(this)
+        %    s.operator=this.operator;
+        %    s.distBuilder=this.distBuilder;
+        %    s.nv=this.nv;
+        %end
 
     end
     
       
     methods(Static)
-        function obj=loadobj(s)
+        %function obj=loadobj(s)
 
-            obj=GenericMapper(s.operator, s.distBuilder, s.nv);
-        end
+        %    obj=GenericMapper(s.operator, s.distBuilder, s.nv);
+        %end
     end
 end
 

@@ -27,13 +27,6 @@ classdef BundleGenerator < handle
     end
 
     methods 
-        % generate a MsgBundle and serialize to a file specified by the name
-        % Refer to BundleSerializer for how to load back
-        function genBundleTo(this, name)
-            bundle=this.genBundle();
-            writer=BundleSerializer();
-            writer.saveBundle(bundle, name);
-        end
 
     end
     

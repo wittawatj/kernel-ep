@@ -23,6 +23,29 @@ function test_constructor()
     assertVectorsAlmostEqual(size([D2.variance]), [2, 20]);
 end
 
+function test_density()
+    m = [1;2];
+    v = eye(2);
+    d = DistNormal(m, v);
+    P = randn(2, 10)+ repmat( ones(2, 1), 1, 10);
+    assertVectorsAlmostEqual(d.density(P), mvnpdf(P', m', v)');
+
+end
+
+function test_isProper()
+    d1 = DistNormal(2, 3);
+    assert(d1.isProper());
+    d2 = DistNormal([1;2], wishrnd(eye(2), 5));
+    assert(d2.isProper());
+    n1 = DistNormal(3, -1);
+    assert(~n1.isProper());
+    C = wishrnd(eye(4), 5);
+    % remove rank by 1
+    C = bsxfun(@minus, C, mean(C, 2));
+    n2 = DistNormal(ones(4,1), C);
+    assert(~n2.isProper());
+end
+
 function test_distHellinger()
 
 % test bound [0,1], symmetry

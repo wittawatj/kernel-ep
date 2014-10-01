@@ -32,8 +32,8 @@ function startmulticoreslave(multicoreDir, settings)
 
 % Set initial and maximum time to wait before checking again after no slave
 % file was found. This pause time prevents "busy waiting".
-settingsDefault.startWaitTime = 0.1; % in seconds
-settingsDefault.maxWaitTime   = 5.0; % in seconds
+settingsDefault.startWaitTime = 1.0; % in seconds
+settingsDefault.maxWaitTime   = 10.0; % in seconds
 
 % If there are no slave files found for more than this time, the current
 % Matlab process will be shut down (thanks Richard!).
