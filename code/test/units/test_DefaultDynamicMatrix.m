@@ -12,7 +12,7 @@ function test_mult()
 end
 
 function doMult(chunkSize)
-    n=20;
+    n=10;
     R=randi([2, 30], 1, n);
     C=randi([2, 30], 1, n);
     D=randi([2, 30], 1, n);

@@ -9,7 +9,7 @@ function test_compareToExact()
     oldRng=rng();
     rng(10 );
 
-    n=500;
+    n=200;
     Means=3*randn(1, n);
     Vars=gamrnd(3, 4, 1, n);
     %fplot(@(x)gampdf(x, 3, 2), [0, 20])
@@ -21,7 +21,7 @@ function test_compareToExact()
     K=ker.eval(D, D);
 
     % number of random features
-    numFeatures=1499;
+    numFeatures=299;
     randMap=RFGEProdMap(sigma2, numFeatures);
 
     Z=randMap.genFeatures(D);
@@ -49,7 +49,7 @@ function test_compareToExact()
     assertVectorsAlmostEqual(dmZ, Z);
 
     g=randMap.getGenerator(D);
-    I=600:800;
+    I=100:160;
     J=50:100;
     assertVectorsAlmostEqual(g(I, J), Z(I, J));
     

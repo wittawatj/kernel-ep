@@ -165,9 +165,13 @@ classdef DistNormal < handle & GKConvolvable & Sampler ...
                 m1 = this.mean;
                 m2 = d2.mean;
 
-                div = ( v1/v2 + ((m1-m2)^2)/v2 -1 -log(v1/v2) )/2;
+                div = ( v1/v2 + ((m1-m2)^2)/v2 -1 -log(v1/v2) )/2.0;
             else
-                error('KL for multivariate normal is not supported yet.');
+                % multivariate case 
+                m2_m1 = d2.mean - this.mean;
+                V1 = this.variance;
+                P2 = d2.precision;
+                div = 0.5*(P2(:)'*V1(:)+ m2_m1'*P2*m2_m1 - this.d - log(det(V1)*det(P2)));
             end
 
         end

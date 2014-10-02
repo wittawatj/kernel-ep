@@ -59,7 +59,7 @@ classdef DefaultMsgBundle < MsgBundle
         end
 
         % return a bundle of incoming messages given the instanceIndex.
-        function inMsgs=getInputMsgs(instanceIndex)
+        function inMsgs=getInputMsgs(this, instanceIndex)
             nv = this.numInVars();
             C=cell(1, nv); 
             for i=1:nv

@@ -31,12 +31,15 @@ classdef CondFMFiniteOut < InstancesMapper & PrimitiveSerializable
 
     methods
 
-        function this = CondFMFiniteOut(fm, In, Out, lambda)
+        function this = CondFMFiniteOut(fm, In, Out, lambda, use_multicore)
             % fm = a FeatureMap
             % In = training Instances 
             % Out = a matrix of outputs
             % lambda = regularization parameter
             %
+            if nargin < 5
+                use_multicore = true;
+            end
             assert(isnumeric(Out));
             assert(isa(In, 'Instances'));
             assert(isa(fm, 'FeatureMap'));
@@ -62,7 +65,7 @@ classdef CondFMFiniteOut < InstancesMapper & PrimitiveSerializable
             Q = dm.rmult(Out')'; %dyxD
             % PPT is DxD where D is the number of primal features.
             % D > 1e4 and it may take up too much memory.
-            if false
+            if ~use_multicore
                 PPT = dm.mmt();
                 clear dm
                 A = PPT + lambda*eye(D);

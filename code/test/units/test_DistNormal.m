@@ -49,7 +49,7 @@ end
 function test_distHellinger()
 
 % test bound [0,1], symmetry
-for i=1:20
+for i=1:10
     d1 = DistNormal(randn(1)*30, rand(1)*20);
     % self distance = 0
     assertElementsAlmostEqual(d1.distHellinger(d1), 0 );
@@ -73,6 +73,11 @@ function test_klDivergence()
     assert(d.klDivergence(d2)>0);
     assert(d2.klDivergence(d)>0);
 
+    mul1 = DistNormal([1;1], eye(2));
+    mul2 = DistNormal([2;3], wishrnd(eye(2), 4));
+    assertElementsAlmostEqual(mul1.klDivergence(mul1), 0);
+    assert(mul1.klDivergence(mul2) > 0);
+    assert(mul2.klDivergence(mul1) > 0);
 
 end
 

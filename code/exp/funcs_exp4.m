@@ -19,11 +19,8 @@ function merge=genDMTStructs()
     %    result_path: [1x137 char]
     %    dist_mapper: [1x1 GenericMapper]
     %    learner_log: [1x1 struct]
-    %     div_tester: [1x1 DivDistMapperTester]
     %           divs: [1x5000 double]
     %  out_distarray: [1x1 DistArray]
-    %     imp_tester: [1x1 ImproperDistMapperTester]
-    %        imp_out: [1x1138 DistNormal]
     %         commit: '9832463f'
     %      timeStamp: [2014 9 28 21 21 57.5216]
     %            trN: 8000
@@ -34,7 +31,7 @@ function merge=genDMTStructs()
     Data = findAllDatasets()
     Methods = findAllLearners()
     maxtrial = findMaxTrial()
-    T = struct('kl_mean', [], 'kl_sd', [], 'trN', [], 'teN', []);
+    T = struct('log_kl_mean', [], 'log_kl_sd', [], 'trN', [], 'teN', [], 'improper_count', []);
     allStructs = getAllFileStructs();
     for i=1:length(allStructs)
         fst = allStructs(i);
@@ -48,16 +45,26 @@ function merge=genDMTStructs()
         dm = s.dist_mapper;
         % output from the learned operator
         outDa = s.out_distarray;
-        kl_mean = nanmean(s.divs);
-        kl_sd = nanstd(s.divs);
+        % test messag bundle 
+        teBundle = s.teBundle;
+        trueOutDa = teBundle.getOutBundle();
+
+        divTester = DivDistMapperTester(dm);
+        divTester.opt('div_function', 'KL');
+        divs = divTester.getDivergence(outDa, trueOutDa);
+
+        log_kl_mean = nanmean(log(divs));
+        log_kl_sd = nanstd(log(divs));
         trN = s.trN;
         teN = s.teN;
+        improper_count = sum(isnan(divs));
 
         di = find(cellfun(@(x)isequal(fst.data, x), Data));
         mi = find(cellfun(@(m)isequal(fst.learner, m), Methods));
         ti = fst.trial;
 
-        entry = struct('kl_mean', kl_mean, 'kl_sd', kl_sd, 'trN', trN, 'teN', teN);
+        entry = struct('log_kl_mean', log_kl_mean, 'log_kl_sd', log_kl_sd, 'trN', trN, ...
+            'teN', teN, 'improper_count', improper_count);
         T(di, mi, ti) = entry;
 
         clear s;
@@ -69,6 +76,7 @@ function merge=genDMTStructs()
     merge.learners = Methods;
     merge.maxtrial = maxtrial;
     merge.table = T;
+    merge.description = 'table is of size data x learners x maxtrial.';
     save(dest, 'merge' );
 
     

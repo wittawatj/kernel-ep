@@ -22,7 +22,7 @@ classdef MsgBundle < handle
         distArray=getOutBundle(this);
 
         % return a bundle of incoming messages given the instanceIndex.
-        inMsgs=getInputMsgs(instanceIndex);
+        inMsgs=getInputMsgs(this, instanceIndex);
 
         % Split this MsgBundle into training and testing bundles.
         % This MsgBundle should not change at all.

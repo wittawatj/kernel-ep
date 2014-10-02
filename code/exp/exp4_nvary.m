@@ -19,9 +19,9 @@ if sample_cond_msg
 else
     anno='proposal';
 end
-bunName=sprintf('sigmoid_bw_%s_50000', anno);
+%bunName=sprintf('sigmoid_bw_%s_50000', anno);
 %bunName=sprintf('sigmoid_bw_%s_2000', anno);
-%bunName=sprintf('sigmoid_fw_proposal_50000');
+bunName=sprintf('sigmoid_fw_proposal_50000');
 % Nicolas's data. Has almost 30000 pairs.
 %bunName=sprintf('nicolas_sigmoid_bw');
 %bunName=sprintf('nicolas_sigmoid_fw');
@@ -46,7 +46,8 @@ teSize = 5000;
 %teSize = 50;
 % trial numbers 
 %trialNums = 1:5;
-trialNums = 6:20;
+trialNums = 6:10;
+%trialNums = 6:20;
 % fixed test size for each training size 
 
 % median factors
@@ -64,7 +65,7 @@ prodLearner=RFGProductEProdLearner();
 icholEGaussLearner=ICholMapperLearner();
 icholEGaussLearner.opt('num_ho', 5);
 icholEGaussLearner.opt('chol_tol', 1e-12);
-icholEGaussLearner.opt('chol_maxrank', 800);
+icholEGaussLearner.opt('chol_maxrank', 600);
 
 % learner-specific options
 mvCandidates=RandFourierGaussMVMap.candidatesFlatMedf(inTensor, medf, ...
@@ -102,7 +103,7 @@ for i=1:length(learners)
     % set my options
     %learner.opt('num_primal_features', 1000);
     %learner.opt('use_multicore', use_multicore);
-    learner.opt('num_primal_features', 10000);
+    learner.opt('num_primal_features', 5000);
     learner.opt('use_multicore', true);
     learner.opt('reglist', [1e-4, 1e-2, 1, 100]);
 end
@@ -131,16 +132,16 @@ if use_multicore
     multicore_settings.multicoreDir= gop.multicoreDir;                    
     multicoreFunc = @(ist)wrap_nvaryTestMap(ist, bundle, bunName, relearn);
     resultCell = startmulticoremaster(multicoreFunc, stCells, multicore_settings);
-    S=[resultCell{:}];
+    %S=[resultCell{:}];
 else
     % not use multicore. Usually a bad idea as this will take much time. 
-    S={};
+    %S={};
     for i=1:length(stCells)
         ist = stCells{i};
         s = wrap_nvaryTestMap(ist, bundle, bunName, relearn );
-        S{i}=s;
+        %S{i}=s;
     end
-    S=[S{:}];
+    %S=[S{:}];
 end
 
 rng(oldRng);
@@ -182,8 +183,9 @@ function s=nvaryTestMap(trN, teN, trialNum, learner, bundle, bunName, relearn)
     fpath=Expr.expSavedFile(4, iden);
 
     if ~relearn && exist(fpath, 'file')
-        load(fpath);
+        %load(fpath);
         % s should be loaded here. Return it
+        s=[];
         return;
     end
     %/////////////////////////////
@@ -194,18 +196,10 @@ function s=nvaryTestMap(trN, teN, trialNum, learner, bundle, bunName, relearn)
     % learn a DistMapper
     [dm, learnerLog]=learner.learnDistMapper(trBundle);
 
-    % test the learned DistMapper dm
-    % KL or Hellinger
-    divTester=DivDistMapperTester(dm);
-    divTester.opt('div_function', 'KL'); 
     % test on the test MsgBundle
     %keyboard
-    [Divs, outDa]=divTester.testDistMapper(teBundle);
+    outDa = dm.mapMsgBundle(teBundle);
     assert(isa(outDa, 'DistArray'));
-
-    % Check improper messages
-    impTester=ImproperDistMapperTester(dm);
-    impOut=impTester.testDistMapper(teBundle);
 
     % save everything
     commit=GitTool.getCurrentCommit();
@@ -219,17 +213,14 @@ function s=nvaryTestMap(trN, teN, trialNum, learner, bundle, bunName, relearn)
     s.result_path=fpath;
     s.dist_mapper=dm;
     s.learner_log=learnerLog;
-    s.div_tester=divTester;
-    s.divs=Divs;
     s.out_distarray=outDa;
-    s.imp_tester=impTester;
-    s.imp_out=impOut;
     s.commit=commit;
     s.timeStamp=timeStamp;
 
     s.trN = trN;
     s.teN = teN;
     s.trialNum=trialNum;
+    s.teBundle = teBundle;
     s.bundleName=bunName;
 
     save(fpath, 's');

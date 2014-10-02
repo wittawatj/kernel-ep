@@ -31,7 +31,7 @@ function test_basic()
     oldRng=rng();
     rng(12 );
 
-    n=200;
+    n=100;
     Means1=3*randn(2, n);
     Vars1=zeros(2, 2, n);
     for i=1:n
@@ -53,7 +53,7 @@ function test_basic()
     K=ker.eval(D, D);
 
     % number of random features
-    numFeatures=799;
+    numFeatures=299;
     randMap=RFGJointEProdMap(gwidth2s, numFeatures);
 
     Z=randMap.genFeatures(T);
@@ -83,8 +83,8 @@ function test_basic()
     assertVectorsAlmostEqual(dmZ, Z);
 
     g=randMap.getGenerator(T);
-    I=300:500;
-    J=50:100;
+    I=120:170;
+    J=50:80;
     assertVectorsAlmostEqual(g(I, J), Z(I, J));
 
     rng(oldRng);

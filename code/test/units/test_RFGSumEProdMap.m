@@ -9,7 +9,7 @@ function test_compareToExact()
     oldRng=rng();
     rng(11 );
 
-    n=200;
+    n=100;
     Means1=3*randn(2, n);
     %Vars1=gamrnd(3, 4, 1, n);
     Vars1=zeros(2, 2, n);
@@ -35,7 +35,7 @@ function test_compareToExact()
     K=K1+K2;
 
     % number of random features
-    numFeatures=499;
+    numFeatures=299;
     randMap=RFGSumEProdMap(gwidth2s, numFeatures);
 
     T=TensorInstances({DistArray(D1), DistArray(D2)});
@@ -66,8 +66,8 @@ function test_compareToExact()
     assertVectorsAlmostEqual(dmZ, Z);
 
     g=randMap.getGenerator(T);
-    I=200:300;
-    J=50:100;
+    I=110:180;
+    J=50:70;
     assertVectorsAlmostEqual(g(I, J), Z(I, J));
 
     rng(oldRng);

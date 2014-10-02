@@ -15,7 +15,8 @@ function test_saveload()
     In=DistArray(DistNormal(means, 1:10) );
     Out=randn(3, 10);
     lamb=15;
-    condFm=CondFMFiniteOut(randFeatureMap, In, Out, lamb);
+    use_multicore = false;
+    condFm=CondFMFiniteOut(randFeatureMap, In, Out, lamb, use_multicore);
 
     % save
     fname='test_CondFMFiniteOut_saveload.mat';

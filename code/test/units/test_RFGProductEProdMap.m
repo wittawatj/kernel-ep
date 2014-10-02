@@ -35,7 +35,7 @@ function test_compareToExact()
     K=K1.*K2;
 
     % number of random features
-    numFeatures=1499;
+    numFeatures=499;
     randMap=RFGProductEProdMap(gwidth2s, numFeatures);
 
     T=TensorInstances({DistArray(D1), DistArray(D2)});
@@ -65,7 +65,7 @@ function test_compareToExact()
     assertVectorsAlmostEqual(dmZ, Z);
 
     % test generator on a bunch of indices
-    II={20:200, 100:600, 400:1200, 1100:1400};
+    II={20:200, 100:300, 210:400 };
     JJ={2, 2:10, 50:100, 1:100};
 
     g=randMap.getGenerator(T);

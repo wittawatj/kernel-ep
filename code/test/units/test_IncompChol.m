@@ -7,8 +7,8 @@ end
 
 function s=setup()
 % data for ichol
-n = 200;
-d = 30;
+n = 100;
+d = 20;
 
 s.n = n;
 s.d = d;
@@ -52,7 +52,6 @@ maxcols = n;
 In=IncompChol(Dat, kfunc, tol, maxcols);
 R2 = In.R;
 
-
 % display(sprintf('Diff of two approximations: %g', norm(R1'*R1 - R2'*R2) ) );
 assertVectorsAlmostEqual(R1'*R1, R2'*R2);
 
@@ -73,7 +72,7 @@ function testIChol(s)
 % test incomplete Cholesky with low rank
 eval(structvars(1e2, s));
 
-maxcols = 150;
+maxcols = 70;
 In=IncompChol(Dat, kfunc, tol, maxcols);
 R2 = In.R;
 
