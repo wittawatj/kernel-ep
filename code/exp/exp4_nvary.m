@@ -1,4 +1,4 @@
-function [ ] = exp4_nvary( )
+function [ ] = exp4_nvary(bunName )
 % Vary the training size n and train an operator for multiple trials.
 % One saved file for one (n, trial, method, data). 
 % Combine them later.
@@ -21,12 +21,13 @@ else
 end
 %bunName=sprintf('sigmoid_bw_%s_50000', anno);
 %bunName=sprintf('sigmoid_bw_%s_2000', anno);
-bunName=sprintf('sigmoid_fw_proposal_50000');
+%bunName=sprintf('sigmoid_fw_proposal_50000');
 % Nicolas's data. Has almost 30000 pairs.
 %bunName=sprintf('nicolas_sigmoid_bw');
 %bunName=sprintf('nicolas_sigmoid_fw');
 %bunName=sprintf('simplegauss_d1_bw_proposal_30000' );
 %bunName=sprintf('simplegauss_d1_fw_proposal_30000' );
+%bunName='lds_d3_tox_20000';
 se=BundleSerializer();
 bundle=se.loadBundle(bunName);
 
@@ -40,13 +41,14 @@ inTensor=smallBundle.getInputTensorInstances();
 candidate_primal_features=2000;
 %candidate_primal_features=200;
 % training size to vary 
-trSizes = 2000:2000:1e4;
+trSizes = [3000, 6000, 9000];
 %trSizes = [100 ];
 teSize = 5000;
 %teSize = 50;
 % trial numbers 
-%trialNums = 1:5;
-trialNums = 6:10;
+trialNums = 1:5;
+%trialNums = 1:10;
+%trialNums = 6:10;
 %trialNums = 6:20;
 % fixed test size for each training size 
 
@@ -84,7 +86,8 @@ sumLearner.opt('featuremap_candidates', sumCandidates);
 prodLearner.opt('featuremap_candidates', prodCandidates);
 icholEGaussLearner.opt('kernel_candidates', icholEGaussCandidates);
 
-learners={ mvLearner, jointLearner, sumLearner, prodLearner, icholEGaussLearner};
+%learners={ mvLearner, jointLearner, sumLearner, prodLearner, icholEGaussLearner};
+learners={ mvLearner, jointLearner, sumLearner, prodLearner };
 %learners={ prodLearner};
 %learners={icholEGaussLearner};
 
@@ -130,6 +133,7 @@ end
 if use_multicore
     gop=globalOptions();
     multicore_settings.multicoreDir= gop.multicoreDir;                    
+    multicore_settings.maxEvalTimeSingle = 2*60*60;
     multicoreFunc = @(ist)wrap_nvaryTestMap(ist, bundle, bunName, relearn);
     resultCell = startmulticoremaster(multicoreFunc, stCells, multicore_settings);
     %S=[resultCell{:}];
@@ -180,11 +184,30 @@ function s=nvaryTestMap(trN, teN, trialNum, learner, bundle, bunName, relearn)
     assert(trialNum > 0);
 
     iden=sprintf('nvary-%s-%s-ntr%d-tri%d.mat', class(learner), bunName, trN, trialNum);
+    % file for smaller version of the result.
+    smallIden=sprintf('nvary_small-%s-%s-ntr%d-tri%d.mat', class(learner), bunName, trN, trialNum);
     fpath=Expr.expSavedFile(4, iden);
+    smallFPath = Expr.expSavedFile(4, smallIden);
 
     if ~relearn && exist(fpath, 'file')
-        %load(fpath);
         % s should be loaded here. Return it
+        if ~exist(smallFPath, 'file')
+            try 
+                load(fpath);
+            catch err 
+                % if load error, rm it.
+                delete(fpath);
+                s=[];
+                return;
+            end
+            % save small version. Remove big objects.
+            s = rmfield(s, 'teBundle');
+            s = rmfield(s, 'dist_mapper');
+            s = rmfield(s, 'learner_log');
+            s = rmfield(s, 'out_distarray');
+            s = rmfield(s, 'learner_options');
+            save(smallFPath, 's');
+        end
         s=[];
         return;
     end
@@ -205,8 +228,15 @@ function s=nvaryTestMap(trN, teN, trialNum, learner, bundle, bunName, relearn)
     commit=GitTool.getCurrentCommit();
     timeStamp=clock();
 
+    trueOutDa = teBundle.getOutBundle();
+    divTester = DivDistMapperTester(dm);
+    divTester.opt('div_function', 'KL');
+    divs = divTester.getDivergence(outDa, trueOutDa);
+
     % Return a struct 
     s=struct();
+    s.divs = divs;
+    s.improper_count = sum(isnan(divs));
     s.learner_class=class(learner);
     % type Options
     s.learner_options=learner.options;
@@ -224,5 +254,12 @@ function s=nvaryTestMap(trN, teN, trialNum, learner, bundle, bunName, relearn)
     s.bundleName=bunName;
 
     save(fpath, 's');
+    % save small version. Remove big objects.
+    s = rmfield(s, 'teBundle');
+    s = rmfield(s, 'dist_mapper');
+    s = rmfield(s, 'learner_log');
+    s = rmfield(s, 'out_distarray');
+    s = rmfield(s, 'learner_options');
+    save(smallFPath, 's');
 end
 

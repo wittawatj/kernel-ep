@@ -20,33 +20,33 @@ classdef DistNormal < handle & GKConvolvable & Sampler ...
     
     methods
         %constructor
-        function this = DistNormal(m, var)
+        function this = DistNormal(m, variance)
             assert(~isempty(m));
-            assert(~isempty(var));
-            if size(m, 1)==1 && size(var, 1)==1 && size(m, 2) > 1
+            assert(~isempty(variance));
+            if size(m, 1)==1 && size(variance, 1)==1 && size(m, 2) > 1
                 % object array of many 1d Gaussians
-                assert(size(m, 2)==size(var, 2), '1d Gaussians: #means and #variances do not match');
+                assert(size(m, 2)==size(variance, 2), '1d Gaussians: #means and #variances do not match');
                 n = size(m, 2);
                 this = DistNormal.empty();
                 for i=1:n
-                    this(i) = DistNormal(m(i), var(i));
+                    this(i) = DistNormal(m(i), variance(i));
                 end
             elseif size(m, 1)>1 && size(m, 2)>1
                 % object array of many multivariate Gaussians
-                assert(ndims(var)==3, ['multidimensional means must be '...
+                assert(ndims(variance)==3, ['multidimensional means must be '...
                     'accompanied with 3-d variance variable.']);
-                assert(size(var,3)==size(m, 2), '#means and #variances do not match');
+                assert(size(variance,3)==size(m, 2), '#means and #variances do not match');
                 n = size(m, 2);
                 this = DistNormal.empty();
                 for i=1:n
-                    this(i) = DistNormal(m(:, i), var(:, :, i));
+                    this(i) = DistNormal(m(:, i), variance(:, :, i));
                 end
             else
                 % one object, any dimension
                 this.mean = m(:);
                 this.d = length(this.mean);
-                assert(all(size(var)==size(var'))) %square
-                this.variance = var;
+                assert(all(size(variance)==size(variance'))) %square
+                this.variance = variance;
                 this.parameters = {this.mean, this.variance};
             end
             

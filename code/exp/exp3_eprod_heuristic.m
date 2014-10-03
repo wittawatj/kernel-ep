@@ -24,14 +24,15 @@ end
 % Nicolas's data. Has almost 30000 pairs.
 %bunName=sprintf('nicolas_sigmoid_bw');
 %bunName=sprintf('nicolas_sigmoid_fw');
-bunName=sprintf('simplegauss_d1_bw_samcond_30000' );
+%bunName=sprintf('simplegauss_d1_bw_samcond_30000' );
 %bunName=sprintf('simplegauss_d1_fw_samcond_30000' );
 %bunName=sprintf('simplegauss_d1_bw_proposal_30000' );
 %bunName=sprintf('simplegauss_d1_fw_proposal_30000' );
+bunName='lds_d3_tox_3000';
 bundle=se.loadBundle(bunName);
 
-%n=200;
-n=25000;
+n=200;
+%n=25000;
 smallBundle=bundle.subsample(n);
 n=min(n, smallBundle.count());
 % train 80%
@@ -44,8 +45,8 @@ candidate_primal_features=2000;
 % median factors
 medf=[1/40, 1/20, 1/10, 1/5, 1/3, 1/2, 1, 2, 3, 5, 10, 20, 40];
 % run multicore
-use_multicore=true;
-%use_multicore=false;
+%use_multicore=true;
+use_multicore=false;
 %----------
 % learners
 mvLearner=RFGMVMapperLearner();
@@ -97,15 +98,16 @@ for i=1:length(learners)
     % set my options
     learner.opt('seed', 221+1);
     %learner.opt('num_primal_features', 1000);
-    %learner.opt('use_multicore', use_multicore);
-    learner.opt('num_primal_features', 20000);
-    learner.opt('use_multicore', true);
+    learner.opt('use_multicore', use_multicore);
+    learner.opt('num_primal_features', 5000);
+    %learner.opt('use_multicore', true);
     learner.opt('reglist', [1e-4, 1e-2, 1, 100]);
 end
 
 if use_multicore
     gop=globalOptions();
     multicore_settings.multicoreDir= gop.multicoreDir;                    
+    multicore_settings.maxEvalTimeSingle = 2*60*60;
     learnMapfunc=@(l)learnMap(l, trBundle, teBundle, bunName, relearn);
     resultCell = startmulticoremaster(learnMapfunc, learners, multicore_settings);
     S=[resultCell{:}];

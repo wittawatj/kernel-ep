@@ -43,6 +43,8 @@ if use_multicore
     gop=globalOptions();
     multicore_settings.multicoreDir= myProcessOptions(multicore_settings, ...
         'multicoreDir', gop.multicoreDir);
+    multicore_settings.maxEvalTimeSingle = max(60*10, length(reglist)*60*10);
+
     resultCell = startmulticoremaster(fmEvalFunc, featuremap_candidates, multicore_settings);
     
     CErr = [resultCell{:}];

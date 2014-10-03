@@ -39,6 +39,7 @@ use_multicore=true;
 if use_multicore
     gop=globalOptions();
     multicore_settings.multicoreDir= gop.multicoreDir;                    
+    multicore_settings.maxEvalTimeSingle = 2*60*60;
     learnMapfunc=@(l)learnMap(l, trBundle, teBundle, bunName, relearn);
     resultCell = startmulticoremaster(learnMapfunc, learners, multicore_settings);
     S=[resultCell{:}];

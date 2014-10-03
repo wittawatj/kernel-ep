@@ -78,8 +78,8 @@ classdef RFGProductEProdMap < FeatureMap & PrimitiveSerializable
             this.initMap(T);
             C=T.instancesCell;
             c=T.tensorDim();
-            nfEach=this.numFeatures^(1/c);
-            assert(mod(nfEach, 1)==0); % this should be integer 
+            nfEach=floor(this.numFeatures^(1/c));
+            %assert(mod(nfEach, 1)==0); % this should be integer 
 
             % Indices needed from each feature map 
             mapI=cell(1, c);

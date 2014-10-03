@@ -86,6 +86,7 @@ classdef CondFMFiniteOut < InstancesMapper & PrimitiveSerializable
                 if use_multicore
                     gop=globalOptions();
                     multicore_settings.multicoreDir= gop.multicoreDir;                    
+                    multicore_settings.maxEvalTimeSingle=60*30;
                     colSolve=@(col)pcg(afunc, col, tol, maxit)';
                     % Gather columns
                     cols=cell(1, size(F, 2));

@@ -84,8 +84,9 @@ maxPauseTime   = 2;
 % default settings/parameters
 settingsDefault.multicoreDir        = '';
 settingsDefault.nrOfEvalsAtOnce     = 1;
-settingsDefault.maxEvalTimeSingle   = 60;
-settingsDefault.masterIsWorker      = 0;
+%settingsDefault.maxEvalTimeSingle   = 60;
+settingsDefault.maxEvalTimeSingle   = 600;
+settingsDefault.masterIsWorker      = 1;
 settingsDefault.useWaitbar          = 0;
 settingsDefault.postProcessHandle   = '';
 settingsDefault.postProcessUserData = {};

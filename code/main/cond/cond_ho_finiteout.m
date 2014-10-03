@@ -69,6 +69,7 @@ if use_multicore
     % resultCell = cell of HR
     multicore_settings.multicoreDir= myProcessOptions(multicore_settings, ...
         'multicoreDir', '/nfs/nhome/live/wittawat/SHARE/gatsby/research/code/tmp');
+    multicore_settings.maxEvalTimeSingle = max(60*10, num_ho*length(reglist)*60*7);
     resultCell = startmulticoremaster(keval_func, kernel_candidates, multicore_settings);
     
     CHErr = cat(3, resultCell{:});
