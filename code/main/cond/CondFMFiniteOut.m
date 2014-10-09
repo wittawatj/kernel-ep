@@ -86,7 +86,7 @@ classdef CondFMFiniteOut < InstancesMapper & PrimitiveSerializable
                 if use_multicore
                     gop=globalOptions();
                     multicore_settings.multicoreDir= gop.multicoreDir;                    
-                    multicore_settings.maxEvalTimeSingle=60*30;
+                    multicore_settings.maxEvalTimeSingle=60*100;
                     colSolve=@(col)pcg(afunc, col, tol, maxit)';
                     % Gather columns
                     cols=cell(1, size(F, 2));
@@ -95,6 +95,8 @@ classdef CondFMFiniteOut < InstancesMapper & PrimitiveSerializable
                     end
                     resultCell = startmulticoremaster(colSolve, cols, multicore_settings);
                     T=vertcat(resultCell{:});
+                    assert(~isempty(T), 'empty map matrix');
+                    assert(all(size(T)==size(Q)));
                 else
                     dout=size(Out,1);
                     T=zeros(dout, D);
@@ -118,7 +120,15 @@ classdef CondFMFiniteOut < InstancesMapper & PrimitiveSerializable
             fm = this.featureMap;
             Pin = fm.genFeatures(Xin);
 
-            Zout = T*Pin;
+            try 
+                Zout = T*Pin;
+                display('size of T: ')
+                display(size(T));
+                display('size of Pin: ')
+                display(size(Pin));
+            catch err 
+                display(err);
+            end
         end
 
         function s = shortSummary(this)

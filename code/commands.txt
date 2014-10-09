@@ -1,0 +1,54 @@
+exp4_nvary('sigmoid_bw_proposal_50000'); exp4_nvary('sigmoid_fw_proposal_50000'); exp5_nfvary('sigmoid_fw_proposal_50000'); exp5_nfvary('sigmoid_bw_proposal_50000'); exp4_nvary('simplegauss_d1_bw_proposal_30000'); exp4_nvary('simplegauss_d1_fw_proposal_30000'); exp5_nfvary('simplegauss_d1_bw_proposal_30000'); exp5_nfvary('simplegauss_d1_fw_proposal_30000')
+
+
+
+Waiting for semaphore of file 
+/nfs/nhome/live/wittawat/SHARE/gatsby/research/code/tmp/parameters_20141005
+213805_0001.mat to disappear.
+loocv: lamb: 0.0001, fm: RandFourierGaussMVMap(mw2s=[0.0027148     0.12318], vw2s=[1.55827e-05      28.5351]) => err: 7.52e+03
+loocv: lamb: 0.01, fm: RandFourierGaussMVMap(mw2s=[0.0027148     0.12318], vw2s=[1.55827e-05      28.5351]) => err: 7.51e+03
+loocv: lamb: 1, fm: RandFourierGaussMVMap(mw2s=[0.0027148     0.12318], vw2s=[1.55827e-05      28.5351]) => err: 6.88e+03
+loocv: lamb: 0.0001, fm: RandFourierGaussMVMap(mw2s=[0.0081443     0.36954], vw2s=[4.67482e-05      85.6053]) => err: 3e+03
+loocv: lamb: 0.01, fm: RandFourierGaussMVMap(mw2s=[0.0081443     0.36954], vw2s=[4.67482e-05      85.6053]) => err: 2.98e+03
+loocv: lamb: 1, fm: RandFourierGaussMVMap(mw2s=[0.0081443     0.36954], vw2s=[4.67482e-05      85.6053]) => err: 3.66e+03
+Waiting for semaphore of file 
+/nfs/nhome/live/wittawat/SHARE/gatsby/research/code/tmp/parameters_20141005
+213838_0004.mat to disappear.
+Waiting for semaphore of file 
+/nfs/nhome/live/wittawat/SHARE/gatsby/research/code/tmp/parameters_20141005
+213840_0001.mat to disappear.
+Waiting for semaphore of file 
+/nfs/nhome/live/wittawat/SHARE/gatsby/research/code/tmp/parameters_20141005
+213924_0002.mat to disappear.
+Waiting for semaphore of file 
+/nfs/nhome/live/wittawat/SHARE/gatsby/research/code/tmp/parameters_20141005
+213924_0001.mat to disappear.
+Waiting for semaphore of file 
+/nfs/nhome/live/wittawat/SHARE/gatsby/research/code/tmp/parameters_20141005
+213924_0001.mat to disappear.
+Error using vertcat
+Dimensions of matrices being concatenated are not consistent.
+
+Error in CondFMFiniteOut (line 97)
+                    T=vertcat(resultCell{:});
+
+Error in CondFMFiniteOut.learn_operator (line 179)
+            Op = CondFMFiniteOut(map, In, Out, lambda);
+
+Error in RFGMVMapperLearner/learnDistMapper (line 137)
+            [Op, C]=CondFMFiniteOut.learn_operator(tensorIn, outStat, op);
+
+Error in exp5_nfvary>nfvaryTestMap (line 211)
+    [dm, learnerLog]=learner.learnDistMapper(trBundle);
+
+Error in exp5_nfvary>wrap_nfvaryTestMap (line 155)
+    s=nfvaryTestMap(trN, teN, nf, trialNum, learner, bundle, bunName, teBundle, relearn);
+
+Error in exp5_nfvary>@(ist)wrap_nfvaryTestMap(ist,bundle,bunName,teBundle,relearn) (line 128)
+    multicoreFunc = @(ist)wrap_nfvaryTestMap(ist, bundle, bunName, teBundle, relearn);
+
+Error in startmulticoremaster (line 426)
+          resultCell{k} = feval(getFunctionHandles(functionHandleCell, k), parameterCell{k});
+
+Error in exp5_nfvary (line 129)
+    resultCell = startmulticoremaster(multicoreFunc, stCells, multicore_settings);

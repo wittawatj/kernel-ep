@@ -19,7 +19,7 @@ if sample_cond_msg
 else
     anno='proposal';
 end
-%bunName=sprintf('sigmoid_bw_%s_25000', anno);
+bunName=sprintf('sigmoid_bw_%s_25000', anno);
 %bunName=sprintf('sigmoid_bw_%s_2000', anno);
 % Nicolas's data. Has almost 30000 pairs.
 %bunName=sprintf('nicolas_sigmoid_bw');
@@ -28,10 +28,10 @@ end
 %bunName=sprintf('simplegauss_d1_fw_samcond_30000' );
 %bunName=sprintf('simplegauss_d1_bw_proposal_30000' );
 %bunName=sprintf('simplegauss_d1_fw_proposal_30000' );
-bunName='lds_d3_tox_3000';
+%bunName='lds_d3_tox_3000';
 bundle=se.loadBundle(bunName);
 
-n=200;
+n=6250;
 %n=25000;
 smallBundle=bundle.subsample(n);
 n=min(n, smallBundle.count());
@@ -45,8 +45,8 @@ candidate_primal_features=2000;
 % median factors
 medf=[1/40, 1/20, 1/10, 1/5, 1/3, 1/2, 1, 2, 3, 5, 10, 20, 40];
 % run multicore
-%use_multicore=true;
-use_multicore=false;
+use_multicore=true;
+%use_multicore=false;
 %----------
 % learners
 mvLearner=RFGMVMapperLearner();
@@ -54,13 +54,13 @@ jointLearner=RFGJointEProdLearner();
 sumLearner=RFGSumEProdLearner();
 prodLearner=RFGProductEProdLearner();
 icholEGaussLearner=ICholMapperLearner();
-icholEGaussLearner.opt('num_ho', 5);
+icholEGaussLearner.opt('num_ho', 3);
 ntr=length(trBundle);
 icholEGaussLearner.opt('ho_train_size', min(2e4, floor(0.7*ntr)) );
 % internally form tr x te matrix. ho_test_size cannot be too large.
 icholEGaussLearner.opt('ho_test_size', min(3e3, floor(0.3*ntr)) );
 icholEGaussLearner.opt('chol_tol', 1e-12);
-icholEGaussLearner.opt('chol_maxrank', 800);
+icholEGaussLearner.opt('chol_maxrank', 600);
 
 % learner-specific options
 mvCandidates=RandFourierGaussMVMap.candidatesFlatMedf(trTensor, medf, ...
@@ -79,7 +79,8 @@ sumLearner.opt('featuremap_candidates', sumCandidates);
 prodLearner.opt('featuremap_candidates', prodCandidates);
 icholEGaussLearner.opt('kernel_candidates', icholEGaussCandidates);
 
-learners={ mvLearner, jointLearner, sumLearner, prodLearner, icholEGaussLearner};
+%learners={ mvLearner, jointLearner, sumLearner, prodLearner, icholEGaussLearner};
+learners={mvLearner, jointLearner};
 %learners={ prodLearner};
 %learners={icholEGaussLearner};
 
@@ -99,9 +100,9 @@ for i=1:length(learners)
     learner.opt('seed', 221+1);
     %learner.opt('num_primal_features', 1000);
     learner.opt('use_multicore', use_multicore);
-    learner.opt('num_primal_features', 5000);
+    learner.opt('num_primal_features', 3000);
     %learner.opt('use_multicore', true);
-    learner.opt('reglist', [1e-4, 1e-2, 1, 100]);
+    learner.opt('reglist', [1e-6, 1e-4, 1e-2, 1]);
 end
 
 if use_multicore

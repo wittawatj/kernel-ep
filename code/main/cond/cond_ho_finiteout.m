@@ -96,6 +96,8 @@ C.bkernel = kernel_candidates{bki};
 BestKerIChol = IncompChol(In, C.bkernel, chol_tol, chol_maxrank);
 C.bkernel_ichol = BestKerIChol;
 C.blambda = reglist(bri);
+C.bri = bri;
+C.bki = bki;
 
 C.reglist = reglist;
 C.kernel_candidates = kernel_candidates;

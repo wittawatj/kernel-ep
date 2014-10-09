@@ -33,22 +33,23 @@ inTensor=smallBundle.getInputTensorInstances();
 
 %---------- options -----------
 % number of random features for cross validation
-candidate_primal_features=1500;
+candidate_primal_features=1000;
 %candidate_primal_features=200;
 
 % fixed training size 
-trSize = 10000;
+trSize = 5000;
 %trSize = 1e3;
-
 teSize = 5000;
+% only one test bundle 
+[bundle, teBundle] = bundle.partitionTrainTest(length(bundle)-teSize , teSize);
 %teSize = 50;
 % trial numbers 
-trialNums = 1:5;
-%trialNums = 1:10;
+%trialNums = 1:5;
+trialNums = 1:10;
 
 % number of random features to vary 
 %nfs = 1000:2000:1e4;
-nfs = [1000, 3000, 5000, 7000];
+nfs = [20, 50, 100, 200, 100, 500, 1000, 1500, 2000];
 %nfs = [100, 200];
 
 % median factors
@@ -97,7 +98,7 @@ for i=1:length(learners)
 
     % set my options
     learner.opt('use_multicore', true);
-    learner.opt('reglist', [1e-4, 1e-2, 1, 100]);
+    learner.opt('reglist', [1e-6, 1e-4, 1e-2, 1 ]);
 end
 
 % Generate combinations to try 
@@ -124,7 +125,7 @@ if use_multicore
     gop=globalOptions();
     multicore_settings.multicoreDir= gop.multicoreDir;                    
     multicore_settings.maxEvalTimeSingle = 2*60*60;
-    multicoreFunc = @(ist)wrap_nfvaryTestMap(ist, bundle, bunName, relearn);
+    multicoreFunc = @(ist)wrap_nfvaryTestMap(ist, bundle, bunName, teBundle, relearn);
     resultCell = startmulticoremaster(multicoreFunc, stCells, multicore_settings);
     S=[resultCell{:}];
 else
@@ -132,7 +133,7 @@ else
     S={};
     for i=1:length(stCells)
         ist = stCells{i};
-        s = wrap_nfvaryTestMap(ist, bundle, bunName, relearn );
+        s = wrap_nfvaryTestMap(ist, bundle, bunName, teBundle, relearn );
         S{i}=s;
     end
     S=[S{:}];
@@ -141,7 +142,7 @@ end
 rng(oldRng);
 end
 
-function s=wrap_nfvaryTestMap(ist, bundle, bunName, relearn)
+function s=wrap_nfvaryTestMap(ist, bundle, bunName, teBundle, relearn)
     % wrapper to be used with startmulticoremaster(.)
     %
     % ist = input struct 
@@ -151,14 +152,13 @@ function s=wrap_nfvaryTestMap(ist, bundle, bunName, relearn)
     trialNum = ist.trialNum;
     learner = ist.learner;
     nf = ist.nf;
-    s=nfvaryTestMap(trN, teN, nf, trialNum, learner, bundle, bunName, relearn);
+    s=nfvaryTestMap(trN, teN, nf, trialNum, learner, bundle, bunName, teBundle, relearn);
 
 end
 
-function s=nfvaryTestMap(trN, teN, nf, trialNum, learner, bundle, bunName, relearn)
-    % teBundle = test bundle specific to a dataset is fixed for all n 
-    % run the specified learner. 
-    % * nf = number of random features to vary 
+function s=nfvaryTestMap(trN, teN, nf, trialNum, learner, bundle, bunName, teBundle, relearn)
+    % teBundle = test bundle specific to a dataset is fixed 
+    %  * nf = number of random features to vary 
     % Return a struct S containing produced variables.
     
     rng(trialNum);
@@ -205,7 +205,7 @@ function s=nfvaryTestMap(trN, teN, nf, trialNum, learner, bundle, bunName, relea
     learner.opt('num_primal_features', nf);
 
     % non-overlapping train/test sets
-    [trBundle, teBundle] = bundle.partitionTrainTest(trN, teN);
+    [trBundle, ~] = bundle.partitionTrainTest(trN, teN);
 
     % learn a DistMapper
     [dm, learnerLog]=learner.learnDistMapper(trBundle);

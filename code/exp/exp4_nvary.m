@@ -38,16 +38,18 @@ inTensor=smallBundle.getInputTensorInstances();
 
 %---------- options -----------
 % number of random features for cross validation
-candidate_primal_features=2000;
+candidate_primal_features=1000;
 %candidate_primal_features=200;
 % training size to vary 
-trSizes = [3000, 6000, 9000];
+trSizes = [1000,2000, 3000,4000, 5000];
 %trSizes = [100 ];
 teSize = 5000;
+% only one fixed test set 
+[bundle, teBundle] = bundle.partitionTrainTest(length(bundle)-teSize, teSize);
 %teSize = 50;
 % trial numbers 
-trialNums = 1:5;
-%trialNums = 1:10;
+%trialNums = 1:5;
+trialNums = 1:10;
 %trialNums = 6:10;
 %trialNums = 6:20;
 % fixed test size for each training size 
@@ -65,7 +67,7 @@ jointLearner=RFGJointEProdLearner();
 sumLearner=RFGSumEProdLearner();
 prodLearner=RFGProductEProdLearner();
 icholEGaussLearner=ICholMapperLearner();
-icholEGaussLearner.opt('num_ho', 5);
+icholEGaussLearner.opt('num_ho', 3);
 icholEGaussLearner.opt('chol_tol', 1e-12);
 icholEGaussLearner.opt('chol_maxrank', 600);
 
@@ -86,8 +88,8 @@ sumLearner.opt('featuremap_candidates', sumCandidates);
 prodLearner.opt('featuremap_candidates', prodCandidates);
 icholEGaussLearner.opt('kernel_candidates', icholEGaussCandidates);
 
-%learners={ mvLearner, jointLearner, sumLearner, prodLearner, icholEGaussLearner};
-learners={ mvLearner, jointLearner, sumLearner, prodLearner };
+learners={ mvLearner, jointLearner, sumLearner, prodLearner, icholEGaussLearner};
+%learners={ mvLearner, jointLearner, sumLearner, prodLearner };
 %learners={ prodLearner};
 %learners={icholEGaussLearner};
 
@@ -106,9 +108,9 @@ for i=1:length(learners)
     % set my options
     %learner.opt('num_primal_features', 1000);
     %learner.opt('use_multicore', use_multicore);
-    learner.opt('num_primal_features', 5000);
+    learner.opt('num_primal_features', 3000);
     learner.opt('use_multicore', true);
-    learner.opt('reglist', [1e-4, 1e-2, 1, 100]);
+    learner.opt('reglist', [1e-6, 1e-4, 1e-2, 1 ]);
 end
 
 % Generate combinations to try 
@@ -134,7 +136,7 @@ if use_multicore
     gop=globalOptions();
     multicore_settings.multicoreDir= gop.multicoreDir;                    
     multicore_settings.maxEvalTimeSingle = 2*60*60;
-    multicoreFunc = @(ist)wrap_nvaryTestMap(ist, bundle, bunName, relearn);
+    multicoreFunc = @(ist)wrap_nvaryTestMap(ist, bundle, bunName, teBundle, relearn);
     resultCell = startmulticoremaster(multicoreFunc, stCells, multicore_settings);
     %S=[resultCell{:}];
 else
@@ -142,7 +144,7 @@ else
     %S={};
     for i=1:length(stCells)
         ist = stCells{i};
-        s = wrap_nvaryTestMap(ist, bundle, bunName, relearn );
+        s = wrap_nvaryTestMap(ist, bundle, bunName, teBundle, relearn );
         %S{i}=s;
     end
     %S=[S{:}];
@@ -151,7 +153,7 @@ end
 rng(oldRng);
 end
 
-function s=wrap_nvaryTestMap(ist, bundle, bunName, relearn)
+function s=wrap_nvaryTestMap(ist, bundle, bunName, teBundle, relearn)
     % wrapper to be used with startmulticoremaster(.)
     %
     % ist = input struct 
@@ -160,14 +162,13 @@ function s=wrap_nvaryTestMap(ist, bundle, bunName, relearn)
     teN = ist.teN;
     trialNum = ist.trialNum;
     learner = ist.learner;
-    s=nvaryTestMap(trN, teN, trialNum, learner, bundle, bunName, relearn);
+    s=nvaryTestMap(trN, teN, trialNum, learner, bundle, bunName, teBundle, relearn);
 
 end
 
-function s=nvaryTestMap(trN, teN, trialNum, learner, bundle, bunName, relearn)
-    % teBundle = test bundle specific to a dataset is fixed for all n 
-    % run the specified learner. 
-    % Return a struct S containing produced variables.
+function s=nvaryTestMap(trN, teN, trialNum, learner, bundle, bunName, teBundle, relearn)
+    % teBundle = test bundle specific to a dataset is fixed 
+    %  Return a struct S containing produced variables.
     
     if isa(learner, 'ICholMapperLearner')
         learner.opt('ho_train_size', min(2e4, floor(0.7*trN)) );
@@ -214,7 +215,7 @@ function s=nvaryTestMap(trN, teN, trialNum, learner, bundle, bunName, relearn)
     %/////////////////////////////
 
     % non-overlapping train/test sets
-    [trBundle, teBundle] = bundle.partitionTrainTest(trN, teN);
+    [trBundle, ~] = bundle.partitionTrainTest(trN, teN);
 
     % learn a DistMapper
     [dm, learnerLog]=learner.learnDistMapper(trBundle);

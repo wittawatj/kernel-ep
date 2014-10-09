@@ -20,6 +20,9 @@ classdef RFGProductEProdMap < FeatureMap & PrimitiveSerializable
         % e^c (exponential in c!).
         numFeatures;
 
+        % number of features for each internal map
+        nfEach;
+
         % cell array of RFGEProdMap's. 
         % Maintain a map for each incoming message.
         eprodMaps;
@@ -54,7 +57,7 @@ classdef RFGProductEProdMap < FeatureMap & PrimitiveSerializable
                 Z=MatUtils.colKronecker(Z, Zs{i} );
             end
             assert(size(Z, 2)==n);
-            assert(size(Z, 1)==this.numFeatures);
+            %assert(size(Z, 1)==this.numFeatures);
         end
 
 
@@ -78,7 +81,7 @@ classdef RFGProductEProdMap < FeatureMap & PrimitiveSerializable
             this.initMap(T);
             C=T.instancesCell;
             c=T.tensorDim();
-            nfEach=floor(this.numFeatures^(1/c));
+            nfEach = this.nfEach;
             %assert(mod(nfEach, 1)==0); % this should be integer 
 
             % Indices needed from each feature map 
@@ -134,13 +137,14 @@ classdef RFGProductEProdMap < FeatureMap & PrimitiveSerializable
                 assert(isa(T, 'TensorInstances'));
                 c=T.tensorDim();
                 maps=cell(1, c);
-                nf=max(2, floor(this.numFeatures^(1/c)) );
+                nfEach=max(2, floor(this.numFeatures^(1/c)) );
                 for i=1:c
-                    maps{i}=RFGEProdMap(this.gwidth2s(i), nf);
+                    maps{i}=RFGEProdMap(this.gwidth2s(i), nfEach);
                 end
                 this.eprodMaps=maps;
                 % The total numFeatures <= the original numFeatures
-                this.numFeatures=nf^c;
+                this.numFeatures=nfEach^c;
+                this.nfEach = nfEach;
 
             end
         end

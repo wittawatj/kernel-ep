@@ -131,9 +131,12 @@ classdef DivDistMapperTester < DistMapperTester
             hist(logDivs, 20);
             set(gca, 'fontsize', 20);
             xlabel(sprintf('Log divergence of %s', class(outDa.get(1)) ));
+            %xlabel(sprintf('Log divergences on Gaussian output messages' ));
             ylabel('Frequency');
-            title(sprintf('%d/%d improper messages. Mean: %.3f, SD: %.3f',...
-                imCount, outDa.count(), mean(logDivs), std(logDivs)));
+            %title(sprintf('%d/%d improper messages. Mean: %.3f, SD: %.3f',...
+            %    imCount, outDa.count(), mean(logDivs), std(logDivs)));
+            title(sprintf('Log KL divergence. Mean: %.3f, SD: %.3f',...
+                mean(logDivs), std(logDivs)));
             grid on;
             hold off
 
@@ -149,34 +152,35 @@ classdef DivDistMapperTester < DistMapperTester
             % Take the best, 2 median, and worst
             % green=predicted, red=ground truth
             figure
-            superTitle=sprintf('%s. Outputs %s', this.distMapper.shortSummary(), ...
-                class(outDa.get(1)));
-                annotation('textbox', [0 0.9 1 0.1], ...
-                    'String', superTitle, ...
-                    'EdgeColor', 'none', ...
-                    'HorizontalAlignment', 'center', ...
-                    'FontSize', 12)
+            %superTitle=sprintf('%s. Outputs %s', this.distMapper.shortSummary(), ...
+            %    class(outDa.get(1)));
+            %    annotation('textbox', [0 0.9 1 0.1], ...
+            %        'String', superTitle, ...
+            %        'EdgeColor', 'none', ...
+            %        'HorizontalAlignment', 'center', ...
+            %        'FontSize', 12)
+            
             % best
             subplot(2, 2, 1);
             this.plotOutputPairs(soOutDa.get(1), soTrueOutDa.get(1), ...
-                sprintf('Best prediction. Div: %.3f', soLogDivs(1)));
+                sprintf('Best prediction. Log div: %.3f', soLogDivs(1)));
 
             % median 1
             subplot(2, 2, 2);
             m1=floor(nte/2);
             this.plotOutputPairs(soOutDa.get(m1), soTrueOutDa.get(m1), ...
-                sprintf('Median prediction 1. Div: %.3f', soLogDivs(m1)));
+                sprintf('Median prediction 1. Log div: %.3f', soLogDivs(m1)));
 
             % median 2
             subplot(2, 2, 3);
             m2=m1+1;
             this.plotOutputPairs(soOutDa.get(m2), soTrueOutDa.get(m2), ...
-                sprintf('Median prediction 2. Div: %.3f', soLogDivs(m2)));
+                sprintf('Median prediction 2. Log div: %.3f', soLogDivs(m2)));
 
             % worst 
             subplot(2, 2, 4);
             this.plotOutputPairs(soOutDa.get(nte), soTrueOutDa.get(nte), ...
-                sprintf('Worst prediction. Div: %.3f', soLogDivs(nte)));
+                sprintf('Worst prediction. Log div: %.3f', soLogDivs(nte)));
         end
 
         function [Divs, outDa]=plotMeanVarianceErrors(this, testBundle)
