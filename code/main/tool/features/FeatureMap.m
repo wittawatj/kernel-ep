@@ -17,12 +17,15 @@ classdef FeatureMap < handle & PrimitiveSerializable
         % Return a generator (function handle) to be used with DynamicMatrix
         g=getGenerator(this, in);
 
+
         % Return a new FeatureMap such that the internal weight parameters are 
         % kept and the number of features is extended. This method only makes 
         % sense to a FeatureMap which allows the control of number of features
         % such as random feature map.
         fm=cloneParams(this, numFeatures);
 
+        % Return the number of features to be generated.
+        D=getNumFeatures(this);
 
         % Short summary of this FeatureMap. Useful if in the form
         % mapName(param1, param2).

@@ -74,6 +74,10 @@ classdef RFGJointEProdMap < FeatureMap & PrimitiveSerializable
             
         end
 
+        function D=getNumFeatures(this)
+            D = this.numFeatures;
+        end
+
         function s=shortSummary(this)
             s = sprintf('%s(gw2s=[%s])', ...
                 mfilename, num2str(this.gwidth2s)) ;
@@ -115,7 +119,9 @@ classdef RFGJointEProdMap < FeatureMap & PrimitiveSerializable
             % Convert a TensorInstances T of DistArray's into an array of DistNormal.
             % Each DistNormal is constructed by converting all incoming messages 
             % into a single Gaussian. The final covariance is given by stacking 
-            % diagonally all covariances (same as stacking all precision matrices).
+            % diagonally all covariances (block matrix). 
+            % Converting another distribution is done by extracting mean, variance 
+            % and constructing a Gaussian out of them. 
             %
             assert(isa(T, 'TensorInstances'));
             n=T.count();

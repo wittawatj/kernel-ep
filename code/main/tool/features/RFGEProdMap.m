@@ -105,6 +105,10 @@ classdef RFGEProdMap < FeatureMap & PrimitiveSerializable
             fm=RFGEProdMap(this.gwidth2, numFeatures);
         end
 
+        function D=getNumFeatures(this)
+            D = this.numFeatures;
+        end
+
         function s=shortSummary(this)
             s = sprintf('%s(w^2=%.3f, #feat=%d)', ...
                 mfilename, this.gwidth2, this.numFeatures);

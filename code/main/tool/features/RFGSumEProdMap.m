@@ -105,6 +105,11 @@ classdef RFGSumEProdMap < FeatureMap & PrimitiveSerializable
             fm=RFGSumEProdMap(this.gwidth2s, numFeatures);
         end
 
+        % Return the number of features to be generated.
+        function D=getNumFeatures(this)
+            D = this.numFeatures;
+        end
+
         function s=shortSummary(this)
             s = sprintf('%s(gw2s=[%s])', ...
                 mfilename, num2str(this.gwidth2s)) ;

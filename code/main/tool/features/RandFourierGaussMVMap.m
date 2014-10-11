@@ -78,6 +78,10 @@ classdef RandFourierGaussMVMap < FeatureMap & PrimitiveSerializable
                 this.vwidth2s, numFeatures);
         end
 
+        function D=getNumFeatures(this)
+            D = this.numFeatures;
+        end
+
         function s=saveobj(this)
             s.mwidth2s=this.mwidth2s;
             s.vwidth2s=this.vwidth2s;
