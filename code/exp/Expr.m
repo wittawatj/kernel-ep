@@ -13,6 +13,21 @@ classdef Expr < handle
             fpath=fullfile(expNumFolder, fname);
         end
 
+        function fpath=scriptSavedFile(fname)
+            savedFolder=Expr.scriptSavedFolder();
+            fpath=fullfile(savedFolder, fname);
+        end
+
+        function savedFolder=scriptSavedFolder()
+            % return full path to folder used for saving results of temporary scripts 
+            root=Global.getScriptFolder();
+            savedFolder=fullfile(root, 'saved');
+            if ~exist(savedFolder, 'dir')
+                mkdir(savedFolder);
+            end
+
+        end
+
         function expNumFolder=expSavedFolder(expNum)
             % return full path to folder used for saving results of experiment 
             % identified by expNum

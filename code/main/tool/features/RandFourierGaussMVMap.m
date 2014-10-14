@@ -33,8 +33,8 @@ classdef RandFourierGaussMVMap < FeatureMap & PrimitiveSerializable
             % Length = tensorDim()
             assert(~isempty(mwidth2s));
             assert(~isempty(vwidth2s));
-            this.mwidth2s = mwidth2s;
-            this.vwidth2s = vwidth2s;
+            this.mwidth2s = mwidth2s(:)';
+            this.vwidth2s = vwidth2s(:)';
         end
 
         function Z=genFeatures(this, X)  
@@ -204,7 +204,7 @@ classdef RandFourierGaussMVMap < FeatureMap & PrimitiveSerializable
             assert(~isempty(medf));
             assert(all(medf>0));
             if nargin < 4
-                subsamples = 1500;
+                subsamples = 2000;
             end
             [Ms, Vs] = RandFourierGaussMVMap.getAllMV(X);
             n = size(Ms{1}, 2);

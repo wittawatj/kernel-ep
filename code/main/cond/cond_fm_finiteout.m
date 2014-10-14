@@ -1,9 +1,8 @@
 function [ C] = cond_fm_finiteout( In, Out, op )
 %COND_FM_FINITEOUT Generic leave-one-out cross validation procesure for
-%selecting FeatureMap candidates 
-% for conditional mean embedding
+%selecting FeatureMap candidates for ridge regression
 %   - Learn C_{Out|In}
-%   - The conditional mean embedding can take any number of inputs. This
+%   - The regression function can take any number of inputs. This
 %   simply depends on the Kernel used (kernel on tensor product space).
 %   - Use FeatureMap primal solutions (e.g., Rahimi & Recht) 
 %   - In is an input Instances objects.
@@ -50,7 +49,6 @@ if use_multicore
     CErr = [resultCell{:}];
 else
     % case: Not use multicore
-    % Matrix of regression square loss. num_ho x reg x candidates
     CErr = inf(length(reglist), length(featuremap_candidates) );
     for fi=1:length(featuremap_candidates)
         fm = featuremap_candidates{fi};
@@ -115,7 +113,7 @@ for ri=1:length(reglist)
     % But, this is certainly better than O(N^3) where dual solution is used.
     % *** Should use conjugate gradient here ***
     % *** Improve later *** 
-    T = linsolve(A', C')'; % dz x D
+    T = linsolve(A', C', opts)'; % dz x D
     clear A
     hdiag = dm.dmtim(lambda, PPt);
     % H tilde inverted

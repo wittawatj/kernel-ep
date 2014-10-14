@@ -11,6 +11,15 @@ classdef Global < handle
             r=p;
         end
 
+        function f=getScriptFolder()
+            % return the folder containing directly runnable scripts
+            p=Global.getRootFolder();
+            f=fullfile(p, 'script');
+            if ~exist(f, 'dir')
+                mkdir(f);
+            end
+        end
+
         function f=getSavedFolder()
             % return the top folder for saving .mat files 
 

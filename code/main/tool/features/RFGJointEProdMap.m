@@ -28,7 +28,7 @@ classdef RFGJointEProdMap < FeatureMap & PrimitiveSerializable
         function this=RFGJointEProdMap(gwidth2s, numFeatures)
             assert(all(gwidth2s>0));
             assert(numFeatures>0);
-            this.gwidth2s=gwidth2s;
+            this.gwidth2s=gwidth2s(:)';
             assert(mod(numFeatures, 1)==0);
             this.numFeatures=numFeatures;
             this.eprodMap=[];

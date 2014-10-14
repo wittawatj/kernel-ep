@@ -65,6 +65,7 @@ classdef RFGMVMapperLearner < DistMapperLearner
             kv.reglist=['list of regularization parameter candidates for conditional '... 
             'mean embedding operator'];
             kv.use_multicore=['If true, use multicore package.'];
+            kv.use_cmaes = ['True to use cma-es black-box optimization for parameter tuning'];
 
             od=OptionsDescription(kv);
         end
@@ -83,6 +84,7 @@ classdef RFGMVMapperLearner < DistMapperLearner
             % options used in cond_fm_finiteout
             st.reglist=[1e-2, 1, 100];
             st.use_multicore=true;
+            st.use_cmaes = false;
 
             Op=Options(st);
         end
@@ -108,7 +110,7 @@ classdef RFGMVMapperLearner < DistMapperLearner
             inputDistArrays=bundle.getInputBundles();
             tensorIn=TensorInstances(inputDistArrays);
 
-            if ~(isfield(op, 'featuremap_candidates') ...
+            if ~this.opt('use_cmaes') && ~(isfield(op, 'featuremap_candidates') ...
                     && ~isempty(op.featuremap_candidates))
                 % featuremap_candidates not set or set to []
                 % compute ones
@@ -134,7 +136,12 @@ classdef RFGMVMapperLearner < DistMapperLearner
             % learn operator
             outDa=bundle.getOutBundle();
             outStat=out_msg_distbuilder.getStat(outDa);
-            [Op, C]=CondFMFiniteOut.learn_operator(tensorIn, outStat, op);
+            if this.opt('use_cmaes')
+                op.featuremap_mode = 'mv';
+                [Op, C]=CondFMFiniteOut.learn_operator_cmaes(tensorIn, outStat, op);
+            else
+                [Op, C]=CondFMFiniteOut.learn_operator(tensorIn, outStat, op);
+            end
             assert(isa(Op, 'InstancesMapper'));
             gm=GenericMapper(Op, out_msg_distbuilder, bundle.numInVars());
 

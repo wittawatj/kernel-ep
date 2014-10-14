@@ -55,6 +55,7 @@ classdef RFGJointEProdLearner < DistMapperLearner
             kv.reglist=['list of regularization parameter candidates for ridge '...
                 'regression.'];
             kv.use_multicore=['If true, use multicore package.'];
+            kv.use_cmaes = ['True to use cma-es black-box optimization for parameter tuning'];
 
             od=OptionsDescription(kv);
         end
@@ -72,6 +73,7 @@ classdef RFGJointEProdLearner < DistMapperLearner
             % options used in cond_fm_finiteout
             st.reglist=[1e-2, 1, 100];
             st.use_multicore=true;
+            st.use_cmaes = false;
 
             Op=Options(st);
         end
@@ -121,7 +123,12 @@ classdef RFGJointEProdLearner < DistMapperLearner
             % learn operator
             outDa=bundle.getOutBundle();
             outStat=out_msg_distbuilder.getStat(outDa);
-            [Op, C]=CondFMFiniteOut.learn_operator(tensorIn, outStat, op);
+            if this.opt('use_cmaes')
+                op.featuremap_mode = 'joint';
+                [Op, C]=CondFMFiniteOut.learn_operator_cmaes(tensorIn, outStat, op);
+            else
+                [Op, C]=CondFMFiniteOut.learn_operator(tensorIn, outStat, op);
+            end
             assert(isa(Op, 'InstancesMapper'));
             gm=GenericMapper(Op, out_msg_distbuilder, bundle.numInVars());
 

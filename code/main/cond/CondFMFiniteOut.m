@@ -174,11 +174,25 @@ classdef CondFMFiniteOut < InstancesMapper & PrimitiveSerializable
             % Allow the change of numFeatures in case the number is reduced 
             % during  LOOCV.
             op.num_primal_features = myProcessOptions(op, 'num_primal_features', ...
-                1e4);
+                3e3);
             map = bestMap.cloneParams(op.num_primal_features);
             Op = CondFMFiniteOut(map, In, Out, lambda);
         end
 
+        function [Op, C] = learn_operator_cmaes(In, Out,  op)
+            % Learn the operator with black-box optimization CMA-ES
+            % In is likely to be a TensorInstances
+            assert(isa(In, 'Instances'));
+            [ C] = cond_fm_finiteout_cmaes( In, Out, op );
+            bestMap = C.bfeaturemap;
+            lambda = C.blambda;
+            % Allow the change of numFeatures in case the number is reduced 
+            % during  LOOCV.
+            op.num_primal_features = myProcessOptions(op, 'num_primal_features', ...
+                3e3);
+            map = bestMap.cloneParams(op.num_primal_features);
+            Op = CondFMFiniteOut(map, In, Out, lambda);
+        end
 
     end
 
