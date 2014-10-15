@@ -1,6 +1,6 @@
 classdef DistNormalBuilder < DistBuilder
     %DISTNORMALBUILDER DistBuilder for DistNormal
-    %    Work for 1d DistNormal currently. Support DistArray.
+    %    Work for 1d and multivariate Gaussians.
     
     properties
     end
