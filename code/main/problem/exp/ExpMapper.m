@@ -47,8 +47,8 @@ classdef ExpMapper
             % options for repeated hold-outs
             ntr = msgBundle.count();
             op.num_ho = 3;
-            op.train_size = floor(0.7*ntr);
-            op.test_size = min(1000, ntr - op.train_size);
+            op.ho_train_size = floor(0.7*ntr);
+            op.ho_test_size = min(1000, ntr - op.ho_train_size);
             op.chol_tol = 1e-15;
             op.chol_maxrank = min(700, ntr);
             op.reglist = myProcessOptions(op, 'reglist', [1e-2, 1]);

@@ -106,9 +106,9 @@ classdef ICholMapperLearner < DistMapperLearner
             % learn operator
             outDa=bundle.getOutBundle();
             outStat=out_msg_distbuilder.getStat(outDa);
-            op.train_size=op.ho_train_size;
-            op.test_size=op.ho_test_size;
-            assert(op.train_size+op.test_size<=n, '#Train and test samples exceed total samples');
+            op.ho_train_size=op.ho_train_size;
+            op.ho_test_size=op.ho_test_size;
+            assert(op.ho_train_size+op.ho_test_size<=n, '#Train and test samples exceed total samples');
 
             [Op, C]=CondCholFiniteOut.learn_operator(tensorIn, outStat, op);
             assert(isa(Op, 'InstancesMapper'));

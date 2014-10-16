@@ -11,7 +11,9 @@ classdef KGGaussian < Kernel
     properties (SetAccess=private)
         % Gaussian kernel for embedding
         kegauss;
+        % width2 for mean embeddings
         embed_width2;
+        % width2 for the outer Gaussian kernel on the mean embeddings.
         width2;
         
     end
@@ -36,8 +38,11 @@ classdef KGGaussian < Kernel
         
         
         function Kvec = pairEval(this, X, Y)
-            assert(isa(X, 'DistNormal'));
-            assert(isa(Y, 'DistNormal'));
+            % If X, Y are not Gaussian, we will treat them as one by doing moment 
+            % matching i.e., extract mean and variance and construct a Gaussian 
+            % out of them.
+            assert(isa(X, 'Distribution'));
+            assert(isa(Y, 'Distribution'));
             assert(length(X)==length(Y));
 
             sigma2 = this.embed_width2;
@@ -72,13 +77,15 @@ classdef KGGaussian < Kernel
         
         function [DD, M]=compute_meddistances(X, xembed_widths, subsamples)
             % for every embed width, compute the pairwise median distance
-            % xembed_widths is a list.
+            % xembed_widths in a list.
             % High storage cost for DD.
             % - subsamples is a integer denoteing the size of subsamples
             % that will be used instead to compute the meddistance.
+            assert(isa(X, 'Distribution'));
+            X = DistArray(X);
             if nargin >=3 && subsamples < length(X)
                 I = randperm(length(X), subsamples);
-                X = X(I);
+                X = X.get(I); %not DistArray anymore
             end
             
             M = zeros(1, length(xembed_widths));
@@ -124,7 +131,53 @@ classdef KGGaussian < Kernel
             end
             Kcell = reshape(Ks, [1, length(embed_widths)*length(med_factors)]);
         end
-        
+
+        function KProductCell = productCandidatesAvgCov(T, medf, subsamples )
+            % - Generate a cell array of KProduct candidates from medf,
+            % a list of factors to be  multiplied with the 
+            % diagonal of the average covariance matrices.
+            %
+            % - subsamples can be used to limit the samples used to compute
+            % the average
+            %
+            assert(isa(T, 'TensorInstances'));
+            assert(isnumeric(medf));
+            assert(~isempty(medf));
+            assert(all(medf>0));
+            if nargin < 3
+                subsamples = 3000;
+            end
+            numInput=T.tensorDim();
+            % Always embed with widths given by average covariance.
+            % We will only vary the outer Gaussian widths
+            embed_width2s=zeros(1, numInput);
+            for i=1:numInput
+                da=T.instancesCell{i};
+                avgCov=RFGEProdMap.getAverageCovariance(da, subsamples);
+                % keep just one number, the mean, instead of the diagonal covariance.
+                embed_width2s(i)=mean(diag(avgCov));
+            end
+
+            % total number of candidats = len(medf)^numInput
+            % Total combinations can be huge ! Be careful. Exponential in the 
+            % number of inputs
+            totalComb = length(medf)^numInput;
+            KProductCell = cell(1, totalComb);
+            % temporary vector containing indices
+            I = cell(1, numInput);
+            for ci=1:totalComb
+                [I{:}] = ind2sub( length(medf)*ones(1, numInput), ci);
+                II=cell2mat(I);
+                inputWidth2s= medf(II).*embed_width2s;
+                kers = cell(1, numInput);
+                for ki=1:numInput
+                    kers{ki} = KGGaussian(embed_width2s(ki), inputWidth2s(ki));
+                end
+                KProductCell{ci} = KProduct(kers);
+            end
+
+        end  % end productCandidates
+
     end
 end
 

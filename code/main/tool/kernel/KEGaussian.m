@@ -191,7 +191,7 @@ classdef KEGaussian < Kernel
                 ker=KProduct(Ks);
                 KCs{ci}=ker;
             end
-        end %end candidates() method
+        end 
 
     end %end static methods
 

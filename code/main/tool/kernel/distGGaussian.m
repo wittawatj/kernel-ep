@@ -1,11 +1,12 @@
 function [ D2] = distGGaussian( X1, X2, sigma2)
 %DISTGGAUSSIAN Distance^2 matrix before taking the exponential.
-% Used in kerGGaussian()
+% Used in kerGGaussian(). The actual formula is for Gaussian distributions. 
+% If X, Y are not Gaussian, treat them as one by moment matching.
 %
 [~, n1] = size(X1);
 [~, n2] = size(X2);
-assert(isa(X1, 'DistNormal'));
-assert(isa(X2, 'DistNormal'));
+assert(isa(X1, 'Distribution'));
+assert(isa(X2, 'Distribution'));
 
 if X1(1).d ==1
     % operation on obj array can be expensive in Matlab ...

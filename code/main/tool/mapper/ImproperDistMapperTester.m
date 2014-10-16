@@ -54,6 +54,10 @@ classdef ImproperDistMapperTester < DistMapperTester
             % indices of improper output messages
             impInd=arrayfun(@(d)~d.isProper(), outDa.distArray);
             impOut=outDa.distArray(impInd);
+            if isempty(impOut)
+                display('No improper output messages.');
+                return;
+            end
             assert(isa(impOut, 'Distribution'));
             impn=length(impOut);
 
@@ -68,7 +72,7 @@ classdef ImproperDistMapperTester < DistMapperTester
             xlabel('Output means');
             ylabel('True means');
             title(sprintf('%d/%d improper output msgs (%s)', impn, nte, ...
-                class(impOut(1))));
+                class(outDa.distArray(1) )));
             grid on
             %axis square
             hold off

@@ -1,19 +1,17 @@
-function [ ] = kernel_param_cmaes( )
-%KERNEL_PARAM_CMAES Optimize kernel parameters for distribution regression with cma-es
+function [ ] = ichol_learn( )
+%ICHOL_LEARN test learning operator with incomplete Cholesky
 %
 
-seed=31;
+seed=32;
 oldRng=rng();
 rng(seed, 'twister');
 
 se=BundleSerializer();
-bunName='sigmoid_bw_proposal_5000';
+bunName='sigmoid_bw_proposal_10000';
 %bunName = 'sigmoid_fw_proposal_5000';
 % Nicolas's data. Has almost 30000 pairs.
 %bunName=sprintf('nicolas_sigmoid_bw');
 %bunName=sprintf('nicolas_sigmoid_fw');
-%bunName=sprintf('simplegauss_d1_bw_samcond_30000' );
-%bunName=sprintf('simplegauss_d1_fw_samcond_30000' );
 %bunName=sprintf('simplegauss_d1_bw_proposal_30000' );
 %bunName=sprintf('simplegauss_d1_fw_proposal_30000' );
 %bunName='lds_d3_tox_3000';
@@ -22,33 +20,37 @@ bundle=se.loadBundle(bunName);
 %n=5000;
 %n=25000;
 %[trBundle, teBundle] = bundle.partitionTrainTest(3000, 2000);
-[trBundle, teBundle] = bundle.partitionTrainTest(2000, 2000);
+[trBundle, teBundle] = bundle.partitionTrainTest(5000, 4000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(500, 300);
 
 %---------- options -----------
-candidate_primal_features=500;
-
-%----------
-learner=RFGJointEProdLearner();
-%learner=RFGProductEProdLearner();
-%learner=RFGMVMapperLearner();
+learner=ICholMapperLearner();
+inTensor = bundle.getInputTensorInstances();
+% median factors 
+medf = [1/3, 1, 3];
+%kernel_candidates=KEGaussian.productCandidatesAvgCov(inTensor, medf, 2000);
+% in computing KGGaussian, non-Gaussian distributions will be treated as a Gaussian.
+kernel_candidates = KGGaussian.productCandidatesAvgCov(inTensor, medf, 3000);
+display(sprintf('Totally %d kernel candidates for ichol.', length(kernel_candidates)));
 
 od=learner.getOptionsDescription();
 display(' Learner options: ');
 od.show();
-learner.opt('candidate_primal_features', candidate_primal_features);
-% ///// use CMA-ES //////
-learner.opt('use_cmaes', true);
 
 % set my options
-learner.opt('seed', 40);
-%learner.opt('num_primal_features', 1000);
+learner.opt('seed', seed);
+learner.opt('kernel_candidates', kernel_candidates );
+learner.opt('num_ho', 3);
+learner.opt('ho_train_size', 1000);
+learner.opt('ho_test_size', 500);
+learner.opt('chol_tol', 1e-15);
+learner.opt('chol_maxrank', 500);
 learner.opt('use_multicore', false);
-learner.opt('num_primal_features', 2000);
+learner.opt('reglist', [1e-4, 1e-2, 1]);
 
 s=learnMap(learner, trBundle, teBundle, bunName);
 n=length(trBundle)+length(teBundle);
-iden=sprintf('kernel_param_cmaes_%s_%s_%d.mat', class(learner), bunName, n);
+iden=sprintf('ichol_learn_%s_%s_%d.mat', class(learner), bunName, n);
 fpath=Expr.scriptSavedFile(iden);
 
 timeStamp=clock();

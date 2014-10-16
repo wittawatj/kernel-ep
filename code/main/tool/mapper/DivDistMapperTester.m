@@ -115,7 +115,6 @@ classdef DivDistMapperTester < DistMapperTester
 
             impInd=arrayfun(@(d)~d.isProper(), outDa.distArray);
             impOut=outDa.distArray(impInd);
-            assert(isa(impOut, 'Distribution'));
             impn=length(impOut);
 
             imCount=impn;
@@ -152,13 +151,13 @@ classdef DivDistMapperTester < DistMapperTester
             % Take the best, 2 median, and worst
             % green=predicted, red=ground truth
             figure
-            superTitle=sprintf('%s. Outputs %s', this.distMapper.shortSummary(), ...
-               class(outDa.get(1)));
-               annotation('textbox', [0 0.9 1 0.1], ...
-                   'String', superTitle, ...
-                   'EdgeColor', 'none', ...
-                   'HorizontalAlignment', 'center', ...
-                   'FontSize', 12)
+            %superTitle=sprintf('%s. Outputs %s', this.distMapper.shortSummary(), ...
+            %   class(outDa.get(1)));
+            %   annotation('textbox', [0 0.9 1 0.1], ...
+            %       'String', superTitle, ...
+            %       'EdgeColor', 'none', ...
+            %       'HorizontalAlignment', 'center', ...
+            %       'FontSize', 12)
             
             % best
             subplot(2, 2, 1);
@@ -177,10 +176,15 @@ classdef DivDistMapperTester < DistMapperTester
             this.plotOutputPairs(soOutDa.get(m2), soTrueOutDa.get(m2), ...
                 sprintf('Median prediction 2. Log div: %.3f', soLogDivs(m2)));
 
-            % worst 
+            % 75th percentile
+            p75 = floor(nte*0.75);
             subplot(2, 2, 4);
-            this.plotOutputPairs(soOutDa.get(nte), soTrueOutDa.get(nte), ...
-                sprintf('Worst prediction. Log div: %.3f', soLogDivs(nte)));
+            this.plotOutputPairs(soOutDa.get(p75), soTrueOutDa.get(p75), ...
+                sprintf('75th percentile. Log div: %.3f', soLogDivs(nte)));
+
+            % worst 
+            %this.plotOutputPairs(soOutDa.get(nte), soTrueOutDa.get(nte), ...
+            %    sprintf('Worst prediction. Log div: %.3f', soLogDivs(nte)));
         end
 
         function [Divs, outDa]=plotMeanVarianceErrors(this, testBundle)

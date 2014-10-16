@@ -22,27 +22,27 @@ kernel_candidates = op.kernel_candidates;
 assert(all(cellfun(@(k)(isa(k, 'Kernel')) , kernel_candidates) ));
 
 % list of regularization parameters.
-reglist = myProcessOptions(op, 'reglist', [1e-2, 1e-0, 10]);
+reglist = myProcessOptions(op, 'reglist', [1e-4, 1e-2, 1]);
 op.reglist = reglist;
 
 % Number of hold-outs :=h to perform. Train h times on different randomly
 % drawn h sets and test on a seperate nonoverlapping test set.
-num_ho = myProcessOptions(op, 'num_ho', 5 );
+num_ho = myProcessOptions(op, 'num_ho', 3 );
 assert(num_ho>=1, 'num_ho (#hold-outs) must be at least 1');
 op.num_ho = num_ho;
 
 % Training set size. Training and test sets are randomly drawn and non-overlapping.
 % Default = 80%
-train_size = myProcessOptions(op, 'train_size', floor(0.8*n));
-op.train_size = train_size;
+ho_train_size = myProcessOptions(op, 'ho_train_size', floor(0.8*n));
+op.ho_train_size = ho_train_size;
 
 % Test set size. Train and test sizes do not have to add up to n.
 % Default = 20%
-test_size = myProcessOptions(op, 'test_size',  n-train_size );
-op.test_size = test_size;
+ho_test_size = myProcessOptions(op, 'ho_test_size',  n-ho_train_size );
+op.ho_test_size = ho_test_size;
 
 % Tolerance for incomplete Cholesky on kernel matrix
-chol_tol = myProcessOptions(op, 'chol_tol', 1e-2);
+chol_tol = myProcessOptions(op, 'chol_tol', 1e-8);
 op.chol_tol = chol_tol;
 
 % Maximum rank (#rows of R) K~R'*R in incomplete Cholesky.
@@ -61,7 +61,7 @@ oldRng = rng;
 rng(seed);
 
 % Instances indices
-[TRI, TEI] = train_test_indices(num_ho, train_size, test_size, n, seed);
+[TRI, TEI] = train_test_indices(num_ho, ho_train_size, ho_test_size, n, seed);
 
 keval_func = @(kf)(eval_kernel(kf, In, Out, TRI, TEI, op));    
 if use_multicore
@@ -103,7 +103,8 @@ C.reglist = reglist;
 C.kernel_candidates = kernel_candidates;
 
 C.num_ho = num_ho;
-C.train_size = train_size;
+C.ho_train_size = ho_train_size;
+C.ho_test_size = ho_test_size;
 C.chol_tol = chol_tol;
 C.chol_maxrank = chol_maxrank;
 C.seed = seed;
