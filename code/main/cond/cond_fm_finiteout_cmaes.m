@@ -9,7 +9,7 @@ function [ C] = cond_fm_finiteout_cmaes( In, Out, op )
 %
 assert(nargin>=3, 'struct option (a structure) is mandatory');
 % In is likely to be a DistArray which is an Instances
-assert(isa(In, 'Instances'));
+assert(isa(In, 'TensorInstances'));
 assert(isnumeric(Out), 'Out must be a matrix');
 assert(In.count()==size(Out, 2), 'In and Out must have the same number of instances');
 
@@ -32,6 +32,7 @@ if strcmp(featuremap_mode, 'joint')
     [x0, cma_sigma, cma_opt] = fm_joint_initializer(In, Out, candidate_primal_features);
 
 elseif strcmp(featuremap_mode, 'product')
+    %nfEach = floor(candidate_primal_features^(1/In.tensorDim()));
     fmGenerator = @(params)fm_product_generator(params, candidate_primal_features);
     [x0, cma_sigma, cma_opt] = fm_product_initializer(In, Out, candidate_primal_features);
 
@@ -114,16 +115,18 @@ assert(mse >= 0);
 
 end
 
-function [fm] = fm_product_generator(params, nf)
+function [fm] = fm_product_generator(params, numFeatures)
     % params does not have lambda 
-    fm = RFGProductEProdMap(params, nf);
+    dim = length(params);
+    nfEach = floor(numFeatures^(1/dim));
+    fm = RFGProductEProdMap(params, nfEach);
 end
 
-function [x0, cma_sigma, cma_opt] = fm_product_initializer(In, Out, nf)
-    % nf = number of random features
+function [x0, cma_sigma, cma_opt] = fm_product_initializer(In, Out, numFeatures)
+    % nfEach = number of random features for each input
     %
     medf = 1;
-    FMs = RFGProductEProdMap.candidatesAvgCov(In, medf, nf );
+    FMs = RFGProductEProdMap.candidatesAvgCov(In, medf, numFeatures );
     fm = FMs{1};
 
     % let first dimension in x0 be the regularization parameter (lambda)

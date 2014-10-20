@@ -65,7 +65,7 @@ classdef RFGJointEProdLearner < DistMapperLearner
             st.seed=1;
             st.med_subsamples=1500;
             st.med_factors=[1/10, 1, 10];
-            st.candidate_primal_features=2000;
+            st.candidate_primal_features=1000;
             % 1e4 random features 
             st.num_primal_features=1e4;
             st.out_msg_distbuilder=[]; % override in constructor
@@ -116,7 +116,7 @@ classdef RFGJointEProdLearner < DistMapperLearner
                     candidate_primal_features, med_subsamples);
                 % set to options
                 this.opt('featuremap_candidates', FMcell);
-            end
+            nend
 
             op=this.options.toStruct();
             out_msg_distbuilder=op.out_msg_distbuilder;

@@ -35,8 +35,8 @@ function test_compareToExact()
     K=K1.*K2;
 
     % number of random features
-    numFeatures=499;
-    randMap=RFGProductEProdMap(gwidth2s, numFeatures);
+    nfEach = 10;
+    randMap=RFGProductEProdMap(gwidth2s, nfEach);
 
     T=TensorInstances({DistArray(D1), DistArray(D2)});
     Z=randMap.genFeatures(T);

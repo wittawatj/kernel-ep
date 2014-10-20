@@ -1,6 +1,6 @@
-classdef DNormalLogVarBuilder < DistNormalBuilder
-    %DNORMALLOGVARBUILDER DistBuilder for DistNormal by construct to/from a normal with 
-    %log variance
+classdef DNormalVarBuilder < DistNormalBuilder
+    %DNORMALVARBUILDER DistBuilder for DistNormal by construct to/from a normal with 
+    % variance
     %    Work only for 1d Gaussians.
     
     properties
@@ -20,8 +20,8 @@ classdef DNormalLogVarBuilder < DistNormalBuilder
             assert(dim==1);
 
             M1 = [D.mean];
-            LogVariance = log([D.variance]);
-            S = [M1; LogVariance];
+            Variance = [D.variance];
+            S = [M1; Variance];
         end
         
         function D=fromStat(this, S)
@@ -35,7 +35,7 @@ classdef DNormalLogVarBuilder < DistNormalBuilder
             assert(length(dim)==1);
             assert(dim==1);
             M = S(1,:);
-            V = exp(S(2,:));
+            V = S(2,:);
             D = DistNormal(M, V);
         end
 

@@ -98,6 +98,7 @@ classdef RFGProductEProdLearner < DistMapperLearner
             % cell array of DistArray's
             inputDistArrays=bundle.getInputBundles();
             tensorIn=TensorInstances(inputDistArrays);
+            inVars = tensorIn.tensorDim();
 
             if ~(isfield(op, 'featuremap_candidates') ...
                     && ~isempty(op.featuremap_candidates))
@@ -112,8 +113,9 @@ classdef RFGProductEProdLearner < DistMapperLearner
                 assert(candidate_primal_features>0);
                 med_subsamples=op.med_subsamples;
                 assert(med_subsamples>0);
+                nfEach = floor(candidate_primal_features^(1/inVars));
                 FMcell=RFGProductEProdMap.candidatesAvgCov(tensorIn, med_factors, ...
-                    candidate_primal_features, med_subsamples);
+                    nfEach, med_subsamples);
                 % set to options
                 this.opt('featuremap_candidates', FMcell);
             end

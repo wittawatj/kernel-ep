@@ -20,7 +20,7 @@ classdef RFGProductEProdMap < FeatureMap & PrimitiveSerializable
         % e^c (exponential in c!).
         numFeatures;
 
-        % number of features for each internal map
+        % number of features for each internal map. An integer.
         nfEach;
 
         % cell array of RFGEProdMap's. 
@@ -29,12 +29,14 @@ classdef RFGProductEProdMap < FeatureMap & PrimitiveSerializable
     end
     
     methods
-        function this=RFGProductEProdMap(gwidth2s, numFeatures)
+        function this=RFGProductEProdMap(gwidth2s, nfEach)
+            % nfEach = number of features for each input variable (not the total)
             assert(all(gwidth2s>0));
-            assert(numFeatures>0);
+            assert(nfEach>0);
             this.gwidth2s=gwidth2s;
             % this.numFeatures may change later if numFeatures/c is not integer.
-            this.numFeatures=numFeatures;
+            this.nfEach = nfEach;
+            this.numFeatures=nfEach^length(gwidth2s);
             this.eprodMaps={};
         end
 
@@ -107,7 +109,9 @@ classdef RFGProductEProdMap < FeatureMap & PrimitiveSerializable
         end
 
         function fm=cloneParams(this, numFeatures)
-            fm=RFGProductEProdMap(this.gwidth2s, numFeatures);
+            dim = length(this.gwidth2s);
+            nfEach = floor(numFeatures^(1/dim));
+            fm=RFGProductEProdMap(this.gwidth2s, nfEach);
         end
 
         function D=getNumFeatures(this)
@@ -141,14 +145,18 @@ classdef RFGProductEProdMap < FeatureMap & PrimitiveSerializable
                 assert(isa(T, 'TensorInstances'));
                 c=T.tensorDim();
                 maps=cell(1, c);
-                nfEach=max(2, floor(this.numFeatures^(1/c)) );
-                for i=1:c
-                    maps{i}=RFGEProdMap(this.gwidth2s(i), nfEach);
+                if c==1
+                    % 1 input variable
+                    maps{1}=RFGEProdMap(this.gwidth2s(i), this.numFeatures);
+                    this.nfEach= this.numFeatures;
+                else 
+                    nfEach = max(2, floor(this.numFeatures^(1/c)));
+                    this.nfEach = nfEach;
+                    for j=1:c
+                        maps{j}=RFGEProdMap(this.gwidth2s(j), nfEach);
+                    end
                 end
                 this.eprodMaps=maps;
-                % The total numFeatures <= the original numFeatures
-                this.numFeatures=nfEach^c;
-                this.nfEach = nfEach;
 
             end
         end
@@ -181,9 +189,10 @@ classdef RFGProductEProdMap < FeatureMap & PrimitiveSerializable
 
             % total number of candidats = len(medf). Quite cheap.
             FMs = cell(1, length(medf));
+            nfEach = floor(numFeatures^(1/numInput));
             for ci=1:length(medf)
                 gwidth2s=meanVars*medf(ci);
-                map = RFGProductEProdMap(gwidth2s, numFeatures);
+                map = RFGProductEProdMap(gwidth2s, nfEach);
                 FMs{ci} = map;
             end
         end %end candidates() method
