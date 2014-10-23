@@ -1,9 +1,7 @@
 function [ C] = cond_ho_finiteout( In, Out, op )
 %COND_HO_FINITEOUT Generic repeated hold-out procesure for selecting kernel
-%parameters for conditional mean embedding
+%parameters for ridge regression
 %   - Learn C_{Out|In}
-%   - The conditional mean embedding can take any number of inputs. This
-%   simply depends on the Kernel used (kernel on tensor product space).
 %   - Use incomplete Cholesky on the kernel matrix. Factorization option
 %   can be specified in op (structure).
 %   - In is an input Instances objects.

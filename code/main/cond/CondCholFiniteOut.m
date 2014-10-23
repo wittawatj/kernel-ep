@@ -67,7 +67,7 @@ classdef CondCholFiniteOut < InstancesMapper
             nte=length(Xin);
             Zout=zeros(size(this.ZOutR3, 1), nte);
             % process (cols) instances at a time
-            cols=200;
+            cols=400;
             fi=1;
             InAll=In.getAll();
 
@@ -99,6 +99,16 @@ classdef CondCholFiniteOut < InstancesMapper
         function [Op, C] = learn_operator(In, Out,  op)
             assert(isa(In, 'Instances'));
             [ C] = cond_ho_finiteout( In, Out, op );
+            ichol = C.bkernel_ichol;
+            kfunc = C.bkernel;
+            lambda = C.blambda;
+            Op = CondCholFiniteOut(ichol.R, In, Out, kfunc, lambda);
+        end
+
+        function [Op, C] = learn_operator_cmaes(In, Out,  op)
+            % Learn the ichol operator with blac-box optimization CMA-ES
+            assert(isa(In, 'Instances'));
+            [ C] = cond_ho_finiteout_cmaes( In, Out, op );
             ichol = C.bkernel_ichol;
             kfunc = C.bkernel;
             lambda = C.blambda;

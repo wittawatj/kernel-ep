@@ -120,7 +120,8 @@ classdef DistArray < Distribution & Instances
         end
         
         function Data=getAll(this)
-            Data = this.distArray;
+            %Data = this.distArray;
+            Data = this;
         end
         
         function Ins=instances(this, Ind)

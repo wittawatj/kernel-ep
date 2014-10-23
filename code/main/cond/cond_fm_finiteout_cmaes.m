@@ -51,10 +51,10 @@ display(cma_sigma);
 
 [xmin, fmin, counteval, stopflag, cma_out, cma_bestever]= cmaes(func, x0, cma_sigma, cma_opt);
 
-% At this point, we have bri, bfi
 C.minerr = cma_bestever.f;
 C.xmin = cma_bestever.x;
 C.x0 = x0;
+% the first index is for regularization parameter
 C.bfeaturemap = fmGenerator(cma_bestever.x(2:end));
 C.blambda = cma_bestever.x(1);
 C.cma_sigma = cma_sigma;
@@ -195,6 +195,7 @@ end
 function cma_opt = defaultCMAOpt(xlength)
 
     cma_opt = struct();
+    % Stop if the objective function value is below StopFitness
     cma_opt.StopFitness = 1e-8;
     % Each function evaluation involves O(nf^3) (LOOCV with nf dims)
     cma_opt.MaxFunEvals = 100;

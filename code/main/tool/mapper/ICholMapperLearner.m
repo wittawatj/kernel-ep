@@ -45,10 +45,12 @@ classdef ICholMapperLearner < DistMapperLearner
             kv.chol_tol=['Tolerance for incomplete Cholesky on kernel matrix.'];
             kv.chol_maxrank=['Maximum incomplete Cholesky rank. #rows of R in '...
                 'K~R''R.'];
+            kv.chol_maxrank_train = ['Maximum incomplete Cholesky rank for training.']
             kv.reglist=['list of regularization parameter candidates for ridge '...
                 'regression.'];
             kv.use_multicore=['If true, use multicore package.'];
-
+            kv.use_cmaes = ['True to use cma-es black-box optimization for parameter tuning'];
+            kv.kernel_mode = ['Kernel mode. Only matter if use_cmaes = true. See cond_ho_finiteout_cmaes.']
             od=OptionsDescription(kv);
         end
 
@@ -63,8 +65,10 @@ classdef ICholMapperLearner < DistMapperLearner
             st.num_ho=5;
             st.chol_tol=1e-8;
             st.chol_maxrank=600;
+            st.chol_maxrank_train=100;
             st.reglist=[1e-2, 1, 100];
             st.use_multicore=true;
+            st.use_cmaes = false;
 
             Op=Options(st);
         end
@@ -94,11 +98,6 @@ classdef ICholMapperLearner < DistMapperLearner
             % learn a DistMapper given the training data in MsgBundle.
             op=this.options.toStruct();
 
-            if ~(isfield(op, 'kernel_candidates') ...
-                    && ~isempty(op.kernel_candidates))
-                error('option kernel_candidates must be set.')
-            end
-
             % cell array of DistArray's
             inputDistArrays=bundle.getInputBundles();
             tensorIn=TensorInstances(inputDistArrays);
@@ -110,7 +109,16 @@ classdef ICholMapperLearner < DistMapperLearner
             op.ho_test_size=op.ho_test_size;
             assert(op.ho_train_size+op.ho_test_size<=n, '#Train and test samples exceed total samples');
 
-            [Op, C]=CondCholFiniteOut.learn_operator(tensorIn, outStat, op);
+            if this.opt('use_cmaes')
+                %op.kernel_mode = this.opt('kernel_mode');
+                [Op, C]=CondCholFiniteOut.learn_operator_cmaes(tensorIn, outStat, op);
+            else
+                if ~(isfield(op, 'kernel_candidates') ...
+                        && ~isempty(op.kernel_candidates))
+                    error('option kernel_candidates must be set.')
+                end
+                [Op, C]=CondCholFiniteOut.learn_operator(tensorIn, outStat, op);
+            end
             assert(isa(Op, 'InstancesMapper'));
             gm=GenericMapper(Op, out_msg_distbuilder, bundle.numInVars());
 

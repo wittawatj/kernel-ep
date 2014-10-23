@@ -140,7 +140,7 @@ classdef IncompChol < handle
             R = R(1:T, :);
             I = I(1:T);
 %             nu = nu(1:T);
-            display(sprintf('IncompChol returns with rank %d', T));
+            %display(sprintf('IncompChol returns with rank %d', T));
         end
         
     end

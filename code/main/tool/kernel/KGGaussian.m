@@ -8,10 +8,14 @@ classdef KGGaussian < Kernel
     %
     % Input: X1, X2 = 1xn array of DistNormal.
     %
+    % !! THIS ONLY WORKS FOR 1D GAUSSIAN FOR NOW !!
+    %
     properties (SetAccess=private)
         % Gaussian kernel for embedding
         kegauss;
-        % width2 for mean embeddings
+        % width2 for mean embeddings. 
+        % Generall there should be one parameter for each dimension of the 
+        % input distributions. !! DO THIS LATER !!
         embed_width2;
         % width2 for the outer Gaussian kernel on the mean embeddings.
         width2;
@@ -69,7 +73,7 @@ classdef KGGaussian < Kernel
         end
         
         function s=shortSummary(this)
-            s = sprintf('KGGaussian(%.2g, %.2g)', this.embed_width2, this.width2 );
+            s = sprintf('%s(%.2g, %.2g)', mfilename, this.embed_width2, this.width2 );
         end
     end
     
