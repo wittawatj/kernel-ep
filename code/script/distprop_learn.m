@@ -1,5 +1,5 @@
-function [ ] = test_kllosslearner( )
-% test KLLossLearner
+function [ ] = distprop_learn( )
+% Learn with DistPropLearner
 %
 
 seed=34;
@@ -7,51 +7,42 @@ oldRng=rng();
 rng(seed, 'twister');
 
 se=BundleSerializer();
-%bunName='sigmoid_bw_proposal_5000';
-%bunName='sigmoid_bw_nolowvar_7000';
+%bunName='sigmoid_bw_proposal_10000';
+bunName='sigmoid_bw_proposal_5000';
 %bunName = 'sigmoid_fw_proposal_5000';
 % Nicolas's data. Has almost 30000 pairs.
-bunName=sprintf('nicolas_sigmoid_bw');
+%bunName=sprintf('nicolas_sigmoid_bw');
 %bunName=sprintf('nicolas_sigmoid_fw');
-%bunName=sprintf('simplegauss_d1_bw_samcond_30000' );
-%bunName=sprintf('simplegauss_d1_fw_samcond_30000' );
 %bunName=sprintf('simplegauss_d1_bw_proposal_30000' );
 %bunName=sprintf('simplegauss_d1_fw_proposal_30000' );
-%bunName='lds_d3_tox_3000';
 bundle=se.loadBundle(bunName);
 
 %n=5000;
 %n=25000;
 [trBundle, teBundle] = bundle.partitionTrainTest(2000, 3000);
-%[trBundle, teBundle] = bundle.partitionTrainTest(5000, 5000);
+%[trBundle, teBundle] = bundle.partitionTrainTest(8000, 2000);
+%[trBundle, teBundle] = bundle.partitionTrainTest(20000, 5000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(500, 300);
 
-%----------
-learner=KLLossLearner();
+%---------- options -----------
+learner=DistPropLearner();
+%inTensor = bundle.getInputTensorInstances();
 
 od=learner.getOptionsDescription();
 display(' Learner options: ');
 od.show();
 
 % set my options
-% The number of random features during the optimization has to be the same 
-% as the test-time number because we directly optimize W which depends on 
-% nf.
-nf = 20000;
-% parameters here are obtained by what are chosen by kernel_param_cmaes
-%feature_map = RFGJointEProdMap([0.0336, 49.9206], nf);
-%feature_map = RFGProductEProdMap([0.0339, 50.4895], floor(sqrt(nf)));
-feature_map = DistPropMap(DistPropLearner.toInputVarTypes(trBundle.getInputBundles()));
-%feature_map = RFGProductEProdMap([0.01, 1.0], floor(sqrt(nf)));
 learner.opt('seed', seed);
-learner.opt('feature_map', feature_map);
-learner.opt('minibatch_size', length(trBundle));
-learner.opt('max_gd_iter', 100);
-learner.opt('reg_param', 1e0);
+%learner.opt('out_msg_distbuilder', DNormalLogVarBuilder());
+learner.opt('out_msg_distbuilder', DNormalVarBuilder());
+%learner.opt('out_msg_distbuilder', DistNormalBuilder());
+learner.opt('use_multicore', false);
+learner.opt('reglist', 10.^(-4:0.5:1));
 
 s=learnMap(learner, trBundle, teBundle, bunName);
 n=length(trBundle)+length(teBundle);
-iden=sprintf('kllosslearner_%s_%s_%d.mat', class(learner), bunName, n);
+iden=sprintf('distprop_learn_%s_%s_%d.mat', class(learner), bunName, n);
 fpath=Expr.scriptSavedFile(iden);
 
 timeStamp=clock();

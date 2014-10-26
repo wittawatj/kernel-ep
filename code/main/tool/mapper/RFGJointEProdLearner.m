@@ -116,7 +116,7 @@ classdef RFGJointEProdLearner < DistMapperLearner
                     candidate_primal_features, med_subsamples);
                 % set to options
                 this.opt('featuremap_candidates', FMcell);
-            nend
+            end
 
             op=this.options.toStruct();
             out_msg_distbuilder=op.out_msg_distbuilder;

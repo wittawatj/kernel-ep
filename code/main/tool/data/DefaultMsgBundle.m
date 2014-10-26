@@ -21,7 +21,7 @@ classdef DefaultMsgBundle < MsgBundle
     methods
         function this=DefaultMsgBundle(outDistArray, varargin)
             % varargin{i} is DistArray for variable i
-            assert(isa(outDistArray, 'DistArray'));
+            assert(isa(outDistArray, 'DistArray'), 'output is not a DistArray');
             assert(~isempty(varargin), 'at least one input is needed.');
             C = varargin;
             for i=1:length(C)
