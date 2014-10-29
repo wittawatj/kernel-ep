@@ -35,7 +35,8 @@ od.show();
 % set my options
 learner.opt('seed', seed);
 %learner.opt('out_msg_distbuilder', DNormalLogVarBuilder());
-learner.opt('out_msg_distbuilder', DNormalVarBuilder());
+%learner.opt('out_msg_distbuilder', DNormalVarBuilder());
+learner.opt('out_msg_distbuilder', DNormalSDBuilder());
 %learner.opt('out_msg_distbuilder', DistNormalBuilder());
 learner.opt('use_multicore', false);
 learner.opt('reglist', 10.^(-4:0.5:1));

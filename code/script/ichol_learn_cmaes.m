@@ -7,7 +7,7 @@ oldRng=rng();
 rng(seed, 'twister');
 
 se=BundleSerializer();
-bunName='sigmoid_bw_proposal_50000';
+bunName='sigmoid_bw_proposal_5000';
 %bunName = 'sigmoid_fw_proposal_5000';
 % Nicolas's data. Has almost 30000 pairs.
 %bunName=sprintf('nicolas_sigmoid_bw');
@@ -19,13 +19,13 @@ bundle=se.loadBundle(bunName);
 
 %n=5000;
 %n=25000;
-[trBundle, teBundle] = bundle.partitionTrainTest(40000, 10000);
+%[trBundle, teBundle] = bundle.partitionTrainTest(40000, 10000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(5000, 4000);
-%[trBundle, teBundle] = bundle.partitionTrainTest(1000, 300);
+[trBundle, teBundle] = bundle.partitionTrainTest(2000, 3000);
 
 %---------- options -----------
 learner=ICholMapperLearner();
-inTensor = bundle.getInputTensorInstances();
+%inTensor = bundle.getInputTensorInstances();
 
 od=learner.getOptionsDescription();
 display(' Learner options: ');
@@ -34,6 +34,7 @@ od.show();
 % set my options
 learner.opt('seed', seed);
 %learner.opt('out_msg_distbuilder', DNormalLogVarBuilder());
+learner.opt('out_msg_distbuilder', DNormalSDBuilder());
 learner.opt('use_cmaes', true);
 learner.opt('kernel_mode', 'kggauss');
 learner.opt('num_ho', 2);

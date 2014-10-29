@@ -22,7 +22,7 @@ bundle=se.loadBundle(bunName);
 %n=5000;
 %n=25000;
 %[trBundle, teBundle] = bundle.partitionTrainTest(3000, 2000);
-[trBundle, teBundle] = bundle.partitionTrainTest(2000, 2000);
+[trBundle, teBundle] = bundle.partitionTrainTest(2000, 3000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(500, 300);
 
 %---------- options -----------
@@ -37,11 +37,12 @@ od=learner.getOptionsDescription();
 display(' Learner options: ');
 od.show();
 learner.opt('candidate_primal_features', candidate_primal_features);
+learner.opt('out_msg_distbuilder', DNormalSDBuilder());
 % ///// use CMA-ES //////
 learner.opt('use_cmaes', true);
 
 % set my options
-learner.opt('seed', 40);
+learner.opt('seed', seed);
 %learner.opt('num_primal_features', 1000);
 learner.opt('use_multicore', false);
 learner.opt('num_primal_features', 2000);

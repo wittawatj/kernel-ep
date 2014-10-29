@@ -220,7 +220,7 @@ function sigmas=shrinkage(sigmas)
     %
     while max(sigmas)/min(sigmas) > 1e3 
         I = sigmas==max(sigmas);
-        sigmas(I) = sigmas(I)/1.5;
+        sigmas(I) = sigmas(I)*0.9;
 
     end
     

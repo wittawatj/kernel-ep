@@ -7,11 +7,11 @@ oldRng=rng();
 rng(seed, 'twister');
 
 se=BundleSerializer();
-%bunName='sigmoid_bw_proposal_5000';
+bunName='sigmoid_bw_proposal_5000';
 %bunName='sigmoid_bw_nolowvar_7000';
 %bunName = 'sigmoid_fw_proposal_5000';
 % Nicolas's data. Has almost 30000 pairs.
-bunName=sprintf('nicolas_sigmoid_bw');
+%bunName=sprintf('nicolas_sigmoid_bw');
 %bunName=sprintf('nicolas_sigmoid_fw');
 %bunName=sprintf('simplegauss_d1_bw_samcond_30000' );
 %bunName=sprintf('simplegauss_d1_fw_samcond_30000' );

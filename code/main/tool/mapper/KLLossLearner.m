@@ -78,6 +78,8 @@ classdef KLLossLearner < DistMapperLearner
     methods (Access=private)
         function [gm, C]=learn1DGaussian(this, bundle)
             % cell array of DistArray's
+            % Cannot just change to arbitrary DistBuilder because the derivative 
+            % depends on what is output by the operator.
             distBuilder = DNormalLogVarBuilder();
             %distBuilder = DNormalVarBuilder();
             inputDistArrays=bundle.getInputBundles();
