@@ -1,8 +1,10 @@
 classdef KProduct < Kernel
     %KPRODUCT A product kernel. 
-    % Take multiple other kernels and form a product kernel. This is a meta
+    % - Take multiple other kernels and form a product kernel. This is a meta
     % kernel in the sense that it does nothing by its own. It relies on the
     % specified input kernels.
+    % - Can be used with TensorInstances
+    %
     
     properties (SetAccess=private)
         % cell array of Kernel's

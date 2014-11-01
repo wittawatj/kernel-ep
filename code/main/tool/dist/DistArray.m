@@ -88,6 +88,10 @@ classdef DistArray < Distribution & Instances
             names=this.distArray(1).getParamNames();
         end
 
+        function t=getDistType(this)
+            t = class(this.distArray);
+        end
+
         % subsref override 
         function D=subsref(this, S)
             % Only overriding the usage of this(1:3) so that it behaves like 

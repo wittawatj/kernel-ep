@@ -43,6 +43,10 @@ op.ho_test_size = ho_test_size;
 chol_tol = myProcessOptions(op, 'chol_tol', 1e-8);
 op.chol_tol = chol_tol;
 
+% Maximum rank (#rows of R) K~R'*R in incomplete Cholesky for training
+chol_maxrank_train = myProcessOptions(op, 'chol_maxrank_train', max(n, 300) );
+op.chol_maxrank_train = chol_maxrank_train;
+
 % Maximum rank (#rows of R) K~R'*R in incomplete Cholesky.
 chol_maxrank = myProcessOptions(op, 'chol_maxrank', max(n, 500) );
 op.chol_maxrank = chol_maxrank;
@@ -104,6 +108,7 @@ C.num_ho = num_ho;
 C.ho_train_size = ho_train_size;
 C.ho_test_size = ho_test_size;
 C.chol_tol = chol_tol;
+C.chol_maxrank_train = chol_maxrank_train;
 C.chol_maxrank = chol_maxrank;
 C.seed = seed;
 C.train_indices = TRI;
@@ -126,13 +131,14 @@ Z = Out;
 % Incomplete Cholesky of the best kernel candidate
 
 assert(isa(kfunc, 'Kernel'));
-% It is user's responsibility to make sure the kernel can support
-% instances in In.
-% IChol on full kernel matrix
-ichol = IncompChol(In, kfunc, chol_tol, chol_maxrank);
 
 HR = inf(num_ho, length(reglist));
 for hoi=1:num_ho
+    % It is user's responsibility to make sure the kernel can support
+    % instances in In.
+    % IChol on full kernel matrix
+    ichol = IncompChol(In.instances(TRI(hoi, :)), kfunc, chol_tol, chol_maxrank_train);
+
     % Make test index
     teI = TEI(hoi, :);
     % Make training index
@@ -143,7 +149,8 @@ for hoi=1:num_ho
     Inte = In.get(teI);
     
     % reduced Cholesky matrix on training set
-    Rr = ichol.R(:, trI);
+    %Rr = ichol.R(:, trI);
+    Rr = ichol.R;
     Krs = kfunc.eval(Intr, Inte); %tr x te
     RrKrs = Rr*Krs;
     Ztr = Z(:, trI);

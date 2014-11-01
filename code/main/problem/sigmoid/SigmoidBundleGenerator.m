@@ -30,14 +30,14 @@ classdef SigmoidBundleGenerator < BundleGenerator & HasOptions
         function Op=getDefaultOptions(this)
             st=struct();
             st.seed=1;
-            st.in_proposal=DistNormal(0, 8);
+            st.in_proposal=DistNormal(0, 15);
             % X is beta in p(x|t)
             st.var1_distbuilder = DistBetaBuilder();
             % T is Gaussian in p(x|t)
             st.var2_distbuilder= DistNormalBuilder();
             st.iw_samples=2e5;
             % Should we sample_cond_msg ? 
-            st.sample_cond_msg=true;
+            st.sample_cond_msg=false;
 
             Op=Options(st);
         end
@@ -119,8 +119,6 @@ classdef SigmoidBundleGenerator < BundleGenerator & HasOptions
             %
 %             con = 200;
             % Uniformly random peak locations in [from, 1-from]
-            % Should focus on low variance because we will observe X and represent it
-            % with a Beta which is close to a PointMass
             
 %             fplot( @(x)pdf('gamma', x,  1 ,10), [0 , 100])
             con = gamrnd(1, 10, 1, N);

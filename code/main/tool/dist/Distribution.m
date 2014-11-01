@@ -22,6 +22,9 @@ classdef Distribution < handle & Density
         % The cell array must have the same length as this.parameters.
         names=getParamNames(this);
 
+        % Return the underlying Distribution type e.g., DistNormal
+        t=getDistType(this);
+
     end
     
     methods (Static)

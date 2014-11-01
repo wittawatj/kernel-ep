@@ -36,10 +36,10 @@ classdef DefaultMsgBundle < MsgBundle
             this.outDistArray = outDistArray;
         end
 
-        % index = 1,..getDegree(). Return a DistArray for the input dimenion 
+        % index = 1,..numInVars(). Return a DistArray for the input dimenion 
         % specified by the index.
         function distArray=getInputBundle(this, index)
-            assert(index <= this.getDegree() && index>=1);
+            assert(index <= this.numInVars() && index>=1);
             distArray=this.inDistArrays{index};
         end
 

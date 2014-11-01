@@ -131,6 +131,10 @@ classdef DistNormal < handle & GKConvolvable & Sampler ...
             end
         end
 
+        function t=getDistType(this)
+            t = mfilename;
+        end
+
         function names=getParamNames(this)
             names={'mean', 'variance'};
         end

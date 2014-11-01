@@ -106,6 +106,10 @@ classdef DistBeta < handle &  Sampler & Density & Distribution ...
 
         end
         
+        function t=getDistType(this)
+            t = mfilename;
+        end
+
         %%%%%%%%%%%%%%%%%%%%%%
         function s=saveobj(this)
             s.alpha=this.alpha;
