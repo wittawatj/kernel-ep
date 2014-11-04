@@ -9,7 +9,7 @@ rng(seed, 'twister');
 se=BundleSerializer();
 bunName='sigmoid_bw_proposal_10000';
 %bunName='sigmoid_bw_proposal_50000_v6';
-%bunName='sigmoid_bw_proposal_20000';
+%bunName='sigmoid_bw_proposal_25000';
 %bunName='sigmoid_bw_proposal_5000';
 %bunName = 'sigmoid_fw_proposal_5000';
 % Nicolas's data. Has almost 30000 pairs.
@@ -24,6 +24,7 @@ bundle=se.loadBundle(bunName);
 %n=25000;
 %[trBundle, teBundle] = bundle.partitionTrainTest(2000, 3000);
 [trBundle, teBundle] = bundle.partitionTrainTest(6000, 4000);
+%[trBundle, teBundle] = bundle.partitionTrainTest(10000, 10000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(40000, 10000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(500, 300);
 
@@ -50,15 +51,20 @@ od.show();
 % set my options
 learner.opt('seed', seed);
 learner.opt('out_msg_distbuilder', DNormalLogVarBuilder());
+%learner.opt('out_msg_distbuilder', DNormalSDBuilder());
 learner.opt('kernel_candidates', kernel_candidates );
 learner.opt('num_ho', 3);
-learner.opt('ho_train_size', 3000);
-learner.opt('ho_test_size', 3000);
+learner.opt('ho_train_size', 2000);
+learner.opt('ho_test_size', 2000);
+%learner.opt('ho_train_size', 200);
+%learner.opt('ho_test_size', 200);
+%learner.opt('chol_maxrank_train', 120);
+learner.opt('chol_maxrank_train', 100);
 learner.opt('chol_tol', 1e-15);
-learner.opt('chol_maxrank_train', 150);
-learner.opt('chol_maxrank', 1000);
+learner.opt('chol_maxrank', 2000);
 learner.opt('use_multicore', true);
 learner.opt('reglist', [1e-3, 1e-1, 1e-2, 1, 10]);
+learner.opt('separate_outputs', true);
 
 s=learnMap(learner, trBundle, teBundle, bunName);
 n=length(trBundle)+length(teBundle);

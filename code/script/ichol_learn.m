@@ -8,6 +8,7 @@ rng(seed, 'twister');
 
 se=BundleSerializer();
 bunName='sigmoid_bw_proposal_10000';
+%bunName='sigmoid_bw_proposal_5000';
 %bunName = 'sigmoid_fw_proposal_5000';
 % Nicolas's data. Has almost 30000 pairs.
 %bunName=sprintf('nicolas_sigmoid_bw');
@@ -20,14 +21,14 @@ bundle=se.loadBundle(bunName);
 %n=5000;
 %n=25000;
 %[trBundle, teBundle] = bundle.partitionTrainTest(3000, 2000);
-[trBundle, teBundle] = bundle.partitionTrainTest(5000, 4000);
+[trBundle, teBundle] = bundle.partitionTrainTest(6000, 4000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(500, 300);
 
 %---------- options -----------
 learner=ICholMapperLearner();
 inTensor = bundle.getInputTensorInstances();
 % median factors 
-medf = [1/3, 1, 3];
+medf = [1/10, 1/5, 1, 5, 10];
 %kernel_candidates=KEGaussian.productCandidatesAvgCov(inTensor, medf, 2000);
 % in computing KGGaussian, non-Gaussian distributions will be treated as a Gaussian.
 kernel_candidates = KGGaussian.productCandidatesAvgCov(inTensor, medf, 3000);
@@ -39,16 +40,19 @@ od.show();
 
 % set my options
 learner.opt('seed', seed);
-learner.opt('out_msg_distbuilder', DNormalLogVarBuilder());
+%learner.opt('out_msg_distbuilder', DNormalLogVarBuilder());
+learner.opt('out_msg_distbuilder', DNormalSDBuilder());
+
 learner.opt('kernel_candidates', kernel_candidates );
 learner.opt('num_ho', 3);
-learner.opt('ho_train_size', 1000);
-learner.opt('ho_test_size', 500);
+learner.opt('ho_train_size', 2000);
+learner.opt('ho_test_size', 2000);
 learner.opt('chol_tol', 1e-15);
 learner.opt('chol_maxrank_train', 100);
-learner.opt('chol_maxrank', 800);
-learner.opt('use_multicore', false);
-learner.opt('reglist', [1e-4, 1e-2, 1]);
+learner.opt('chol_maxrank', 1000);
+learner.opt('use_multicore', true);
+learner.opt('reglist', [1e-4, 1e-3, 1e-2, 1e-1 ,1 ]);
+learner.opt('separate_outputs', true);
 
 s=learnMap(learner, trBundle, teBundle, bunName);
 n=length(trBundle)+length(teBundle);

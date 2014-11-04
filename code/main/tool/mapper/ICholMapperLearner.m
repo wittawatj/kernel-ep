@@ -51,6 +51,8 @@ classdef ICholMapperLearner < DistMapperLearner
             kv.use_multicore=['If true, use multicore package.'];
             kv.use_cmaes = ['True to use cma-es black-box optimization for parameter tuning'];
             kv.kernel_mode = ['Kernel mode. Only matter if use_cmaes = true. See cond_ho_finiteout_cmaes.']
+            kv.separate_outputs = ['Treat each output as an independent problem.', ...
+            'No parameter sharing between outputs. This increases the number of parameters.'];
             od=OptionsDescription(kv);
         end
 
@@ -69,6 +71,7 @@ classdef ICholMapperLearner < DistMapperLearner
             st.reglist=[1e-2, 1, 100];
             st.use_multicore=true;
             st.use_cmaes = false;
+            st.separate_outputs = false;
 
             Op=Options(st);
         end
@@ -110,17 +113,49 @@ classdef ICholMapperLearner < DistMapperLearner
             assert(op.ho_train_size+op.ho_test_size<=n, '#Train and test samples exceed total samples');
 
             if this.opt('use_cmaes')
-                %op.kernel_mode = this.opt('kernel_mode');
-                [Op, C]=CondCholFiniteOut.learn_operator_cmaes(tensorIn, outStat, op);
+                if this.opt('separate_outputs')
+                    % treat each output as a separate problem.
+                    p = size(outStat, 1);
+                    instancesMappers = cell(1, p);
+                    for i=1:p
+                        outi = outStat(i, :);
+                        [Op, C]=CondCholFiniteOut.learn_operator_cmaes(tensorIn, outi, op);
+                        assert(isa(Op, 'InstancesMapper'));
+                        instancesMappers{i} = Op;
+                    end
+                    im = StackInstancesMapper(instancesMappers{:});
+                    gm=GenericMapper(im, out_msg_distbuilder, bundle.numInVars());
+
+                else
+                    %op.kernel_mode = this.opt('kernel_mode');
+                    [Op, C]=CondCholFiniteOut.learn_operator_cmaes(tensorIn, outStat, op);
+                    gm=GenericMapper(Op, out_msg_distbuilder, bundle.numInVars());
+                end
             else
+                % not use cma_es
                 if ~(isfield(op, 'kernel_candidates') ...
                         && ~isempty(op.kernel_candidates))
                     error('option kernel_candidates must be set.')
                 end
-                [Op, C]=CondCholFiniteOut.learn_operator(tensorIn, outStat, op);
+                if this.opt('separate_outputs')
+                    
+                    % treat each output as a separate problem.
+                    p = size(outStat, 1);
+                    instancesMappers = cell(1, p);
+                    for i=1:p
+                        outi = outStat(i, :);
+                        [Op, C]=CondCholFiniteOut.learn_operator(tensorIn, outi, op);
+                        assert(isa(Op, 'InstancesMapper'));
+                        instancesMappers{i} = Op;
+                    end
+                    im = StackInstancesMapper(instancesMappers{:});
+                    gm=GenericMapper(im, out_msg_distbuilder, bundle.numInVars());
+                else
+                    % share parameters
+                    [Op, C]=CondCholFiniteOut.learn_operator(tensorIn, outStat, op);
+                    gm=GenericMapper(Op, out_msg_distbuilder, bundle.numInVars());
+                end
             end
-            assert(isa(Op, 'InstancesMapper'));
-            gm=GenericMapper(Op, out_msg_distbuilder, bundle.numInVars());
 
         end
 

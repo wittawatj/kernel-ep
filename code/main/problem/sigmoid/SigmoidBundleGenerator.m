@@ -111,26 +111,22 @@ classdef SigmoidBundleGenerator < BundleGenerator & HasOptions
             
             % gen X
             
-            % If we observe an x=0.4, say, we want to represent it with a
-            % Beta distribution with a peak at 0.4 and with low variance.
-            % This can be done by setting alpha=x*1000, beta=1000-alpha.
-            % The constant 1000 can be changed to something else. The
-            % higher the lower the variance.
-            %
-%             con = 200;
-            % Uniformly random peak locations in [from, 1-from]
-            
 %             fplot( @(x)pdf('gamma', x,  1 ,10), [0 , 100])
-            con = gamrnd(1, 10, 1, N);
-            from = 0.01;
-            peakLocs = rand(1, N)*(1-from*2) + from;
-            AX = peakLocs.*con;
-            BX = con-AX;
+            %con = gamrnd(1, 10, 1, N);
+            %from = 0.01;
+            %peakLocs = rand(1, N)*(1-from*2) + from;
+            %AX = peakLocs.*con;
+            %BX = con-AX;
+            %X = DistBeta(AX, BX);
+            
+            AX = gamrnd(1, 20, 1, N);
+            BX = gamrnd(1, 20, 1, N);
             X = DistBeta(AX, BX);
-            assert(all([X.mean]>=from & [X.mean]<=1-from) )
+            %assert(all([X.mean]>=from & [X.mean]<=1-from) )
             
             % gen T
-            MT = randn(1, N)*sqrt(4);
+            %MT = randn(1, N)*sqrt(70); % cover -10 to 10
+            MT = rand(1, N)*30 - 15;
             VT = unifrnd(0.01, 100, 1, N);
             T = DistNormal(MT, VT);
             

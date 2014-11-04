@@ -7,10 +7,10 @@ oldRng=rng();
 rng(seed, 'twister');
 
 se=BundleSerializer();
-bunName='sigmoid_bw_proposal_5000';
+%bunName='sigmoid_bw_proposal_5000';
 %bunName = 'sigmoid_fw_proposal_5000';
 % Nicolas's data. Has almost 30000 pairs.
-%bunName=sprintf('nicolas_sigmoid_bw');
+bunName=sprintf('nicolas_sigmoid_bw');
 %bunName=sprintf('nicolas_sigmoid_fw');
 %bunName=sprintf('simplegauss_d1_bw_proposal_30000' );
 %bunName=sprintf('simplegauss_d1_fw_proposal_30000' );
@@ -20,8 +20,8 @@ bundle=se.loadBundle(bunName);
 %n=5000;
 %n=25000;
 %[trBundle, teBundle] = bundle.partitionTrainTest(40000, 10000);
-%[trBundle, teBundle] = bundle.partitionTrainTest(5000, 4000);
-[trBundle, teBundle] = bundle.partitionTrainTest(2000, 3000);
+[trBundle, teBundle] = bundle.partitionTrainTest(6000, 4000);
+%[trBundle, teBundle] = bundle.partitionTrainTest(2000, 3000);
 
 %---------- options -----------
 learner=ICholMapperLearner();
@@ -33,17 +33,18 @@ od.show();
 
 % set my options
 learner.opt('seed', seed);
-%learner.opt('out_msg_distbuilder', DNormalLogVarBuilder());
-learner.opt('out_msg_distbuilder', DNormalSDBuilder());
+learner.opt('out_msg_distbuilder', DNormalLogVarBuilder());
+%learner.opt('out_msg_distbuilder', DNormalSDBuilder());
 learner.opt('use_cmaes', true);
 learner.opt('kernel_mode', 'kggauss');
-learner.opt('num_ho', 2);
-learner.opt('ho_train_size', 1000);
-learner.opt('ho_test_size', 1000);
+learner.opt('num_ho', 3);
+learner.opt('ho_train_size', 2000);
+learner.opt('ho_test_size', 2000);
 learner.opt('chol_tol', 1e-12);
 learner.opt('chol_maxrank_train', 100);
 learner.opt('chol_maxrank', 1000);
-learner.opt('use_multicore', false);
+learner.opt('use_multicore', true);
+learner.opt('separate_outputs', true)
 
 s=learnMap(learner, trBundle, teBundle, bunName);
 n=length(trBundle)+length(teBundle);

@@ -9,9 +9,9 @@ rng(10);
 % messages from x 
 % messages from z 
 z = DistBeta(2, 3);
-n =  30;
-mx = linspace(-14, 14, n);
-vx = linspace(0.5, 50, n);
+n =  50;
+mx = linspace(-11, 14, n);
+vx = linspace(0.5, 80, n);
 %vx = linspace(100, 300, n);
 
 mmx = repmat(mx, [length(vx), 1]);
@@ -27,7 +27,11 @@ function plotOperatorOuts(mmx, vvx, z)
     %fname = 'ichol_learn_cmaes_ICholMapperLearner_sigmoid_bw_proposal_2000_800.mat';
     %fname = 'ichol_learn_laplace_ICholMapperLearner_sigmoid_bw_proposal_5000_5000.mat';
     %fname ='ichol_learn_laplace_ICholMapperLearner_sigmoid_bw_proposal_50000_50000.mat';
-    fname = 'ichol_learn_laplace_ICholMapperLearner_sigmoid_bw_proposal_10000_10000.mat';
+    %fname = 'ichol_learn_laplace_ICholMapperLearner_sigmoid_bw_proposal_10000_10000.mat';
+    %fname = 'ichol_learn_cmaes_ICholMapperLearner_sigmoid_bw_proposal_25000_20000.mat';
+    %fname ='ichol_learn_ICholMapperLearner_sigmoid_bw_proposal_10000_10000.mat';
+    %fname ='ichol_learn_ICholMapperLearner_sigmoid_bw_proposal_5000_5000.mat';
+    fname ='ichol_learn_laplace_ICholMapperLearner_sigmoid_bw_proposal_10000_10000.mat';
     sfile = Expr.scriptSavedFile(fname);
     loaded = load(sfile);
     s = loaded.s;
@@ -101,6 +105,10 @@ function plotGroundTruth(mmx, vvx, z)
 
     end
 
+    tox_mean = reshape(tox_mean, size(mmx));
+    tox_var = reshape(tox_var, size(vvx));
+    toz_mean = reshape(toz_mean, size(mmx));
+    toz_var = reshape(toz_var, size(vvx));
 
     plotMeanOutputs(mmx, vvx, tox_mean, z);
     title(sprintf('Report outgoing mean to x. Fix incoming m_z = Beta(%.2g, %.2g).', z.alpha, z.beta));
@@ -131,7 +139,7 @@ end
 function plotVarianceOutputs(mmx, vvx, to_var, z)
     figure
     hold on
-    C=contourf(mmx, log(vvx), to_mean, 20);
+    C=contourf(mmx, log(vvx), to_var, 20);
     %C=contourf(mmx./(vvx), -0.5./(vvx), log(to_var), 10);
     clabel(C);
     colorbar
