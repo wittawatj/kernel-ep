@@ -30,12 +30,13 @@ classdef SigmoidBundleGenerator < BundleGenerator & HasOptions
         function Op=getDefaultOptions(this)
             st=struct();
             st.seed=1;
-            st.in_proposal=DistNormal(0, 15);
+            %st.in_proposal=DistNormal(0, 15);
+            st.in_proposal=Grid1DSampler(-20, 20);
             % X is beta in p(x|t)
             st.var1_distbuilder = DistBetaBuilder();
             % T is Gaussian in p(x|t)
             st.var2_distbuilder= DistNormalBuilder();
-            st.iw_samples=2e5;
+            st.iw_samples=2e4;
             % Should we sample_cond_msg ? 
             st.sample_cond_msg=false;
 
@@ -119,15 +120,20 @@ classdef SigmoidBundleGenerator < BundleGenerator & HasOptions
             %BX = con-AX;
             %X = DistBeta(AX, BX);
             
-            AX = gamrnd(1, 20, 1, N);
-            BX = gamrnd(1, 20, 1, N);
+            %AX = gamrnd(1, 20, 1, N);
+            %BX = gamrnd(1, 20, 1, N);
+            %
+            AX = unifrnd(0.01, 20, 1, N);
+            BX = unifrnd(0.01, 20, 1, N);
             X = DistBeta(AX, BX);
+            
+            %X = DistBeta(repmat(2, 1, N), repmat(3, 1, N));
             %assert(all([X.mean]>=from & [X.mean]<=1-from) )
             
             % gen T
             %MT = randn(1, N)*sqrt(70); % cover -10 to 10
-            MT = rand(1, N)*30 - 15;
-            VT = unifrnd(0.01, 100, 1, N);
+            MT = unifrnd(-17, 17, 1, N);
+            VT = unifrnd(0.01, 200, 1, N);
             T = DistNormal(MT, VT);
             
             % A forward sampling function taking samples (array) from in_proposal and

@@ -7,7 +7,10 @@ oldRng=rng();
 rng(seed, 'twister');
 
 se=BundleSerializer();
+%bunName='sigmoid_bw_proposal_5000';
 bunName='sigmoid_bw_proposal_10000';
+%bunName='sigmoid_bw_proposal_50000';
+%bunName='sigmoid_bw_fixbeta_10000';
 %bunName='sigmoid_bw_proposal_50000_v6';
 %bunName='sigmoid_bw_proposal_25000';
 %bunName='sigmoid_bw_proposal_5000';
@@ -22,7 +25,7 @@ bundle=se.loadBundle(bunName);
 
 %n=5000;
 %n=25000;
-%[trBundle, teBundle] = bundle.partitionTrainTest(2000, 3000);
+%[trBundle, teBundle] = bundle.partitionTrainTest(3000, 2000);
 [trBundle, teBundle] = bundle.partitionTrainTest(6000, 4000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(10000, 10000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(40000, 10000);
@@ -32,7 +35,7 @@ bundle=se.loadBundle(bunName);
 learner=ICholMapperLearner();
 %inTensor = bundle.getInputTensorInstances();
 % median factors 
-medf = [1/10, 1/5, 1, 5, 10];
+medf = [1/5, 1/3, 1, 3 , 5];
 % make kernel candidates
 zfe = MVParamExtractor();
 %zfe = MLogVParamExtractor();
@@ -42,6 +45,10 @@ xfe = NatParamExtractor();
 %xfe = MLogVParamExtractor();
 
 kernel_candidates = getLaplaceKernelCandidates(bundle, zfe, xfe, medf);
+% limit kernel_candidates 
+c = length(kernel_candidates);
+J = randperm(c, min(c, 300));
+kernel_candidates = kernel_candidates(J);
 display(sprintf('Totally %d kernel candidates for ichol.', length(kernel_candidates)));
 
 od=learner.getOptionsDescription();
@@ -60,8 +67,8 @@ learner.opt('ho_test_size', 2000);
 %learner.opt('ho_test_size', 200);
 %learner.opt('chol_maxrank_train', 120);
 learner.opt('chol_maxrank_train', 100);
-learner.opt('chol_tol', 1e-15);
-learner.opt('chol_maxrank', 2000);
+learner.opt('chol_tol', 1e-12);
+learner.opt('chol_maxrank', 800);
 learner.opt('use_multicore', true);
 learner.opt('reglist', [1e-3, 1e-1, 1e-2, 1, 10]);
 learner.opt('separate_outputs', true);
@@ -83,14 +90,37 @@ function candidates = getLaplaceKernelCandidates(bundle, zfe, xfe, medf)
     x = bundle.getInputBundle(2);
     fz = zfe.extractFeatures(z);
     fx = xfe.extractFeatures(x);
-    zmed = meddistance(fz);
-    assert(zmed > 0);
-    xmed = meddistance(fx);
-    assert(xmed > 0);
-    zkernels = arrayfun(@(w)KLaplace(w, zfe), zmed*medf, 'UniformOutput', false);
-    xkernels = arrayfun(@(w)KLaplace(w, xfe), xmed*medf, 'UniformOutput', false);
-    candidates = KProduct.cross_product(zkernels, xkernels);
-    
+    % for each feature dimension, find the median 
+    zmeds = zeros(size(fz, 1), 1);
+    xmeds = zeros(size(fx, 1), 1);
+    for zi=1:length(zmeds)
+        zmeds(zi) = meddistance(fz(zi, :));
+    end
+    for xi=1:length(xmeds)
+        xmeds(xi) = meddistance(fx(xi, :));
+    end
+    zmeds = zmeds + rand(length(zmeds), 1);
+    assert(all(zmeds > 0));
+    assert(all(xmeds > 0));
+    % total number of candidats = len(medf)^totalDim
+    allMeds = [zmeds(:)', xmeds(:)'];
+    totalDim = length(allMeds);
+    totalComb = length(medf)^totalDim;
+    candidates = cell(1, totalComb);
+    % temporary vector containing indices
+    % Total combinations can be huge ! Be careful. Exponential in the 
+    % number of inputs
+    I = cell(1, totalDim);
+    for ci=1:totalComb
+        [I{:}] = ind2sub( length(medf)*ones(1, totalDim), ci);
+        II=cell2mat(I);
+        kerWidths= medf(II).*allMeds ;
+        kerzWidths = kerWidths(1:size(fz, 1));
+        kerxWidths = kerWidths( (size(fz, 1)+1):end);
+        kerz = KLaplace(kerzWidths, zfe);
+        kerx = KLaplace(kerxWidths, xfe);
+        candidates{ci} = KProduct({kerz, kerx});
+    end
 end
 
 function s=learnMap(learner, trBundle, teBundle, bunName)

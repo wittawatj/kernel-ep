@@ -201,7 +201,7 @@ function [X, T, Xout, Tout] = generateMsgs(X, T, op)
                 break;
 
             else
-                if j==iw_trials
+                if j==op.iw_trials
                     % not successful 
                     BadInd(end+1) = i;
                     % Assume mx and mt are somehow hard to deal with. Skip
