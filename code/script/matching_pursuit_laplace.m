@@ -44,8 +44,8 @@ assert(isnumeric(Ytr));
 mp = MatchingPursuit(Xtr, Ytr);
 
 % median factors 
-%medf = [1/10, 1/5, 1, 5, 10];
-medf = [ 1/5, 1, 5  ];
+medf = [1/10, 1/5, 1, 5, 10];
+%medf = [ 1/5, 1, 5  ];
 mp_reg = 1e-2;
 zfe = MVParamExtractor();
 %xfe = NatParamExtractor();
@@ -55,7 +55,7 @@ xfe = MLogVParamExtractor();
 fc_candidates = getLaplaceFCCandidates(trBundle, zfe, xfe, medf);
 % limit fc_candidates 
 c = length(fc_candidates);
-J = randperm(c, min(c, 100));
+J = randperm(c, min(c, 500));
 fc_candidates = fc_candidates(J);
 display(sprintf('Totally %d function class candidates.', length(fc_candidates)));
 
@@ -70,6 +70,7 @@ mp.opt('mp_reg', mp_reg);
 mp.opt('mp_subsample_proportion', 1.0);
 mp.opt('mp_max_iters', 200);
 mp.opt('mp_backfit_every', 1);
+mp.opt('mp_fc_subset', 100);
 % start matching pursuit
 mp.matchingPursuit();
 
@@ -116,6 +117,9 @@ function candidates=getLaplaceFCCandidates(trBundle, zfe, xfe, medf)
     % number of inputs
     I = cell(1, totalDim);
     fe = StackFeatureExtractor(zfe, xfe);
+    centerInstances = tensorTr;
+    centerFeatures = fe.extractFeatures(centerInstances);
+    inputFeatures = fe.extractFeatures(tensorTr);
     for ci=1:totalComb
         [I{:}] = ind2sub( length(medf)*ones(1, totalDim), ci);
         II=cell2mat(I);
@@ -123,8 +127,15 @@ function candidates=getLaplaceFCCandidates(trBundle, zfe, xfe, medf)
         kerzWidths = kerWidths(1:size(fz, 1));
         kerxWidths = kerWidths( (size(fz, 1)+1):end);
         widths = [kerzWidths(:); kerxWidths(:)];
-        centerInstances = tensorTr.instances(subI);
-        candidates{ci} = KLaplaceFC(widths, fe, centerInstances, tensorTr );
+        candidates{ci} = KLaplaceFC(widths, fe, centerInstances, tensorTr, ...
+            centerFeatures, inputFeatures);
+
+        % options
+        mp_subsample = max(floor(0.8*n), 2000);
+        candidates{ci}.opt('mp_subsample', mp_subsample)
+        mp_basis_subsample = max(length(centerInstances), 2000);
+        candidates{ci}.opt('mp_basis_subsample', mp_basis_subsample);
     end
+
 end
 

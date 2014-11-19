@@ -43,11 +43,11 @@ classdef MatchingPursuit < HasOptions
             kv.seed='random seed';
             kv.mp_function_classes = ['A cell array of MPFunctionClass s to consider'];
             kv.mp_reg = ['Regularization parameter for matching pursuit'];
-            kv.mp_subsample_proportion = ['Proportion of samples to consider in every iteration.', ...
-            ' Random subsampling will be used.'];
             kv.mp_max_iters = ['Maximum iterations to perform matching pursuit'];
             kv.mp_backfit_every = ['Perform backfit for every specified iterations'];
-            
+            kv.mp_fc_subset = ['The max number of subsets of function classes ', ...
+                'to consider in each iteration. Random subsampling function '...
+                'class candidates.'];
 
             od=OptionsDescription(kv);
         end
@@ -57,9 +57,9 @@ classdef MatchingPursuit < HasOptions
             st.seed=1;
             st.mp_function_classes = [];
             st.mp_reg = 1e-5;
-            st.mp_subsample_proportion = 1.0;
             st.mp_max_iters = 500;
             st.mp_backfit_every = 10;
+            st.mp_fc_subset = 500;
 
             Op=Options(st);
         end
@@ -92,11 +92,7 @@ classdef MatchingPursuit < HasOptions
             mp_backfit_every = this.opt('mp_backfit_every');
 
             nfc = length(mp_function_classes);
-            % best correlations to the residues for each function class
-            bestCR = zeros(1, nfc);
-            Gs = cell(1, nfc);
-            mementos = cell(1, nfc);
-            Wts = cell(1, nfc);
+            fc_subset = min(nfc, this.opt('mp_fc_subset'));
             % initialization
             R = Y;
             for t=1:mp_max_iters
@@ -109,8 +105,14 @@ classdef MatchingPursuit < HasOptions
                 end
                 %
                 % ### This can be parallelized.
-                for i=1:nfc
-                    fc = mp_function_classes{i};
+                % best correlations to the residues for each function class
+                bestCR = zeros(1, fc_subset);
+                Gs = cell(1, fc_subset);
+                mementos = cell(1, fc_subset);
+                Wts = cell(1, fc_subset);
+                Ifc = randperm(nfc, fc_subset);
+                for i=1:fc_subset
+                    fc = mp_function_classes{Ifc(i)};
                     [cr, G, wt, memento] = fc.findBestBasisFunction(R, mp_reg);
                     bestCR(i) = cr;
                     Gs{i} = G;
@@ -124,7 +126,7 @@ classdef MatchingPursuit < HasOptions
                 end
                 % Find the best g  (basis function)
                 [bestcr, gind] = max(bestCR);
-                mp_function_classes{gind}.markBestBasisFunction(mementos{gind});
+                mp_function_classes{Ifc(gind)}.markBestBasisFunction(mementos{gind});
                 G = Gs{gind};
                 wt = Wts{gind};
                 assert(length(G)==n);

@@ -3,6 +3,9 @@ classdef KLaplaceFC < MPFunctionClass
     %   .
     
     properties(SetAccess = protected)
+        % An instance of Options
+        options;
+
         % input samples. Instances. n samples.
         % Inherited
         %inputInstances;
@@ -32,32 +35,81 @@ classdef KLaplaceFC < MPFunctionClass
     end
     
     methods
-        function this = KLaplaceFC(widths, fe, centerInstances, inputInstances)
+        function this = KLaplaceFC(varargin)
+            %KLaplaceFC(widths, fe, centerInstances, inputInstances)
+            %KLaplaceFC(widths, fe, centerInstances, inputInstances, ...
+            %centerFeatures, inputFeatures)
+                
             % widths = parameters as in KLaplace
             % fe = a FeatureExtractor
             % laplaceCenters = instances to be used as centers for the kernel
+            in = varargin;
+            widths = in{1};
+            fe = in{2};
+            centerInstances = in{3};
+            inputInstances = in{4};
+
             assert(isnumeric(widths));
             assert(all(widths > 0));
             assert(isa(fe, 'FeatureExtractor'));
             assert(isa(inputInstances, 'Instances'));
             assert(isa(centerInstances, 'Instances'));
-
             this.widths = widths;
+            this.featureExtractor = fe;
             this.inputInstances = inputInstances;
+            this.markedInd = [];
             %this.centerInstances = centerInstances;
             % cached features on all samples.
             %
             % Users have to make sure that the specified FeatureExtractor is 
             % compatible with the samples.
-            this.inputFeatures = fe.extractFeatures(inputInstances);
-            this.featureExtractor = fe;
-            this.centerFeatures = fe.extractFeatures(centerInstances);
-            this.markedInd = [];
+
+            if nargin <= 4
+                
+                %KLaplaceFC(widths, fe, centerInstances, inputInstances)
+                this.centerFeatures = fe.extractFeatures(centerInstances);
+                this.inputFeatures = fe.extractFeatures(inputInstances);
+
+            elseif nargin <= 6
+                %KLaplaceFC(widths, fe, centerInstances, inputInstances, ...
+                %centerFeatures, inputFeatures)
+
+                centerFeatures = in{5};
+                inputFeatures = in{6};
+                this.centerFeatures = centerFeatures;
+                this.inputFeatures = inputFeatures;
+
+            end
+
+            this.options = this.getDefaultOptions();
+        end
+
+        % Return an instance of OptionsDescription describing possible options.
+        function od=getOptionsDescription(this)
+            % key-value pairs of open-description
+            kv=struct();
+            kv.seed='random seed';
+            kv.mp_subsample = ['Number of samples to consider in every iteration.', ...
+            ' Random subsampling will be used.'];
+            kv.mp_basis_subsample = ['Number of kernel centers (basis) to consider in ',...
+            'every iteration. Random subsampling.'];
+
+            od=OptionsDescription(kv);
+        end
+
+        function Op=getDefaultOptions(this)
+            st=struct();
+            st.seed=1;
+            st.mp_subsample = inf(1);
+            st.mp_basis_subsample = inf(1);
+
+            Op=Options(st);
         end
 
         function [crossRes, G, wt, searchMemento] = findBestBasisFunction(this, R, regParam)
             C = this.centerFeatures;
             
+            % R is dim(output) x #samples 
             if isempty(C) || length(this.markedInd) == size(this.centerFeatures, 2)
                 % If all candidates are selected,...
                 % no more candidates 
@@ -67,13 +119,14 @@ classdef KLaplaceFC < MPFunctionClass
                 return;
             end
             n = size(this.inputFeatures, 2);
-            % should externalize this as an option
-            % Evaluate on subset of training samples to reduce computation
-            subsample = 500;
-            warning('externalize subsample option')
+            subsample = this.opt('mp_subsample');
             If = randperm(n, min(subsample, n));
             totalBasis = size(this.centerFeatures, 2);
+            % Exclude already selected basis functions
             I = setdiff(1:totalBasis, this.markedInd);
+            % Subsample basis functions
+            basis_subsample = this.opt('mp_basis_subsample');
+            I = I(randperm(length(I), min(basis_subsample, length(I))));
             Kmat = this.evaluateOnTrainingCenterInd(I, If);
 
             % row vector. same length as the #center instances
@@ -83,6 +136,7 @@ classdef KLaplaceFC < MPFunctionClass
             % pick best basis function g by taking max cross correlation
             [crossRes, mi] = max(Cross);
             gind = I(mi);
+
             % Evaluate the function on full data set 
             G = this.evaluateOnTrainingCenterInd(gind, 1:n);
             % compute w

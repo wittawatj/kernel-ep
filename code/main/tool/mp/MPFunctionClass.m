@@ -1,4 +1,4 @@
-classdef MPFunctionClass < handle
+classdef MPFunctionClass < handle & HasOptions
     %MPFUNCTIONCLASS A set of functions to be used with MatchingPursuit.
     %   - The dictionary in matching pursuit is represented with MPDictionary
     %   which contains multiple MPFunctionClass's
@@ -7,6 +7,10 @@ classdef MPFunctionClass < handle
     properties(SetAccess=protected)
         % input samples. Instances
         inputInstances;
+
+    end
+
+    properties
 
     end
     

@@ -33,6 +33,7 @@ function test_density()
 end
 
 function test_isProper()
+    rng(2);
     d1 = DistNormal(2, 3);
     assert(d1.isProper());
     d2 = DistNormal([1;2], wishrnd(eye(2), 5) + 3*eye(2));
