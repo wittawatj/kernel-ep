@@ -29,6 +29,8 @@ classdef KernelFeatureFC < MPFunctionClass
         % W matrix where each column is one w_i of length dim(output)
         weightMat = [];
 
+        % kernel parameters. Unrestricted type and size.
+        kerParams;
     end
     
     methods(Abstract)
@@ -37,6 +39,54 @@ classdef KernelFeatureFC < MPFunctionClass
     end
 
     methods
+        function this = KernelFeatureFC(varargin)
+            %KernelFeatureFC(kerParams, fe, centerInstances, inputInstances)
+            %KernelFeatureFC(kerParams, fe, centerInstances, inputInstances, ...
+            %centerFeatures, inputFeatures)
+                
+            % kerParams = kernel parameters 
+            % fe = a FeatureExtractor
+            % laplaceCenters = instances to be used as centers for the kernel
+            in = varargin;
+            kerParams = in{1};
+            fe = in{2};
+            centerInstances = in{3};
+            inputInstances = in{4};
+
+            assert(isnumeric(kerParams));
+            assert(all(kerParams > 0));
+            assert(isa(fe, 'FeatureExtractor'));
+            assert(isa(inputInstances, 'Instances'));
+            assert(isa(centerInstances, 'Instances'));
+            this.kerParams = kerParams;
+            this.featureExtractor = fe;
+            this.inputInstances = inputInstances;
+            this.markedInd = [];
+            %this.centerInstances = centerInstances;
+            % cached features on all samples.
+            %
+            % Users have to make sure that the specified FeatureExtractor is 
+            % compatible with the samples.
+
+            if nargin <= 4
+                
+                %KernelFeatureFC(kerParams, fe, centerInstances, inputInstances)
+                this.centerFeatures = fe.extractFeatures(centerInstances);
+                this.inputFeatures = fe.extractFeatures(inputInstances);
+
+            elseif nargin <= 6
+                %KernelFeatureFC(kerParams, fe, centerInstances, inputInstances, ...
+                %centerFeatures, inputFeatures)
+
+                centerFeatures = in{5};
+                inputFeatures = in{6};
+                this.centerFeatures = centerFeatures;
+                this.inputFeatures = inputFeatures;
+
+            end
+
+            this.options = this.getDefaultOptions();
+        end
 
         % Return an instance of OptionsDescription describing possible options.
         function od=getOptionsDescription(this)
@@ -154,6 +204,10 @@ classdef KernelFeatureFC < MPFunctionClass
 
 
         function G = evaluateOnTrainingCenterInd(this, centerInd, sampleInd)
+            if isempty(centerInd) || isempty(sampleInd)
+                G = [];
+                return;
+            end
             F = this.inputFeatures;
             C = this.centerFeatures;
             Kmat = this.kernelEval( C(:, centerInd), F(:, sampleInd));

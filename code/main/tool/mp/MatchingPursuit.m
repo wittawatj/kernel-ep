@@ -96,7 +96,7 @@ classdef MatchingPursuit < HasOptions
             % initialization
             R = Y;
             for t=1:mp_max_iters
-                if mod(t, mp_backfit_every) == 0
+                if t>=2 && mod(t, mp_backfit_every) == 0
                     [W, GG] = this.backFit();
                     %display(sprintf('Backfit performed'));
                     assert(n == size(GG, 2));
