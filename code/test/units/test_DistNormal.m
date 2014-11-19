@@ -35,7 +35,7 @@ end
 function test_isProper()
     d1 = DistNormal(2, 3);
     assert(d1.isProper());
-    d2 = DistNormal([1;2], wishrnd(eye(2), 5) + 0.5*eye(2));
+    d2 = DistNormal([1;2], wishrnd(eye(2), 5) + 3*eye(2));
     assert(d2.isProper());
     n1 = DistNormal(3, -1);
     assert(~n1.isProper());

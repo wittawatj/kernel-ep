@@ -33,6 +33,14 @@ classdef HasOptions < handle
             has = this.options.hasKey(key);
         end
 
+        function v=isNoKeyOrEmpty(this, key)
+            % return true if there is no specified option key or the value is 
+            % empty.
+            assert(ischar(key));
+            v = ~this.hasKey(key) || isempty(this.opt(key));
+
+        end
+
     end
     
 end

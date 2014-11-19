@@ -99,7 +99,6 @@ function candidates = getLaplaceKernelCandidates(bundle, zfe, xfe, medf)
     for xi=1:length(xmeds)
         xmeds(xi) = meddistance(fx(xi, :));
     end
-    zmeds = zmeds + rand(length(zmeds), 1);
     assert(all(zmeds > 0));
     assert(all(xmeds > 0));
     % total number of candidats = len(medf)^totalDim
