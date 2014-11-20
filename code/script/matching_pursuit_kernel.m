@@ -7,9 +7,9 @@ oldRng=rng();
 rng(seed, 'twister');
 
 se=BundleSerializer();
-bunName='sigmoid_bw_proposal_5000';
+%bunName='sigmoid_bw_proposal_5000';
 %bunName='sigmoid_bw_proposal_2000';
-%bunName='sigmoid_bw_proposal_10000';
+bunName='sigmoid_bw_proposal_10000';
 %bunName='sigmoid_bw_proposal_50000';
 %bunName='sigmoid_bw_fixbeta_10000';
 %bunName='sigmoid_bw_proposal_50000_v6';
@@ -26,8 +26,8 @@ bundle=se.loadBundle(bunName);
 %n=5000;
 %n=25000;
 %[trBundle, teBundle] = bundle.partitionTrainTest(3000, 2000);
-%[trBundle, teBundle] = bundle.partitionTrainTest(6000, 4000);
-[trBundle, teBundle] = bundle.partitionTrainTest(4000, 1000);
+[trBundle, teBundle] = bundle.partitionTrainTest(8000, 2000);
+%[trBundle, teBundle] = bundle.partitionTrainTest(4000, 1000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(10000, 10000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(40000, 10000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(500, 300);
@@ -74,15 +74,15 @@ mp.opt('mp_fc_subset', 100);
 mp.matchingPursuit();
 
 n=length(trBundle)+length(teBundle);
-iden=sprintf('mp_laplace_%s_%d.mat',  bunName, n);
+%iden=sprintf('mp_kernel_%s_%d.mat',  bunName, n);
+%iden=sprintf('mp_laplace_%s_%d.mat',  bunName, n);
+iden=sprintf('mp_gauss_%s_%d.mat',  bunName, n);
+
 fpath=Expr.scriptSavedFile(iden);
 
 timeStamp=clock();
 save(fpath, 'fc_candidates', 'out_msg_distbuilder', 'mp', 'timeStamp', 'trBundle', 'teBundle');
 
-idenFinalized = sprintf('mp_laplace_final_%s_%d.mat', bunName, n);
-fpathFinalized = Expr.scriptSavedFile(idenFinalized);
-save(fpathFinalized, 'out_msg_distbuilder', 'mp', 'timeStamp', 'trBundle', 'teBundle');
 
 
 rng(oldRng);
@@ -140,14 +140,17 @@ function candidates=getKernelFCCandidates(trBundle, zfe, xfe, medf)
             centerFeatures, inputFeatures);
 
         % options
-        mp_subsample = min(floor(0.8*n), 3000);
+        mp_subsample = min(floor(0.8*n), 5000);
         mp_basis_subsample = min(length(centerInstances), 1000);
         lap_candidates{ci}.opt('mp_subsample', mp_subsample)
         lap_candidates{ci}.opt('mp_basis_subsample', mp_basis_subsample);
         gauss_candidates{ci}.opt('mp_subsample', mp_subsample)
         gauss_candidates{ci}.opt('mp_basis_subsample', mp_basis_subsample);
     end
-    candidates = [lap_candidates, gauss_candidates];
+    %candidates = [lap_candidates, gauss_candidates];
+    %candidates = [lap_candidates ];
+    candidates = [ gauss_candidates];
+
 
 end
 

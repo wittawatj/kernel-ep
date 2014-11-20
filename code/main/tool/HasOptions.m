@@ -29,6 +29,11 @@ classdef HasOptions < handle
             this.options.setOption(key, value);
         end
 
+        % Add all options in options. Can be instance of Options or struct.
+        function addOptions(this, options)
+            this.options.addOptions(options);
+        end
+
         function has=hasKey(this, key)
             has = this.options.hasKey(key);
         end

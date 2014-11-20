@@ -59,7 +59,7 @@ classdef ICholMapperLearner < DistMapperLearner
         function Op=getDefaultOptions(this)
             st=struct();
             st.seed=1;
-            st.out_msg_distbuilder=[]; % override in constructor
+            st.out_msg_distbuilder=[]; 
             % options used in cond_ho_finiteout
             %
             % Must be manually set
@@ -77,7 +77,7 @@ classdef ICholMapperLearner < DistMapperLearner
         end
 
         function [gm, C]=learnDistMapper(this, bundle )
-            assert(isa(bundle, 'MsgBundle'), 'input to constructor not a MsgBundle' );
+            assert(isa(bundle, 'MsgBundle'), 'input not a MsgBundle' );
             assert(bundle.count()>0, 'empty training set')
 
             outDa=bundle.getOutBundle();

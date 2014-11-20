@@ -27,6 +27,9 @@ classdef Options < handle
         function addOptions(this, options)
             % options can be a struct or Options
             % If a key exists, its value will be replaced.
+            if isempty(options)
+                return;
+            end
             assert(isa(options, 'Options') || isstruct(options));
             if isstruct(options)
                 F=fieldnames(options);

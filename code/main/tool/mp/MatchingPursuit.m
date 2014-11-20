@@ -1,4 +1,4 @@
-classdef MatchingPursuit < HasOptions
+classdef MatchingPursuit < HasOptions & InstancesMapper
     %MATCHINGPURSUIT Perform matching pursuit given a dictionary of functions.
     %   - Assume that the output Y is in Euclidean space. 
     %   - Input X can be anything. Represented with an Instances object.
@@ -23,7 +23,7 @@ classdef MatchingPursuit < HasOptions
         %%%% internal properties %%%
         
         % dim(output) x n residual matrix.
-        residualMat;
+        %residualMat;
     end
     
     methods
@@ -74,9 +74,12 @@ classdef MatchingPursuit < HasOptions
             end
         end
 
-        function matchingPursuit(this)
+        function Res = matchingPursuit(this)
             % perform full matching pursuit
             %
+            oldRng = rng();
+            rng(this.opt('seed'));
+
             X = this.inputInstances;
             n = length(X);
             Y = this.outputMat;
@@ -95,6 +98,8 @@ classdef MatchingPursuit < HasOptions
             fc_subset = min(nfc, this.opt('mp_fc_subset'));
             % initialization
             R = Y;
+            % residues records
+            Res = [];
             for t=1:mp_max_iters
                 if t>=2 && mod(t, mp_backfit_every) == 0
                     [W, GG] = this.backFit();
@@ -130,12 +135,14 @@ classdef MatchingPursuit < HasOptions
                 G = Gs{gind};
                 wt = Wts{gind};
                 assert(length(G)==n);
-                % total residua norms should reduce after every iteration.
+                % total residual norms should reduce after every iteration.
                 R = R - wt*G;
-                display(sprintf('It: %d, residue: %.3f', t, norm(R, 'fro') ));
+                Res(t) = norm(R, 'fro');
+                display(sprintf('It: %d, residue: %.3f', t, Res(t) ));
             end
             [W ] = this.backFit();
 
+            rng(oldRng);
         end % end MatchingPursuit
 
         %function getCurrentIteration(this)
@@ -212,6 +219,37 @@ classdef MatchingPursuit < HasOptions
             assert(si-1 == size(W, 2));
         end
 
+        function mp = finalize(this)
+            % remove irrelevant function classes to make it ready for test phase.
+            % Construct a new MatchingPursuit object.
+            %
+            mp_function_classes = this.opt('mp_function_classes');
+            nfc = length(mp_function_classes);
+            % new MatchingPursuit object to return
+            mp = MatchingPursuit(this.inputInstances, this.outputMat);
+            mp.addOptions(this.options);
+            reducedFC = {};
+            for i=1:nfc
+                fc = mp_function_classes{i};
+                c = fc.countSelectedBases();
+                if c > 0
+                    % If c==0, No basis function is selected. fc is not needed.
+                    final_fc = fc.finalize();
+                    reducedFC{end+1} = final_fc;
+                end
+            end
+            mp.opt('mp_function_classes', reducedFC);
+        end
+
+        % Map Instances Xin into Zout. The type of Zout is not restricted.
+        function Zout = mapInstances(this, Xin)
+            Zout = this.evalFunction(Xin);
+        end
+
+        % return a short summary of this mapper
+        function s = shortSummary(this)
+            s = sprintf('%s', mfilename);
+        end
     end %end methods
     
     methods (Static)

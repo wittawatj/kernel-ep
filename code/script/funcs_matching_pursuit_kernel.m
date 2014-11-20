@@ -9,15 +9,17 @@ end
 
 
 function plotLearnedFunc()
-    fname = 'mp_laplace_sigmoid_bw_proposal_5000_5000.mat';
+    %fname = 'mp_laplace_sigmoid_bw_proposal_5000_5000.mat';
+    %fname = 'mp_gauss_sigmoid_bw_proposal_10000_10000.mat';
+    fname = 'mp_laplace_sigmoid_bw_proposal_10000_10000.mat';
     fpath = Expr.scriptSavedFile(fname);
-    loaded = load(fpath, 'mp', 'trBundle', 'teBundle');
+    loaded = load(fpath, 'mp', 'trBundle', 'teBundle', 'out_msg_distbuilder');
     
     trBundle = loaded.trBundle;
     mp = loaded.mp;
+    out_msg_distbuilder = loaded.out_msg_distbuilder;
 
     Xtr = trBundle.getInputTensorInstances();
-    out_msg_distbuilder = DNormalLogVarBuilder();
     Ytr = out_msg_distbuilder.getStat(trBundle.getOutBundle());
 
     out1 = Ytr(1, :);
