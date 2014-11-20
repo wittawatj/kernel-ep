@@ -158,6 +158,9 @@ classdef MatchingPursuit < HasOptions
                 fc = mp_function_classes{i};
                 % G = b x ntest
                 Func = fc.evalFunction(X);
+                if isempty(Func)
+                    continue;
+                end
                 Fmat = Fmat + Func;
             end
         end

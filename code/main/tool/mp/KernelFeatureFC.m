@@ -186,6 +186,10 @@ classdef KernelFeatureFC < MPFunctionClass
         end
 
         function Func = evalFunction(this, X)
+            if isempty(this.markedInd)
+                Func = [];
+                return;
+            end
             assert(isa(X, 'Instances'));
             F = this.featureExtractor.extractFeatures(X);
             C = this.centerFeatures;

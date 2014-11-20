@@ -15,6 +15,10 @@ classdef KLaplaceFC < KernelFeatureFC
 
         % implementing abstract method
         function Kmat = kernelEval(this, F1, F2)
+            if isempty(F1) || isempty(F2)
+                Kmat = [];
+                return;
+            end
             % expect a vector of widths, one for each dimension.
             lwidths = this.kerParams;
             F1sc = diag(1./lwidths)*F1;
