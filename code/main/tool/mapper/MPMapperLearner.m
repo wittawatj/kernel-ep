@@ -2,6 +2,11 @@ classdef MPMapperLearner < DistMapperLearner
     %MPMAPPERLEARNER DistMapperLearner using on MatchingPursuit
     %   .
 
+    properties(SetAccess=protected)
+        % an instance of Options
+        options;
+    end
+
     methods 
         function this=MPMapperLearner()
             this.options=this.getDefaultOptions();
@@ -82,10 +87,12 @@ classdef MPMapperLearner < DistMapperLearner
                     mp = MatchingPursuit(tensorIn, outi);
                     mp_options = this.opt('mp_options');
                     mp.addOptions(mp_options);
+                    display(sprintf('starting matching pursuit for input %d', i));
                     Res = mp.matchingPursuit();
                     Ress{i} = Res;
 
-                    instancesMappers{i} = mp;
+                    finalMp = mp.finalize();
+                    instancesMappers{i} = finalMp;
                 end
                 im = StackInstancesMapper(instancesMappers{:});
                 gm=GenericMapper(im, out_msg_distbuilder, bundle.numInVars());

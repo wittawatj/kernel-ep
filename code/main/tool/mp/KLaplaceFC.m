@@ -29,12 +29,16 @@ classdef KLaplaceFC < KernelFeatureFC
 
         function obj = finalize(this)
             % construct a dummy obj. Modify later.
-            obj = KLaplaceFC(this.kerParams, this.featureExtractor, ...
-                this.centerInstances.instances(1), this.inputInstances.instances(1));
-            obj.inputInstances = [];
+            %obj = KLaplaceFC(this.kerParams, this.featureExtractor, ...
+            %    this.centerInstances.instances(1), this.inputInstances.instances(1));
+            obj = KLaplaceFC();
+            obj.options = this.options;
+            obj.featureExtractor = this.featureExtractor;
             obj.inputFeatures = [];
             obj.centerFeatures = this.centerFeatures(:, this.markedInd);
             obj.markedInd = 1:size(obj.centerFeatures, 2);
+            obj.weightMat = this.weightMat;
+            obj.kerParams = this.kerParams;
         end
 
     end

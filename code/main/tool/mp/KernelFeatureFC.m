@@ -20,6 +20,7 @@ classdef KernelFeatureFC < MPFunctionClass
 
         % center samples.
         %centerInstances;
+        %inputInstances;
         % #features x #total basis (number of total basis functions)
         centerFeatures;
 
@@ -47,6 +48,10 @@ classdef KernelFeatureFC < MPFunctionClass
             % kerParams = kernel parameters 
             % fe = a FeatureExtractor
             % laplaceCenters = instances to be used as centers for the kernel
+            if nargin <= 0
+                % private constructor.
+                return;
+            end
             in = varargin;
             kerParams = in{1};
             fe = in{2};
@@ -58,6 +63,8 @@ classdef KernelFeatureFC < MPFunctionClass
             assert(isa(fe, 'FeatureExtractor'));
             assert(isa(inputInstances, 'Instances'));
             assert(isa(centerInstances, 'Instances'));
+            %this.centerInstances = centerInstances;
+            %this.inputInstances =
             this.kerParams = kerParams;
             this.featureExtractor = fe;
             this.inputInstances = inputInstances;
