@@ -5,6 +5,7 @@ function  s=funcs_matching_pursuit_kernel( )
     s = struct();
     s.plotLearnedFunc = @plotLearnedFunc;
     s.getKernelFCCandidates = @getKernelFCCandidates;
+    s.getKernelFCLinearCandidates = @getKernelFCLinearCandidates;
 
 end
 
@@ -40,7 +41,81 @@ function plotLearnedFunc()
     hold off;
 end
 
+function candidates = getKernelFCLinearCandidates(trBundle, zfe, xfe, medf)
+    % Do not generate all combinations of medf for all dimensions.
+    % Compute med for all dimensions, vary med by multiplying it with a factor.
+    % factor * [med(1), med(2), ...]
+    %
+
+    z = trBundle.getInputBundle(1);
+    z = DistArray(z);
+    x = trBundle.getInputBundle(2);
+    x = DistArray(x);
+    tensorTr = trBundle.getInputTensorInstances();
+    n = length(x);
+    % subsample
+    subI = randperm(n, min(1e4, n));
+    fz = zfe.extractFeatures(z(subI));
+    fx = xfe.extractFeatures(x(subI));
+    % for each feature dimension, find the median 
+    zmeds = zeros(size(fz, 1), 1);
+    xmeds = zeros(size(fx, 1), 1);
+    for zi=1:length(zmeds)
+        zmeds(zi) = meddistance(fz(zi, :));
+    end
+    for xi=1:length(xmeds)
+        xmeds(xi) = meddistance(fx(xi, :));
+    end
+    zmeds = zmeds + rand(length(zmeds), 1)*0.1 + 1e-4;
+    xmeds = xmeds + rand(length(xmeds), 1)*0.1 + 1e-4;
+    assert(all(zmeds > 0));
+    assert(all(xmeds > 0));
+    totalComb = length(medf);
+
+    lap_candidates = cell(1, totalComb);
+    gauss_candidates = cell(1, totalComb);
+    sumgauss_candidates = cell(1, totalComb);
+    sumlap_candidates = cell(1, totalComb);
+
+    fe = StackFeatureExtractor(zfe, xfe);
+    centerInstances = tensorTr;
+    centerFeatures = fe.extractFeatures(centerInstances);
+    inputFeatures = fe.extractFeatures(tensorTr);
+    for ci=1:totalComb
+        kerzWidths = medf(ci)*zmeds;
+        kerxWidths = medf(ci)*xmeds;
+        widths = [kerzWidths(:); kerxWidths(:)];
+        lap_candidates{ci} = KLaplaceFC(widths, fe, centerInstances, tensorTr, ...
+            centerFeatures, inputFeatures);
+        sumlap_candidates{ci} = KSumLaplaceFC(widths, fe, centerInstances, tensorTr, ...
+            centerFeatures, inputFeatures);
+        % don't need widths.^2 ?
+        gauss_candidates{ci} = KGaussianFC(widths, fe, centerInstances, tensorTr, ...
+            centerFeatures, inputFeatures);
+        sumgauss_candidates{ci} = KSumGaussianFC(widths, fe, centerInstances, ...
+            tensorTr, centerFeatures, inputFeatures);
+
+        % options
+        mp_subsample = min(floor(0.8*n), 3000);
+        mp_basis_subsample = min(length(centerInstances), 1000);
+        lap_candidates{ci}.opt('mp_subsample', mp_subsample)
+        lap_candidates{ci}.opt('mp_basis_subsample', mp_basis_subsample);
+        sumlap_candidates{ci}.opt('mp_subsample', mp_subsample)
+        sumlap_candidates{ci}.opt('mp_basis_subsample', mp_basis_subsample);
+        gauss_candidates{ci}.opt('mp_subsample', mp_subsample)
+        gauss_candidates{ci}.opt('mp_basis_subsample', mp_basis_subsample);
+        sumgauss_candidates{ci}.opt('mp_subsample', mp_subsample)
+        sumgauss_candidates{ci}.opt('mp_basis_subsample', mp_basis_subsample);
+    end
+    %candidates = [lap_candidates, gauss_candidates];
+    %candidates = [lap_candidates ];
+    candidates = [ gauss_candidates, sumgauss_candidates, lap_candidates, ...
+        sumlap_candidates];
+
+end
+
 function candidates=getKernelFCCandidates(trBundle, zfe, xfe, medf)
+    % [fac(1)* med(1), fac(2)*med(2), ...]
     % z = Beta
     z = trBundle.getInputBundle(1);
     z = DistArray(z);
@@ -71,6 +146,8 @@ function candidates=getKernelFCCandidates(trBundle, zfe, xfe, medf)
     totalComb = length(medf)^totalDim;
     lap_candidates = cell(1, totalComb);
     gauss_candidates = cell(1, totalComb);
+    sumgauss_candidates = cell(1, totalComb);
+    sumlap_candidates = cell(1, totalComb);
 
     % temporary vector containing indices
     % Total combinations can be huge ! Be careful. Exponential in the 
@@ -89,21 +166,30 @@ function candidates=getKernelFCCandidates(trBundle, zfe, xfe, medf)
         widths = [kerzWidths(:); kerxWidths(:)];
         lap_candidates{ci} = KLaplaceFC(widths, fe, centerInstances, tensorTr, ...
             centerFeatures, inputFeatures);
-        % need widths.^2 
-        gauss_candidates{ci} = KGaussianFC(widths.^2, fe, centerInstances, tensorTr, ...
+        sumlap_candidates{ci} = KSumLaplaceFC(widths, fe, centerInstances, tensorTr, ...
             centerFeatures, inputFeatures);
+        % don't need widths.^2 ?
+        gauss_candidates{ci} = KGaussianFC(widths, fe, centerInstances, tensorTr, ...
+            centerFeatures, inputFeatures);
+        sumgauss_candidates{ci} = KSumGaussianFC(widths, fe, centerInstances, ...
+            tensorTr, centerFeatures, inputFeatures);
 
         % options
-        mp_subsample = min(floor(0.8*n), 5000);
+        mp_subsample = min(floor(0.8*n), 3000);
         mp_basis_subsample = min(length(centerInstances), 1000);
         lap_candidates{ci}.opt('mp_subsample', mp_subsample)
         lap_candidates{ci}.opt('mp_basis_subsample', mp_basis_subsample);
+        sumlap_candidates{ci}.opt('mp_subsample', mp_subsample)
+        sumlap_candidates{ci}.opt('mp_basis_subsample', mp_basis_subsample);
         gauss_candidates{ci}.opt('mp_subsample', mp_subsample)
         gauss_candidates{ci}.opt('mp_basis_subsample', mp_basis_subsample);
+        sumgauss_candidates{ci}.opt('mp_subsample', mp_subsample)
+        sumgauss_candidates{ci}.opt('mp_basis_subsample', mp_basis_subsample);
     end
     %candidates = [lap_candidates, gauss_candidates];
     %candidates = [lap_candidates ];
-    candidates = [ gauss_candidates];
+    candidates = [ gauss_candidates, sumgauss_candidates, lap_candidates, ...
+        sumlap_candidates];
 
 
 end

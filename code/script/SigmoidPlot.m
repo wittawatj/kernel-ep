@@ -20,7 +20,7 @@ classdef SigmoidPlot  < handle
         end
 
         function [mmx, vvx, z] = genData()
-            z = DistBeta(2, 1);
+            z = DistBeta(2, 3);
             n =  40;
             mx = linspace(-16, 16, n);
             vx = linspace(0.5, 100, n);
@@ -32,8 +32,8 @@ classdef SigmoidPlot  < handle
 
 
         function loadPlotLearnedFunc()
-            %fname = 'mp_distmapper_sigmoid_bw_proposal_10000_ntr8000.mat';
-            fname = 'mp_distmapper_sigmoid_bw_fixbeta_10000_ntr8000.mat';
+            fname = 'mp_distmapper_sigmoid_bw_proposal_10000_ntr8000.mat';
+            %fname = 'mp_distmapper_sigmoid_bw_fixbeta_10000_ntr8000.mat';
             fpath = Expr.scriptSavedFile(fname);
             loaded = load(fpath, 'dm', 'trBundle', 'out_msg_distbuilder');
 

@@ -139,6 +139,8 @@ classdef MatchingPursuit < HasOptions & InstancesMapper
                 R = R - wt*G;
                 Res(t) = norm(R, 'fro');
                 display(sprintf('It: %d, residue: %.3f', t, Res(t) ));
+                %display(sprintf('It: %d, chosen function:', t));
+                %display(mementos{gind});
             end
             [W ] = this.backFit();
 

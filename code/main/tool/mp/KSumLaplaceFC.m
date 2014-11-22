@@ -1,14 +1,15 @@
-classdef KGaussianFC < KernelFeatureFC
-    %KGAUSSIANFC A function class defining (product of ) Gaussian kernels on 
-    %features extracted  using the specified feature extractor.    
-    % %   .
+classdef KSumLaplaceFC < KernelFeatureFC
+    %KSUMLAPLACEFC A function classs defining sum of Laplace kernels on features 
+    %extracted using the specified feature extractor.
+    %   .
     
+
     properties(SetAccess = protected)
     end
     
     methods
-        % width w enters to kernel with 1/w^2 in the exp.
-        function this = KGaussianFC(varargin)
+        % width w enters to kernel with 1/w in the exp.
+        function this = KSumLaplaceFC(varargin)
             v = varargin;
             this@KernelFeatureFC(v{:});
 
@@ -23,15 +24,23 @@ classdef KGaussianFC < KernelFeatureFC
             lwidths = this.kerParams;
             F1sc = diag(1./lwidths)*F1;
             F2sc = diag(1./lwidths)*F2;
-            D = bsxfun(@plus, sum(F1sc.^2, 1)', sum(F2sc.^2, 1)) - 2*F1sc'*F2sc;
-            Kmat = exp(-D);
+            assert(size(F1sc, 1) == size(F2sc, 1));
+            d = size(F1sc, 1);
+            Kmat = zeros(size(F1sc, 2), size(F2sc, 2));
+            for i=1:d
+                f1i = F1sc(i, :);
+                f2i = F2sc(i, :);
+
+                D = abs(bsxfun(@minus, f1i', f2i));
+                Kmat = Kmat + exp(-D);
+            end
         end
 
         function obj = finalize(this)
             % construct a dummy obj. Modify later.
-            %obj = KGaussianFC(this.kerParams, this.featureExtractor, ...
+            %obj = KSumLaplaceFC(this.kerParams, this.featureExtractor, ...
             %    this.centerInstances.instances(1), this.inputInstances.instances(1));
-            obj = KGaussianFC();
+            obj = KSumLaplaceFC();
             obj.options = this.options;
             obj.featureExtractor = this.featureExtractor;
             obj.inputFeatures = [];
