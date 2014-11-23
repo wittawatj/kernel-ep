@@ -120,11 +120,20 @@ end
 function candidates=getKernelFCCandidates(trTensor, medf)
     T = trTensor;
     KProductCell = KGGaussian.productCandidatesAvgCov(T, medf, 3000);
-    candidates = cell(1, length(KProductCell));
+    KSumCell = KGGaussian.ksumCandidatesAvgCov(T, medf, 3000);
+    total = length(KProductCell) + length(KSumCell);
+    kers = [KProductCell(:)', KSumCell(:)'];
+    candidates = cell(1, total);
     centerInstances = T;
-    for i=1:length(KProductCell)
-        ker = KProductCell{i};
+    n = length(T);
+    for i=1:total
+        ker = kers{i};
         candidates{i} = KernelFC(centerInstances, T, ker);
+        mp_subsample = min(floor(0.8*n), 3000);
+        mp_basis_subsample = min(length(centerInstances), 1000);
+
+        candidates{i}.opt('mp_subsample', mp_subsample)
+        candidates{i}.opt('mp_basis_subsample', mp_basis_subsample);
     end
 end
 
@@ -202,8 +211,9 @@ function candidates=getKernelFeatureFCCandidates(trBundle, zfe, xfe, medf)
     end
     %candidates = [lap_candidates, gauss_candidates];
     %candidates = [lap_candidates ];
-    candidates = [ gauss_candidates, sumgauss_candidates, lap_candidates, ...
-        sumlap_candidates];
+    %candidates = [ gauss_candidates, sumgauss_candidates, lap_candidates, ...
+        %sumlap_candidates];
+    candidates = [gauss_candidates, sumgauss_candidates];
 
 
 end

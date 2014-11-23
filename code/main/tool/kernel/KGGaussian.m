@@ -136,14 +136,7 @@ classdef KGGaussian < Kernel
             Kcell = reshape(Ks, [1, length(embed_widths)*length(med_factors)]);
         end
 
-        function KProductCell = productCandidatesAvgCov(T, medf, subsamples )
-            % - Generate a cell array of KProduct candidates from medf,
-            % a list of factors to be  multiplied with the 
-            % diagonal of the average covariance matrices.
-            %
-            % - subsamples can be used to limit the samples used to compute
-            % the average
-            %
+        function KCell = combineCandidatesAvgCov(kerConstructFunc, T, medf, subsamples)
             assert(isa(T, 'TensorInstances'));
             assert(isnumeric(medf));
             assert(~isempty(medf));
@@ -166,7 +159,7 @@ classdef KGGaussian < Kernel
             % Total combinations can be huge ! Be careful. Exponential in the 
             % number of inputs
             totalComb = length(medf)^numInput;
-            KProductCell = cell(1, totalComb);
+            KCell = cell(1, totalComb);
             % temporary vector containing indices
             I = cell(1, numInput);
             for ci=1:totalComb
@@ -177,8 +170,28 @@ classdef KGGaussian < Kernel
                 for ki=1:numInput
                     kers{ki} = KGGaussian(embed_width2s(ki), inputWidth2s(ki));
                 end
-                KProductCell{ci} = KProduct(kers);
+                KCell{ci} = kerConstructFunc(kers);
             end
+        end
+
+        function KSumCell = ksumCandidatesAvgCov(T, medf, subsamples)
+            kerConstructFunc = @(kers)KSum(kers);
+            KSumCell = KGGaussian.combineCandidatesAvgCov(kerConstructFunc, ...
+                T, medf, subsamples);
+        end
+
+
+        function KProductCell = productCandidatesAvgCov(T, medf, subsamples )
+            % - Generate a cell array of KProduct candidates from medf,
+            % a list of factors to be  multiplied with the 
+            % diagonal of the average covariance matrices.
+            %
+            % - subsamples can be used to limit the samples used to compute
+            % the average
+            %
+            kerConstructFunc = @(kers)KProduct(kers);
+            KProductCell = KGGaussian.combineCandidatesAvgCov(kerConstructFunc, ...
+                T, medf, subsamples);
 
         end  % end productCandidates
 

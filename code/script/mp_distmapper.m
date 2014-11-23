@@ -59,7 +59,7 @@ opt.mp_function_classes = fc_candidates;
 opt.mp_reg = mp_reg;
 opt.mp_max_iters = 100;
 opt.mp_backfit_every = 1;
-opt.mp_fc_subset = 100;
+opt.mp_fc_subset = 50;
 
 % start matching pursuit
 learner = MPMapperLearner();
