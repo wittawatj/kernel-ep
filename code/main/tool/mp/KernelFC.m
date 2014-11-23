@@ -1,95 +1,51 @@
-classdef KernelFeatureFC < MPFunctionClass
-    %KERNELFEATUREFC A function class defining kernels on extracted features 
-    %as basis functions.
-    %   .
-    
+classdef KernelFC < MPFunctionClass
+    %KERNELFC A function class based on kernel functions on data instances.
+    %   - No FeatureExtractor as in KernelFeatureFC
+    %   - Content is highly similar to KernelFeatureFC. ** Code factorize later ? **
+
     properties(SetAccess = protected)
         % An instance of Options
         options;
 
+        centerInstances;
         % input samples. Instances. n samples.
         % Inherited
         %inputInstances;
 
-        featureExtractor;
-
-        % features extracted from the samples. 
-        % This can be big as samples may be big.
-        % #features x n
-        inputFeatures;
-
-        % center samples.
-        %centerInstances;
-        %inputInstances;
-        % #features x #total basis (number of total basis functions)
-        centerFeatures;
-
         % indices (not 0-1) indicating which centers are marked to be included 
         % in the final function.
         markedInd;
+
         % W matrix where each column is one w_i of length dim(output)
         weightMat = [];
 
-        % kernel parameters. Unrestricted type and size.
-        kerParams;
-    end
-    
-    methods(Abstract)
-        % evaluate kernel on the extracted features F1 and F2
-        KMat = kernelEval(this, F1, F2);
+        % Kernel object. Must work on centerInstances, inputInstances.
+        % If inputInstances is TensorInstances, the kernel is likely to be a 
+        % KProduct.
+        kernel;
     end
 
     methods
-        function this = KernelFeatureFC(varargin)
-            %KernelFeatureFC(kerParams, fe, centerInstances, inputInstances)
-            %KernelFeatureFC(kerParams, fe, centerInstances, inputInstances, ...
-            %centerFeatures, inputFeatures)
+        function this = KernelFC(centerInstances, inputInstances, kernel)
+            %KernelFC(centerInstances, inputInstances)
                 
-            % kerParams = kernel parameters 
             % fe = a FeatureExtractor
-            % laplaceCenters = instances to be used as centers for the kernel
             if nargin <= 0
                 % private constructor.
                 return;
             end
-            in = varargin;
-            kerParams = in{1};
-            fe = in{2};
-            centerInstances = in{3};
-            inputInstances = in{4};
+            %in = varargin;
+            %centerInstances = in{1};
+            %inputInstances = in{2};
 
-            assert(isa(fe, 'FeatureExtractor'));
             assert(isa(inputInstances, 'Instances'));
             assert(isa(centerInstances, 'Instances'));
-            %this.centerInstances = centerInstances;
-            %this.inputInstances =
-            this.kerParams = kerParams;
-            this.featureExtractor = fe;
+            assert(isa(kernel, 'Kernel'));
+            this.centerInstances = centerInstances;
             this.inputInstances = inputInstances;
+            this.kernel = kernel;
+
             this.markedInd = [];
-            %this.centerInstances = centerInstances;
-            % cached features on all samples.
-            %
-            % Users have to make sure that the specified FeatureExtractor is 
-            % compatible with the samples.
-
-            if nargin <= 4
-                
-                %KernelFeatureFC(kerParams, fe, centerInstances, inputInstances)
-                this.centerFeatures = fe.extractFeatures(centerInstances);
-                this.inputFeatures = fe.extractFeatures(inputInstances);
-
-            elseif nargin <= 6
-                %KernelFeatureFC(kerParams, fe, centerInstances, inputInstances, ...
-                %centerFeatures, inputFeatures)
-
-                centerFeatures = in{5};
-                inputFeatures = in{6};
-                this.centerFeatures = centerFeatures;
-                this.inputFeatures = inputFeatures;
-
-            end
-
             this.options = this.getDefaultOptions();
         end
 
@@ -115,11 +71,18 @@ classdef KernelFeatureFC < MPFunctionClass
             Op=Options(st);
         end
 
+        % evaluate kernel on the data. X1, X2 are Instances.
+        function KMat = kernelEval(this, X1, X2)
+            assert(isa(X1, 'Instances'));
+            assert(isa(X2, 'Instances'));
+            ker = this.kernel;
+            KMat = ker.eval(X1.getAll(), X2.getAll());
+        end
+
         function [crossRes, G, wt, searchMemento] = findBestBasisFunction(this, R, regParam)
-            C = this.centerFeatures;
-            
-            % R is dim(output) x #samples 
-            if isempty(C) || length(this.markedInd) == size(this.centerFeatures, 2)
+            C = this.centerInstances;
+            totalBasis = length(C);
+            if isempty(C) || length(this.markedInd) == totalBasis
                 % If all candidates are selected,...
                 % no more candidates 
                 crossRes = -inf(1);
@@ -127,10 +90,9 @@ classdef KernelFeatureFC < MPFunctionClass
                 searchMemento = [];
                 return;
             end
-            n = size(this.inputFeatures, 2);
+            n = length(this.inputInstances);
             subsample = this.opt('mp_subsample');
             If = randperm(n, min(subsample, n));
-            totalBasis = size(this.centerFeatures, 2);
             % Exclude already selected basis functions
             I = setdiff(1:totalBasis, this.markedInd);
             % Subsample basis functions
@@ -196,18 +158,17 @@ classdef KernelFeatureFC < MPFunctionClass
                 return;
             end
             assert(isa(X, 'Instances'));
-            F = this.featureExtractor.extractFeatures(X);
-            C = this.centerFeatures;
-            Kmat = this.kernelEval(C(:, this.markedInd), F);
+            C = this.centerInstances;
+            Kmat = this.kernelEval(C.instances(this.markedInd), X);
             W = this.weightMat;
             Func = W*Kmat;
         end
 
         function G = evaluate(this, X)
             % return #marked x sample size 
-            Fx = this.featureExtractor.extractFeatures(X);
-            C = this.centerFeatures;
-            Kmat = this.kernelEval(C(:, this.markedInd), Fx);
+            assert(isa(X, 'Instances'));
+            C = this.centerInstances;
+            Kmat = this.kernelEval(C.instances(this.markedInd), X);
             G = Kmat;
         end
 
@@ -217,11 +178,27 @@ classdef KernelFeatureFC < MPFunctionClass
                 G = [];
                 return;
             end
-            F = this.inputFeatures;
-            C = this.centerFeatures;
-            Kmat = this.kernelEval( C(:, centerInd), F(:, sampleInd));
+            X = this.inputInstances;
+            Xsub = X.instances(sampleInd);
+            C = this.centerInstances;
+            Csub = C.instances(centerInd);
+            Kmat = this.kernelEval( Csub, Xsub);
             assert(all(size(Kmat) == [length(centerInd), length(sampleInd)]));
             G = Kmat;
+        end
+
+        function obj = finalize(this)
+            % construct a dummy obj. Modify later.
+            obj = KernelFC();
+            C = this.centerInstances;
+            obj.options = this.options;
+            obj.centerInstances = C.instances(this.markedInd);
+            % inputInstances not needed for evaluation. Only centerInstances needed.
+            obj.inputInstances = [];
+            obj.markedInd = 1:size(obj.centerInstances, 2);
+            obj.weightMat = this.weightMat;
+            obj.kernel = this.kernel;
+            assert(size(obj.weightMat, 2) == length(obj.markedInd));
         end
     end % end methods
     

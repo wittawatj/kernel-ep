@@ -19,7 +19,7 @@ bunName='sigmoid_bw_proposal_10000';
 %bunName=sprintf('simplegauss_d1_fw_proposal_30000' );
 bundle=se.loadBundle(bunName);
 
-%[trBundle, teBundle] = bundle.partitionTrainTest(3000, 2000);
+%[trBundle, teBundle] = bundle.partitionTrainTest(2000, 2000);
 [trBundle, teBundle] = bundle.partitionTrainTest(8000, 2000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(15000, 2000);
 
@@ -28,12 +28,12 @@ bundle=se.loadBundle(bunName);
 %[trBundle, teBundle] = bundle.partitionTrainTest(4000, 1000);
 
 %---------- options -----------
-%Xtr = trBundle.getInputTensorInstances();
+Xtr = trBundle.getInputTensorInstances();
 %Ytr = out_msg_distbuilder.getStat(trBundle.getOutBundle());
 out_msg_distbuilder = DNormalLogVarBuilder();
 
 % median factors 
-medf = [1/5, 1/2, 1, 2, 5 ];
+medf = [1/4, 1, 4 ];
 %medf = [1/20, 1/10, 1/5, 1/2, 1, 2, 5, 10, 20 ];
 
 mp_reg = 1e-2;
@@ -42,7 +42,9 @@ zfe = MVParamExtractor();
 xfe = MLogVParamExtractor();
 % in order of variables p(z | x)
 s = funcs_matching_pursuit_kernel();
-fc_candidates = s.getKernelFCCandidates(trBundle, zfe, xfe, medf);
+feature_candidates = s.getKernelFeatureFCCandidates(trBundle, zfe, xfe, medf);
+ker_candidates = s.getKernelFCCandidates(Xtr, medf);
+fc_candidates = [feature_candidates(:)', ker_candidates(:)'];
 %fc_candidates = s.getKernelFCLinearCandidates(trBundle, zfe, xfe, medf);
 % limit fc_candidates 
 c = length(fc_candidates);
@@ -66,6 +68,9 @@ learner.opt('out_msg_distbuilder', out_msg_distbuilder);
 learner.opt('separate_outputs', true);
 learner.opt('mp_options', opt);
 [dm, learnerLog] = learner.learnDistMapper(trBundle);
+% mp_options contains all function class candidates (huge). Exclude so that 
+% the saved file is small.
+learner.opt('mp_options', []);
 
 %n=length(trBundle)+length(teBundle);
 ntr = length(trBundle);
@@ -75,7 +80,7 @@ iden=sprintf('mp_distmapper_%s_ntr%d.mat',  bunName, ntr);
 fpath=Expr.scriptSavedFile(iden);
 
 timeStamp=clock();
-save(fpath, 'dm', 'learnerLog', 'opt', 'learner', 'out_msg_distbuilder', 'timeStamp', 'trBundle', 'teBundle');
+save(fpath, 'dm', 'learnerLog', 'learner', 'out_msg_distbuilder', 'timeStamp', 'trBundle', 'teBundle');
 
 
 rng(oldRng);

@@ -14,7 +14,7 @@ classdef KGGaussian < Kernel
         % Gaussian kernel for embedding
         kegauss;
         % width2 for mean embeddings. 
-        % Generall there should be one parameter for each dimension of the 
+        % Generally there should be one parameter for each dimension of the 
         % input distributions. !! DO THIS LATER !!
         embed_width2;
         % width2 for the outer Gaussian kernel on the mean embeddings.

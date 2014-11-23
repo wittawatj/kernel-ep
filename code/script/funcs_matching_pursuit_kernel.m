@@ -4,8 +4,9 @@ function  s=funcs_matching_pursuit_kernel( )
 
     s = struct();
     s.plotLearnedFunc = @plotLearnedFunc;
-    s.getKernelFCCandidates = @getKernelFCCandidates;
+    s.getKernelFeatureFCCandidates = @getKernelFeatureFCCandidates;
     s.getKernelFCLinearCandidates = @getKernelFCLinearCandidates;
+    s.getKernelFCCandidates = @getKernelFCCandidates;
 
 end
 
@@ -47,6 +48,7 @@ function candidates = getKernelFCLinearCandidates(trBundle, zfe, xfe, medf)
     % factor * [med(1), med(2), ...]
     %
 
+    display('Use getKernelFCLinearCandidates(..)');
     z = trBundle.getInputBundle(1);
     z = DistArray(z);
     x = trBundle.getInputBundle(2);
@@ -114,7 +116,19 @@ function candidates = getKernelFCLinearCandidates(trBundle, zfe, xfe, medf)
 
 end
 
-function candidates=getKernelFCCandidates(trBundle, zfe, xfe, medf)
+
+function candidates=getKernelFCCandidates(trTensor, medf)
+    T = trTensor;
+    KProductCell = KGGaussian.productCandidatesAvgCov(T, medf, 3000);
+    candidates = cell(1, length(KProductCell));
+    centerInstances = T;
+    for i=1:length(KProductCell)
+        ker = KProductCell{i};
+        candidates{i} = KernelFC(centerInstances, T, ker);
+    end
+end
+
+function candidates=getKernelFeatureFCCandidates(trBundle, zfe, xfe, medf)
     % [fac(1)* med(1), fac(2)*med(2), ...]
     % z = Beta
     z = trBundle.getInputBundle(1);

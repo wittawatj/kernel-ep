@@ -6,7 +6,7 @@ classdef MPFunctionClass < handle & HasOptions
     
     properties(SetAccess=protected)
         % input samples. Instances
-        inputInstances;
+        %inputInstances;
 
     end
 

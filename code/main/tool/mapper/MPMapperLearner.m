@@ -103,7 +103,8 @@ classdef MPMapperLearner < DistMapperLearner
                 mp.addOptions(mp_options);
                 Res = mp.matchingPursuit();
                 Ress = Res;
-                gm=GenericMapper(mp, out_msg_distbuilder, bundle.numInVars());
+                finalMp = mp.finalize();
+                gm=GenericMapper(finalMp, out_msg_distbuilder, bundle.numInVars());
             end
 
         end
