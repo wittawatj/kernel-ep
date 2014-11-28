@@ -86,7 +86,7 @@ x = jointx(2:end);
 
 fm = fmGenerator(x);
 % Subsample each call to the objective function (noisy objective function)
-subsample = 1000;
+subsample = 1500;
 I = randperm(length(In), min(length(In), subsample) );
 subIn = In.instances(I);
 

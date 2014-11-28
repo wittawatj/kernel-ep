@@ -9,8 +9,8 @@ rng(seed, 'twister');
 se=BundleSerializer();
 %bunName='sigmoid_bw_proposal_5000';
 %bunName='sigmoid_bw_proposal_2000';
-bunName='sigmoid_bw_proposal_10000';
-%bunName='sigmoid_bw_proposal_20000';
+%bunName='sigmoid_bw_proposal_10000';
+bunName='sigmoid_bw_proposal_20000';
 %bunName='sigmoid_bw_proposal_50000';
 
 %bunName='sigmoid_bw_fixbeta_10000';
@@ -20,10 +20,9 @@ bunName='sigmoid_bw_proposal_10000';
 bundle=se.loadBundle(bunName);
 
 %[trBundle, teBundle] = bundle.partitionTrainTest(2000, 2000);
-[trBundle, teBundle] = bundle.partitionTrainTest(8000, 2000);
-%[trBundle, teBundle] = bundle.partitionTrainTest(15000, 2000);
-
+%[trBundle, teBundle] = bundle.partitionTrainTest(8000, 2000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(1000, 1000);
+[trBundle, teBundle] = bundle.partitionTrainTest(16000, 2000);
 
 %[trBundle, teBundle] = bundle.partitionTrainTest(4000, 1000);
 
@@ -33,18 +32,21 @@ Xtr = trBundle.getInputTensorInstances();
 out_msg_distbuilder = DNormalLogVarBuilder();
 
 % median factors 
-medf = [1/4, 1, 4 ];
+%medf = [1/4, 1, 4 ];
+medf = [1/4, 1, 4];
+linear_medf = [1/10, 1/5, 1/2, 1, 2, 5, 10 ];
 %medf = [1/20, 1/10, 1/5, 1/2, 1, 2, 5, 10, 20 ];
 
-mp_reg = 1e-2;
+mp_reg = 1e-4;
 zfe = MVParamExtractor();
 %xfe = NatParamExtractor();
 xfe = MLogVParamExtractor();
 % in order of variables p(z | x)
 s = funcs_matching_pursuit_kernel();
 feature_candidates = s.getKernelFeatureFCCandidates(trBundle, zfe, xfe, medf);
-ker_candidates = s.getKernelFCCandidates(Xtr, medf);
-fc_candidates = [feature_candidates(:)', ker_candidates(:)'];
+ker_candidates = s.getKernelFCCandidates(Xtr, linear_medf);
+%fc_candidates = [feature_candidates(:)', ker_candidates(:)'];
+fc_candidates = [ker_candidates(:)'];
 %fc_candidates = s.getKernelFCLinearCandidates(trBundle, zfe, xfe, medf);
 % limit fc_candidates 
 c = length(fc_candidates);
@@ -57,9 +59,9 @@ opt = struct();
 opt.seed = seed;
 opt.mp_function_classes = fc_candidates;
 opt.mp_reg = mp_reg;
-opt.mp_max_iters = 100;
+opt.mp_max_iters = 400;
 opt.mp_backfit_every = 1;
-opt.mp_fc_subset = 50;
+opt.mp_fc_subset = 30;
 
 % start matching pursuit
 learner = MPMapperLearner();
@@ -74,7 +76,8 @@ learner.opt('mp_options', []);
 
 %n=length(trBundle)+length(teBundle);
 ntr = length(trBundle);
-iden=sprintf('mp_distmapper_%s_ntr%d.mat',  bunName, ntr);
+%iden=sprintf('mp_distmapper_%s_ntr%d.mat',  bunName, ntr);
+iden=sprintf('mp_eg_distmapper_%s_ntr%d.mat',  bunName, ntr);
 %iden=sprintf('mp_distmapper_linearcan_%s_ntr%d.mat',  bunName, ntr);
 
 fpath=Expr.scriptSavedFile(iden);

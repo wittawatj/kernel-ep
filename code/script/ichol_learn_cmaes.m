@@ -7,10 +7,11 @@ oldRng=rng();
 rng(seed, 'twister');
 
 se=BundleSerializer();
-%bunName='sigmoid_bw_proposal_5000';
+%bunName='sigmoid_bw_proposal_10000';
+bunName='sigmoid_bw_proposal_20000';
 %bunName = 'sigmoid_fw_proposal_5000';
 % Nicolas's data. Has almost 30000 pairs.
-bunName=sprintf('nicolas_sigmoid_bw');
+%bunName=sprintf('nicolas_sigmoid_bw');
 %bunName=sprintf('nicolas_sigmoid_fw');
 %bunName=sprintf('simplegauss_d1_bw_proposal_30000' );
 %bunName=sprintf('simplegauss_d1_fw_proposal_30000' );
@@ -20,7 +21,8 @@ bundle=se.loadBundle(bunName);
 %n=5000;
 %n=25000;
 %[trBundle, teBundle] = bundle.partitionTrainTest(40000, 10000);
-[trBundle, teBundle] = bundle.partitionTrainTest(6000, 4000);
+[trBundle, teBundle] = bundle.partitionTrainTest(16000, 4000);
+%[trBundle, teBundle] = bundle.partitionTrainTest(6000, 4000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(2000, 3000);
 
 %---------- options -----------
@@ -48,7 +50,8 @@ learner.opt('separate_outputs', true)
 
 s=learnMap(learner, trBundle, teBundle, bunName);
 n=length(trBundle)+length(teBundle);
-iden=sprintf('ichol_learn_cmaes_%s_%s_%d.mat', class(learner), bunName, n);
+ntr = length(trBundle);
+iden=sprintf('ichol_learn_cmaes_%s_%s_ntr%d.mat', class(learner), bunName, ntr);
 fpath=Expr.scriptSavedFile(iden);
 
 timeStamp=clock();

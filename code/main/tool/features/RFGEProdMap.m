@@ -200,6 +200,9 @@ classdef RFGEProdMap < FeatureMap & PrimitiveSerializable
             % baseMed = meddist(means)^2/meddist(variances)
             % I have no strong justification for this heuristic.
             %
+            % *** This heuristic does not have a good justification ***
+            %
+            warning('getBaseMedianHeuristic() does not have a good justification.')
             assert(isa(X, 'DistArray') || isa(X, 'Distribution'));
             if nargin < 2
                 subsamples=1500;

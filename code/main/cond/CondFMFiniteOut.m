@@ -122,10 +122,10 @@ classdef CondFMFiniteOut < InstancesMapper & PrimitiveSerializable
 
             try 
                 Zout = T*Pin;
-                display('size of T: ')
-                display(size(T));
-                display('size of Pin: ')
-                display(size(Pin));
+                %display('size of T: ')
+                %display(size(T));
+                %display('size of Pin: ')
+                %display(size(Pin));
             catch err 
                 display(err);
             end

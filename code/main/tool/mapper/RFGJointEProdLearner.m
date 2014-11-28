@@ -56,6 +56,8 @@ classdef RFGJointEProdLearner < DistMapperLearner
                 'regression.'];
             kv.use_multicore=['If true, use multicore package.'];
             kv.use_cmaes = ['True to use cma-es black-box optimization for parameter tuning'];
+            kv.separate_outputs = ['Treat each output as an independent problem.', ...
+            'No parameter sharing between outputs. This increases the number of parameters.'];
 
             od=OptionsDescription(kv);
         end
@@ -74,6 +76,7 @@ classdef RFGJointEProdLearner < DistMapperLearner
             st.reglist=[1e-2, 1, 100];
             st.use_multicore=true;
             st.use_cmaes = false;
+            st.separate_outputs = false;
 
             Op=Options(st);
         end
@@ -125,12 +128,50 @@ classdef RFGJointEProdLearner < DistMapperLearner
             outStat=out_msg_distbuilder.getStat(outDa);
             if this.opt('use_cmaes')
                 op.featuremap_mode = 'joint';
-                [Op, C]=CondFMFiniteOut.learn_operator_cmaes(tensorIn, outStat, op);
+                if this.opt('separate_outputs')
+                    % treat each output as a separate problem 
+                    p = size(outStat, 1);
+                    instancesMappers = cell(1, p);
+                    for i=1:p
+                        outi = outStat(i, :);
+                        display(sprintf('Learning InstancesMapper for output %d', i));
+                        [Op, C] = CondFMFiniteOut.learn_operator_cmaes(tensorIn, outi, op);
+                        assert(isa(Op, 'InstancesMapper'));
+                        instancesMappers{i} = Op;
+                    end
+                    im = StackInstancesMapper(instancesMappers{:});
+                    gm = GenericMapper(im, out_msg_distbuilder, bundle.numInVars());
+                else
+                    % joint outputs
+                    [Op, C]=CondFMFiniteOut.learn_operator_cmaes(tensorIn, outStat, op);
+                    assert(isa(Op, 'InstancesMapper'));
+                    gm=GenericMapper(Op, out_msg_distbuilder, bundle.numInVars());
+                end
             else
-                [Op, C]=CondFMFiniteOut.learn_operator(tensorIn, outStat, op);
+                if this.isNoKeyOrEmpty('featuremap_candidates')
+                    error('options featuremap_candidates must be set.');
+                end
+                if this.opt('separate_outputs')
+
+                    % treat each output as a separate problem 
+                    p = size(outStat, 1);
+                    instancesMappers = cell(1, p);
+                    for i=1:p
+                        outi = outStat(i, :);
+                        display(sprintf('Learning InstancesMapper for output %d', i));
+                        [Op, C] = CondFMFiniteOut.learn_operator(tensorIn, outi, op);
+                        assert(isa(Op, 'InstancesMapper'));
+                        instancesMappers{i} = Op;
+                    end
+                    im = StackInstancesMapper(instancesMappers{:});
+                    gm = GenericMapper(im, out_msg_distbuilder, bundle.numInVars());
+                else
+                    % Not use cmaes. Need featuremap_candidates.
+                    [Op, C]=CondFMFiniteOut.learn_operator(tensorIn, outStat, op);
+                    assert(isa(Op, 'InstancesMapper'));
+                    gm=GenericMapper(Op, out_msg_distbuilder, bundle.numInVars());
+                end
             end
-            assert(isa(Op, 'InstancesMapper'));
-            gm=GenericMapper(Op, out_msg_distbuilder, bundle.numInVars());
 
         end
 
