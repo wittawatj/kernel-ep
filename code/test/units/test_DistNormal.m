@@ -33,18 +33,13 @@ function test_density()
 end
 
 function test_isProper()
-    rng(2);
+    rng(2, 'twister');
     d1 = DistNormal(2, 3);
     assert(d1.isProper());
     d2 = DistNormal([1;2], wishrnd(eye(2), 5) + 3*eye(2));
     assert(d2.isProper());
     n1 = DistNormal(3, -1);
     assert(~n1.isProper());
-    C = wishrnd(eye(4), 5);
-    % remove rank by 1
-    C = bsxfun(@minus, C, mean(C, 2));
-    n2 = DistNormal(ones(4,1), C);
-    assert(~n2.isProper());
 end
 
 function test_distHellinger()

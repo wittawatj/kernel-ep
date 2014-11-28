@@ -87,6 +87,22 @@ classdef DistNormalBuilder < DistBuilder
             D = DistNormal(m ,v);
         end
         
+        function Scell = transformStat(this, X)
+            Scell = cell(1, 2);
+            [d,n] = size(X);
+            assert(d>=1);
+            if d==1
+                Scell{1} = X;
+                Scell{2} = X.^2;
+            else
+                % multivariate
+                M2 = MatUtils.colOutputProduct(X, X);
+                Scell{1} = X;
+                Scell{2} = reshape(M2, [d^2, n]);
+            end
+            
+        end
+
         function s = shortSummary(this)
             s = mfilename;
         end
