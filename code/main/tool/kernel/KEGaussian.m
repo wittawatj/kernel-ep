@@ -33,8 +33,8 @@ classdef KEGaussian < Kernel
         function Kmat = eval(this, D1, D2)
             assert(isa(D1, 'Distribution') || isa(D1, 'DistArray'));
             assert(isa(D2, 'Distribution') || isa(D2, 'DistArray'));
-            d1=D1(1).d;
-            d2=D2(1).d;
+            d1=unique(D1(1).d);
+            d2=unique(D2(1).d);
             assert(isscalar(d1));
             assert(isscalar(d2));
             assert(d1==d2, 'Dimension of two Distributions must match');
@@ -151,14 +151,7 @@ classdef KEGaussian < Kernel
 
     methods (Static)
 
-        function KCs = productCandidatesAvgCov(T, medf, subsamples )
-            % - Generate a cell array of KProduct candidates from medf,
-            % a list of factors to be  multiplied with the 
-            % diagonal of the average covariance matrices.
-            %
-            % - subsamples can be used to limit the samples used to compute
-            % the average
-            %
+        function KCs = combineCandidatesAvgCov(kerConstructFunc, T, medf, subsamples)
             assert(isa(T, 'TensorInstances'));
             assert(isnumeric(medf));
             assert(~isempty(medf));
@@ -188,9 +181,29 @@ classdef KEGaussian < Kernel
                     assert(isscalar(di), 'DistArray does not contain Distributions with the same dimension');
                     Ks{i}=KEGaussian(gwidth2s(i)*ones(di, 1));
                 end
-                ker=KProduct(Ks);
+                ker=kerConstructFunc(Ks);
                 KCs{ci}=ker;
             end
+        end
+
+        function KCs = ksumCandidatesAvgCov(T, medf, subsamples )
+            %
+            kerConstructFunc = @(kers)KSum(kers);
+            KCs = KEGaussian.combineCandidatesAvgCov(kerConstructFunc, ...
+                T, medf, subsamples);
+        end 
+
+        function KCs = productCandidatesAvgCov(T, medf, subsamples )
+            % - Generate a cell array of KProduct candidates from medf,
+            % a list of factors to be  multiplied with the 
+            % diagonal of the average covariance matrices.
+            %
+            % - subsamples can be used to limit the samples used to compute
+            % the average
+            %
+            kerConstructFunc = @(kers)KProduct(kers);
+            KCs = KEGaussian.combineCandidatesAvgCov(kerConstructFunc, ...
+                T, medf, subsamples);
         end 
 
     end %end static methods

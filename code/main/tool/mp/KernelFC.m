@@ -195,7 +195,7 @@ classdef KernelFC < MPFunctionClass
             obj.centerInstances = C.instances(this.markedInd);
             % inputInstances not needed for evaluation. Only centerInstances needed.
             obj.inputInstances = [];
-            obj.markedInd = 1:size(obj.centerInstances, 2);
+            obj.markedInd = 1:length(obj.centerInstances);
             obj.weightMat = this.weightMat;
             obj.kernel = this.kernel;
             assert(size(obj.weightMat, 2) == length(obj.markedInd));

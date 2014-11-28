@@ -203,7 +203,7 @@ classdef MatchingPursuit < HasOptions & InstancesMapper
             opts.POSDEF = true;
             opts.SYM = true;
 
-            sub = 1e5;
+            sub = 5e4;
             subInd = randperm(n, min(n, sub));
             GGsub = GG(:, subInd);
             W = linsolve(GGsub*GGsub' + mp_reg*eye(b), GG*Y')';
