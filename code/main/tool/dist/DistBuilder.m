@@ -56,7 +56,9 @@ classdef DistBuilder < handle & PrimitiveSerializable
         % Transform the list of samples into statistics without constructing 
         % a distribution. For example, for a 1d Gaussian, Scell has length 2.
         % Scell{1} = [x1, x2, ..]. Scell{2} = [x1^2, x2^2, ....], for instance.
-        Scell = transformStat(this, samples);
+        % Expect the transformed stats to be averagable.
+        Scell = transformStat(this, X)
+
 
         s = shortSummary(this)
     end

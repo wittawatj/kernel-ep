@@ -2,7 +2,7 @@ function [ ] = exp1_jointEProdLearner( )
 %EXP1_JOINTEPRODLEARNER To test RFGJointEProdLearner and RFGJointEProdMap
 %
 
-seed=32;
+seed=33;
 oldRng=rng();
 rng(seed, 'twister');
 
@@ -15,26 +15,27 @@ bunName='sigmoid_bw_proposal_10000';
 %bunName=sprintf('nicolas_sigmoid_bw');
 bundle=se.loadBundle(bunName);
 
-ntr = 6000;
+ntr = 2000;
 nte = 4000;
 candidate_primal_features = 1000;
 use_cmaes = false;
 
-medf=[1/100, 1/50, 1/10, 1/5, 1/2, 1, 2, 5, 10, 50, 100];
+medf=[1/50, 1/10, 1/5, 1/2, 1, 2, 5, 10, 50 ];
 
 [trBundle, teBundle] = bundle.partitionTrainTest(ntr, nte);
 trTensor=trBundle.getInputTensorInstances();
 
 learner=RFGJointEProdLearner();
 jointCandidates=RFGJointEProdMap.candidatesAvgCov(trTensor, medf, ...
-    candidate_primal_features, 2000);
+    candidate_primal_features, 1000);
 od=learner.getOptionsDescription();
 display(' Learner options: ');
 od.show();
 % set my options
 learner.opt('seed', seed);
 learner.opt('out_msg_distbuilder', DNormalLogVarBuilder());
-learner.opt('num_primal_features', 4000);
+%learner.opt('out_msg_distbuilder', DistNormalBuilder());
+learner.opt('num_primal_features', 2000);
 learner.opt('candidate_primal_features', candidate_primal_features);
 %learner.opt('use_multicore', false);
 learner.opt('featuremap_candidates', jointCandidates);

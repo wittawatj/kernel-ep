@@ -64,11 +64,10 @@ classdef DistBetaBuilder < DistBuilder
         end
         
         function Scell = transformStat(this, X)
-            M2 = X.^2;
-            Scell = cell(1, 2);
-            Scell{1} = X;
-            Scell{2} = M2;
-
+           M2 = X.^2;
+           Scell = cell(1, 2);
+           Scell{1} = X;
+           Scell{2} = M2;
         end
         
         function L=empty(this, r, c)

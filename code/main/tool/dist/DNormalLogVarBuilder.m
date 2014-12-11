@@ -40,17 +40,16 @@ classdef DNormalLogVarBuilder < DistNormalBuilder
         end
 
         function Scell = transformStat(this, X)
-            Scell = cell(1, 2);
-            [d,n] = size(X);
-            if d==1
-                Scell{1} = X;
-                % log uncentred second moment not variance
-                Scell{2} = log(X.^2);
-            else
-                % multivariate
-                error('do not know how to take log covariance');
-            end
-            
+           Scell = cell(1, 2);
+           [d,n] = size(X);
+           if d==1
+               Scell{1} = X;
+               % log uncentred second moment not variance
+               Scell{2} = log(X.^2);
+           else
+               % multivariate
+               error('do not know how to take log covariance');
+           end
         end
 
         function s = shortSummary(this)
