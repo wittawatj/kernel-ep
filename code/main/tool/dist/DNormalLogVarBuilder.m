@@ -40,6 +40,7 @@ classdef DNormalLogVarBuilder < DistNormalBuilder
         end
 
         function Scell = transformStat(this, X)
+            error('does not match getStat(). Need to think more.');
            Scell = cell(1, 2);
            [d,n] = size(X);
            if d==1

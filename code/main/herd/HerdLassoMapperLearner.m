@@ -88,7 +88,7 @@ classdef HerdLassoMapperLearner < DistMapperLearner
                 intercept = F.Intercept(lambda_i);
                 weights = B(:, lambda_i)';
 
-                instancesMappers{j} = HerdL1InstancesMapper(weights, intercept, ...
+                instancesMappers{j} = HerdInstancesMapper(weights, intercept, ...
                     locSuff(j, :),  outLoc, cond_points);
             end
 

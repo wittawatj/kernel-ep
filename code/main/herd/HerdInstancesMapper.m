@@ -1,5 +1,5 @@
-classdef HerdL1InstancesMapper < InstancesMapper
-    % HERDL1INSTANCESMAPPER An InstancesMapper based on herding weights with Lasso.
+classdef HerdInstancesMapper < InstancesMapper
+    % HERDINSTANCESMAPPER An InstancesMapper based on herding weights 
     %   -.
     %    
     properties(SetAccess = protected)
@@ -21,7 +21,7 @@ classdef HerdL1InstancesMapper < InstancesMapper
     end
     
     methods
-        function this=HerdL1InstancesMapper(weights, intercept, targetSuff, ...
+        function this=HerdInstancesMapper(weights, intercept, targetSuff, ...
                 outLoc, cond_points)
 
             % We can keep just non-zero weights here. 
@@ -35,7 +35,8 @@ classdef HerdL1InstancesMapper < InstancesMapper
             assert(size(outLoc, 2) == length(targetSuff));
             assert(isnumeric(targetSuff));
 
-            nzI = weights ~= 0;
+            nzI = abs(weights) > 1e-9;
+            %nzI = weights ~= 0;
             this.weights = weights(nzI);
             this.intercept = intercept;
             % targetSuff is just one sufficient statistic e.g., mean. 

@@ -126,8 +126,18 @@ classdef DivDistMapperTester < DistMapperTester
             logDivs=log(Divs);
             keepI=isfinite(logDivs) & imag(logDivs)==0;
             logDivs=logDivs(keepI);
+            trueOutDa = trueOutDa.instances(keepI);
+            outDa = outDa.instances(keepI);
 
-            hist(logDivs, 20);
+            % sort logDivs. 
+            [soLogDivs, I]=sort(logDivs);
+            % remove the last few entries. Treat them as outliers.
+            I = I(1:end-5);
+            soLogDivs = logDivs(I);
+            soTrueOutDa=trueOutDa.instances(I);
+            soOutDa=outDa.instances(I);
+
+            hist(soLogDivs, 20);
             set(gca, 'fontsize', 20);
             xlabel(sprintf('Log divergence of %s', class(outDa.get(1)) ));
             %xlabel(sprintf('Log divergences on Gaussian output messages' ));
@@ -135,17 +145,9 @@ classdef DivDistMapperTester < DistMapperTester
             title(sprintf('%d/%d improper messages. Mean: %.3f, SD: %.3f',...
                imCount, outDa.count(), mean(logDivs), std(logDivs)));
             title(sprintf('Log KL divergence. Mean: %.3f, SD: %.3f',...
-                mean(logDivs), std(logDivs)));
+                mean(soLogDivs), std(soLogDivs)));
             grid on;
             hold off
-
-            trueOutDa=trueOutDa.instances(keepI);
-            outDa=outDa.instances(keepI);
-
-            % sort logDivs. 
-            [soLogDivs, I]=sort(logDivs);
-            soTrueOutDa=trueOutDa.instances(I);
-            soOutDa=outDa.instances(I);
 
             nte=soOutDa.count();
             % Take the best, 2 median, and worst
@@ -180,7 +182,7 @@ classdef DivDistMapperTester < DistMapperTester
             p75 = floor(nte*0.75);
             subplot(2, 2, 4);
             this.plotOutputPairs(soOutDa.get(p75), soTrueOutDa.get(p75), ...
-                sprintf('75th percentile. Log div: %.3f', soLogDivs(nte)));
+                sprintf('75th percentile. Log div: %.3f', soLogDivs(p75)));
 
             % worst 
             %this.plotOutputPairs(soOutDa.get(nte), soTrueOutDa.get(nte), ...

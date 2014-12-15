@@ -13,7 +13,7 @@ bunName='sigmoid_bw_proposal_1000';
 %bunName='sigmoid_bw_fixbeta_10000';
 bundle=se.loadBundle(bunName);
 
-[trBundle, teBundle] = bundle.partitionTrainTest(200, 400);
+[trBundle, teBundle] = bundle.partitionTrainTest(800, 200);
 %[trBundle, teBundle] = bundle.partitionTrainTest(16000, 2000);
 
 %Xtr = trBundle.getInputTensorInstances();
@@ -58,13 +58,14 @@ end
 Gamma = kron(eye(K), ones(1, tau));
 
 Result = struct();
-lambdas = [1e-2];
+lambdas = [];
 % consider each output separately
 for j=1:tau
     Yj = OutTx(j, :);
     % DFmax = maximum number of non-zero coefficients
-    [B, FitInfo] = lasso(X'*Gamma', Yj', 'DFmax', 200, 'NumLambda', 20, ...
-        'RelTol', 1e-3, 'Standardize', false, 'CV', 2, 'Lambda', lambdas );
+    [B, FitInfo] = lasso(X'*Gamma', Yj', 'DFmax', 500, 'NumLambda', 10, ...
+        'RelTol', 1e-2, 'Standardize', false, 'CV', 2, 'Lambda', lambdas, ...
+       'Alpha', 0.5 );
 
     Result(j).B = B;
     Result(j).FitInfo = FitInfo;
