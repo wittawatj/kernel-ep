@@ -29,3 +29,7 @@ code/3rdparty/mtimesx/
 *.swp
 *.swo
 code/doc/*
+.dropbox.attr
+incomp_chol_package
+incomp_chol_package.zip
+incomp_chol_export.sh

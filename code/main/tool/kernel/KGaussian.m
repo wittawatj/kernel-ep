@@ -24,7 +24,9 @@ classdef KGaussian < Kernel
             % X, Y are data matrices where each column is one instance
             assert(isnumeric(X));
             assert(isnumeric(Y));
-            Kmat = kerGaussian(X, Y, this.sigma2);
+
+            D2 = bsxfun(@plus, sum(X.^2,1)', sum(Y.^2,1)) - 2*(X'*Y );
+            Kmat = exp(-D2./(2*(this.sigma2)));
             
         end
         

@@ -1,3 +1,3 @@
 % Run all unit tests
 %clear classes
-runtests('test/units')
+runtests('test/units/')

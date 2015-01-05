@@ -23,13 +23,14 @@ bundle=se.loadBundle(bunName);
 
 %Xtr = trBundle.getInputTensorInstances();
 %Ytr = out_msg_distbuilder.getStat(trBundle.getOutBundle());
-%out_msg_distbuilder = DNormalLogVarBuilder();
+%out_msg_distbuilder = DNormalLogM2Builder();
 out_msg_distbuilder = DistNormalBuilder();
 
 % number of location points
 K = 300;
 % draw uniformly 
 Xloc = linspace(-16, 16, K);
+%Xloc = normrnd(0, 5, 1, K);
 condDistFactor = @(x) 1./(1+exp(-x));
 Zloc = condDistFactor(Xloc);
 ntr = length(trBundle);
@@ -68,13 +69,11 @@ for t=1:tau
 end
 %Gamma = kron(eye(K), ones(1, tau));
 
-%l1_bound = 1e0;
-%l2_bound = 1e-1;
+l1_bound = 1e-0;
+l2_bound = 1e-1;
 
-%l1_reg = 1e-1; 
-%l2_reg = 1e-0;
-l1_reg = 1e-2; 
-l2_reg = 0;
+%l1_reg = 1e0;
+%l2_reg = 1e1;
 Result = struct();
 
 B = zeros(K, tau);
@@ -86,23 +85,26 @@ for j=1:tau
     Xj = [Xs{j}];
     % DFmax = maximum number of non-zero coefficients
     %
-    %cvx_begin
-    %   variable be(K)
-    %   %minimize ( quad_form( X'*Gamma'*be - Yj', eye(ntr) ));
-    %   minimize( norm( Xj' * be - Yj', 2 )/ntr )
-    %   subject to
-    %       ones(1, K) * be <= l1_bound 
-    %       norm(be, 2) <= l2_bound
-    %       be >= 0
-    %cvx_end
-
     cvx_begin
       cvx_precision medium
       variable be(K)
-      minimize( norm( Xs{j}' * be - Yj', 1 )/ntr + l1_reg*ones(1, K)*be/K + l2_reg*norm(be, 2)/K )
+      %minimize ( quad_form( Xj'*be - Yj', eye(ntr) ));
+      minimize( norm( Xj' * be - Yj', 2 )/ntr )
       subject to
+          %ones(1, K) * be <= l1_bound 
+          norm(be, 1) <= l1_bound 
+          norm(be, 2) <= l2_bound
+          %be'*be <= l2_bound^2
           be >= 0
     cvx_end
+
+    %cvx_begin
+    %  cvx_precision medium
+    %  variable be(K)
+    %  minimize( norm( Xs{j}' * be - Yj', 1 )/ntr + l1_reg*ones(1, K)*be/K + l2_reg*norm(be, 2)/K )
+    %  subject to
+    %      be >= 0
+    %cvx_end
     B(:, j) = be(1:K);
     clear be;
 end
