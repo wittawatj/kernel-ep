@@ -23,6 +23,8 @@ classdef SigmoidBundleGenerator < BundleGenerator & HasOptions
             kv.iw_samples='Number of importance weights to draw';
             kv.sample_cond_msg=['If true, sample from the conditioning variable '...
                 'messages instead. If false, use in_proposal.'];
+            kv.is_beta_observed=['If true, assume the Beta variable is observed. ',...
+                'Only Beta(1,2) and Beta(2,1) are incoming messages from Beta var.']
 
             od=OptionsDescription(kv);
         end
@@ -39,6 +41,8 @@ classdef SigmoidBundleGenerator < BundleGenerator & HasOptions
             st.iw_samples=2e4;
             % Should we sample_cond_msg ? 
             st.sample_cond_msg=false;
+            % If true, assume Beta variable is observed. 
+            st.is_beta_observed = false;
 
             Op=Options(st);
         end
@@ -48,15 +52,16 @@ classdef SigmoidBundleGenerator < BundleGenerator & HasOptions
             % index=1 -> x in p(x|t)
             assert(varOutIndex==1 || varOutIndex==2);
             op=this.getDefaultOptions().toStruct();
+            is_beta_observed = this.opt('is_beta_observed');
             if varOutIndex==1
                 op.right_distbuilder=[];
-                [ X, T, Xout, Tout ]=SigmoidBundleGenerator.genOutBundles(n, op);
+                [ X, T, Xout, Tout ]=SigmoidBundleGenerator.genOutBundles(n, op, is_beta_observed);
                 bundle=DefaultMsgBundle(Xout, {X, T});
                 assert(isempty(Tout));
 
             else
                 op.left_distbuilder=[];
-                [ X, T, Xout, Tout ]=SigmoidBundleGenerator.genOutBundles(n, op);
+                [ X, T, Xout, Tout ]=SigmoidBundleGenerator.genOutBundles(n, op, is_beta_observed);
                 bundle=DefaultMsgBundle(Tout, {X, T});
                 assert(isempty(Xout));
 
@@ -67,7 +72,8 @@ classdef SigmoidBundleGenerator < BundleGenerator & HasOptions
         function fbundles=genBundles(this, n)
 
             op=this.options.toStruct();
-            [ X, T, Xout, Tout ]=SigmoidBundleGenerator.genOutBundles(n, op);
+            is_beta_observed = this.opt('is_beta_observed');
+            [ X, T, Xout, Tout ]=SigmoidBundleGenerator.genOutBundles(n, op, is_beta_observed);
             Xda=DistArray(X);
             Tda=DistArray(T);
             Xoutda=DistArray(Xout);
@@ -100,7 +106,7 @@ classdef SigmoidBundleGenerator < BundleGenerator & HasOptions
             s = 1./(1+exp(-z));
         end
 
-        function [ X, T, Xout, Tout ]=genOutBundles(N, op)
+        function [ X, T, Xout, Tout ]=genOutBundles(N, op, is_beta_observed)
             %Generate training set (messages) for sigmoid factor.
             %
             % T = theta
@@ -123,9 +129,17 @@ classdef SigmoidBundleGenerator < BundleGenerator & HasOptions
             %AX = gamrnd(1, 20, 1, N);
             %BX = gamrnd(1, 20, 1, N);
             %
-            AX = unifrnd(0.01, 20, 1, N);
-            BX = unifrnd(0.01, 20, 1, N);
-            X = DistBeta(AX, BX);
+            if is_beta_observed
+                allPoss = cell(1, 2);
+                allPoss{1} = DistBeta(1, 2);
+                allPoss{2} = DistBeta(2, 1);
+                X = allPoss(randi([1, 2], 1, N));
+                X = [X{:}];
+            else
+                AX = unifrnd(0.01, 20, 1, N);
+                BX = unifrnd(0.01, 20, 1, N);
+                X = DistBeta(AX, BX);
+            end
             
             %X = DistBeta(repmat(2, 1, N), repmat(3, 1, N));
             %assert(all([X.mean]>=from & [X.mean]<=1-from) )
