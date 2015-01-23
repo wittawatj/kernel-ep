@@ -7,7 +7,8 @@ rng(seed, 'twister');
 
 se=BundleSerializer();
 %bunName='sigmoid_bw_proposal_2000';
-bunName='sigmoid_bw_proposal_5000';
+bunName = 'sigmoid_bw_zobserved_proposal_5000';
+%bunName='sigmoid_bw_proposal_5000';
 %bunName='sigmoid_bw_proposal_1000';
 %bunName='sigmoid_bw_proposal_10000';
 %bunName='sigmoid_bw_proposal_20000';
@@ -69,8 +70,8 @@ for t=1:tau
 end
 %Gamma = kron(eye(K), ones(1, tau));
 
-l1_bound = 1e-0;
-l2_bound = 1e-1;
+l1_bound = 1e-1;
+l2_bound = 1e-2;
 
 %l1_reg = 1e0;
 %l2_reg = 1e1;

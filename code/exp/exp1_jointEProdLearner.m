@@ -7,7 +7,8 @@ oldRng=rng();
 rng(seed, 'twister');
 
 se=BundleSerializer();
-bunName='sigmoid_bw_proposal_10000';
+bunName = 'sigmoid_bw_zobserved_proposal_10000';
+%bunName='sigmoid_bw_proposal_10000';
 %bunName='sigmoid_bw_proposal_1000';
 %bunName=sprintf('sigmoid_bw_%s_25000', anno);
 %bunName=sprintf('sigmoid_bw_%s_2000', anno);
@@ -17,10 +18,10 @@ bundle=se.loadBundle(bunName);
 
 ntr = 2000;
 nte = 4000;
-candidate_primal_features = 1000;
-use_cmaes = false;
+candidate_primal_features = 500;
+use_cmaes = true;
 
-medf=[1/50, 1/10, 1/5, 1/2, 1, 2, 5, 10, 50 ];
+medf=[1/100, 1/50, 1/10, 1/5, 1/3, 1/2, 1, 2, 3, 5, 10, 50, 100 ];
 
 [trBundle, teBundle] = bundle.partitionTrainTest(ntr, nte);
 trTensor=trBundle.getInputTensorInstances();
@@ -58,7 +59,7 @@ timeStamp = clock();
 % save so it can be loaded next time
 
 % save everything
-cma_tags = {'', 'cma'};
+cma_tags = {'', '_cma'};
 cma_tag =  cma_tags{use_cmaes+1};
 iden=sprintf('%s_%s_ntr%d%s.mat', class(learner), bunName, ntr, cma_tag);
 expNumFile=Expr.expSavedFile(1, iden);

@@ -2,12 +2,16 @@ function [ ] = ichol_learn( )
 %ICHOL_LEARN test learning operator with incomplete Cholesky
 %
 
-seed=32;
+seed=33;
 oldRng=rng();
 rng(seed, 'twister');
 
 se=BundleSerializer();
-bunName='sigmoid_bw_proposal_10000';
+%bunName = 'binlogistic_bw_12400';
+bunName = 'binlogistic_bw_2400';
+%bunName='sigmoid_bw_proposal_10000';
+%bunName = 'sigmoid_bw_zobserved_proposal_20000';
+%bunName = 'sigmoid_bw_zobserved_proposal_40000';
 %bunName='sigmoid_bw_proposal_5000';
 %bunName = 'sigmoid_fw_proposal_5000';
 % Nicolas's data. Has almost 30000 pairs.
@@ -20,47 +24,55 @@ bundle=se.loadBundle(bunName);
 
 %n=5000;
 %n=25000;
+%[trBundle, teBundle] = bundle.partitionTrainTest(4000, 4000);
+%[trBundle, teBundle] = bundle.partitionTrainTest(500, 1900);
+[trBundle, teBundle] = bundle.partitionTrainTest(200, 2200);
 %[trBundle, teBundle] = bundle.partitionTrainTest(3000, 2000);
-[trBundle, teBundle] = bundle.partitionTrainTest(6000, 4000);
+%[trBundle, teBundle] = bundle.partitionTrainTest(6000, 4000);
+%[trBundle, teBundle] = bundle.partitionTrainTest(30000, 5000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(500, 300);
 
 %---------- options -----------
 learner=ICholMapperLearner();
 inTensor = bundle.getInputTensorInstances();
 % median factors 
-medf = [1/10, 1/5, 1, 5, 10];
+medf = [1/10, 1/5, 1/2, 1, 2, 5, 10];
 %kernel_candidates=KEGaussian.productCandidatesAvgCov(inTensor, medf, 2000);
 % in computing KGGaussian, non-Gaussian distributions will be treated as a Gaussian.
-kernel_candidates = KGGaussian.productCandidatesAvgCov(inTensor, medf, 3000);
-display(sprintf('Totally %d kernel candidates for ichol.', length(kernel_candidates)));
+kernel_candidates = KGGaussian.productCandidatesAvgCov(inTensor, medf, 2000);
+display(sprintf('Total %d kernel candidates for ichol.', length(kernel_candidates)));
 
 od=learner.getOptionsDescription();
 display(' Learner options: ');
 od.show();
 
+%out_msg_distbuilder = DNormalSDBuilder();
+%out_msg_distbuilder = DistNormalBuilder();
+out_msg_distbuilder = DNormalLogVarBuilder();
 % set my options
 learner.opt('seed', seed);
-%learner.opt('out_msg_distbuilder', DNormalLogVarBuilder());
-learner.opt('out_msg_distbuilder', DNormalSDBuilder());
-
+learner.opt('out_msg_distbuilder', out_msg_distbuilder);
 learner.opt('kernel_candidates', kernel_candidates );
 learner.opt('num_ho', 3);
-learner.opt('ho_train_size', 2000);
-learner.opt('ho_test_size', 2000);
+%learner.opt('ho_train_size', 1000);
+%learner.opt('ho_test_size', 1500);
+learner.opt('ho_train_size', 100);
+learner.opt('ho_test_size', 100);
 learner.opt('chol_tol', 1e-15);
 learner.opt('chol_maxrank_train', 100);
-learner.opt('chol_maxrank', 1000);
-learner.opt('use_multicore', true);
-learner.opt('reglist', [1e-4, 1e-3, 1e-2, 1e-1 ,1 ]);
+learner.opt('chol_maxrank', 800);
+learner.opt('reglist', [1e-4, 1e-3, 1e-2, 1e-1, 1]);
 learner.opt('separate_outputs', true);
+learner.opt('use_multicore', true);
 
 s=learnMap(learner, trBundle, teBundle, bunName);
 n=length(trBundle)+length(teBundle);
-iden=sprintf('ichol_learn_%s_%s_%d.mat', class(learner), bunName, n);
+ntr = length(trBundle);
+iden=sprintf('ichol_learn_%s_%s_ntr%d_%s.mat', class(learner), bunName, ntr, class(out_msg_distbuilder));
 fpath=Expr.scriptSavedFile(iden);
 
 timeStamp=clock();
-save(fpath, 's', 'timeStamp', 'trBundle', 'teBundle');
+save(fpath, 's', 'timeStamp', 'trBundle', 'teBundle', 'out_msg_distbuilder');
 
 rng(oldRng);
 
@@ -79,18 +91,18 @@ function s=learnMap(learner, trBundle, teBundle, bunName)
     % learn a DistMapper
     [dm, learnerLog]=learner.learnDistMapper(trBundle);
 
-    % test the learned DistMapper dm
-    % KL or Hellinger
-    divTester=DivDistMapperTester(dm);
-    divTester.opt('div_function', 'KL'); 
-    % test on the test MsgBundle
-    %keyboard
-    [Divs, outDa]=divTester.testDistMapper(teBundle);
-    assert(isa(outDa, 'DistArray'));
+    %% test the learned DistMapper dm
+    %% KL or Hellinger
+    %divTester=DivDistMapperTester(dm);
+    %divTester.opt('div_function', 'KL'); 
+    %% test on the test MsgBundle
+    %%keyboard
+    %[Divs, outDa]=divTester.testDistMapper(teBundle);
+    %assert(isa(outDa, 'DistArray'));
 
-    % Check improper messages
-    impTester=ImproperDistMapperTester(dm);
-    impOut=impTester.testDistMapper(teBundle);
+    %% Check improper messages
+    %impTester=ImproperDistMapperTester(dm);
+    %impOut=impTester.testDistMapper(teBundle);
 
     % save everything
     commit=GitTool.getCurrentCommit();
@@ -103,11 +115,11 @@ function s=learnMap(learner, trBundle, teBundle, bunName)
     s.learner_options=learner.options;
     s.dist_mapper=dm;
     s.learner_log=learnerLog;
-    s.div_tester=divTester;
-    s.divs=Divs;
-    s.out_distarray=outDa;
-    s.imp_tester=impTester;
-    s.imp_out=impOut;
+    %s.div_tester=divTester;
+    %s.divs=Divs;
+    %s.out_distarray=outDa;
+    %s.imp_tester=impTester;
+    %s.imp_out=impOut;
     s.commit=commit;
     s.timeStamp=timeStamp;
 

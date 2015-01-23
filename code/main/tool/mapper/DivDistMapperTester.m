@@ -179,14 +179,19 @@ classdef DivDistMapperTester < DistMapperTester
                 sprintf('Median prediction 2. Log div: %.3f', soLogDivs(m2)));
 
             % 75th percentile
-            p75 = floor(nte*0.75);
+            %p75 = floor(nte*0.75);
+            %subplot(2, 2, 4);
+            %this.plotOutputPairs(soOutDa.get(p75), soTrueOutDa.get(p75), ...
+            %   sprintf('75th percentile. Log div: %.3f', soLogDivs(p75)));
+            %
+            p99 = floor(nte*0.99);
             subplot(2, 2, 4);
-            this.plotOutputPairs(soOutDa.get(p75), soTrueOutDa.get(p75), ...
-                sprintf('75th percentile. Log div: %.3f', soLogDivs(p75)));
+            this.plotOutputPairs(soOutDa.get(p99), soTrueOutDa.get(p99), ...
+               sprintf('99th percentile. Log div: %.3f', soLogDivs(p99)));
 
             % worst 
             %this.plotOutputPairs(soOutDa.get(nte), soTrueOutDa.get(nte), ...
-            %    sprintf('Worst prediction. Log div: %.3f', soLogDivs(nte)));
+            %   sprintf('Worst prediction. Log div: %.3f', soLogDivs(nte)));
         end
 
         function [Divs, outDa]=plotMeanVarianceErrors(this, testBundle)

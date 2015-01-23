@@ -3,15 +3,12 @@
 % Only two possible incoming messages from the variable: 
 %   Beta(1, 2) or Beta(2, 1)
 %
-n=2e4;
+%n=5e4;
+n=1e5;
 % subsample into smaller pieces and save
-%subsamples=[2e4, 5e4, 1e5];
-%subsamples=[1e4, 25e3, 5e4 ];
-%subsamples=[5e3];
 %subsamples= [1e3, 2e4, 3e4, 4e4, 7e4, 1e5, 15e4, 2e5];
-subsamples= [1e3, 2e3, 5e3, 1e4, 2e4];
-%subsamples= [1e3, 2e3, 5e3];
-%subsamples = [2e4, 3e4, 5e4, 7e4, 1e5];
+%subsamples = [2e4, 3e4, 4e4, 5e4];
+subsamples = [6e4, 7e4, 8e4, 9e4, 1e5];
 
 sg=SigmoidBundleGenerator();
 % use proposal

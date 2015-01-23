@@ -56,13 +56,13 @@ classdef SigmoidBundleGenerator < BundleGenerator & HasOptions
             if varOutIndex==1
                 op.right_distbuilder=[];
                 [ X, T, Xout, Tout ]=SigmoidBundleGenerator.genOutBundles(n, op, is_beta_observed);
-                bundle=DefaultMsgBundle(Xout, {X, T});
+                bundle=DefaultMsgBundle(Xout, X, T);
                 assert(isempty(Tout));
 
             else
                 op.left_distbuilder=[];
                 [ X, T, Xout, Tout ]=SigmoidBundleGenerator.genOutBundles(n, op, is_beta_observed);
-                bundle=DefaultMsgBundle(Tout, {X, T});
+                bundle=DefaultMsgBundle(Tout, X, T);
                 assert(isempty(Xout));
 
             end
