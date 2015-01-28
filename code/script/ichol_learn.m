@@ -7,8 +7,8 @@ oldRng=rng();
 rng(seed, 'twister');
 
 se=BundleSerializer();
-%bunName = 'binlogistic_bw_12400';
-bunName = 'binlogistic_bw_2400';
+%bunName = 'binlogis_bw_n400_iter20_s1';
+bunName = 'binlogis_fw_n1000_iter5_s1';
 %bunName='sigmoid_bw_proposal_10000';
 %bunName = 'sigmoid_bw_zobserved_proposal_20000';
 %bunName = 'sigmoid_bw_zobserved_proposal_40000';
@@ -26,17 +26,18 @@ bundle=se.loadBundle(bunName);
 %n=25000;
 %[trBundle, teBundle] = bundle.partitionTrainTest(4000, 4000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(500, 1900);
-[trBundle, teBundle] = bundle.partitionTrainTest(200, 2200);
+%[trBundle, teBundle] = bundle.partitionTrainTest(500, 1900);
 %[trBundle, teBundle] = bundle.partitionTrainTest(3000, 2000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(6000, 4000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(30000, 5000);
-%[trBundle, teBundle] = bundle.partitionTrainTest(500, 300);
+[trBundle, teBundle] = bundle.partitionTrainTest(500, 500);
 
 %---------- options -----------
 learner=ICholMapperLearner();
 inTensor = bundle.getInputTensorInstances();
 % median factors 
-medf = [1/10, 1/5, 1/2, 1, 2, 5, 10];
+%medf = [1/10, 1/5, 1/2, 1, 2, 5, 10];
+medf = [1];
 %kernel_candidates=KEGaussian.productCandidatesAvgCov(inTensor, medf, 2000);
 % in computing KGGaussian, non-Gaussian distributions will be treated as a Gaussian.
 kernel_candidates = KGGaussian.productCandidatesAvgCov(inTensor, medf, 2000);
@@ -48,7 +49,8 @@ od.show();
 
 %out_msg_distbuilder = DNormalSDBuilder();
 %out_msg_distbuilder = DistNormalBuilder();
-out_msg_distbuilder = DNormalLogVarBuilder();
+%out_msg_distbuilder = DNormalLogVarBuilder();
+out_msg_distbuilder = DistBetaBuilder();
 % set my options
 learner.opt('seed', seed);
 learner.opt('out_msg_distbuilder', out_msg_distbuilder);
@@ -56,14 +58,15 @@ learner.opt('kernel_candidates', kernel_candidates );
 learner.opt('num_ho', 3);
 %learner.opt('ho_train_size', 1000);
 %learner.opt('ho_test_size', 1500);
-learner.opt('ho_train_size', 100);
-learner.opt('ho_test_size', 100);
-learner.opt('chol_tol', 1e-15);
+learner.opt('ho_train_size', 200);
+learner.opt('ho_test_size', 200);
+learner.opt('chol_tol', 1e-8);
 learner.opt('chol_maxrank_train', 100);
-learner.opt('chol_maxrank', 800);
+learner.opt('chol_maxrank', 800 );
 learner.opt('reglist', [1e-4, 1e-3, 1e-2, 1e-1, 1]);
 learner.opt('separate_outputs', true);
-learner.opt('use_multicore', true);
+%learner.opt('use_multicore', true);
+learner.opt('use_multicore', false);
 
 s=learnMap(learner, trBundle, teBundle, bunName);
 n=length(trBundle)+length(teBundle);

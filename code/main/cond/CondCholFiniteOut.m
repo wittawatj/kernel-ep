@@ -40,6 +40,9 @@ classdef CondCholFiniteOut < InstancesMapper
             assert(isnumeric(lambda) && lambda >= 0);
             
             this.In = In;
+            if ~all(isfinite(Out)) 
+                error('Out contains non-finite entries');
+            end
             this.Out = Out;
             this.kfunc = kfunc;
             this.R = R;

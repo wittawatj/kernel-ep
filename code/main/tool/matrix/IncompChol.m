@@ -97,9 +97,8 @@ classdef IncompChol < handle
             ell = X.count();
             if nargin < 4 
                 maxrank = ell;
-            elseif maxrank <= 0
-                maxrank = ell;
             end
+            maxrank = max(0, min(maxrank, ell) );
             j = 0;
             R = zeros(maxrank, ell);
 %             R = gpuArray(R);
@@ -131,7 +130,7 @@ classdef IncompChol < handle
                 
                 d = d - R(j, :).^2;
                 [a, I(j+1)] = max(d);
-                if j >= maxrank
+                if j >= min(maxrank, ell)
                     % maxrank reached. stop
                     break;
                 end

@@ -3,9 +3,10 @@ classdef FactorOpSerializer < handle
     %   .
     
     properties(Constant)
-        % Asssume relative to the first-level folder
+        % Assume relative to the first-level folder
         DEFAULT_FACTOROP_FOLDER='saved/factor_op';
         FNAME_PREFIX='factorOp_';
+        % serialized version is intended to be used in Infer.NET
         SERIALIZED_FNAME_PREFIX='serialFactorOp_';
     end
     
