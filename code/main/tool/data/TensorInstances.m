@@ -1,4 +1,4 @@
-classdef TensorInstances < Instances
+classdef TensorInstances < Instances & PrimitiveSerializable
     %TENSORINSTANCES Meta Instances allowing a combination of many
     %Instances's
     %  The main purpose of this is to form a joint Instances in a tensor
@@ -56,6 +56,18 @@ classdef TensorInstances < Instances
             dim = length(this.instancesCell);
         end
 
+        % from PrimitiveSerializable interface
+        function s=toStruct(this)
+            s = struct();
+            s.className=class(this);
+            instancesCount = length(this.instancesCell);
+            cellStruct = cell(1, instancesCount);
+            for i=1:instancesCount
+                cellStruct{i} = this.instancesCell{i}.toStruct();
+            end
+            s.instancesCell = cellStruct;
+            s.instancesCount = instancesCount;
+        end
     end
     
 end

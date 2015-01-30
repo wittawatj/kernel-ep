@@ -1,4 +1,4 @@
-classdef KGGaussian < Kernel
+classdef KGGaussian < Kernel & PrimitiveSerializable
     %KGGAUSSIAN Kernel for distributions defined as the Gaussian kernel on
     %the mean embeddings into Gaussian RKHS.
     %
@@ -74,6 +74,18 @@ classdef KGGaussian < Kernel
         
         function s=shortSummary(this)
             s = sprintf('%s(%.2g, %.2g)', mfilename, this.embed_width2, this.width2 );
+        end
+
+        % from PrimitiveSerializable interface
+        function s=toStruct(this)
+            %kegauss;
+            %embed_width2;
+            %width2;
+            s = struct();
+            s.className=class(this);
+            s.kegauss = this.kegauss.toStruct();
+            s.embed_width2 = this.embed_width2;
+            s.width2 = this.width2;
         end
     end
     

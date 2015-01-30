@@ -1,4 +1,4 @@
-classdef DNormalLogVarBuilder < DistNormalBuilder
+classdef DNormalLogVarBuilder < DistNormalBuilder & PrimitiveSerializable
     %DNORMALLOGVARBUILDER DistBuilder for DistNormal by construct to/from a normal with 
     %log variance
     %    Work only for 1d Gaussians.
@@ -57,6 +57,10 @@ classdef DNormalLogVarBuilder < DistNormalBuilder
             s = mfilename;
         end
 
+        % From PrimitiveSerializable interface 
+        function s=toStruct(this)
+            s.className=class(this);
+        end
         %%%%%%%%%%%%%%%%%%%%5
         
     end

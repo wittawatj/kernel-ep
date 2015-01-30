@@ -11,7 +11,8 @@ for fi=1:length(folders)
 end
 
 % folders to be added by genpath
-gfolders = {'3rdparty/minFunc_2012/', '3rdparty/cvx/', '3rdparty/xunit', '3rdparty/multicore', 'main', 'exp'};
+gfolders = {'3rdparty/minFunc_2012/', 'script/logistic_msg/', '3rdparty/cvx/',...
+    '3rdparty/xunit', '3rdparty/multicore', 'main', 'exp'};
 for i=1:length(gfolders)
     fol = gfolders{i};
     p = [base , fs, fol];

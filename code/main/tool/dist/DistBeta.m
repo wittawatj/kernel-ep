@@ -1,5 +1,5 @@
 classdef DistBeta < handle &  Sampler & Density & Distribution ...
-        & HasHellingerDistance & HasKLDivergence
+        & HasHellingerDistance & HasKLDivergence & PrimitiveSerializable
     %DISTBETA Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -114,6 +114,24 @@ classdef DistBeta < handle &  Sampler & Density & Distribution ...
         function s=saveobj(this)
             s.alpha=this.alpha;
             s.beta=this.beta;
+        end
+
+        % from PrimitiveSerializable interface
+        function s=toStruct(this)
+            %alpha;
+            %beta;
+            %mean;
+            %variance;
+            %% from Distribution
+            %parameters;
+            %d;
+            s = struct();
+            s.className=class(this);
+            % alpha can be a vector
+            s.alpha = this.alpha;
+            s.beta = this.beta;
+            %s.mean = this.mean;
+            %s.variance = this.variance;
         end
     end
     

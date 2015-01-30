@@ -1,5 +1,6 @@
 classdef DistNormal < handle & GKConvolvable & Sampler ...
-        & Density & Distribution & HasHellingerDistance & HasKLDivergence
+        & Density & Distribution & HasHellingerDistance & HasKLDivergence ...
+        & PrimitiveSerializable
     %DIST_NORMAL Gaussian distribution object for kernel EP framework.
     
     properties (SetAccess=protected)
@@ -223,6 +224,23 @@ classdef DistNormal < handle & GKConvolvable & Sampler ...
             s.variance=this.variance;
         end
 
+        % from PrimitiveSerializable interface
+        function s=toStruct(this)
+            %mean
+            %% precision matrix
+            %precision
+            %d %dimension
+            %variance=[];
+            %% from Distribution
+            %parameters;
+            s = struct();
+            s.className=class(this);
+            % mean can be a vector
+            s.mean = this.mean;
+            %s.d = this.d;
+            s.variance = this.variance; 
+            %s.precision = this.precision;
+        end
     end %end methods
 
 

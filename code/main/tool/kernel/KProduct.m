@@ -1,4 +1,4 @@
-classdef KProduct < Kernel
+classdef KProduct < Kernel & PrimitiveSerializable
     %KPRODUCT A product kernel. 
     % - Take multiple other kernels and form a product kernel. This is a meta
     % kernel in the sense that it does nothing by its own. It relies on the
@@ -90,6 +90,20 @@ classdef KProduct < Kernel
             end
 
             s = ['{', s, Strs{end}, '}'];
+        end
+
+        % from PrimitiveSerializable interface
+        function s=toStruct(this)
+            % cell array of Kernel's
+            %kernels;
+            s = struct();
+            s.className=class(this);
+            kcount = length(this.kernels);
+            kerCell = cell(1, kcount);
+            for i=1:kcount
+                kerCell{i} = this.kernels{i}.toStruct();
+            end
+            s.kernels = kerCell;
         end
     end
     

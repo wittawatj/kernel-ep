@@ -1,4 +1,4 @@
-classdef DistArray < Distribution & Instances
+classdef DistArray < Distribution & Instances & PrimitiveSerializable
     %DISTARRAY Distribution array. 
     %  Subclass of Distribution so that it has the same interface. 
     %  Also an Instances.
@@ -149,6 +149,24 @@ classdef DistArray < Distribution & Instances
             s.distArray=this.distArray;
         end
 
+        % from PrimitiveSerializable interface
+        function s=toStruct(this)
+            %distArray;
+            %mean;
+            %variance;
+            %parameters;
+            %d;
+            s = struct();
+            s.className=class(this);
+            distCell = cell(1, length(this.distArray));
+            for i=1:length(this.distArray)
+                dist = this.distArray(i);
+                distCell{i} = dist.toStruct();
+            end
+            s.distArray = distCell;
+            s.mean = this.mean;
+            s.variance = this.variance;
+        end
     end
 
     methods(Static)

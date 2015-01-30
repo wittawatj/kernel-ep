@@ -4,9 +4,7 @@ classdef DefaultFactorOperator < FactorOperator
     
     properties(SetAccess=private)
         % cell array of DistMapper's in order of indices to be used 
-        % with getDistMapper(index). The length of distMappers should be the 
-        % same as the number of variables connected to the factor. 
-        % The order is 1, 2, 3,... as in p(x_1 | x_2, x_3,..).
+        % with getDistMapper(index).
         distMappers;
 
         % string for shortSummary()

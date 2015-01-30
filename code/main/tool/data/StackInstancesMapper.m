@@ -1,4 +1,4 @@
-classdef StackInstancesMapper < InstancesMapper
+classdef StackInstancesMapper < InstancesMapper & PrimitiveSerializable
     %STACKINSTANCESMAPPER An InstancesMapper which stacks other InstancesMapper's
     %   - The output of each InstancesMapper is assumed to be a vector.
     
@@ -37,6 +37,18 @@ classdef StackInstancesMapper < InstancesMapper
                 st = sprintf('%s, %s', st, mi.shortSummary());
             end
             s = [st, ')'];
+        end
+
+        % from PrimitiveSerializable interface
+        function s=toStruct(this)
+            s = struct();
+            s.className=class(this);
+            mapperCount = length(this.instancesMappers);
+            mapperCell = cell(1, mapperCount);
+            for i=1:mapperCount
+                mapperCell{i} = this.instancesMappers{i}.toStruct();
+            end
+            s.instancesMappers = mapperCell;
         end
     end %end methods
     

@@ -1,4 +1,4 @@
-classdef CondCholFiniteOut < InstancesMapper
+classdef CondCholFiniteOut < InstancesMapper & PrimitiveSerializable
     %CONDCHOLFINITEOUT Generic conditional mean embedding operator using incomplete
     %Cholesky for outputs using finite-dimensional feature maps.
     % C_{Z|X} where Z is the output, X is the input. This class supports
@@ -94,11 +94,29 @@ classdef CondCholFiniteOut < InstancesMapper
             s = sprintf('%s(r=%d)', mfilename, size(this.R, 1));
         end
 
-        
+        % from PrimitiveSerializable interface
+        function s=toStruct(this)
+            %In; %X Instances
+            %Out; %Z matrix
+            %kfunc; % Kernel
+            %R; % Cholesky factor of kernel matrix on In 
+            %regparam; %regularization parameter
+
+            %% (Z-Out*R'(RR' + lambda*eye(ra))^-1 R)/lamb. Needed in mapInstances()
+            %ZOutR3;
+            %
+            s = struct();
+            s.className=class(this);
+            s.instances = this.In.toStruct();
+            s.kfunc = this.kfunc.toStruct();
+            % a matrix
+            s.ZOutR3 = this.ZOutR3;
+        end
+
     end %end methods
-    
+
     methods (Static)
-        
+
         function [Op, C] = learn_operator(In, Out,  op)
             assert(isa(In, 'Instances'));
             [ C] = cond_ho_finiteout( In, Out, op );
@@ -117,9 +135,9 @@ classdef CondCholFiniteOut < InstancesMapper
             lambda = C.blambda;
             Op = CondCholFiniteOut(ichol.R, In, Out, kfunc, lambda);
         end
-        
-      
+
+
     end
-    
+
 end
 

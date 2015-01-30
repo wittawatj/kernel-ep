@@ -1,4 +1,4 @@
-classdef KEGaussian < Kernel
+classdef KEGaussian < Kernel & PrimitiveSerializable
     %KEGAUSSIAN Kernel for distributions defined as the inner product of
     %their mean embeddings into Gaussian RKHS.
     %
@@ -146,6 +146,15 @@ classdef KEGaussian < Kernel
 
         function s=shortSummary(this)
             s = sprintf('%s([%s])', mfilename, num2str(this.gwidth2s) );
+        end
+        
+        % from PrimitiveSerializable interface
+        function s=toStruct(this)
+            % Gaussian width^2 for each dimension 
+            %gwidth2s;
+            s = struct();
+            s.className=class(this);
+            s.gwidth2s = this.gwidth2s;
         end
     end %end methods
 
