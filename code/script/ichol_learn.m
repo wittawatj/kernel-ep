@@ -7,8 +7,8 @@ oldRng=rng();
 rng(seed, 'twister');
 
 se=BundleSerializer();
-%bunName = 'binlogis_fw_n400_iter5_sf1_st20';
-bunName = 'binlogis_bw_n400_iter5_sf1_st20';
+bunName = 'binlogis_fw_n400_iter5_sf1_st20';
+%bunName = 'binlogis_bw_n400_iter5_sf1_st20';
 %bunName = 'binlogis_bw_n400_iter20_s1';
 %bunName = 'binlogis_fw_n1000_iter5_s1';
 %bunName='sigmoid_bw_proposal_10000';
@@ -26,7 +26,7 @@ bundle=se.loadBundle(bunName);
 
 %n=5000;
 %n=25000;
-[trBundle, teBundle] = bundle.partitionTrainTest(4000, 2000);
+[trBundle, teBundle] = bundle.partitionTrainTest(6000, 1000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(500, 1900);
 %[trBundle, teBundle] = bundle.partitionTrainTest(3000, 1000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(6000, 4000);
@@ -50,8 +50,9 @@ od.show();
 
 %out_msg_distbuilder = DNormalSDBuilder();
 %out_msg_distbuilder = DistNormalBuilder();
-out_msg_distbuilder = DNormalLogVarBuilder();
+%out_msg_distbuilder = DNormalLogVarBuilder();
 %out_msg_distbuilder = DistBetaBuilder();
+out_msg_distbuilder = DBetaLogBuilder();
 % set my options
 learner.opt('seed', seed);
 learner.opt('out_msg_distbuilder', out_msg_distbuilder);

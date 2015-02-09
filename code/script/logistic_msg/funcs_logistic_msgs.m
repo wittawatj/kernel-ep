@@ -130,9 +130,12 @@ end
 function genSigmoidFactorOperator()
    % convenient method to generate a sigmoid FactorOperator from results 
    % in script/saved/
-   bwFile = 'ichol_learn_ICholMapperLearner_binlogis_bw_n400_iter5_sf1_st20_ntr4000_DNormalLogVarBuilder.mat';  
-   fwFile = 'ichol_learn_ICholMapperLearner_binlogis_fw_n400_iter5_sf1_st20_ntr4000_DistBetaBuilder.mat';
-   foName='ichol_n400_iter5_sf1_st200_ntr4000';
+   %bwFile = 'ichol_learn_ICholMapperLearner_binlogis_bw_n400_iter5_sf1_st20_ntr4000_DNormalLogVarBuilder.mat';  
+   bwFile = 'ichol_learn_ICholMapperLearner_binlogis_bw_n400_iter5_sf1_st20_ntr6000_DNormalLogVarBuilder.mat';  
+   %fwFile = 'ichol_learn_ICholMapperLearner_binlogis_fw_n400_iter5_sf1_st20_ntr4000_DistBetaBuilder.mat';
+   %fwFile = 'ichol_learn_ICholMapperLearner_binlogis_fw_n400_iter5_sf1_st20_ntr4000_DBetaLogBuilder.mat';
+   fwFile = 'ichol_learn_ICholMapperLearner_binlogis_fw_n400_iter5_sf1_st20_ntr6000_DBetaLogBuilder.mat';
+   foName='ichol_logbeta_n400_iter5_sf1_st200_ntr6000';
 
    summary=sprintf(['sigmoid factor. p(x1|x2) where x1 is Beta and '...
        'x2 is Normal. fw: %s. bw: %s'], fwFile, bwFile);
