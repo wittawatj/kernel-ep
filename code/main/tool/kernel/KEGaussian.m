@@ -165,30 +165,30 @@ classdef KEGaussian < Kernel & PrimitiveSerializable
             assert(isnumeric(medf));
             assert(~isempty(medf));
             assert(all(medf>0));
-            if nargin < 3
+            if nargin < 4
                 subsamples = 5000;
             end
             numInput=T.tensorDim();
-            meanVars=zeros(1, numInput);
+            meanVars=cell(1, numInput);
             for i=1:numInput
                 da=T.instancesCell{i};
                 avgCov=RFGEProdMap.getAverageCovariance(da, subsamples);
-                % keep just one number, the mean, instead of the diagonal covariance.
                 % KEGaussian accepts one parameter for each dimension.
-                % But to be consistent with other methods, we use one scalar 
-                % parameter for each incoming variable.
-                meanVars(i)=mean(diag(avgCov));
+                meanVars{i} = diag(avgCov);
             end
 
             % total number of candidats = len(medf). Quite cheap.
             KCs = cell(1, length(medf));
             for ci=1:length(medf)
-                gwidth2s=meanVars*medf(ci);
+                gwidth2sCell = cellfun(@(celem)(celem*medf(ci)), meanVars, ...
+                    'UniformOutput', false );
+                %gwidth2s=meanVars*medf(ci);
                 Ks=cell(1, numInput);
                 for i=1:numInput
                     di=unique(T.instancesCell{i}.d);
                     assert(isscalar(di), 'DistArray does not contain Distributions with the same dimension');
-                    Ks{i}=KEGaussian(gwidth2s(i)*ones(di, 1));
+                    %Ks{i}=KEGaussian(gwidth2s(i)*ones(di, 1));
+                    Ks{i}=KEGaussian(gwidth2sCell{i});
                 end
                 ker=kerConstructFunc(Ks);
                 KCs{ci}=ker;
