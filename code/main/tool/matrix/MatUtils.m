@@ -35,6 +35,26 @@ classdef MatUtils < handle
             O = MatUtils.colKronecker(Y, X);
             O = reshape(O, [size(X,1), size(Y, 1), c]);
         end
+
+        function v = quadraticFormAlong3Dim(V, Q)
+            % Input:
+            %  - V: d x m
+            %  - Q: d x d x n 
+            % Output:
+            %  - v: v(i, j) = V(:, i)'*Q(:, :, j)*V(:, i), an m x n matrix
+            %
+            [d, m] = size(V);
+            n = size(Q, 3);
+            assert(size(Q, 1) == size(Q, 2), 'first two dimensions of Q must be the same.');
+            assert(size(V, 1) == size(Q, 1), 'dim 1 of V must be the same as dim 1,2 of Q');
+            left = V'*Q(:, :); % m x d*n
+            left3d = reshape(left, [m, d, n]);
+            v = zeros(m, n);
+            for i=1:n
+                v(:, i) = sum(left3d(:, :, i).*V', 2);
+            end
+
+        end
     end
 
 end

@@ -147,7 +147,7 @@ classdef RFGProductEProdMap < FeatureMap & PrimitiveSerializable
                 maps=cell(1, c);
                 if c==1
                     % 1 input variable
-                    maps{1}=RFGEProdMap(this.gwidth2s(i), this.numFeatures);
+                    maps{1}=RFGEProdMap(this.gwidth2s(1), this.numFeatures);
                     this.nfEach= this.numFeatures;
                 else 
                     nfEach = max(2, floor(this.numFeatures^(1/c)));

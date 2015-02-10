@@ -26,7 +26,7 @@ classdef KEGaussian < Kernel & PrimitiveSerializable
             % RKHS
             assert(isnumeric(gwidth2s));
             assert(all(gwidth2s>0));
-            this.gwidth2s=gwidth2s;
+            this.gwidth2s=gwidth2s(:)';
         end
         
         
@@ -71,10 +71,11 @@ classdef KEGaussian < Kernel & PrimitiveSerializable
                 Sigma=diag(this.gwidth2s);
                 assert(~isscalar(Sigma));
                 detSigmaInv=1/det(Sigma);
+                D1mean = [D1.mean];
                 for j=1:n2
                     dj=D2(j);
                     DetD=zeros(n1, 1);
-                    MStack=bsxfun(@minus, [D1.mean], dj.mean)';
+                    MStack=bsxfun(@minus, D1mean, dj.mean)';
                     MD=zeros(n1, d);
                     for i=1:n1
                         di=D1(i);
@@ -122,21 +123,19 @@ classdef KEGaussian < Kernel & PrimitiveSerializable
                 %
                 Sigma=diag(this.gwidth2s);
                 detSigmaInv=1/det(Sigma);
-                Invs=cell(1, n);
                 DetD=zeros(1, n);
+                MStack=bsxfun(@minus, [D1.mean], [D2.mean])';
+                Dist2 = zeros(1, n);
                 for i=1:n
                     d1=D1(i);
                     d2=D2(i);
                     % inv not a good idea ?
-                    Di=inv(d1.variance+d2.variance+Sigma);
-                    Invs{i}=Di;
-                    DetD(i)=det(Di);
+                    Eii = d1.variance+d2.variance+Sigma;
+                    DetD(i)=1/det(Eii);
+                    Dist2(i) = (MStack(i, :)/Eii)*MStack(i, :)';
                 end
-                InvStack=vertcat(Invs{:});
-                MStack=bsxfun(@minus, [D1.mean], [D2.mean])';
-                % column of multipliers
                 Z=sqrt(DetD/detSigmaInv);
-                Kvec=Z.*exp(-0.5* sum( (MStack*InvStack).*MStack, 2) )';
+                Kvec=Z.*exp(-0.5*Dist2);
             end
         end
 

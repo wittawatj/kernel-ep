@@ -13,7 +13,7 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
     properties (SetAccess=private)
         % Gaussian kernel for embedding
         kegauss;
-        % width2 for mean embeddings. 
+        % embedding width2 for mean embeddings. 
         % Generally there should be one parameter for each dimension of the 
         % input distributions. !! DO THIS LATER !!
         embed_width2;
@@ -27,17 +27,31 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
             % sigm2 = Width for embedding into Gaussian RKHS
             % width2 = Gaussian width^2. Not the one for embedding the
             % distribution.
+            assert(isscalar(width2));
             assert(width2 > 0, 'Gaussian width must be > 0');
-            assert(embed_width2 >0);
+            assert(all(embed_width2 >0));
+            % KEGaussian supports one width for each dimension 
             this.kegauss = KEGaussian(embed_width2);
             this.embed_width2 = embed_width2;
             this.width2 = width2;
         end
         
         
-        function Kmat = eval(this, data1, data2)
-            %             [Kmat, D2] = kerGGaussian(data1, data2, this.sigma2, this.width2);
-            Kmat = kerGGaussian(data1, data2, this.embed_width2, this.width2);
+        function Kmat = eval(this, P, Q)
+            assert(isa(P, 'Distribution'));
+            assert(isa(Q, 'Distribution'));
+            dim_p = unique([P.d]);
+            assert(length(dim_p) == 1, 'Dimensionally inhomogenous dist array P.');
+            dim_q = unique([Q.d]);
+            assert(length(dim_q) == 1, 'Dimensionally inhomogenous dist array Q.');
+            assert(dim_p == length(this.embed_width2), 'param length does not match dimension of P');
+            assert(dim_q == length(this.embed_width2), 'param length does not match dimension of P');
+
+            pp = this.kegauss.pairEval(P, P);
+            qq = this.kegauss.pairEval(Q, Q);
+            pq = this.kegauss.eval(P, Q);
+            D2 = bsxfun(@plus, pp(:), qq(:)') - 2*pq;
+            Kmat = exp( -D2/(2*this.width2) );
         end
         
         
@@ -48,24 +62,27 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
             assert(isa(X, 'Distribution'));
             assert(isa(Y, 'Distribution'));
             assert(length(X)==length(Y));
-
-            sigma2 = this.embed_width2;
-            w2 = this.width2;
             
-            if X(1).d==1
-                % operation on obj array can be expensive..
-                M1 = [X.mean];
-                V1 = [X.variance];
-                M2 = [Y.mean];
-                V2 = [Y.variance];
+            pp = this.kegauss.pairEval(P, P);
+            qq = this.kegauss.pairEval(Q, Q);
+            pq = this.kegauss.pairEval(P, Q);
+            D2 = pp + qq - 2*pq;
+            Kvec = exp(-D2(:)'/(2*this.width2));
+
+            %if X(1).d==1
+            %    % operation on obj array can be expensive..
+            %    M1 = [X.mean];
+            %    V1 = [X.variance];
+            %    M2 = [Y.mean];
+            %    V2 = [Y.variance];
                 
-                T1 = KEGauss1.self_inner1d(M1, V1, sigma2);
-                T2 = KEGauss1.self_inner1d(M2, V2, sigma2);
-                Cross = this.kegauss.pairEval(X, Y);
-                Kvec = exp(-(T1-2*Cross+T2)/(2*w2) );
-            else
-                error('later for multivariate');
-            end
+            %    T1 = KEGauss1.self_inner1d(M1, V1, sigma2);
+            %    T2 = KEGauss1.self_inner1d(M2, V2, sigma2);
+            %    Cross = this.kegauss.pairEval(X, Y);
+            %    Kvec = exp(-(T1-2*Cross+T2)/(2*w2) );
+            %else
+            %    error('later for multivariate');
+            %end
         end
         
         function Param = getParam(this)

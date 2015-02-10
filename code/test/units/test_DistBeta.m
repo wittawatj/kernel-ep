@@ -5,8 +5,8 @@ initTestSuite;
 end
 
 function test_mean()
-    d=DistBeta(1, 4);
-    assertElementsAlmostEqual(d.mean, 1/5 );
+   d=DistBeta(1, 4);
+   assertElementsAlmostEqual(d.mean, 1/5 );
 end
 
 
