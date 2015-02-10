@@ -41,13 +41,14 @@ medf = [1/10, 1/5, 1/2, 1, 2, 5, 10];
 %medf = [1];
 %kernel_candidates=KEGaussian.productCandidatesAvgCov(inTensor, medf, 2000);
 % in computing KGGaussian, non-Gaussian distributions will be treated as a Gaussian.
-kernel_choice = 'joint';
+kernel_choice = 'prod';
 
 if strcmp(kernel_choice, 'prod')
     kernel_candidates = KGGaussian.productCandidatesAvgCov(inTensor, medf, 2000);
 elseif strcmp(kernel_choice, 'sum')
     kernel_candidates = KGGaussian.ksumCandidatesAvgCov(inTensor, medf, 2000);
 elseif strcmp(kernel_choice, 'joint')
+    error('does not work because KGGaussian for multivariate case not implemented.');
     kernel_candidates= KGGaussianJoint.candidatesAvgCov(inTensor, medf, 2000);
 
 else 
