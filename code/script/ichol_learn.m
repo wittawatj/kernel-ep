@@ -7,8 +7,8 @@ oldRng=rng();
 rng(seed, 'twister');
 
 se=BundleSerializer();
-bunName = 'binlogis_fw_n400_iter5_sf1_st20';
-%bunName = 'binlogis_bw_n400_iter5_sf1_st20';
+%bunName = 'binlogis_fw_n400_iter5_sf1_st20';
+bunName = 'binlogis_bw_n400_iter5_sf1_st20';
 %bunName = 'binlogis_bw_n400_iter20_s1';
 %bunName = 'binlogis_fw_n1000_iter5_s1';
 %bunName='sigmoid_bw_proposal_10000';
@@ -26,7 +26,7 @@ bundle=se.loadBundle(bunName);
 
 %n=5000;
 %n=25000;
-[trBundle, teBundle] = bundle.partitionTrainTest(6000, 1000);
+[trBundle, teBundle] = bundle.partitionTrainTest(5000, 2000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(500, 1900);
 %[trBundle, teBundle] = bundle.partitionTrainTest(3000, 1000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(6000, 4000);
@@ -41,7 +41,19 @@ medf = [1/10, 1/5, 1/2, 1, 2, 5, 10];
 %medf = [1];
 %kernel_candidates=KEGaussian.productCandidatesAvgCov(inTensor, medf, 2000);
 % in computing KGGaussian, non-Gaussian distributions will be treated as a Gaussian.
-kernel_candidates = KGGaussian.productCandidatesAvgCov(inTensor, medf, 2000);
+kernel_choice = 'joint';
+
+if strcmp(kernel_choice, 'prod')
+    kernel_candidates = KGGaussian.productCandidatesAvgCov(inTensor, medf, 2000);
+elseif strcmp(kernel_choice, 'sum')
+    kernel_candidates = KGGaussian.ksumCandidatesAvgCov(inTensor, medf, 2000);
+elseif strcmp(kernel_choice, 'joint')
+    kernel_candidates= KGGaussianJoint.candidatesAvgCov(inTensor, medf, 2000);
+
+else 
+    error(['invalid kernel_choice: ', kernel_choice]);
+end
+
 display(sprintf('Total %d kernel candidates for ichol.', length(kernel_candidates)));
 
 od=learner.getOptionsDescription();
@@ -50,9 +62,11 @@ od.show();
 
 %out_msg_distbuilder = DNormalSDBuilder();
 %out_msg_distbuilder = DistNormalBuilder();
-%out_msg_distbuilder = DNormalLogVarBuilder();
 %out_msg_distbuilder = DistBetaBuilder();
-out_msg_distbuilder = DBetaLogBuilder();
+
+out_msg_distbuilder = DNormalLogVarBuilder();
+%out_msg_distbuilder = DBetaLogBuilder();
+%
 % set my options
 learner.opt('seed', seed);
 learner.opt('out_msg_distbuilder', out_msg_distbuilder);
@@ -73,7 +87,7 @@ learner.opt('use_multicore', true);
 s=learnMap(learner, trBundle, teBundle, bunName);
 n=length(trBundle)+length(teBundle);
 ntr = length(trBundle);
-iden=sprintf('ichol_learn_%s_%s_ntr%d_%s.mat', class(learner), bunName, ntr, class(out_msg_distbuilder));
+iden=sprintf('ichol_learn_%s_%s_%s_ntr%d_%s.mat', class(learner), bunName, kernel_choice, ntr, class(out_msg_distbuilder));
 fpath=Expr.scriptSavedFile(iden);
 
 timeStamp=clock();

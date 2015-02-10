@@ -50,10 +50,10 @@
                 M=[X.mean];
                 V=[X.variance];
                 % cos terms
-                C=cos(bsxfun(@plus, W_in*M, B));
+                Cos=cos(bsxfun(@plus, W_in*M, B));
                 % exp terms
                 E=exp(-0.5*(W_in.^2)*V);
-                Phi=sqrt(2/Din)*C.*E; %Din x n
+                Phi=sqrt(2/Din)*Cos.*E; %Din x n
 
                 % Phi contain random features for the inner Gaussian. 
                 % We then approximate the outer kernel by treating Phi as 

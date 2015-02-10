@@ -1,8 +1,6 @@
-*.pdf
 *~
 *.bak
 *.mat
-img/
 docs/
 /.project
 kernelBP/
@@ -13,6 +11,7 @@ kernelBP_loopy/
 kernel_ep_share/
 meetings/
 KernelEP/
+code/3rdparty/
 code/3rdparty/batch_job
 code/3rdparty/ITE
 code/3rdparty/Infer.NET 2.5
@@ -32,3 +31,4 @@ code/doc/*
 incomp_chol_package
 incomp_chol_package.zip
 incomp_chol_export.sh
+/research_note.pdf

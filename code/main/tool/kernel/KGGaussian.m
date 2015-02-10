@@ -95,8 +95,13 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
             % for every embed width, compute the pairwise median distance
             % xembed_widths in a list.
             % High storage cost for DD.
-            % - subsamples is a integer denoteing the size of subsamples
+            % - subsamples is an integer denoting the size of subsamples
             % that will be used instead to compute the meddistance.
+            %
+            % Output:
+            %  - DD{i}: a pairwise distance with embedding width2 xembed_widths{i} 
+            %  - M(i): median of DD{i}
+            %
             assert(isa(X, 'Distribution'));
             X = DistArray(X);
             if nargin >=3 && subsamples < length(X)
@@ -125,9 +130,9 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
             % median distance.
             
             if nargin < 4
-                subsamples = length(X);
+                subsamples = min(2000, length(X));
             end
-            assert(isa(X, 'DistNormal'));
+            assert(isa(X, 'Distribution'));
             assert(isnumeric(embed_widths));
             assert(~isempty(embed_widths));
             assert(isnumeric(med_factors));
@@ -153,7 +158,7 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
             assert(isnumeric(medf));
             assert(~isempty(medf));
             assert(all(medf>0));
-            if nargin < 3
+            if nargin < 4
                 subsamples = 3000;
             end
             numInput=T.tensorDim();
