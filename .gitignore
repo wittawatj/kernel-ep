@@ -10,7 +10,6 @@ kernelBP_chol/
 kernelBP_loopy/
 *.#
 *.lyx
-*.bib
 kernel_ep_share/
 meetings/
 KernelEP/
