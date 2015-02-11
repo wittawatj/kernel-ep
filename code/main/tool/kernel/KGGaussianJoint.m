@@ -33,7 +33,6 @@ classdef KGGaussianJoint < Kernel & PrimitiveSerializable
             assert(iscell(c2));
             joint1Da = KGGaussianJoint.toJointDistArray(c1);
             joint2Da = KGGaussianJoint.toJointDistArray(c2);
-            %             [Kmat, D2] = kerGGaussian(data1, data2, this.sigma2, this.width2);
             Kmat = this.kggaussian.eval(joint1Da, joint2Da);
         end
         

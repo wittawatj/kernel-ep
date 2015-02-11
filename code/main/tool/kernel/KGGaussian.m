@@ -108,6 +108,43 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
     
     methods (Static)
         
+        function [ D2] = distGGaussian( X1, X2, sigma2)
+            %DISTGGAUSSIAN Distance^2 matrix before taking the exponential.
+            % The actual formula is for Gaussian distributions. 
+            % If X, Y are not Gaussian, treat them as one by moment matching.
+            %
+            n1 = length(X1);
+            n2 = length(X2);
+            %[~, n1] = size(X1);
+            %[~, n2] = size(X2);
+            assert(isa(X1, 'Distribution'));
+            assert(isa(X2, 'Distribution'));
+
+            if X1(1).d ==1
+                % operation on obj array can be expensive in Matlab ...
+                M1 = [X1.mean];
+                M2 = [X2.mean];
+                V1 = [X1.variance];
+                V2 = [X2.variance];
+
+                %M1 = M1(:)';
+                %M2 = M2(:)';
+                %V1 = V1(:)';
+                %V2 = V2(:)';
+                T1 = repmat(KEGauss1.self_inner1d(M1, V1, sigma2)', 1, n2);
+                T2 = repmat(KEGauss1.self_inner1d(M2, V2, sigma2), n1, 1);
+
+                S1 = [M1; V1];
+                S2 = [M2; V2];
+                Cross = kerEGaussian1(S1, S2, sigma2);
+
+                D2 = T1 -2*Cross + T2 ;
+
+            else
+                error('later for multivariate case');
+            end
+        end
+
         function [DD, M]=compute_meddistances(X, xembed_widths, subsamples)
             % for every embed width, compute the pairwise median distance
             % xembed_widths in a list.
@@ -125,18 +162,18 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
                 I = randperm(length(X), subsamples);
                 X = X.get(I); %not DistArray anymore
             end
-            
+
             M = zeros(1, length(xembed_widths));
             DD = cell(1, length(xembed_widths));
             for i=1:length(xembed_widths)
                 sig2 = xembed_widths(i);
-                D2 = distGGaussian( X, X, sig2);
+                D2 = KGGaussian.distGGaussian( X, X, sig2);
                 DD{i} = D2;
                 M(i) = median(D2(:));
             end
-            
+
         end
-        
+
         function Kcell = candidates(X, embed_widths, med_factors, subsamples)
             % Generate a cell array of KGGaussian candidates from a list of
             % embeding widths, embed_widths, and a list of factors med_factors 
@@ -145,7 +182,7 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
             %
             % - subsamples can be used to limit the samples used to compute
             % median distance.
-            
+
             if nargin < 4
                 subsamples = min(2000, length(X));
             end
@@ -156,7 +193,7 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
             assert(~isempty(med_factors));
             assert(all(embed_widths > 0));
             assert(all(med_factors > 0));
-            
+
             Ks = cell(length(embed_widths), length(med_factors));
             for i=1:length(embed_widths)
                 ewidth = embed_widths(i);
