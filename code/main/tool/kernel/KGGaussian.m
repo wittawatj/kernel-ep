@@ -4,35 +4,32 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
     %
     % Outer Gaussian kernel with parameter w2. The distributions
     % in X1, X2 are also embedded with a Gaussian kernel with parameter
-    % embed_width2
+    % embed_width2s
     %
     % Input: X1, X2 = 1xn array of DistNormal.
-    %
-    % !! THIS ONLY WORKS FOR 1D GAUSSIAN FOR NOW !!
     %
     properties (SetAccess=private)
         % Gaussian kernel for embedding
         kegauss;
         % embedding width2 for mean embeddings. 
-        % Generally there should be one parameter for each dimension of the 
-        % input distributions. !! DO THIS LATER !!
-        embed_width2;
+        % one parameter for each dimension of the  input distributions. 
+        embed_width2s;
         % width2 for the outer Gaussian kernel on the mean embeddings.
         width2;
         
     end
     
     methods
-        function this=KGGaussian(embed_width2, width2)
+        function this=KGGaussian(embed_width2s, width2)
             % sigm2 = Width for embedding into Gaussian RKHS
             % width2 = Gaussian width^2. Not the one for embedding the
             % distribution.
             assert(isscalar(width2));
             assert(width2 > 0, 'Gaussian width must be > 0');
-            assert(all(embed_width2 >0));
+            assert(all(embed_width2s >0));
             % KEGaussian supports one width for each dimension 
-            this.kegauss = KEGaussian(embed_width2);
-            this.embed_width2 = embed_width2;
+            this.kegauss = KEGaussian(embed_width2s);
+            this.embed_width2s = embed_width2s;
             this.width2 = width2;
         end
         
@@ -44,8 +41,8 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
             assert(length(dim_p) == 1, 'Dimensionally inhomogenous dist array P.');
             dim_q = unique([Q.d]);
             assert(length(dim_q) == 1, 'Dimensionally inhomogenous dist array Q.');
-            assert(dim_p == length(this.embed_width2), 'param length does not match dimension of P');
-            assert(dim_q == length(this.embed_width2), 'param length does not match dimension of P');
+            assert(dim_p == length(this.embed_width2s), 'param length does not match dimension of P');
+            assert(dim_q == length(this.embed_width2s), 'param length does not match dimension of P');
 
             pp = this.kegauss.pairEval(P, P);
             qq = this.kegauss.pairEval(Q, Q);
@@ -63,12 +60,11 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
             assert(isa(Y, 'Distribution'));
             assert(length(X)==length(Y));
             
-            pp = this.kegauss.pairEval(P, P);
-            qq = this.kegauss.pairEval(Q, Q);
-            pq = this.kegauss.pairEval(P, Q);
+            pp = this.kegauss.pairEval(X, Y);
+            qq = this.kegauss.pairEval(X, Y);
+            pq = this.kegauss.pairEval(X, Y);
             D2 = pp + qq - 2*pq;
-            Kvec = exp(-D2(:)'/(2*this.width2));
-
+            Kvec = exp(-D2/(2*this.width2));
             %if X(1).d==1
             %    % operation on obj array can be expensive..
             %    M1 = [X.mean];
@@ -86,63 +82,43 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
         end
         
         function Param = getParam(this)
-            Param = {this.embed_width2, this.width2};
+            Param = {this.embed_width2s, this.width2};
         end
         
         function s=shortSummary(this)
-            s = sprintf('%s(%.2g, %.2g)', mfilename, this.embed_width2, this.width2 );
+            s = sprintf('%s(%.2g, %.2g)', mfilename, this.embed_width2s, this.width2 );
         end
 
         % from PrimitiveSerializable interface
         function s=toStruct(this)
             %kegauss;
-            %embed_width2;
+            %embed_width2s;
             %width2;
             s = struct();
             s.className=class(this);
             s.kegauss = this.kegauss.toStruct();
-            s.embed_width2 = this.embed_width2;
+            s.embed_width2s = this.embed_width2s;
             s.width2 = this.width2;
         end
     end
     
     methods (Static)
         
-        function [ D2] = distGGaussian( X1, X2, sigma2)
+        function [ D2] = distGGaussian( X1, X2, embed_width2s)
             %DISTGGAUSSIAN Distance^2 matrix before taking the exponential.
             % The actual formula is for Gaussian distributions. 
             % If X, Y are not Gaussian, treat them as one by moment matching.
             %
-            n1 = length(X1);
-            n2 = length(X2);
             %[~, n1] = size(X1);
             %[~, n2] = size(X2);
             assert(isa(X1, 'Distribution'));
             assert(isa(X2, 'Distribution'));
+            kegauss = KEGaussian(embed_width2s);
 
-            if X1(1).d ==1
-                % operation on obj array can be expensive in Matlab ...
-                M1 = [X1.mean];
-                M2 = [X2.mean];
-                V1 = [X1.variance];
-                V2 = [X2.variance];
-
-                %M1 = M1(:)';
-                %M2 = M2(:)';
-                %V1 = V1(:)';
-                %V2 = V2(:)';
-                T1 = repmat(KEGauss1.self_inner1d(M1, V1, sigma2)', 1, n2);
-                T2 = repmat(KEGauss1.self_inner1d(M2, V2, sigma2), n1, 1);
-
-                S1 = [M1; V1];
-                S2 = [M2; V2];
-                Cross = kerEGaussian1(S1, S2, sigma2);
-
-                D2 = T1 -2*Cross + T2 ;
-
-            else
-                error('later for multivariate case');
-            end
+            pp = kegauss.pairEval(X1, X1);
+            qq = kegauss.pairEval(X2, X2);
+            pq = kegauss.eval(X1, X2);
+            D2 = bsxfun(@plus, pp(:), qq(:)') - 2*pq;
         end
 
         function [DD, M]=compute_meddistances(X, xembed_widths, subsamples)
@@ -157,6 +133,8 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
             %  - M(i): median of DD{i}
             %
             assert(isa(X, 'Distribution'));
+            assert(iscell(xembed_widths));
+
             X = DistArray(X);
             if nargin >=3 && subsamples < length(X)
                 I = randperm(length(X), subsamples);
@@ -166,17 +144,22 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
             M = zeros(1, length(xembed_widths));
             DD = cell(1, length(xembed_widths));
             for i=1:length(xembed_widths)
-                sig2 = xembed_widths(i);
-                D2 = KGGaussian.distGGaussian( X, X, sig2);
+                embed2 = xembed_widths{i};
+                dim = unique([X.d]);
+                assert(dim == length(embed2), 'Embedding width vector does not match dim. of input');
+                D2 = KGGaussian.distGGaussian( X, X, embed2);
                 DD{i} = D2;
                 M(i) = median(D2(:));
             end
 
         end
 
-        function Kcell = candidates(X, embed_widths, med_factors, subsamples)
+        function Kcell = candidates(X, embed_width2s_cell, med_factors, subsamples)
             % Generate a cell array of KGGaussian candidates from a list of
-            % embeding widths, embed_widths, and a list of factors med_factors 
+            % embeding widths. 
+            % - embed_width2s_cell is a cell array where each element is a vector 
+            % embed_width2s 
+            % - med_factors: list of factors
             % to be  multipled with the pairwise median distance of the mean
             % embeddings.
             %
@@ -187,24 +170,23 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
                 subsamples = min(2000, length(X));
             end
             assert(isa(X, 'Distribution'));
-            assert(isnumeric(embed_widths));
-            assert(~isempty(embed_widths));
+            assert(iscell(embed_width2s_cell));
+            assert(~isempty(embed_width2s_cell));
             assert(isnumeric(med_factors));
             assert(~isempty(med_factors));
-            assert(all(embed_widths > 0));
             assert(all(med_factors > 0));
 
-            Ks = cell(length(embed_widths), length(med_factors));
-            for i=1:length(embed_widths)
-                ewidth = embed_widths(i);
-                [~, med]= KGGaussian.compute_meddistances(X, ewidth, subsamples);
+            Ks = cell(length(embed_width2s_cell), length(med_factors));
+            for i=1:length(embed_width2s_cell)
+                ewidth = embed_width2s_cell{i};
+                [~, med]= KGGaussian.compute_meddistances(X, {ewidth}, subsamples);
                 for j=1:length(med_factors)
                     fac = med_factors(j);
                     w2 = fac*med;
                     Ks{i,j} = KGGaussian(ewidth, w2);
                 end
             end
-            Kcell = reshape(Ks, [1, length(embed_widths)*length(med_factors)]);
+            Kcell = reshape(Ks, [1, length(embed_width2s_cell)*length(med_factors)]);
         end
 
         function KCell = combineCandidatesAvgCov(kerConstructFunc, T, medf, subsamples)
@@ -218,12 +200,12 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
             numInput=T.tensorDim();
             % Always embed with widths given by average covariance.
             % We will only vary the outer Gaussian widths
-            embed_width2s=zeros(1, numInput);
+            embed_width2s_cell=cell(1, numInput);
             for i=1:numInput
                 da=T.instancesCell{i};
                 avgCov=RFGEProdMap.getAverageCovariance(da, subsamples);
                 % keep just one number, the mean, instead of the diagonal covariance.
-                embed_width2s(i)=mean(diag(avgCov));
+                embed_width2s_cell{i} = diag(avgCov);
             end
 
             % total number of candidats = len(medf)^numInput
@@ -236,10 +218,12 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
             for ci=1:totalComb
                 [I{:}] = ind2sub( length(medf)*ones(1, numInput), ci);
                 II=cell2mat(I);
-                inputWidth2s= medf(II).*embed_width2s;
+                % TODO: This is a strange heuristic ...
+                inputWidth2s_cell = cellfun(@(width2s, med) (width2s*med), embed_width2s_cell, num2cell(medf(II)));
+                %inputWidth2s= medf(II).*embed_width2s;
                 kers = cell(1, numInput);
                 for ki=1:numInput
-                    kers{ki} = KGGaussian(embed_width2s(ki), inputWidth2s(ki));
+                    kers{ki} = KGGaussian(embed_width2s_cell{ki}, inputWidth2s_cell{ki});
                 end
                 KCell{ci} = kerConstructFunc(kers);
             end

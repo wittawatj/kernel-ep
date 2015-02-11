@@ -27,7 +27,7 @@ bundle=se.loadBundle(bunName);
 %n=5000;
 %n=25000;
 [trBundle, teBundle] = bundle.partitionTrainTest(5000, 2000);
-%[trBundle, teBundle] = bundle.partitionTrainTest(500, 1900);
+%[trBundle, teBundle] = bundle.partitionTrainTest(100, 1900);
 %[trBundle, teBundle] = bundle.partitionTrainTest(3000, 1000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(6000, 4000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(30000, 5000);
@@ -35,20 +35,19 @@ bundle=se.loadBundle(bunName);
 
 %---------- options -----------
 learner=ICholMapperLearner();
-inTensor = bundle.getInputTensorInstances();
+inTensor = trBundle.getInputTensorInstances();
 % median factors 
 medf = [1/10, 1/5, 1/2, 1, 2, 5, 10];
 %medf = [1];
 %kernel_candidates=KEGaussian.productCandidatesAvgCov(inTensor, medf, 2000);
 % in computing KGGaussian, non-Gaussian distributions will be treated as a Gaussian.
-kernel_choice = 'prod_kegauss';
+kernel_choice = 'joint';
 
 if strcmp(kernel_choice, 'prod')
     kernel_candidates = KGGaussian.productCandidatesAvgCov(inTensor, medf, 2000);
 elseif strcmp(kernel_choice, 'sum')
     kernel_candidates = KGGaussian.ksumCandidatesAvgCov(inTensor, medf, 2000);
 elseif strcmp(kernel_choice, 'joint')
-    error('does not work because KGGaussian for multivariate case not implemented.');
     kernel_candidates= KGGaussianJoint.candidatesAvgCov(inTensor, medf, 2000);
 
 elseif strcmp(kernel_choice, 'prod_kegauss')
@@ -79,6 +78,8 @@ learner.opt('ho_train_size', 1000);
 learner.opt('ho_test_size', 1500);
 %learner.opt('ho_train_size', 200);
 %learner.opt('ho_test_size', 200);
+%learner.opt('ho_train_size', 20);
+%learner.opt('ho_test_size', 30);
 learner.opt('chol_tol', 1e-8);
 learner.opt('chol_maxrank_train', 100);
 learner.opt('chol_maxrank', 800 );

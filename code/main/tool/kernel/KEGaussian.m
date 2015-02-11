@@ -71,15 +71,19 @@ classdef KEGaussian < Kernel & PrimitiveSerializable
                 Sigma=diag(this.gwidth2s);
                 assert(~isscalar(Sigma));
                 detSigmaInv=1/det(Sigma);
+
                 D1mean = [D1.mean];
+                D1var = cat(3, D1.variance);
+                D2mean = [D2.mean];
+                D2var = cat(3, D2.variance);
                 for j=1:n2
-                    dj=D2(j);
+                    %dj=D2(j);
                     DetD=zeros(n1, 1);
-                    MStack=bsxfun(@minus, D1mean, dj.mean)';
+                    MStack=bsxfun(@minus, D1mean, D2mean(:, j))';
                     MD=zeros(n1, d);
                     for i=1:n1
-                        di=D1(i);
-                        Eij= (di.variance+dj.variance+Sigma);
+                        %di=D1(i); % accessing D1(i) in a loop is very slow.
+                        Eij= (D1var(:, :, i)+ D2var(:, :, j) +Sigma);
                         DetD(i)=1/det(Eij);
                         MD(i, :)=MStack(i, :)/Eij;
                     end

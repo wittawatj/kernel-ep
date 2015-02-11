@@ -34,7 +34,7 @@
     repeats=50;
     % try multiple D (#random features). 
     % We have inner and outer numbers of random features
-    Dinners = 100:50:700 ;
+    Dinners = 100:50:600 ;
     Douters = 100:50:700 ;
 
     %Ds=[500:500:1000];
@@ -88,19 +88,21 @@
     DoutersStr = arrayfun(@(x)(sprintf('%d', x)), Douters, 'UniformOutput', false);
     % plot
     hold all
-    [X, Y] = meshgrid(Dinners, Douters);
-    %contourf(X, Y, AvgMaxErr);
+    %X = repmat(Dinners(:), 1, length(Douters));
+    %Y = repmat(Douters(:)', length(Dinners), 1);
+    [X, Y] = meshgrid(Douters, Dinners);
     contourf(X, Y, AvgFroErr/n);
-    set(gca, 'XLim', [min(Dinners), max(Dinners)]);
-    set(gca, 'XTick', Dinners)
-    set(gca, 'XTickLabel', DinnersStr);
-    set(gca, 'YLim', [min(Douters), max(Douters)]);
-    set(gca, 'YTick', Douters', 'YTickLabel', DoutersStr);
+    %contourf(Douters, Dinners, AvgFroErr/n);
+    set(gca, 'YLim', [min(Dinners), max(Dinners)]);
+    set(gca, 'YTick', Dinners)
+    set(gca, 'YTickLabel', DinnersStr);
+    set(gca, 'XLim', [min(Douters), max(Douters)]);
+    set(gca, 'XTick', Douters', 'YTickLabel', DoutersStr);
     set(gca, 'fontsize', 20);
-    title(sprintf('n=%d, repeats=%d. Report Frobenius distance / n.', n, repeats));
+    title(sprintf('n=%d, repeats=%d. Report Fro. norm(K - Khat) / n.', n, repeats));
     %legend('Avg diff.', 'max entry diff', 's.d. entry diff' );
-    xlabel('inner #features');
-    ylabel('outer #features');
+    ylabel('inner #features');
+    xlabel('outer #features');
     grid on;
     hold off
     colorbar
@@ -109,6 +111,7 @@
     % colorbar
     % keyboard;
 
+    save('test_2StageKGGauss')
 
     rng(oldRng);
 

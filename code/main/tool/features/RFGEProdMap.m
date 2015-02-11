@@ -10,7 +10,8 @@ classdef RFGEProdMap < FeatureMap & PrimitiveSerializable
     %
     
     properties(SetAccess=protected)
-        % Gaussian width^2 for the embedding kernel
+        % Gaussian width^2 for the embedding kernel. Can be a scalar or a vector 
+        % of the same size as the dimension of the input distribution.
         gwidth2;
         % number of random features
         numFeatures;
@@ -25,7 +26,9 @@ classdef RFGEProdMap < FeatureMap & PrimitiveSerializable
     methods
 
         function this=RFGEProdMap(gwidth2, numFeatures)
-            assert(gwidth2>0);
+            % gwidth2 can be a vector of the same size as the dimension of the  
+            % input distribution, or a scalar (isotropic width).
+            assert(all(gwidth2>0));
             assert(numFeatures>0);
             this.gwidth2=gwidth2;
             this.numFeatures=numFeatures;
@@ -137,7 +140,9 @@ classdef RFGEProdMap < FeatureMap & PrimitiveSerializable
                 % reciprocal width.
                 assert(length(unique([D.d]))==1);
                 dim=unique([D.d]); % .d from Distribution interface 
-                this.W=randn(dim, this.numFeatures)/sqrt(this.gwidth2);
+                assert(length(this.gwidth2) == dim, ...
+                    'Input dim. does not match the length of param. vector.');
+                this.W= diag(1./sqrt(this.gwidth2))*randn(dim, this.numFeatures);
                 this.B=rand(1, this.numFeatures)*2*pi;
 
             end

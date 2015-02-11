@@ -28,7 +28,7 @@ classdef RandFourierGaussMap < FeatureMap & PrimitiveSerializable
             this.dim = dim;
             assert(dim > 0);
             this.W = randn(dim, numFeatures);
-            this.B = randn(1, numFeatures)*2*pi;
+            this.B = rand(1, numFeatures)*2*pi;
         end
 
         function Z=genFeatures(this, X)  
