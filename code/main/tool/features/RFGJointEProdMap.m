@@ -180,7 +180,7 @@ classdef RFGJointEProdMap < FeatureMap & PrimitiveSerializable
                 FMs{ci} = map;
             end
 
-        end %end candidates() method
+        end 
         
         function FMs = candidates(T, medf, numFeatures, subsamples )
             % - Generate a cell array of FeatureMap candidates from medf,

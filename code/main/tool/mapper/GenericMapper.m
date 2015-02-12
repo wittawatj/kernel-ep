@@ -1,5 +1,5 @@
 classdef GenericMapper < DistMapper2 & DistMapper & PrimitiveSerializable
-    %GENERICMAPPER2IN A distribution mapper taking Distribution's.
+    %GENERICMAPPER A distribution mapper taking Distribution's.
     % and outputs statistics used for constructing 
     % another Distribution using the specified DistBuilder.
     %   - Use an InstancesMapper supporting TensorInstances of 2 DistArray's

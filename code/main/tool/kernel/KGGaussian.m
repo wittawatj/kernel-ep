@@ -219,7 +219,8 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
                 [I{:}] = ind2sub( length(medf)*ones(1, numInput), ci);
                 II=cell2mat(I);
                 % TODO: This is a strange heuristic ...
-                inputWidth2s_cell = cellfun(@(width2s, med) (width2s*med), embed_width2s_cell, num2cell(medf(II)));
+                inputWidth2s_cell = cellfun(@(width2s, med) (width2s*med),...
+                    embed_width2s_cell, num2cell(medf(II)), 'UniformOutput', false);
                 %inputWidth2s= medf(II).*embed_width2s;
                 kers = cell(1, numInput);
                 for ki=1:numInput

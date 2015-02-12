@@ -55,6 +55,37 @@ classdef MatUtils < handle
             end
 
         end
+
+        function v = flattenCell(C)
+            % Input: 
+            %   - C: a cell array where C{i} is a vector (row or column)
+            % Output: 
+            %   - a row vector obtained by concatenating all vectors in C
+            % 
+            C2 = cellfun(@(v)v(:)', C, 'UniformOutput', false);
+            v = [C2{:}];
+        end
+
+        function C = partitionArray(v, partition)
+            % Input: 
+            %   - v: an array 
+            %   - partition: an array of positive integers that sums to length(v). 
+            %   This specifies the size of each partition.
+            % Output: 
+            %   - a cell array of length = length(partition) and C{i} = partition 
+            %   i of v in a row vector.
+            %
+            assert(all(partition) > 0, 'partition size must be > 0');
+            assert(isnumeric(v));
+            assert(sum(partition) == length(v), 'sum of partition must be length(v)');
+            C = cell(1, length(partition));
+            from = 1;
+            for i=1:length(C)
+                par_size_i = partition(i);
+                C{i} = v(from:(from+par_size_i-1));
+                from = from + par_size_i;
+            end
+        end
     end
 
 end

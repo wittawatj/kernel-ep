@@ -3,10 +3,6 @@ classdef CondFMFiniteOut < InstancesMapper & PrimitiveSerializable
     %finite-dimensional feature map (primal solution) i.e., k(x,y)=phi(x)*phi(y)
     %where phi(x) is explicit and finite-dimensional.
     %
-    % The operator is for outputs using finite-dimensional feature maps.
-    % C_{Z|X} where Z is the output, X is the input. This class supports
-    % multiple inputs by considering them to be from a tensor product
-    % space.
     properties (SetAccess=private)
         
         featureMap;
@@ -174,7 +170,7 @@ classdef CondFMFiniteOut < InstancesMapper & PrimitiveSerializable
             % Allow the change of numFeatures in case the number is reduced 
             % during  LOOCV.
             op.num_primal_features = myProcessOptions(op, 'num_primal_features', ...
-                3e3);
+                2e3);
             map = bestMap.cloneParams(op.num_primal_features);
             Op = CondFMFiniteOut(map, In, Out, lambda);
         end
@@ -189,7 +185,7 @@ classdef CondFMFiniteOut < InstancesMapper & PrimitiveSerializable
             % Allow the change of numFeatures in case the number is reduced 
             % during  LOOCV.
             op.num_primal_features = myProcessOptions(op, 'num_primal_features', ...
-                3e3);
+                2e3);
             map = bestMap.cloneParams(op.num_primal_features);
             Op = CondFMFiniteOut(map, In, Out, lambda);
         end
