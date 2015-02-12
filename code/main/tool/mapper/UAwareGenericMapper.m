@@ -1,4 +1,4 @@
-classdef UAwareGenericMapper < GenericMapper
+classdef UAwareGenericMapper < GenericMapper & UAwareDistMapper
     %UAWAREGENERICMAPPER An uncertainty aware distribution mapper taking Distribution's.
     % and outputs statistics used for constructing 
     % another Distribution using the specified DistBuilder.
@@ -57,6 +57,11 @@ classdef UAwareGenericMapper < GenericMapper
             u = this.operator.estimateUncertainty(tensorIn);
         end
 
+        function U = estimateUDistArrays(this, varargin)
+            C = varargin;
+            %tensorIn = UAwareGenericMapper.cellDistArrayToTensor(C);
+            U = this.estimateUncertainty(C{:});
+        end
     end
 
     methods (Static)

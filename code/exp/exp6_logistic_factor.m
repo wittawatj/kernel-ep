@@ -7,21 +7,21 @@ oldRng=rng();
 rng(seed, 'twister');
 
 se=BundleSerializer();
-%bunName = 'binlogis_fw_n400_iter5_sf1_st20';
+bunName = 'binlogis_fw_n400_iter5_sf1_st20';
 %bunName = 'binlogis_bw_n400_iter5_sf1_st20';
 %
 %bunName = 'binlogis_bw_n400_iter20_s1';
 %bunName = 'binlogis_fw_n1000_iter5_s1';
 %bunName='sigmoid_bw_proposal_10000';
 %bunName='sigmoid_bw_proposal_5000';
-bunName='sigmoid_bw_proposal_1000';
+%bunName='sigmoid_bw_proposal_1000';
 %bunName = 'sigmoid_fw_proposal_5000';
 bundle=se.loadBundle(bunName);
 
 %n=5000;
 %n=25000;
-%[trBundle, teBundle] = bundle.partitionTrainTest(5000, 2000);
-[trBundle, teBundle] = bundle.partitionTrainTest(100, 900);
+[trBundle, teBundle] = bundle.partitionTrainTest(5000, 2000);
+%[trBundle, teBundle] = bundle.partitionTrainTest(100, 900);
 %[trBundle, teBundle] = bundle.partitionTrainTest(3000, 1000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(6000, 4000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(30000, 5000);
@@ -39,7 +39,7 @@ medf = [1/10, 1/5, 1/2, 1, 2, 5, 10];
 out_msg_distbuilder = DNormalLogVarBuilder();
 %out_msg_distbuilder = DBetaLogBuilder();
 
-kernel_choice = 'fm_kgg_joint';
+kernel_choice = 'ichol_kgg_prod';
 kernel_candidates = {};
 fm_candidates = {};
 if strcmp(kernel_choice, 'ichol_kgg_prod')
@@ -81,8 +81,8 @@ display(sprintf('Total %d feature map candidates for random features.', length(f
 learner.opt('seed', seed);
 learner.opt('out_msg_distbuilder', out_msg_distbuilder);
 learner.opt('reglist', [1e-4, 1e-3, 1e-2, 1e-1, 1]);
-%learner.opt('use_multicore', true);
-learner.opt('use_multicore', false);
+learner.opt('use_multicore', true);
+%learner.opt('use_multicore', false);
 %
 % ----- options for RFGJointKGGLearner ----
 learner.opt('num_primal_features', 1000);

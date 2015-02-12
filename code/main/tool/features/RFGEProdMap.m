@@ -140,8 +140,10 @@ classdef RFGEProdMap < FeatureMap & PrimitiveSerializable
                 % reciprocal width.
                 assert(length(unique([D.d]))==1);
                 dim=unique([D.d]); % .d from Distribution interface 
-                assert(length(this.gwidth2) == dim, ...
-                    'Input dim. does not match the length of param. vector.');
+                assert(length(dim)==1, 'dimensions are not unique');
+                %display(sprintf('dim: %d', dim));
+                assert(length(this.gwidth2) == 1 || length(this.gwidth2) == dim, ...
+                   'Input dim. does not match the length of param. vector.');
                 this.W= diag(1./sqrt(this.gwidth2))*randn(dim, this.numFeatures);
                 this.B=rand(1, this.numFeatures)*2*pi;
 
