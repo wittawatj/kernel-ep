@@ -34,6 +34,12 @@ namespace KernelEP{
 			const int d = 10;
 			const int n = 400;
 			const int epIter = 5;
+			// true => collect proj messages instead of outgoing messages
+			const bool collectProj = true;
+			const string targetAnnotate = collectProj ? "_proj" : "";
+			LogisticOp2.IsCollectProjMsgs = collectProj;
+			LogisticOp2.IsCollectLogisticMessages = true;
+			LogisticOp2.IsCollectXMessages = true; 
 
 			var allToXMsgs = new List<Tuple<Gaussian, Gaussian, Beta>>();
 			var allToLogisticMsgs = new List<Tuple<Beta, Gaussian, Beta>>();
@@ -58,7 +64,8 @@ namespace KernelEP{
 				Gaussian biasPost;
 
 				LogisticOp2.ResetMessageCollection();
-				LogisticRegression.InferCoefficients(X, Y, out wPost, out biasPost, epIter);
+				LogisticRegression.InferCoefficients(X, Y, out wPost, 
+					out biasPost, epIter, typeof(LogisticOp2));
 
 				//print 
 				Console.WriteLine("n: {0}", n);
@@ -74,14 +81,14 @@ namespace KernelEP{
 				// save the collected messages
 				List<Tuple<Gaussian, Gaussian, Beta>> toXMsgs = LogisticOp2.GetToXMessages();
 				allToXMsgs.AddRange(toXMsgs);
-				string toXFname = string.Format("binlogis_bw_n{0}_iter{1}_s{2}.mat", 
-					                  n, epIter, seed);
+				string toXFname = string.Format("binlogis_bw{0}_n{1}_iter{2}_s{3}.mat", 
+					targetAnnotate, n, epIter, seed);
 				string toXPath = Config.PathToSavedFile(toXFname);
 
 				List<Tuple<Beta, Gaussian, Beta>> toLogisticMsgs = LogisticOp2.GetToLogisticMessages();
 				allToLogisticMsgs.AddRange(toLogisticMsgs);
-				string toLogisticFname = string.Format("binlogis_fw_n{0}_iter{1}_s{2}.mat", 
-					                         n, epIter, seed);
+				string toLogisticFname = string.Format("binlogis_fw{0}_n{1}_iter{2}_s{3}.mat", 
+					targetAnnotate, n, epIter, seed);
 				string toLogisticPath = Config.PathToSavedFile(toLogisticFname);
 
 				// extra information apart from collected messages
@@ -97,13 +104,13 @@ namespace KernelEP{
 				ToLogisticSerializeToMat(toLogisticPath, toLogisticMsgs, extra);
 			}
 			// save combined messages from seed_from to seed_to
-			string allToXFname = string.Format("binlogis_bw_n{0}_iter{1}_sf{2}_st{3}.mat", 
-				n, epIter, seed_from, seed_to);
+			string allToXFname = string.Format("binlogis_bw{0}_n{1}_iter{2}_sf{3}_st{4}.mat", 
+				targetAnnotate, n, epIter, seed_from, seed_to);
 			string allToXPath = Config.PathToSavedFile(allToXFname);
 			ToXSerializeToMat(allToXPath, allToXMsgs, null);
 
-			string allToLogisticFname = string.Format("binlogis_fw_n{0}_iter{1}_sf{2}_st{3}.mat", 
-				n, epIter, seed_from, seed_to);
+			string allToLogisticFname = string.Format("binlogis_fw{0}_n{1}_iter{2}_sf{3}_st{4}.mat", 
+				targetAnnotate, n, epIter, seed_from, seed_to);
 			string allToLogisticPath = Config.PathToSavedFile(allToLogisticFname);
 			ToLogisticSerializeToMat(allToLogisticPath, allToLogisticMsgs, null);
 

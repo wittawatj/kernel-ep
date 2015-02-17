@@ -18,6 +18,7 @@ namespace KernelEP.TestIdea{
 	public class LogisticRegression{
 
 		public LogisticRegression(){
+
 		}
 
 		public static void GenData(int n, Vector w, double b, 
@@ -127,8 +128,12 @@ namespace KernelEP.TestIdea{
 
 		public static void InferCoefficients(
 			Vector[] xObs, bool[] yObs, out VectorGaussian wPost, 
-			out Gaussian biasPost, int epIteration){
+			out Gaussian biasPost, int epIteration, 
+			Type logisticOperator = null ){
     
+			if(logisticOperator==null){
+				logisticOperator = typeof(ISLogisticOp);
+			}
 			// yObs expected to be an array of 0, 1
 
 			// number of classes = 2
@@ -183,8 +188,11 @@ namespace KernelEP.TestIdea{
 //			ie.Compiler.UseSerialSchedules = true;
 //			ie.Compiler.GivePriorityTo(typeof(KEPLogisticOp));
 			KEPLogisticOp.SetPrintTrueMessages(true);
+			ie.Compiler.GivePriorityTo(logisticOperator);
 //			ie.Compiler.GivePriorityTo(typeof(ISLogisticOp));
-			ie.Compiler.GivePriorityTo(typeof(KernelEP.Op.LogisticOp2));
+//			ie.Compiler.GivePriorityTo(typeof(KernelEP.Op.LogisticOp2));
+//			ie.Compiler.GivePriorityTo(typeof(KernelEP.Op.ISLogisticOp));
+
 
 //			ie.Compiler.GenerateInMemory = true;
 //			ie.Compiler.GeneratedSourceFolder = "/nfs/nhome/live/wittawat/SHARE/gatsby/research2/KernelEP.NET/KernelEP.NET/Compiled";
@@ -194,12 +202,13 @@ namespace KernelEP.TestIdea{
 			
 //			 load FactorOperator
 //			string factorOpPath = Config.PathToFactorOperator("serialFactorOp_ichol_n400_iter5_sf1_st200_ntr4000.mat");
-			string factorOpPath = Config.PathToFactorOperator("serialFactorOp_ichol_logbeta_n400_iter5_sf1_st200_ntr6000.mat");
-//			string factorOpPath = Config.PathToFactorOperator("ver7.mat");
-//			string factorOpPath = Config.PathToFactorOperator("factorOp_RFGMVMapperLearner_nicolas_sigmoid_25000.mat");
 
-			LogisticOpParams factorOp = LoadLogisticFactorOperator(factorOpPath);
-			OpControl.Add(typeof(KEPLogisticOp), factorOp);
+//			string factorOpPath = Config.PathToFactorOperator("ver7.mat");
+			//			string factorOpPath = Config.PathToFactorOperator("factorOp_RFGMVMapperLearner_nicolas_sigmoid_25000.mat");
+
+//			string factorOpPath = Config.PathToFactorOperator("serialFactorOp_ichol_logbeta_n400_iter5_sf1_st200_ntr6000.mat");
+//			LogisticOpParams factorOp = LoadLogisticFactorOperator(factorOpPath);
+//			OpControl.Add(typeof(KEPLogisticOp), factorOp);
 
 			// get compiled algorithm
 //			IGeneratedAlgorithm ca = ie.GetCompiledInferenceAlgorithm(w, bias);
@@ -231,11 +240,11 @@ namespace KernelEP.TestIdea{
 
 
 		public static void TestLogisticRegression(){
-			const int seed = 3;
+			const int seed = 4;
 			Rand.Restart(seed);
 			const int d = 10;
 			const int n = 100;
-			const int epIter = 40;
+			const int epIter = 10;
 
 			Vector w = Vector.Zero(d);
 			Rand.Normal(Vector.Zero(d), PositiveDefiniteMatrix.Identity(d), w);

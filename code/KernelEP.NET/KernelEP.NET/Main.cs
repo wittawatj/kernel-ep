@@ -13,10 +13,10 @@ using MicrosoftResearch.Infer.Utils;
 namespace KernelEP{
 	class MainClass{
 		public static void Main(string[] args){
-			//Console.WriteLine("Hello World!");
-//			SoftmaxOp.Run();
+//			Console.WriteLine("{0}", Beta.FromMeanAndVariance(1, 0));
 //			TestMultinomialRegression();
 //		
+			//			SoftmaxOp.Run();
 //			TestFundamental.TestExpFactor();
 //			TestLinq.ArrayFilter1();
 //			TestFundamental.TestInferGaussian();
@@ -26,9 +26,9 @@ namespace KernelEP{
 			
 //			TestMath();
 
-			LogisticRegression.TestLogisticRegression();
+//			LogisticRegression.TestLogisticRegression();
 //			LogisticRegression.TestLogisticRegressionNoBias();
-//			CollectLogisticMsgs.CollectMessages();
+			CollectLogisticMsgs.CollectMessages();
 //			InferenceEngine.ShowFactorManager(true);
 
 

@@ -20,7 +20,7 @@ namespace KernelEP{
 		public static Dictionary<string, string> GetLocalConfigs(){
 			Dictionary<string, string> config = new Dictionary<string, string>();
 			config.Add(K_SAVED_FOLDER, 
-				"/nfs/nhome/live/wittawat/Dropbox/gatsby/research2/KernelEP.NET/KernelEP.NET/Saved/");
+				"/nfs/nhome/live/wittawat/Dropbox/gatsby/research/code/KernelEP.NET/KernelEP.NET/Saved/");
 			config.Add(K_FACTOR_OP_MAT_FOLDER, 
 				"/nfs/nhome/live/wittawat/Dropbox/gatsby/research/code/saved/factor_op/");
 			return config;

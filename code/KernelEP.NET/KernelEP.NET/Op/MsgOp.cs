@@ -72,7 +72,7 @@ namespace KernelEP.Op{
 		public LogisticOpParams(DistMapper<DBeta, DBeta, DNormal> dm0, 
 		                        DistMapper<DNormal, DBeta, DNormal> dm1)
 			: base(dm0, dm1){
-
+			 
 		}
 
 		public static LogisticOpParams FromMatlabStruct(MatlabStruct s){
@@ -116,20 +116,24 @@ namespace KernelEP.Op{
 	[FactorMethod(typeof(MMath),"Logistic",typeof(double))]
 	[Quality(QualityBand.Experimental)]
 	public static class ISLogisticOp{
-		
-		public static int ImportanceSampleSize = 5000;
-		
+		// Need at least 20000 or more.
+		public static int GaussianImportanceSampleSize = 50000;
+		public static int UniformImportanceSampleSize = 10000;
+
+		public static Random UniformRandom = new Random(1);
+		public static double UniformFrom = -20;
+		public static double UniformTo = 20;
+
 		//		public delegate double Proposal();
 		//		public static Proposal proposal = DefaultProposal;
-		public static Gaussian Proposal = Gaussian.FromMeanAndVariance(0, 20);
-//		public static Sampleable<double> Proposal = new Uniform1DSampler(-20, 20);
+		public static Gaussian Proposal = Gaussian.FromMeanAndVariance(0, 200);
+		//		public static Sampleable<double> Proposal = new Uniform1DSampler(-20, 20);
 
-		public static Gaussian XAverageConditional(Beta logistic, Gaussian x){
-			Console.WriteLine("Direction X: beta: {0} , gaussian: {1}", logistic, x);
-			
+		public static Gaussian ProjToXGaussianProposal(Beta logistic, Gaussian x){
+			// Get the projected message forming part of an outogoing message to X.
 			double m1 = 0, m2 = 0;
 			double wsum = 0;
-			for(int i = 0; i < ImportanceSampleSize; i++){
+			for(int i = 0; i < GaussianImportanceSampleSize; i++){
 				double xi = Proposal.Sample();
 				double yi = MMath.Logistic(xi);
 				double lbi = logistic.GetLogProb(yi);
@@ -145,30 +149,15 @@ namespace KernelEP.Op{
 			m2 /= wsum;
 			double projM = m1;
 			double projV = m2 - m1 * m1;
-			// initial toX is improper
-			Gaussian toX = Gaussian.FromNatural(1, -1);
-			double varReduceFactor = 1;
-			while(!toX.IsProper()){
-				Gaussian proj = Gaussian.FromMeanAndVariance(projM, projV / varReduceFactor);
-				toX = proj / x;
-				// increase precision so that division gives a proper outgoing message.
-				varReduceFactor *= 2;
-			}
-			
-			Console.WriteLine("To X: Gaussian({0}, {1})", toX.GetMean(), toX.GetVariance());
-			return toX;
+			return Gaussian.FromMeanAndVariance(projM, projV);
 		}
 
-		
-		/// <summary>
-		/// EP message to 'logistic' with importance sampling.
-		/// </summary>
-		public static Beta LogisticAverageConditional(Beta logistic, Gaussian x){
-			Console.WriteLine("Direction logistic: beta: {0} , gaussian: {1}", logistic, x);
-			
+		public static Beta ProjToLogisticGaussianProposal(Beta logistic, Gaussian x){
+			// Get the projected message forming part of an outgoing message to logistic.
+
 			double m1 = 0, m2 = 0;
 			double wsum = 0;
-			for(int i = 0; i < ImportanceSampleSize; i++){
+			for(int i = 0; i < GaussianImportanceSampleSize; i++){
 				double xi = Proposal.Sample();
 				double yi = MMath.Logistic(xi);
 				double lbi = logistic.GetLogProb(yi);
@@ -178,28 +167,148 @@ namespace KernelEP.Op{
 				double wi = Math.Exp(lbi + lgi - si);
 				wsum += wi;
 				m1 += wi * yi;
+				// uncentered second moment
 				m2 += wi * yi * yi;
 			}
 			m1 /= wsum;
 			m2 /= wsum;
 			double projM = m1;
 			double projV = m2 - m1 * m1;
-			
-			// initial toL is improper
-//			Beta toL = Beta.FromMeanAndVariance(0.5, -0.5);
-			Beta toL = Beta.FromMeanLogs(Math.Log(0.5), 0.2);
-			double varReduceFactor = 1;
-			while(!toL.IsProper()){
-				Beta proj = Beta.FromMeanAndVariance(projM, projV / varReduceFactor);
-				toL = proj / logistic;
-				// increase precision so that division gives a proper outgoing message.
-				varReduceFactor *= 2;
+			// method of moments http://en.wikipedia.org/wiki/Beta_distribution#Method_of_moments
+			if( (Math.Abs(1 - projM) < 1e-6 || Math.Abs(projM) < 1e-6)
+			   && Math.Abs(projV) < 1e-6){
+				Console.WriteLine("!! neg variance in ProjToLogisticGaussianProposal: m={0}, v={1}", projM, projV);
+				// mean very close to 0 or 1. Tiny variance. 
+				// Ideally we want to make a point mass at 1.
+				// But a point mass will not be a good taget for a regression function 
+				// to learn.
+				projM = Math.Abs(projM);
+				// This should overestimate the variance of proj.
+				// Overestimating should be better than underestimating.
+				projV = projM*(1-projM);
 			}
+
+			return Beta.FromMeanAndVariance(projM, projV);
+		}
+
+		public static Gaussian XAverageConditional(Beta logistic, Gaussian x){
+			Console.WriteLine("Direction X: beta: {0} , gaussian: {1}", logistic, x);
 			
+			// initial toX is improper
+			Gaussian projToX = ProjToXGaussianProposal(logistic, x);
+//			Gaussian projToX = ProjToXUniformProposal(logistic, x);
+			double projM, projV;
+			projToX.GetMeanAndVariance(out projM, out projV);
+			Gaussian toX = Gaussian.FromNatural(1, -1);
+			toX.SetToRatio(projToX, x, true);
+			// The following is my own hack
+//			double varReduceFactor = 1;
+//			while(!toX.IsProper()){
+//				Gaussian proj = Gaussian.FromMeanAndVariance(projM, projV / varReduceFactor);
+//				toX = proj / x;
+//				// increase precision so that division gives a proper outgoing message.
+//				varReduceFactor *= 2;
+//			}
+			Console.WriteLine("Proj To X: Gaussian({0}, {1})", projToX.GetMean(), 
+				projToX.GetVariance());
+			Console.WriteLine("To X: Gaussian({0}, {1})", toX.GetMean(), toX.GetVariance());
+			Console.WriteLine();
+			return toX;
+		}
+
+
+
+		/// <summary>
+		/// EP message to 'logistic' with importance sampling.
+		/// </summary>
+		public static Beta LogisticAverageConditional(Beta logistic, Gaussian x){
+			Console.WriteLine("Direction logistic: beta: {0} , gaussian: {1}", logistic, x);
+			Beta projToLogistic = ProjToLogisticGaussianProposal(logistic, x);
+			//			Beta projToLogistic = ProjToLogisticUniformProposal(logistic, x);
+			Beta toL = Beta.FromMeanLogs(Math.Log(0.5), 0.2);
+			toL.SetToRatio(projToLogistic, logistic);
+			// initial toL is improper
+			//			Beta toL = Beta.FromMeanAndVariance(0.5, -0.5);
+
+			//			double varReduceFactor = 1;
+			//			while(!toL.IsProper()){
+			//				Beta proj = Beta.FromMeanAndVariance(projM, projV / varReduceFactor);
+			//				toL = proj / logistic;
+			//				// increase precision so that division gives a proper outgoing message.
+			//				varReduceFactor *= 2;
+			//			}
+			Console.WriteLine("Proj To Logistic: {0}", projToLogistic);
 			Console.WriteLine("To logistic: {0}", toL);
+			Console.WriteLine();
 			return toL;
 		}
+
+		public static Gaussian ProjToXUniformProposal(Beta logistic, Gaussian x){
+			// Get the projected message forming part of an outogoing message to X.
+			double m1 = 0, m2 = 0;
+			double wsum = 0;
+			double urange = UniformTo - UniformFrom;
+			double si = -Math.Log(urange);
+			var grid = Enumerable.Range(0, UniformImportanceSampleSize)
+				.Select(i => urange * i / (double)(UniformImportanceSampleSize - 1) + UniformFrom);
+
+			double[] xlocations = grid.ToArray<double>();
+			for(int i = 0; i < UniformImportanceSampleSize; i++){
+				//				double xi = UniformRandom.NextDouble() * urange + UniformFrom;
+				double xi = xlocations[i];
+				//				Console.WriteLine("xi: {0}", xi);
+				double yi = MMath.Logistic(xi);
+				double lbi = logistic.GetLogProb(yi);
+				double lgi = x.GetLogProb(xi);
+
+				// importance weight
+				double wi = Math.Exp(lbi + lgi - si);
+				wsum += wi;
+				m1 += wi * xi;
+				m2 += wi * xi * xi;
+			}
+			m1 /= wsum;
+			m2 /= wsum;
+			double projM = m1;
+			double projV = m2 - m1 * m1;
+			return Gaussian.FromMeanAndVariance(projM, projV);
+		}
+
+
 	
+
+		public static Beta ProjToLogisticUniformProposal(Beta logistic, Gaussian x){
+			// Get the projected message forming part of an outgoing message to logistic.
+
+			double m1 = 0, m2 = 0;
+			double wsum = 0;
+			double urange = UniformTo - UniformFrom;
+			double si = -Math.Log(urange);
+			var grid = Enumerable.Range(0, UniformImportanceSampleSize)
+				.Select(i => urange * i / (double)(UniformImportanceSampleSize - 1) + UniformFrom);
+			double[] xlocations = grid.ToArray<double>();
+
+			for(int i = 0; i < UniformImportanceSampleSize; i++){
+				//				double xi = UniformRandom.NextDouble() * urange + UniformFrom;
+				double xi = xlocations[i];
+				double yi = MMath.Logistic(xi);
+
+				double lbi = logistic.GetLogProb(yi);
+				double lgi = x.GetLogProb(xi);
+
+				// importance weight
+				double wi = Math.Exp(lbi + lgi - si);
+				//				double wi = Math.Exp(lbi + lgi);
+				wsum += wi;
+				m1 += wi * yi;
+				m2 += wi * yi * yi;
+			}
+			m1 /= wsum;
+			m2 /= wsum;
+			double projM = m1;
+			double projV = m2 - m1 * m1;
+			return Beta.FromMeanAndVariance(projM, projV);
+		}
 	}
 
 	/// 
@@ -211,7 +320,7 @@ namespace KernelEP.Op{
 	public static class KEPLogisticOp{
 		// This is used when calling the true Infer.net message operator.
 		private static Gaussian falseMsg = LogisticOp2.FalseMsgInit();
-		// If true, print true messages sent by an Infer.NET's implementation of 
+		// If true, print true messages sent by an Infer.NET's implementation of
 		// logistic factor message operator.
 		private static bool isPrintTrueMessages = false;
 
@@ -220,6 +329,7 @@ namespace KernelEP.Op{
 		static KEPLogisticOp(){
 
 		}
+
 		public static void SetPrintTrueMessages(bool v){
 			LogisticOp2.IsPrintLog = !v;
 			isPrintTrueMessages = v;
@@ -409,6 +519,9 @@ namespace KernelEP.Op{
 		public static bool IsCollectXMessages = true;
 		// true to save all messages from/to X
 		public static bool IsCollectLogisticMessages = true;
+		// If true, collect projected messages instead of the outgoing messages.
+		// Outgoing messages can be obtained by dividing these messages by the cavity.
+		public static bool IsCollectProjMsgs = true;
 		public static bool IsPrintLog = true;
 
 		// A list of Tuple<Gaussian, Gaussian, Beta> for a Gaussian outgoing
@@ -471,9 +584,16 @@ namespace KernelEP.Op{
 
 			// ### Message collection ###
 			if(IsCollectXMessages){
-				Gaussian fromX = x;
-				var pair = new Tuple<Gaussian, Gaussian, Beta>(toX,fromX,logistic);
-				toXMessages.Add(pair);
+				if(IsCollectProjMsgs){
+					// compute proj message. This can be expensive.
+					Gaussian projX = ISLogisticOp.ProjToXGaussianProposal(logistic, x);
+					var pair = new Tuple<Gaussian, Gaussian, Beta>(projX,x,logistic);
+					toXMessages.Add(pair);
+				} else{
+					// collect outgoing message
+					var pair = new Tuple<Gaussian, Gaussian, Beta>(toX,x,logistic);
+					toXMessages.Add(pair);
+				}
 			}
 			return toX;
 		}
@@ -492,7 +612,7 @@ namespace KernelEP.Op{
 		                                              [Proper] Gaussian x, Gaussian falseMsg){
 			if(IsPrintLog){
 				Console.WriteLine("LogisticAverageConditional(Beta logistic, [Proper] Gaussian x, Gaussian falseMsg)");
-				Console.WriteLine("Gaussian x: "+x);
+				Console.WriteLine("Gaussian x: " + x);
 			}
 
 			Beta toLogistic;
@@ -566,12 +686,21 @@ namespace KernelEP.Op{
 		}
 
 		private static void CollectCheckLogisticMsg(Beta toLogistic, Gaussian x,
-		                                       Beta logistic){
+		                                            Beta logistic){
 			// ### Message collection ###
 			if(IsCollectLogisticMessages){
-				Gaussian fromX = x;
-				var pair = new Tuple<Beta, Gaussian, Beta>(toLogistic,fromX,logistic);
-				toLogisticMessages.Add(pair);
+
+				if(IsCollectProjMsgs){
+					// compute proj message. This can be expensive.
+					Beta projLogistic = ISLogisticOp.ProjToLogisticGaussianProposal(logistic, x);
+					var pair = new Tuple<Beta, Gaussian, Beta>(projLogistic,x,logistic);
+					toLogisticMessages.Add(pair);
+				} else{
+					// collect outgoing message
+					var pair = new Tuple<Beta, Gaussian, Beta>(toLogistic,x,logistic);
+					toLogisticMessages.Add(pair);
+				}
+
 			}
 		}
 
@@ -749,6 +878,8 @@ namespace KernelEP.Op{
 
 
 
+
+
 #pragma warning disable 162
 		#endif
 
@@ -829,6 +960,8 @@ namespace KernelEP.Op{
 
 		#if SUPPRESS_UNREACHABLE_CODE_WARNINGS
 		
+
+
 
 
 

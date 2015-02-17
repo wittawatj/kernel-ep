@@ -162,7 +162,9 @@ namespace KernelEP.Tool{
 
 		}
 	}
+
 	// Corresponds to FeatureMap in Matlab code.
+	// Consider VectorMapper<T1, ...>
 	[Obsolete]
 	public abstract class VectorMapper{
 		public abstract Vector MapToVector(params IKEPDist[] msgs);
