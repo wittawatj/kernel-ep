@@ -46,6 +46,7 @@
 \usepackage{soul}
 \usepackage{tikz}
 \usepackage{todonotes}
+
 \usepackage{url}
 %\usepackage[all]{xy}
 
@@ -355,6 +356,18 @@ distributions.
 \item Experiments on the logistic factor for comparing with Nicolas and
 Ali's results. Show prediction accuracy. Histogram of log KL. 4 plots
 (best, 2 median, worst) of predicted msgs vs. true.
+\item Plot the predictive variance as a test point (incoming messages) is
+far away from the training set. Say the mean of the means of Gaussian
+incoming messages in the training set is 0. Vary the mean of the Gaussian
+message from -10 to 10 on x-axis and plot predictive variance on y-axis.
+Expect a U-shaped curve where the minimum is at 0. This ensures the
+operator will query the oracle when there are incoming messages from
+an unexplored region. Perhaps plot one curve for one setting of the
+incoming Beta message (fixed).
+\item Use the operator for logistic in a binary logistic regression problem
+with a real dataset. Compare the inferred posterior of the coefficient
+vector to the posterior obtained by the handcrafted message operator,
+possibly with a histogram of log KL (of posteriors).
 \item Experiments on compound gamma factor whose handcrafted operator is
 slow. We can show that using a regression-based operator can be faster
 and possibly more accurate. A compound gamma can be used as a prior
@@ -362,12 +375,9 @@ on a Gaussian precision in some model. Would be nice to have a real
 dataset (say a binary classification dataset from UCI repository).
 
 \begin{itemize}
-\item Andrew Gelman, Tom Minka: ``Gamma prior on precision is not good''.
-Cite them.
+\item Andrew Gelman \citep{Gelman2006}, Tom Minka: ``Gamma prior on precision
+is not good''. Cite them.
 \end{itemize}
-\item Show a plot of log KL error vs. log predictive variance. Expect positive
-correlation. Focus on unseen incoming messages from an unexplored
-region. Make sure predictive variance is high for those.
 \item Do we need kNN as a baseline regression function ?
 \item Choose the number of particles in the orable importance sampler so
 that it takes roughly the same time as our operator. Compute the predictive
