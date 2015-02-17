@@ -1,0 +1,1258 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Infer.Learners</name>
+    </assembly>
+    <members>
+        <member name="T:MicrosoftResearch.Infer.Learners.IPredictorIncrementalTraining`2">
+            <summary>
+            Interface to a predictor which can be trained incrementally.
+            </summary>
+            <typeparam name="TInstanceSource">The type of a source of instances.</typeparam>
+            <typeparam name="TLabelSource">The type of a source of labels.</typeparam>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.IPredictorIncrementalTraining`2.TrainIncremental(`0,`1)">
+            <summary>
+            Incrementally trains the predictor on the specified instances.
+            </summary>
+            <param name="instanceSource">The source of instances.</param>
+            <param name="labelSource">An optional source of labels.</param>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.Mappings.MappingException">
+            <summary>
+            The exception that is thrown for issues caused by mappings.
+            </summary>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Mappings.MappingException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:MicrosoftResearch.Infer.Learners.Mappings.MappingException"/> class.
+            </summary>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Mappings.MappingException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MicrosoftResearch.Infer.Learners.Mappings.MappingException"/> class with a specified error message.
+            </summary>
+            <param name="message">The error message.</param>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Mappings.MappingException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MicrosoftResearch.Infer.Learners.Mappings.MappingException"/> class with a specified error message 
+            and a reference to the inner exception that is the cause of this exception. 
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="inner">The exception that is the cause of the current exception.</param>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Mappings.MappingException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MicrosoftResearch.Infer.Learners.Mappings.MappingException"/> class.
+            </summary>
+            <param name="info">The object that holds the serialized object data.</param>
+            <param name="context">The contextual information about the source or destination.</param>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.Mappings.PredictorMappingExtensions">
+            <summary>
+            Extension methods for the <see cref="T:MicrosoftResearch.Infer.Learners.Mappings.IPredictorMapping`5"/> interface.
+            </summary>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Mappings.PredictorMappingExtensions.GetInstancesSafe``5(MicrosoftResearch.Infer.Learners.Mappings.IPredictorMapping{``0,``1,``2,``3,``4},``0)">
+            <summary>
+            Safely retrieves instances for a given instance source.
+            </summary>
+            <typeparam name="TInstanceSource">The type of a source of instances.</typeparam>
+            <typeparam name="TInstance">The type of an instance.</typeparam>
+            <typeparam name="TLabelSource">The type of a source of labels.</typeparam>
+            <typeparam name="TLabel">The type of a label.</typeparam>
+            <typeparam name="TFeatures">The type of the features.</typeparam>
+            <param name="mapping">The mapping.</param>
+            <param name="instanceSource">The source of instances.</param>
+            <returns>The instances provided by the instance source.</returns>
+            <exception cref="T:MicrosoftResearch.Infer.Learners.Mappings.MappingException">Thrown if the retrieved instances are null.</exception>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Mappings.PredictorMappingExtensions.GetFeaturesSafe``5(MicrosoftResearch.Infer.Learners.Mappings.IPredictorMapping{``0,``1,``2,``3,``4},``1,``0)">
+            <summary>
+            Safely retrieves the features for a given instance.
+            </summary>
+            <typeparam name="TInstanceSource">The type of a source of instances.</typeparam>
+            <typeparam name="TInstance">The type of an instance.</typeparam>
+            <typeparam name="TLabelSource">The type of a source of labels.</typeparam>
+            <typeparam name="TLabel">The type of a label.</typeparam>
+            <typeparam name="TFeatures">The type of the features.</typeparam>
+            <param name="mapping">The mapping.</param>
+            <param name="instance">The instance to provide features for.</param>
+            <param name="instanceSource">An optional source of instances.</param>
+            <returns>The features for the given instance.</returns>
+            <exception cref="T:MicrosoftResearch.Infer.Learners.Mappings.MappingException">Thrown if the retrieved feature values are null.</exception>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Mappings.PredictorMappingExtensions.GetLabelSafe``5(MicrosoftResearch.Infer.Learners.Mappings.IPredictorMapping{``0,``1,``2,``3,``4},``1,``0,``2)">
+            <summary>
+            Safely retrieves the label for a given instance.
+            </summary>
+            <typeparam name="TInstanceSource">The type of a source of instances.</typeparam>
+            <typeparam name="TInstance">The type of an instance.</typeparam>
+            <typeparam name="TLabelSource">The type of a source of labels.</typeparam>
+            <typeparam name="TLabel">The type of a label.</typeparam>
+            <typeparam name="TFeatures">The type of the features.</typeparam>
+            <param name="mapping">The mapping.</param>
+            <param name="instance">The instance to provide the label for.</param>
+            <param name="instanceSource">An optional source of instances.</param>
+            <param name="labelSource">An optional source of labels.</param>
+            <returns>The label of the given instance.</returns>
+            <exception cref="T:MicrosoftResearch.Infer.Learners.Mappings.MappingException">Thrown if the retrieved label is null.</exception>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.LossFunction">
+            <summary>
+            The loss function which determines how a prediction in the form of a distribution is converted into a point prediction.
+            </summary>
+        </member>
+        <member name="F:MicrosoftResearch.Infer.Learners.LossFunction.ZeroOne">
+            <summary>
+            The zero-one loss function is equivalent to choosing the mode of the predicted distribution as point
+            estimate. Use this loss function to minimize mean classification error.
+            </summary>
+        </member>
+        <member name="F:MicrosoftResearch.Infer.Learners.LossFunction.Squared">
+            <summary>
+            The squared or quadratic loss function is equivalent to choosing the mean of the predicted distribution 
+            as point estimate. Use this loss function to minimize mean squared error.
+            </summary>
+        </member>
+        <member name="F:MicrosoftResearch.Infer.Learners.LossFunction.Absolute">
+            <summary>
+            The absolute loss function is equivalent to choosing the median of the predicted distribution as point
+            estimate. Use this loss function to minimize mean absolute error.
+            </summary>
+        </member>
+        <member name="F:MicrosoftResearch.Infer.Learners.LossFunction.Custom">
+            <summary>
+            The custom loss function allows to provide a user-defined loss function when converting a prediction in
+            the form of a distribution into a point prediction.
+            </summary>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.PointEstimator">
+            <summary>
+            Implements point estimators.
+            </summary>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.PointEstimator.ForBernoulli(MicrosoftResearch.Infer.Learners.LossFunction)">
+            <summary>
+            Gets a method which converts a <see cref="T:MicrosoftResearch.Infer.Distributions.Bernoulli"/> distribution into a point estimate.
+            </summary>
+            <param name="lossFunction"> The <see cref="T:MicrosoftResearch.Infer.Learners.LossFunction"/>, which determines the loss to minimize.</param>
+            <returns>The point estimator.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.PointEstimator.ForDiscrete(MicrosoftResearch.Infer.Learners.LossFunction)">
+            <summary>
+            Gets a method which converts a <see cref="T:MicrosoftResearch.Infer.Distributions.Discrete"/> distribution into a point estimate.
+            </summary>
+            <param name="lossFunction"> The <see cref="T:MicrosoftResearch.Infer.Learners.LossFunction"/>, which determines the loss to minimize.</param>
+            <returns>The point estimator.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.PointEstimator.ForDiscrete``1(MicrosoftResearch.Infer.Learners.LossFunction)">
+            <summary>
+            Gets a method which converts a <see cref="T:MicrosoftResearch.Infer.Distributions.Discrete"/> distribution into a point estimate.
+            </summary>
+            <typeparam name="TLabel">The type of a label.</typeparam>
+            <param name="lossFunction"> The <see cref="T:MicrosoftResearch.Infer.Learners.LossFunction"/>, which determines the loss to minimize.</param>
+            <returns>The point estimator.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.PointEstimator.ForBernoulli(System.Func{System.Boolean,System.Boolean,System.Double})">
+            <summary>
+            Gets a method which converts a <see cref="T:MicrosoftResearch.Infer.Distributions.Bernoulli"/> distribution into a point estimate.
+            </summary>
+            <param name="customLossFunction">The custom loss function used to compute the point estimate.</param>
+            <returns>The point estimator.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.PointEstimator.ForDiscrete(System.Func{System.Int32,System.Int32,System.Double})">
+            <summary>
+            Gets a method which converts a <see cref="T:MicrosoftResearch.Infer.Distributions.Discrete"/> distribution into a point estimate.
+            </summary>
+            <param name="customLossFunction">The custom loss function used to compute the point estimate.</param>
+            <returns>The point estimator.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.PointEstimator.ForDiscrete``1(System.Func{``0,``0,System.Double})">
+            <summary>
+            Gets a method which converts a <see cref="T:MicrosoftResearch.Infer.Distributions.Discrete"/> distribution into a point estimate.
+            </summary>
+            <typeparam name="TLabel">The type of a label.</typeparam>
+            <param name="customLossFunction">The custom loss function used to compute the point estimate.</param>
+            <returns>The point estimator.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.PointEstimator.GetEstimate(MicrosoftResearch.Infer.Distributions.Bernoulli,System.Func{System.Boolean,System.Boolean,System.Double})">
+            <summary>
+            Computes the point estimate for a <see cref="T:MicrosoftResearch.Infer.Distributions.Bernoulli"/> distribution using a specified loss function.
+            </summary>
+            <param name="distribution">The <see cref="T:MicrosoftResearch.Infer.Distributions.Bernoulli"/> distribution.</param>
+            <param name="lossFunction">The loss function.</param>
+            <returns>The point estimate.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.PointEstimator.GetEstimate(MicrosoftResearch.Infer.Distributions.Discrete,System.Func{System.Int32,System.Int32,System.Double})">
+            <summary>
+            Computes the point estimate for a <see cref="T:MicrosoftResearch.Infer.Distributions.Discrete"/> distribution using a specified loss function.
+            </summary>
+            <param name="distribution">The <see cref="T:MicrosoftResearch.Infer.Distributions.Discrete"/> distribution.</param>
+            <param name="lossFunction">The loss function.</param>
+            <returns>The point estimate.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.PointEstimator.GetEstimate``1(System.Collections.Generic.IDictionary{``0,System.Double},System.Func{``0,``0,System.Double})">
+            <summary>
+            Computes the point estimate for a <see cref="T:MicrosoftResearch.Infer.Distributions.Discrete"/> distribution using a specified loss function.
+            </summary>
+            <typeparam name="TLabel">The type of a label.</typeparam>
+            <param name="distribution">The predictive distribution.</param>
+            <param name="lossFunction">The loss function.</param>
+            <returns>The point estimate.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.PointEstimator.GetMode``1(System.Collections.Generic.IDictionary{``0,System.Double})">
+            <summary>
+            Gets the mode of the specified generic discrete distribution.
+            </summary>
+            <typeparam name="TLabel">The type of a label.</typeparam>
+            <param name="distribution">The distribution.</param>
+            <returns>The mode of the distribution.</returns>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.DummyFeatureSource">
+            <summary>
+            Indicates that no explicit feature source is needed because features are implicitly stored somewhere else.
+            </summary>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.ICapabilities">
+            <summary>
+            Interface to learner capabilities.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.ICapabilities.IsPrecompiled">
+            <summary>
+            Gets a value indicating whether the learner is precompiled.
+            </summary>
+            <remarks>This is currently only relevant for Infer.NET.</remarks>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.ICapabilities.SupportsMissingData">
+            <summary>
+            Gets a value indicating whether the learner supports missing data.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.ICapabilities.SupportsSparseData">
+            <summary>
+            Gets a value indicating whether the learner supports sparse data.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.ICapabilities.SupportsStreamedData">
+            <summary>
+            Gets a value indicating whether the learner supports streamed data.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.ICapabilities.SupportsBatchedTraining">
+            <summary>
+            Gets a value indicating whether the learner supports training on batched data.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.ICapabilities.SupportsDistributedTraining">
+            <summary>
+            Gets a value indicating whether the learner supports distributed training.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.ICapabilities.SupportsIncrementalTraining">
+            <summary>
+            Gets a value indicating whether the learner supports incremental training.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.ICapabilities.SupportsModelEvidenceComputation">
+            <summary>
+            Gets a value indicating whether the learner can compute how well it matches the training data 
+            (usually for a given set of hyper-parameters).
+            </summary>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.IPredictorCapabilities">
+            <summary>
+            Interface to predictor capabilities.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IPredictorCapabilities.SupportsCustomPredictionLossFunction">
+            <summary>
+            Gets a value indicating whether the predictor can compute predictive point estimates from a user-defined loss function.
+            </summary>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.ILearner">
+            <summary>
+            Interface to a learner (something that can do machine learning).
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.ILearner.Capabilities">
+            <summary>
+            Gets the capabilities of the learner. These are any properties of the learner that
+            are not captured by the type signature of the most specific learner interface below.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.ILearner.Settings">
+            <summary>
+            Gets the settings of the learner. These should be configured once before any 
+            query methods are called on the learner.
+            </summary>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.SettingsGuard">
+            <summary>
+            Guards settings from being changed.
+            </summary>
+        </member>
+        <member name="F:MicrosoftResearch.Infer.Learners.SettingsGuard.isImmutable">
+            <summary>
+            A backward reference to the property indicating whether the setting is changeable or not.
+            </summary>
+        </member>
+        <member name="F:MicrosoftResearch.Infer.Learners.SettingsGuard.message">
+            <summary>
+            The message shown when trying to change an immutable setting.
+            </summary>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.SettingsGuard.#ctor(System.Func{System.Boolean},System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MicrosoftResearch.Infer.Learners.SettingsGuard"/> class.
+            </summary>
+            <param name="isImmutable">If true, the setting cannot be changed.</param>
+            <param name="message">The message shown when trying to change an immutable setting.</param>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.SettingsGuard.OnSettingChanging">
+            <summary>
+            Performs actions required before the value of a training setting is about to be changed.
+            </summary>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.IPredictor`5">
+            <summary>
+            Interface to a learner that acts on some data to predict a label.
+            </summary>
+            <typeparam name="TInstanceSource">The type of a source of instances.</typeparam>
+            <typeparam name="TInstance">The type of an instance.</typeparam>
+            <typeparam name="TLabelSource">The type of a source of labels.</typeparam>
+            <typeparam name="TResult">The type of a prediction for a single instance.</typeparam>
+            <typeparam name="TResultDist">The type of an uncertain prediction for a single instance.</typeparam>
+            <remarks>
+            Intended usage:
+            <para>
+            An instance refers to the data that can be attributed to a label. It may include the label itself if it is known. 
+            Typically, an instance provides the feature values which characterize the label. In spam detection, for example, an instance 
+            might refer to an email which may be labeled 'spam' or 'no spam'. In finance, an instance might refer to a commodity 
+            and the label may be its price.
+            </para><para>
+            An instance source provides all instances of interest.
+            </para><para>
+            A label source provides the known labels of some given instances.
+            </para>
+            Labels may hence be provided by label source or instance source.
+            </remarks>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.IPredictor`5.Train(`0,`2)">
+            <summary>
+            Trains the predictor on the specified instances.
+            </summary>
+            <param name="instanceSource">The source of instances.</param>
+            <param name="labelSource">The source of labels.</param>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.IPredictor`5.PredictDistribution(`1,`0)">
+            <summary>
+            Makes a prediction for the specified instance. Uncertainty in the prediction is characterized by the returned distribution type.
+            </summary>
+            <param name="instance">The instance to make predictions for.</param>
+            <param name="instanceSource">The source of instances which provides <paramref name="instance"/>.</param>
+            <returns>The prediction for <paramref name="instance"/>, with uncertainty.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.IPredictor`5.PredictDistribution(`0)">
+            <summary>
+            Makes predictions for the specified instances. Uncertainty in the predictions is characterized by the returned distribution type.
+            </summary>
+            <param name="instanceSource">The source of instances to make predictions for.</param>
+            <returns>The predictions of all instances provided by <paramref name="instanceSource"/>, with uncertainty.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.IPredictor`5.Predict(`1,`0)">
+            <summary>
+            Makes a prediction for the specified instance. Uncertainty in the prediction is discarded and a "best" prediction is returned.
+            </summary>
+            <param name="instance">The instance to make predictions for.</param>
+            <param name="instanceSource">The source of instances which provides <paramref name="instance"/>.</param>
+            <returns>The "best" prediction for <paramref name="instance"/>, discarding uncertainty.</returns>
+            <remarks>The definition of "best" depends on the particular implementation of the predictor and its settings.</remarks>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.IPredictor`5.Predict(`0)">
+            <summary>
+            Makes predictions for the specified instances. Uncertainty in the predictions is discarded and the "best" predictions are returned.
+            </summary>
+            <param name="instanceSource">The source of instances to make predictions for.</param>
+            <returns>The "best" prediction for every instance in <paramref name="instanceSource"/>, discarding uncertainty.</returns>
+            <remarks>The definition of "best" depends on the particular implementation of the predictor and its settings.</remarks>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IPredictor`5.Capabilities">
+            <summary>
+            Gets the capabilities of the predictor.
+            </summary>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.IStarRatingInfo`1">
+            <summary>
+            Interface to provide a mapping from ratings of arbitrary type <typeparamref name="TRating"/> to star ratings.
+            </summary>
+            <typeparam name="TRating">The type of the ratings.</typeparam>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.IStarRatingInfo`1.ToStarRating(`0)">
+            <summary>
+            Converts a rating to a star rating.
+            </summary>
+            <param name="rating">The rating.</param>
+            <returns>The corresponding star rating.</returns>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IStarRatingInfo`1.MinStarRating">
+            <summary>
+            Gets the minimum possible star rating.
+            </summary>
+            <remarks>
+            This value must not be negative.
+            </remarks>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IStarRatingInfo`1.MaxStarRating">
+            <summary>
+            Gets the maximum possible star rating.
+            </summary>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.IRecommender`6">
+            <summary>
+            Interface to a recommendation algorithm.
+            </summary>
+            <typeparam name="TInstanceSource">The type of a source of instances.</typeparam>
+            <typeparam name="TUser">The type of a user.</typeparam>
+            <typeparam name="TItem">The type of an item.</typeparam>
+            <typeparam name="TRating">The type of a rating.</typeparam>
+            <typeparam name="TRatingDist">The type of a distribution over ratings.</typeparam>
+            <typeparam name="TFeatureSource">The type of a source of features.</typeparam>
+            <remarks>
+            Intended usage:
+            <para>
+            An instance refers to a single user-item-rating triple. An instance source provides all instances of interest.
+            A feature source provides the features for the users and the items.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.IRecommender`6.Train(`0,`5)">
+            <summary>
+            Trains the recommender on the specified instances.
+            </summary>
+            <param name="instanceSource">The source of instances.</param>
+            <param name="featureSource">The source of features for the specified instances.</param>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.IRecommender`6.Predict(`1,`2,`5)">
+            <summary>
+            Predicts a rating for a specified user and item.
+            </summary>
+            <param name="user">The user.</param>
+            <param name="item">The item.</param>
+            <param name="featureSource">The source of features for the specified user and item.</param>
+            <returns>The predicted rating.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.IRecommender`6.Predict(`0,`5)">
+            <summary>
+            Predicts ratings for the specified instances.
+            </summary>
+            <param name="instanceSource">The source of instances.</param>
+            <param name="featureSource">The source of features for the specified instances.</param>
+            <returns>The predicted ratings.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.IRecommender`6.PredictDistribution(`1,`2,`5)">
+            <summary>
+            Predicts the distribution of a rating for a specified user and item.
+            </summary>
+            <param name="user">The user.</param>
+            <param name="item">The item.</param>
+            <param name="featureSource">The source of features for the specified user and item.</param>
+            <returns>The distribution of the rating.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.IRecommender`6.PredictDistribution(`0,`5)">
+            <summary>
+            Predicts rating distributions for the specified instances.
+            </summary>
+            <param name="instanceSource">The source of instances.</param>
+            <param name="featureSource">The source of the features for the specified instances.</param>
+            <returns>The distributions of the predicted ratings.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.IRecommender`6.Recommend(`1,System.Int32,`5)">
+            <summary>
+            Recommends items to a given user.
+            </summary>
+            <param name="user">The user to recommend items to.</param>
+            <param name="recommendationCount">Maximum number of items to recommend.</param>
+            <param name="featureSource">The source of features for the specified user.</param>
+            <returns>The list of recommended items.</returns>
+            <remarks>Only items specified in <see cref="P:MicrosoftResearch.Infer.Learners.IRecommender`6.ItemSubset"/> can be recommended.</remarks>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.IRecommender`6.Recommend(System.Collections.Generic.IEnumerable{`1},System.Int32,`5)">
+            <summary>
+            Recommends items to a given list of users.
+            </summary>
+            <param name="users">The list of users to recommend items to.</param>
+            <param name="recommendationCount">Maximum number of items to recommend to a single user.</param>
+            <param name="featureSource">The source of features for the specified users.</param>
+            <returns>The list of recommended items for every user from <paramref name="users"/>.</returns>
+            <remarks>Only items specified in <see cref="P:MicrosoftResearch.Infer.Learners.IRecommender`6.ItemSubset"/> can be recommended.</remarks>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.IRecommender`6.GetRelatedUsers(`1,System.Int32,`5)">
+            <summary>
+            Returns a list of users related to <paramref name="user"/>.
+            </summary>
+            <param name="user">The user to find related users for.</param>
+            <param name="relatedUserCount">Maximum number of related users to return.</param>
+            <param name="featureSource">The source of features for the specified user.</param>
+            <returns>The list of related users.</returns>
+            <remarks>Only users specified in <see cref="P:MicrosoftResearch.Infer.Learners.IRecommender`6.UserSubset"/> will be returned.</remarks>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.IRecommender`6.GetRelatedUsers(System.Collections.Generic.IEnumerable{`1},System.Int32,`5)">
+            <summary>
+            Returns a list of related users to each user in <paramref name="users"/>.
+            </summary>
+            <param name="users">The list of users to find related users for.</param>
+            <param name="relatedUserCount">Maximum number of related users to return for every user.</param>
+            <param name="featureSource">The source of features for the specified users.</param>
+            <returns>The list of related users for each user from <paramref name="users"/>.</returns>
+            <remarks>Only users specified in <see cref="P:MicrosoftResearch.Infer.Learners.IRecommender`6.UserSubset"/> will be returned.</remarks>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.IRecommender`6.GetRelatedItems(`2,System.Int32,`5)">
+            <summary>
+            Returns a list of items related to <paramref name="item"/>.
+            </summary>
+            <param name="item">The item to find related items for.</param>
+            <param name="relatedItemCount">Maximum number of related items to return.</param>
+            <param name="featureSource">The source of features for the specified item.</param>
+            <returns>The list of related items.</returns>
+            <remarks>Only items specified in <see cref="P:MicrosoftResearch.Infer.Learners.IRecommender`6.ItemSubset"/> will be returned.</remarks>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.IRecommender`6.GetRelatedItems(System.Collections.Generic.IEnumerable{`2},System.Int32,`5)">
+            <summary>
+            Returns a list of related items to each item in <paramref name="items"/>.
+            </summary>
+            <param name="items">The list of items to find related items for.</param>
+            <param name="relatedItemCount">Maximum number of related items to return for every item.</param>
+            <param name="featureSource">The source of features for the specified items.</param>
+            <returns>The list of related items for each item from <paramref name="items"/>.</returns>
+            <remarks>Only items specified in <see cref="P:MicrosoftResearch.Infer.Learners.IRecommender`6.ItemSubset"/> will be returned.</remarks>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommender`6.Capabilities">
+            <summary>
+            Gets the capabilities of the recommender.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommender`6.UserSubset">
+            <summary>
+            Gets or sets the subset of the users used for related user prediction.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommender`6.ItemSubset">
+            <summary>
+            Gets or sets the subset of the items used for related item prediction and recommendation.
+            </summary>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.IRecommenderCapabilities">
+            <summary>
+            Interface to a recommender capabilities.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommenderCapabilities.SupportsPositiveOnlyData">
+            <summary>
+            Gets a value indicating whether the recommender supports positive-only data.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommenderCapabilities.SupportsImplicitFeedback">
+            <summary>
+            Gets a value indicating whether the recommender supports implicit feedback
+            (e.g. counts of interactions, duration of interactions).
+            </summary>        
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommenderCapabilities.SupportsStarRatings">
+            <summary>
+            Gets a value indicating whether the recommender supports non-binary ratings.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommenderCapabilities.SupportsRealValuedRatings">
+            <summary>
+            Gets a value indicating whether the recommender supports real-valued ratings.
+            </summary>        
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommenderCapabilities.SupportsMultipleFormsOfFeedback">
+            <summary>
+            Gets a value indicating whether the recommender supports multiple forms of feedback.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommenderCapabilities.SupportsUserFeatures">
+            <summary>
+            Gets a value indicating whether the recommender supports user-specific metadata.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommenderCapabilities.SupportsItemFeatures">
+            <summary>
+            Gets a value indicating whether the recommender supports item-specific metadata.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommenderCapabilities.SupportsRatingFeatures">
+            <summary>
+            Gets a value indicating whether the recommender supports rating-specific metadata.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommenderCapabilities.SupportsPreferenceRatings">
+            <summary>
+            Gets a value indicating whether the recommender supports preference ratings
+            (e.g. item A is better than item B).
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommenderCapabilities.SupportsRatingsOfFriends">
+            <summary>
+            Gets a value indicating whether the recommender supports ratings of friends.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommenderCapabilities.SupportsPredictionDistribution">
+            <summary>
+            Gets a value indicating whether the recommender can predict 
+            the rating distribution of a given user-item pair.
+            </summary>
+            <remakrks>This is only relevant for star-rating recommenders.</remakrks>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommenderCapabilities.SupportsRelatedUsers">
+            <summary>
+            Gets a value indicating whether the recommender can find related users.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommenderCapabilities.SupportsRelatedItems">
+            <summary>
+            Gets a value indicating whether the recommender can find related items.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommenderCapabilities.SupportsRecommendationDiversity">
+            <summary>
+            Gets a value indicating whether the recommender supports item diversity in predictions.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommenderCapabilities.SupportsCustomPredictionLossFunction">
+            <summary>
+            Gets a value indicating whether the recommender can compute predictive point estimates from a user-defined loss function.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommenderCapabilities.SupportsColdStartUsers">
+            <summary>
+            Gets a value indicating whether the recommender can make 
+            predictions for users who were not included in training.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommenderCapabilities.SupportsColdStartItems">
+            <summary>
+            Gets a value indicating whether the recommender can make 
+            predictions for items which were not included in training.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommenderCapabilities.SupportsNotMissingAtRandomData">
+            <summary>
+            Gets a value indicating whether the recommender can model not missing-at-random data
+            (e.g. content restrictions due to provider).
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommenderCapabilities.IsResistantToShilling">
+            <summary>
+            Gets a value indicating whether the recommender is resistant to shilling.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.IRecommenderCapabilities.SupportsNonStationarity">
+            <summary>
+            Gets a value indicating whether the recommender supports changes in state over time.
+            </summary>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.ISettings">
+            <summary>
+            Interface to the settings of an implementation of <see cref="T:MicrosoftResearch.Infer.Learners.ILearner"/>.
+            These should be set once to configure the learner before calling any query methods on it.
+            </summary>
+            <remarks>
+            This design is a subject to change.
+            </remarks>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.StarRatingInfo">
+            <summary>
+            Provides a mapping for the case in which ratings are already star ratings.
+            </summary>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.StarRatingInfo.#ctor(System.Int32,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MicrosoftResearch.Infer.Learners.StarRatingInfo"/> class.
+            </summary>
+            <param name="minRating">The minimum possible rating.</param>
+            <param name="maxRating">The maximum possible rating.</param>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.StarRatingInfo.ToStarRating(System.Int32)">
+            <summary>
+            Converts a rating to the corresponding star rating.
+            </summary>
+            <param name="rating">The rating.</param>
+            <returns>The corresponding star rating.</returns>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.StarRatingInfo.MinStarRating">
+            <summary>
+            Gets the minimum possible star rating.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.StarRatingInfo.MaxStarRating">
+            <summary>
+            Gets the maximum possible star rating.
+            </summary>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.Mappings.IPredictorMapping`5">
+            <summary>
+            A mapping used by the implementations of
+            <see cref="T:MicrosoftResearch.Infer.Learners.IPredictor`5"/>
+            interface to convert user data to an appropriate format.
+            </summary>
+            <typeparam name="TInstanceSource">The type of a source of instances.</typeparam>
+            <typeparam name="TInstance">The type of an instance.</typeparam>
+            <typeparam name="TLabelSource">The type of a source of labels.</typeparam>
+            <typeparam name="TLabel">The type of a label.</typeparam>
+            <typeparam name="TFeatures">The type of the features.</typeparam>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Mappings.IPredictorMapping`5.GetInstances(`0)">
+            <summary>
+            Provides the instances for a given instance source.
+            </summary>
+            <param name="instanceSource">The source of instances.</param>
+            <returns>The instances provided by the instance source.</returns>
+            <remarks>Assumes that the same instance source always provides the same instances.</remarks>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Mappings.IPredictorMapping`5.GetFeatures(`1,`0)">
+            <summary>
+            Provides the features for a given instance.
+            </summary>
+            <param name="instance">The instance to provide features for.</param>
+            <param name="instanceSource">An optional source of instances.</param>
+            <returns>The features for the given instance.</returns>
+            <remarks>Assumes that the same instance source always provides the same features for a given instance.</remarks>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Mappings.IPredictorMapping`5.GetLabel(`1,`0,`2)">
+            <summary>
+            Provides the label for a given instance.
+            </summary>
+            <param name="instance">The instance to provide the label for.</param>
+            <param name="instanceSource">An optional source of instances.</param>
+            <param name="labelSource">An optional source of labels.</param>
+            <returns>The label of the given instance.</returns>
+            <remarks>Assumes that the same sources always provide the same label for a given instance.</remarks>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.Mappings.IRatingRecommenderMapping`7">
+            <summary>
+            A mapping used by the implementations of the
+            <see cref="T:MicrosoftResearch.Infer.Learners.IRecommender`6"/>
+            which operate on rated data.
+            </summary>
+            <typeparam name="TInstanceSource">The type of a source of instances.</typeparam>
+            <typeparam name="TInstance">The type of an instance.</typeparam>
+            <typeparam name="TUser">The type of a user.</typeparam>
+            <typeparam name="TItem">The type of an item.</typeparam>
+            <typeparam name="TRating">The type of a rating.</typeparam>
+            <typeparam name="TFeatureSource">The type of a feature source.</typeparam>
+            <typeparam name="TFeatureValues">The type of the feature values.</typeparam>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.Mappings.IRecommenderMapping`6">
+            <summary>
+            A mapping used by the implementations of the
+            <see cref="T:MicrosoftResearch.Infer.Learners.IRecommender`6"/>
+            interface which operate on positive-only data.
+            </summary>
+            <typeparam name="TInstanceSource">The type of a source of instances.</typeparam>
+            <typeparam name="TInstance">The type of an instance</typeparam>
+            <typeparam name="TUser">The type of a user.</typeparam>
+            <typeparam name="TItem">The type of an item.</typeparam>
+            <typeparam name="TFeatureSource">The type of a feature source.</typeparam>
+            <typeparam name="TFeatureValues">The type of the feature values.</typeparam>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Mappings.IRecommenderMapping`6.GetInstances(`0)">
+            <summary>
+            Retrieves a list of instances from a given instance source.
+            </summary>
+            <param name="instanceSource">The source to retrieve instances from.</param>
+            <returns>The list of retrieved instances.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Mappings.IRecommenderMapping`6.GetUser(`0,`1)">
+            <summary>
+            Extracts a user from a given instance.
+            </summary>
+            <param name="instanceSource">The source of instances providing the <paramref name="instance"/>.</param>
+            <param name="instance">The instance to extract the user from.</param>
+            <returns>The extracted user.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Mappings.IRecommenderMapping`6.GetItem(`0,`1)">
+            <summary>
+            Extracts an item from a given instance.
+            </summary>
+            <param name="instanceSource">The source of instances providing the <paramref name="instance"/>.</param>
+            <param name="instance">The instance to extract the item from.</param>
+            <returns>The extracted item.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Mappings.IRecommenderMapping`6.GetUserFeatures(`4,`2)">
+            <summary>
+            Provides the features for a given user.
+            </summary>
+            <param name="featureSource">The source of the features.</param>
+            <param name="user">The user to provide the features for.</param>
+            <returns>The features for <paramref name="user"/>.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Mappings.IRecommenderMapping`6.GetItemFeatures(`4,`3)">
+            <summary>
+            Provides the features for a given item.
+            </summary>
+            <param name="featureSource">The source of the features.</param>
+            <param name="item">The item to provide the features for.</param>
+            <returns>The features for <paramref name="item"/>.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Mappings.IRatingRecommenderMapping`7.GetRating(`0,`1)">
+            <summary>
+            Extracts a rating from a given instance.
+            </summary>
+            <param name="instanceSource">The source of instances providing the <paramref name="instance"/>.</param>
+            <param name="instance">The instance to extract the rating from.</param>
+            <returns>The extracted rating.</returns>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.Mappings.IStarRatingRecommenderMapping`7">
+            <summary>
+            A mapping used by the implementations of the
+            <see cref="T:MicrosoftResearch.Infer.Learners.IRecommender`6"/>
+            interface which operate on star-rated data.
+            </summary>
+            <typeparam name="TInstanceSource">The type of a source of instances.</typeparam>
+            <typeparam name="TInstance">The type of an instance</typeparam>
+            <typeparam name="TUser">The type of a user.</typeparam>
+            <typeparam name="TItem">The type of an item.</typeparam>
+            <typeparam name="TRating">The type of a rating.</typeparam>
+            <typeparam name="TFeatureSource">The type of a source of features.</typeparam>
+            <typeparam name="TFeatureValues">The type of the feature values.</typeparam>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Mappings.IStarRatingRecommenderMapping`7.GetRatingInfo(`0)">
+            <summary>
+            Provides the object describing how ratings in the specified instance source map to stars.
+            </summary>
+            <param name="instanceSource">The source of the instances.</param>
+            <returns>The object describing how ratings in the specified instance source map to stars.</returns>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.Metrics">
+            <summary>
+            A diverse set of metrics to evaluate various kinds of predictors.
+            </summary>
+        </member>
+        <member name="F:MicrosoftResearch.Infer.Learners.Metrics.Tolerance">
+            <summary>
+            The tolerance for comparisons of real numbers.
+            </summary>
+        </member>
+        <member name="F:MicrosoftResearch.Infer.Learners.Metrics.LinearDiscountFunc">
+            <summary>
+            Linear position discount function.
+            </summary>
+        </member>
+        <member name="F:MicrosoftResearch.Infer.Learners.Metrics.LogarithmicDiscountFunc">
+            <summary>
+            Logarithmic position discount function.
+            </summary>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.ZeroOneError``1(``0,``0)">
+            <summary>
+            Returns 0 if a prediction and the ground truth are the same and 1 otherwise.
+            </summary>
+            <typeparam name="TLabel">The type of a label.</typeparam>
+            <param name="groundTruth">The ground truth.</param>
+            <param name="prediction">The prediction.</param>
+            <returns>The computed metric value.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.ZeroOneError(System.Int32,System.Int32)">
+            <summary>
+            Returns 0 if a prediction and the ground truth are the same and 1 otherwise.
+            </summary>
+            <param name="groundTruth">The ground truth.</param>
+            <param name="prediction">The prediction.</param>
+            <returns>The computed metric value.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.SquaredError(System.Boolean,System.Boolean)">
+            <summary>
+            Computes squared difference between a prediction and the ground truth.
+            </summary>
+            <param name="groundTruth">The ground truth.</param>
+            <param name="prediction">The prediction.</param>
+            <returns>The computed metric value.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.SquaredError(System.Int32,System.Int32)">
+            <summary>
+            Computes squared difference between a prediction and the ground truth.
+            </summary>
+            <param name="groundTruth">The ground truth.</param>
+            <param name="prediction">The prediction.</param>
+            <returns>The computed metric value.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.SquaredError(System.Double,System.Int32)">
+            <summary>
+            Computes squared difference between a prediction and the ground truth.
+            </summary>
+            <param name="groundTruth">The ground truth.</param>
+            <param name="prediction">The prediction.</param>
+            <returns>The computed metric value.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.SquaredError(System.Double,System.Double)">
+            <summary>
+            Computes the squared difference between a prediction and the ground truth.
+            </summary>
+            <param name="groundTruth">The ground truth.</param>
+            <param name="prediction">The prediction.</param>
+            <returns>The computed metric value.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.AbsoluteError(System.Boolean,System.Boolean)">
+            <summary>
+            Computes the absolute difference between a prediction and the ground truth.
+            </summary>
+            <param name="groundTruth">The ground truth.</param>
+            <param name="prediction">The prediction.</param>
+            <returns>The computed metric value.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.AbsoluteError(System.Int32,System.Int32)">
+            <summary>
+            Computes the absolute difference between a prediction and the ground truth.
+            </summary>
+            <param name="groundTruth">The ground truth.</param>
+            <param name="prediction">The prediction.</param>
+            <returns>The computed metric value.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.AbsoluteError(System.Double,System.Int32)">
+            <summary>
+            Computes the absolute difference between a prediction and the ground truth.
+            </summary>
+            <param name="groundTruth">The ground truth.</param>
+            <param name="prediction">The prediction.</param>
+            <returns>The computed metric value.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.AbsoluteError(System.Double,System.Double)">
+            <summary>
+            Computes the absolute difference between a prediction and the ground truth.
+            </summary>
+            <param name="groundTruth">The ground truth.</param>
+            <param name="prediction">The prediction.</param>
+            <returns>The computed metric value.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.NegativeLogProbability(System.Boolean,MicrosoftResearch.Infer.Distributions.Bernoulli)">
+            <summary>
+            Returns the negative natural logarithm of the probability of ground truth for a given predictive distribution.
+            </summary>
+            <param name="groundTruth">The ground truth.</param>
+            <param name="prediction">The prediction as a <see cref="T:MicrosoftResearch.Infer.Distributions.Discrete"/> distribution.</param>
+            <returns>The negative natural logarithm of the probability of <paramref name="groundTruth"/>.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.NegativeLogProbability(System.Int32,MicrosoftResearch.Infer.Distributions.Discrete)">
+            <summary>
+            Returns the negative natural logarithm of the probability of ground truth for a given predictive distribution.
+            </summary>
+            <param name="groundTruth">The ground truth.</param>
+            <param name="prediction">The prediction as a <see cref="T:MicrosoftResearch.Infer.Distributions.Discrete"/> distribution.</param>
+            <returns>The negative natural logarithm of the probability of <paramref name="groundTruth"/>.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.NegativeLogProbability``1(``0,System.Collections.Generic.IDictionary{``0,System.Double})">
+            <summary>
+            Returns the negative natural logarithm of the probability of ground truth for a given predictive distribution.
+            </summary>
+            <typeparam name="TLabel">The type of a label.</typeparam>
+            <param name="groundTruth">The ground truth.</param>
+            <param name="prediction">The prediction as a discrete distribution over labels.</param>
+            <returns>The negative natural logarithm of the probability of <paramref name="groundTruth"/>.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.Dcg(System.Collections.Generic.IEnumerable{System.Double},System.Func{System.Int32,System.Double})">
+            <summary>
+            Computes discounted cumulative gain for the given list of gains.
+            </summary>
+            <param name="orderedGains">List of gains ordered according to some external criteria.</param>
+            <param name="discountFunc">Position discount function.</param>
+            <returns>The computed metric value.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown if one of the arguments is null.</exception>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.Dcg(System.Collections.Generic.IEnumerable{System.Double})">
+            <summary>
+            Computes discounted cumulative gain for the given list of gains
+            using <see cref="F:MicrosoftResearch.Infer.Learners.Metrics.LogarithmicDiscountFunc"/> discount function.
+            </summary>
+            <param name="orderedGains">List of gains ordered according to some external criteria.</param>
+            <returns>The computed metric value.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown if one of the arguments is null.</exception>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.LinearDcg(System.Collections.Generic.IEnumerable{System.Double})">
+            <summary>
+            Computes discounted cumulative gain for the given list of gains
+            using <see cref="F:MicrosoftResearch.Infer.Learners.Metrics.LinearDiscountFunc"/> discount function.
+            </summary>
+            <param name="orderedGains">List of gains ordered according to some external criteria.</param>
+            <returns>The computed metric value.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown if one of the arguments is null.</exception>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.Ndcg(System.Collections.Generic.IEnumerable{System.Double},System.Collections.Generic.IEnumerable{System.Double},System.Func{System.Int32,System.Double})">
+            <summary>
+            Computes discounted cumulative gain for the given list of gains normalized given another list of gains.
+            </summary>
+            <param name="orderedGains">List of gains ordered according to some external criteria.</param>
+            <param name="bestOrderedGains">List of gains used to compute a normalizer for discounted cumulative gain.</param>
+            <param name="discountFunc">Position discount function.</param>
+            <returns>The computed metric value.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown if one of the arguments is null.</exception>
+            <exception cref="T:System.ArgumentException">
+            Thrown if <paramref name="orderedGains"/> and <paramref name="bestOrderedGains"/> are of different size.
+            </exception>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.Ndcg(System.Collections.Generic.IEnumerable{System.Double},System.Collections.Generic.IEnumerable{System.Double})">
+            <summary>
+            Computes discounted cumulative gain for the given list of gains normalized given another list of gains using <see cref="F:MicrosoftResearch.Infer.Learners.Metrics.LogarithmicDiscountFunc"/>.
+            </summary>
+            <param name="orderedGains">List of gains ordered according to some external criteria.</param>
+            <param name="bestOrderedGains">List of gains used to compute a normalizer for discounted cumulative gain.</param>
+            <returns>The computed metric value.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown if one of the arguments is null.</exception>
+            <exception cref="T:System.ArgumentException">
+            Thrown if <paramref name="orderedGains"/> and <paramref name="bestOrderedGains"/> are of different size.
+            </exception>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.LinearNdcg(System.Collections.Generic.IEnumerable{System.Double},System.Collections.Generic.IEnumerable{System.Double})">
+            <summary>
+            Computes discounted cumulative gain for the given list of gains normalized given another list of gains using <see cref="F:MicrosoftResearch.Infer.Learners.Metrics.LinearDiscountFunc"/>.
+            </summary>
+            <param name="orderedGains">List of gains ordered according to some external criteria.</param>
+            <param name="bestOrderedGains">List of gains used to compute a normalizer for discounted cumulative gain.</param>
+            <returns>The computed metric value.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown if one of the arguments is null.</exception>
+            <exception cref="T:System.ArgumentException">
+            Thrown if <paramref name="orderedGains"/> and <paramref name="bestOrderedGains"/> are of different size.
+            </exception>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.GradedAveragePrecision(System.Collections.Generic.IEnumerable{System.Double})">
+            <summary>
+            Computes graded average precision for the given list of relevance values.
+            </summary>
+            <param name="orderedRelevances">List of relevance values ordered according to some external criteria.</param>
+            <returns>The computed metric value.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown if one of the arguments is null.</exception>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.PrecisionRecallCurve``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{``0,System.Double}})">
+            <summary>
+            Computes the precision-recall curve.
+            </summary>
+            <typeparam name="TInstance">The type of an instance.</typeparam>
+            <param name="positiveInstances">The instances with 'positive' ground truth labels.</param>
+            <param name="instanceScores">
+            The predicted instance scores. The larger a predicted score, the more likely the instance is 
+            to belong to the 'positive' class.
+            </param>
+            <returns>The points on the precision-recall curve, increasing by recall.</returns>
+            <remarks>
+            All instances not contained in <paramref name="positiveInstances"/> are assumed to belong to the 'negative' class.
+            </remarks>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.ReceiverOperatingCharacteristicCurve``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{``0,System.Double}})">
+            <summary>
+            Computes the receiver operating characteristic curve.
+            <para>
+            The implementation follows Algorithm 2 as described in Fawcett, T. (2004): ROC Graphs: Notes and Practical 
+            Considerations for Researchers.
+            </para>
+            </summary>
+            <typeparam name="TInstance">The type of an instance.</typeparam>
+            <param name="positiveInstances">The instances with 'positive' ground truth labels.</param>
+            <param name="instanceScores">
+            The predicted instance scores. The larger a predicted score, the more likely the instance is 
+            to belong to the 'positive' class.
+            </param>
+            <returns>The points on the receiver operating characteristic curve, increasing by false positive rate.</returns>
+            <remarks>
+            All instances not contained in <paramref name="positiveInstances"/> are assumed to belong to the 'negative' class.
+            </remarks>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.AreaUnderRocCurve``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{``0,System.Double}})">
+            <summary>
+            Computes the area under the receiver operating characteristic curve.
+            <para>
+            The implementation follows Algorithm 3 as described in Fawcett, T. (2004): ROC Graphs: Notes and Practical 
+            Considerations for Researchers.
+            </para>
+            </summary>
+            <typeparam name="TInstance">The type of an instance.</typeparam>
+            <param name="positiveInstances">The instances with 'positive' ground truth labels.</param>
+            <param name="instanceScores">
+            The predicted instance scores. The larger a predicted score, the more likely the instance is 
+            to belong to the 'positive' class.
+            </param>
+            <returns>AUC - the area under the receiver operating characteristic curve.</returns>
+            <remarks>
+            All instances not contained in <paramref name="positiveInstances"/> are assumed to belong to the 'negative' class.
+            </remarks>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.CosineSimilarity(MicrosoftResearch.Infer.Maths.Vector,MicrosoftResearch.Infer.Maths.Vector)">
+            <summary>
+            Computes cosine similarity between two given vectors.
+            </summary>
+            <param name="vector1">The first vector.</param>
+            <param name="vector2">The second vector.</param>
+            <returns>The computed similarity value.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown if one of the arguments is null.</exception>
+            <exception cref="T:System.ArgumentException">
+            Thrown if the similarity is not defined for the given pair of vectors.
+            It can happen if the vectors are of different length or one of them has zero magnitude.
+            </exception>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.PearsonCorrelation(MicrosoftResearch.Infer.Maths.Vector,MicrosoftResearch.Infer.Maths.Vector)">
+            <summary>
+            Computes Pearson's correlation coefficient for a given pair of vectors.
+            </summary>
+            <param name="vector1">The first vector.</param>
+            <param name="vector2">The second vector.</param>
+            <returns>The computed correlation value.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown if one of the arguments is null.</exception>
+            <exception cref="T:System.ArgumentException">
+            Thrown if the correlation is not defined for the given pair of vectors.
+            It can happen if the vectors are of different length or one of them has zero variance.
+            </exception>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.NormalizedEuclideanSimilarity(MicrosoftResearch.Infer.Maths.Vector,MicrosoftResearch.Infer.Maths.Vector)">
+            <summary>
+            Computes the similarity measure for a given pair of vectors based on the Euclidean distance between them.
+            The similarity is computed as 1.0 / (1.0 + D(<paramref name="vector1"/>, <paramref name="vector2"/>),
+            where D stands for the Euclidean distance divided by the square root of the dimensionality.
+            </summary>
+            <param name="vector1">The first vector.</param>
+            <param name="vector2">The second vector.</param>
+            <returns>The computed similarity value.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown if one of the arguments is null.</exception>
+            <exception cref="T:System.ArgumentException">
+            Thrown if the distance is not defined for the given pair of vectors.
+            It can happen if the vectors are of different or zero length.
+            </exception>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.NormalizedManhattanSimilarity(MicrosoftResearch.Infer.Maths.Vector,MicrosoftResearch.Infer.Maths.Vector)">
+            <summary>
+            Computes the similarity measure for a given pair of vectors based on Manhattan distance between them.
+            The similarity is computed as 1.0 / (1.0 + D(<paramref name="vector1"/>, <paramref name="vector2"/>),
+            where D stands for the Manhattan distance divided by the dimensionality.
+            </summary>
+            <param name="vector1">The first vector.</param>
+            <param name="vector2">The second vector.</param>
+            <returns>The computed similarity value.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown if one of the arguments is null.</exception>
+            <exception cref="T:System.ArgumentException">
+            Thrown if the distance is not defined for the given pair of vectors.
+            It can happen if the vectors are of different or zero length.
+            </exception>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.Metrics.CheckVectorPair(MicrosoftResearch.Infer.Maths.Vector,MicrosoftResearch.Infer.Maths.Vector)">
+            <summary>
+            Checks if the given pair of vectors is of the same non-zero dimensionality.
+            </summary>
+            <param name="vector1">The first vector.</param>
+            <param name="vector2">The second vector.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown if one of the arguments is null.</exception>
+            <exception cref="T:System.ArgumentException">Thrown if arguments are of different or zero length.</exception>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.NoFeatureSource">
+            <summary>
+            Indicates that no feature source is needed because the model does not use features.
+            </summary>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.RoundingStarRatingInfo">
+            <summary>
+            An implementation of <see cref="T:MicrosoftResearch.Infer.Learners.IStarRatingInfo`1"/> which converts floating-point ratings to star ratings by rounding.
+            </summary>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.RoundingStarRatingInfo.#ctor(System.Int32,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MicrosoftResearch.Infer.Learners.RoundingStarRatingInfo"/> class.
+            </summary>
+            <param name="minRating">The minimum star rating.</param>
+            <param name="maxRating">The maximum star rating.</param>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.RoundingStarRatingInfo.ToStarRating(System.Double)">
+            <summary>
+            Converts a floating-point rating to a star rating by rounding to the nearest integer.
+            </summary>
+            <param name="rating">The floating-point rating.</param>
+            <returns>The rounded star rating.</returns>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.RoundingStarRatingInfo.MinStarRating">
+            <summary>
+            Gets the minimum possible star rating.
+            </summary>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.RoundingStarRatingInfo.MaxStarRating">
+            <summary>
+            Gets the maximum possible star rating.
+            </summary>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.SerializationUtils">
+            <summary>
+            Implements various utilities related to learner serialization.
+            </summary>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.SerializationUtils.Save(MicrosoftResearch.Infer.Learners.ILearner,System.String)">
+            <summary>
+            Persists a learner to a file.
+            </summary>
+            <param name="learner">The learner to serialize.</param>
+            <param name="fileName">The name of the file.</param>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.SerializationUtils.Save(MicrosoftResearch.Infer.Learners.ILearner,System.IO.Stream,System.Runtime.Serialization.IFormatter)">
+            <summary>
+            Serializes a learner to a given stream using a given formatter.
+            </summary>
+            <param name="learner">The learner.</param>
+            <param name="stream">The serialization stream.</param>
+            <param name="formatter">The formatter.</param>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.SerializationUtils.Load``1(System.IO.Stream,System.Runtime.Serialization.IFormatter)">
+            <summary>
+            Deserializes a learner from a given stream and formatter.
+            </summary>
+            <typeparam name="TLearner">The type of a learner.</typeparam>
+            <param name="stream">The stream.</param>
+            <param name="formatter">The formatter.</param>
+            <returns>The deserialized learner object.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.SerializationUtils.Load``1(System.String)">
+            <summary>
+            Deserializes a learner from a file.
+            </summary>
+            <typeparam name="TLearner">The type of a learner.</typeparam>
+            <param name="fileName">The file name.</param>
+            <returns>The deserialized learner object.</returns>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.SerializationUtils.AppendVersionMetadata(System.Type,System.IO.Stream,System.Runtime.Serialization.IFormatter)">
+            <summary>
+            Appends learner metadata required for version checking to a given serialization stream.
+            </summary>
+            <param name="type">The type of the learner.</param>
+            <param name="stream">The serialization stream.</param>
+            <param name="formatter">The formatter.</param>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.SerializationUtils.CheckVersion(System.IO.Stream,System.Runtime.Serialization.IFormatter)">
+            <summary>
+            Checks the current version of a learner matches the one in a given serialization stream.
+            </summary>
+            <param name="stream">The stream containing the required metadata.</param>
+            <param name="formatter">The formatter.</param>
+            <remarks>This method modifies the given stream.</remarks>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.SerializationUtils.GetSerializationVersion(System.Reflection.MemberInfo)">
+            <summary>
+            Gets the serialization version of a learner.
+            </summary>
+            <param name="memberInfo">The member info of the learner.</param>
+            <returns>The serialization version of the learner.</returns>
+        </member>
+        <member name="T:MicrosoftResearch.Infer.Learners.SerializationVersionAttribute">
+            <summary>
+            Sets the serialization version of the learner.
+            </summary>
+        </member>
+        <member name="M:MicrosoftResearch.Infer.Learners.SerializationVersionAttribute.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MicrosoftResearch.Infer.Learners.SerializationVersionAttribute"/> class.
+            </summary>
+            <param name="serializationVersion">The serialization version of the learner.</param>
+        </member>
+        <member name="P:MicrosoftResearch.Infer.Learners.SerializationVersionAttribute.SerializationVersion">
+            <summary>
+            Gets the serialization version of the learner.
+            </summary>
+        </member>
+    </members>
+</doc>
