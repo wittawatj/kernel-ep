@@ -43,6 +43,7 @@
     <Reference Include="Infer.Runtime">
       <HintPath>..\lib\Infer.NET 2.6\Bin\Infer.Runtime.dll</HintPath>
     </Reference>
+    <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />

@@ -1,11 +1,12 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="KernelEP.NET/Main.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="KernelEP.NET/Tool/RandFeature.cs">
     <Files>
-      <File FileName="KernelEP.NET/TestIdea/LogisticRegression.cs" Line="1" Column="1" />
-      <File FileName="KernelEP.NET/Main.cs" Line="19" Column="19" />
-      <File FileName="KernelEP.NET/TestIdea/MultinomialRegressionBlog.cs" Line="1" Column="1" />
-      <File FileName="KernelEP.NET/Op/MsgOp.cs" Line="37" Column="37" />
+      <File FileName="KernelEP.NET/TestIdea/LogisticRegression.cs" Line="237" Column="23" />
+      <File FileName="KernelEP.NET/Main.cs" Line="29" Column="35" />
+      <File FileName="KernelEP.NET/TestIdea/MultinomialRegressionBlog.cs" Line="38" Column="37" />
+      <File FileName="KernelEP.NET/Op/MsgOp.cs" Line="444" Column="12" />
+      <File FileName="KernelEP.NET/Tool/RandFeature.cs" Line="47" Column="4" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

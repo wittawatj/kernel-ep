@@ -36,7 +36,7 @@ namespace KernelEP.TestIdea{
 			for(int i = 0; i < n; i++){
 				X[i] = Vector.Zero(d);
 				// samples are from standard multivariate normal 
-				Rand.Normal(Vector.Zero(d), PositiveDefiniteMatrix.IdentityScaledBy(d, 10), X[i]);
+				Rand.Normal(Vector.Zero(d), PositiveDefiniteMatrix.IdentityScaledBy(d, 1), X[i]);
 				// Gamma random noise to each dimension 
 //				X[i] = Rand.Gamma(1)*X[i];
 		
@@ -50,11 +50,15 @@ namespace KernelEP.TestIdea{
 		}
 
 		public static void InferCoefficientsNoBias(Vector[] xObs, bool[] yObs, 
-		                                           out VectorGaussian wPost){
+		                                           out VectorGaussian wPost, int epIteration, 
+		                                           Type logisticOperator = null){
 			// This is the same binary logistic regression model as in InferCoefficients()
-			// without an explicit bias term b. To use this method, X needs to 
+			// without an explicit bias term b. To capture bias, X needs to 
 			// be augmented with one extra dimension having a constant value of 1.
 			//
+			if(logisticOperator == null){
+				logisticOperator = typeof(ISLogisticOp);
+			}
 	
 			Variable<int> dataCount = Variable.Observed(xObs.Length).Named("dataCount");
 			int D = xObs[0].Count;
@@ -80,51 +84,18 @@ namespace KernelEP.TestIdea{
 			yData.ObservedValue = yObs;
 
 			InferenceEngine ie = new InferenceEngine();
-			ie.Compiler.GivePriorityTo(typeof(MicrosoftResearch.Infer.Factors.LogisticOp));
+			ie.Compiler.GivePriorityTo(logisticOperator);
+			ie.Compiler.GenerateInMemory = true;
 			//			ie.Algorithm = new VariationalMessagePassing();
 			ie.Algorithm = new ExpectationPropagation();
 			//			ie.ModelName = "KEPBinaryLogistic";
-			ie.NumberOfIterations = 10;
+			ie.NumberOfIterations = epIteration;
 			//			ie.ShowFactorGraph = true;
 			ie.ShowWarnings = true;
+//			ie.Compiler.UseParallelForLoops = true;
 			wPost = ie.Infer<VectorGaussian>(w);
 		}
 
-		public static void TestLogisticRegressionNoBias(){
-			const int seed = 7;
-			Rand.Restart(seed);
-			const int d = 3;
-			const int n = 400;
-
-			Vector w = Vector.Zero(d);
-			Rand.Normal(Vector.Zero(d), PositiveDefiniteMatrix.Identity(d), w);
-			double b = Rand.Normal(0, 0.3);
-			// combine the bias term into W
-			w = w.Append(b);
-			Vector[] X = new Vector[n];
-			bool[] Y = new bool[n];
-			GenData(n, w, b, out X, out Y);
-
-			Console.Write("Y: ");
-			PrintUtils.PrintArray(Y);
-
-			VectorGaussian wPost;
-			InferCoefficientsNoBias(X, Y, out wPost);
-
-			//print 
-			Console.WriteLine("n: {0}", n);
-			Console.WriteLine("d: {0}", d);
-			int t = Y.Sum(o => o ? 1 : 0);
-			Console.WriteLine("number of true: {0}", t);
-			Console.WriteLine("True bias: {0}", b);
-			Vector meanW = wPost.GetMean();
-
-			Console.WriteLine("Inferred mean bias: {0}", meanW[meanW.Count - 1]);
-			Console.WriteLine("True w: {0}", w);
-			Console.WriteLine("Inferred w: ");
-			Console.WriteLine(wPost);
-
-		}
 
 		public static void InferCoefficients(
 			Vector[] xObs, bool[] yObs, out VectorGaussian wPost, 
@@ -193,8 +164,8 @@ namespace KernelEP.TestIdea{
 //			ie.Compiler.GivePriorityTo(typeof(KernelEP.Op.LogisticOp2));
 //			ie.Compiler.GivePriorityTo(typeof(KernelEP.Op.ISLogisticOp));
 
-
-//			ie.Compiler.GenerateInMemory = true;
+			ie.Compiler.GenerateInMemory = true;
+//			ie.Compiler.UseParallelForLoops = true;
 //			ie.Compiler.GeneratedSourceFolder = "/nfs/nhome/live/wittawat/SHARE/gatsby/research2/KernelEP.NET/KernelEP.NET/Compiled";
 //			ie.Compiler.WriteSourceFiles = true;
 //			ie.Compiler.IncludeDebugInformation = true;		
@@ -232,9 +203,55 @@ namespace KernelEP.TestIdea{
 		}
 
 
+		public static void TestLogisticRegressionNoBias(){
+			const int seed = 2;
+			Rand.Restart(seed);
+			const int d = 10;
+			const int n = 400;
+			const int epIter = 10;
+
+			Vector w = Vector.Zero(d);
+			Rand.Normal(Vector.Zero(d), PositiveDefiniteMatrix.Identity(d), w);
+			double b = 0;
+			// combine the bias term into W
+			Vector[] X;
+			bool[] Y;
+			GenData(n, w, b, out X, out Y);
+
+			Console.Write("Y: ");
+			PrintUtils.PrintArray(Y);
+
+			VectorGaussian wPost;
+
+			string factorOpPath = Config.PathToFactorOperator(
+				//				"serialFactorOp_fm_kgg_joint_irf500_orf1000_n400_iter5_sf1_st20_ntr5000.mat"
+				"serialFactorOp_fm_kgg_joint_irf500_orf1000_proj_n400_iter5_sf1_st20_ntr5000.mat"
+			);
+			LogisticOpParams factorOp = LoadLogisticFactorOperator(factorOpPath);
+			OpControl.Add(typeof(KEPLogisticOp), factorOp);
+			LogisticOp2.IsCollectXMessages = false;
+			LogisticOp2.IsCollectLogisticMessages = false;
+			//			Type logisticOp = typeof(KEPLogisticOp);
+			Type logisticOp = typeof(LogisticOp2);
+
+			InferCoefficientsNoBias(X, Y, out wPost, epIter, logisticOp);
+
+			//print 
+			Console.WriteLine("n: {0}", n);
+			Console.WriteLine("d: {0}", d);
+			int t = Y.Sum(o => o ? 1 : 0);
+			Console.WriteLine("number of true: {0}", t);
+			Console.WriteLine("True bias: {0}", b);
+//			Vector meanW = wPost.GetMean();
+
+			Console.WriteLine("True w: {0}", w);
+			Console.WriteLine("Inferred w: ");
+			Console.WriteLine(wPost);
+
+		}
 
 		public static void TestLogisticRegression(){
-			const int seed = 35;
+			const int seed = 39;
 			Rand.Restart(seed);
 			const int d = 10;
 			const int n = 100;
@@ -255,16 +272,19 @@ namespace KernelEP.TestIdea{
 			Gaussian biasPost;
 
 			Type logisticOp = typeof(KEPLogisticOp);
+//			Type logisticOp = typeof(LogisticOp2);
 
 			//			string factorOpPath = Config.PathToFactorOperator("ver7.mat");
 			//			string factorOpPath = Config.PathToFactorOperator("factorOp_RFGMVMapperLearner_nicolas_sigmoid_25000.mat");
 			//			string factorOpPath = Config.PathToFactorOperator("serialFactorOp_ichol_logbeta_n400_iter5_sf1_st200_ntr6000.mat");
 			string factorOpPath = Config.PathToFactorOperator(
 //				"serialFactorOp_fm_kgg_joint_irf500_orf1000_n400_iter5_sf1_st20_ntr5000.mat"
-				"serialFactorOp_fm_kgg_joint_irf500_orf1000_proj_n400_iter5_sf1_st20_ntr5000.mat"
-			);
+				                      "serialFactorOp_fm_kgg_joint_irf500_orf1000_proj_n400_iter5_sf1_st20_ntr5000.mat"
+			                      );
 			LogisticOpParams factorOp = LoadLogisticFactorOperator(factorOpPath);
 			OpControl.Add(typeof(KEPLogisticOp), factorOp);
+			LogisticOp2.IsCollectXMessages = false;
+			LogisticOp2.IsCollectLogisticMessages = false;
 
 			InferCoefficients(X, Y, out wPost, out biasPost, epIter, logisticOp);
 

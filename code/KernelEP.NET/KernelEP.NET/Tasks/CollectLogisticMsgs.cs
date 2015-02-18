@@ -53,7 +53,8 @@ namespace KernelEP{
 				Rand.Restart(seed);
 				w = Vector.Zero(d);
 				Rand.Normal(Vector.Zero(d), PositiveDefiniteMatrix.Identity(d), w);
-				b = Rand.Normal(0, 1);
+//				b = Rand.Normal(0, 1);
+				b = 0;
 
 				LogisticRegression.GenData(n, w, b, out X, out Y);
 
@@ -64,16 +65,18 @@ namespace KernelEP{
 				Gaussian biasPost;
 
 				LogisticOp2.ResetMessageCollection();
-				LogisticRegression.InferCoefficients(X, Y, out wPost, 
-					out biasPost, epIter, typeof(LogisticOp2));
+//				LogisticRegression.InferCoefficients(X, Y, out wPost, 
+//					out biasPost, epIter, typeof(LogisticOp2));
+				LogisticRegression.InferCoefficientsNoBias(X, Y, out wPost, 
+					epIter, typeof(LogisticOp2));
 
 				//print 
 				Console.WriteLine("n: {0}", n);
 				Console.WriteLine("d: {0}", d);
 				int t = Y.Sum(o => o ? 1 : 0);
 				Console.WriteLine("number of true: {0}", t);
-				Console.WriteLine("True bias: {0}", b);
-				Console.WriteLine("Inferred bias: {0}", biasPost);
+//				Console.WriteLine("True bias: {0}", b);
+//				Console.WriteLine("Inferred bias: {0}", biasPost);
 				Console.WriteLine("True w: {0}", w);
 				Console.WriteLine("Inferred w: ");
 				Console.WriteLine(wPost);
