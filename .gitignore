@@ -1,6 +1,13 @@
 *~
 *.bak
 *.mat
+*.out
+*.log
+*.brf
+*.blg
+*.bbl
+*.aux
+*#
 docs/
 /.project
 kernelBP/

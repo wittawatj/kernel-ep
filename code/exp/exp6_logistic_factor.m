@@ -10,8 +10,8 @@ se=BundleSerializer();
 %bunName = 'binlogis_fw_n400_iter5_sf1_st20';
 %bunName = 'binlogis_bw_n400_iter5_sf1_st20';
 
-bunName = 'binlogis_bw_proj_n400_iter5_sf1_st20';
-%bunName = 'binlogis_fw_proj_n400_iter5_sf1_st20';
+%bunName = 'binlogis_bw_proj_n400_iter5_sf1_st20';
+bunName = 'binlogis_fw_proj_n400_iter5_sf1_st20';
 %
 %bunName = 'binlogis_bw_n400_iter20_s1';
 %bunName = 'binlogis_fw_n1000_iter5_s1';
@@ -41,11 +41,11 @@ num_inner_primal_features = 500;
 %out_msg_distbuilder = DistNormalBuilder();
 %out_msg_distbuilder = DistBetaBuilder();
 
-out_msg_distbuilder = DNormalLogVarBuilder();
-%out_msg_distbuilder = DBetaLogBuilder();
+%out_msg_distbuilder = DNormalLogVarBuilder();
+out_msg_distbuilder = DBetaLogBuilder();
 
-%kernel_choice = 'fm_kgg_joint';
-kernel_choice = 'ichol_kgg_joint';
+kernel_choice = 'fm_kgg_joint';
+%kernel_choice = 'ichol_kgg_joint';
 kernel_candidates = {};
 fm_candidates = {};
 if strcmp(kernel_choice, 'ichol_kgg_prod')
