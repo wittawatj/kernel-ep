@@ -7,8 +7,11 @@ oldRng=rng();
 rng(seed, 'twister');
 
 se=BundleSerializer();
-bunName = 'binlogis_fw_n400_iter5_sf1_st20';
+%bunName = 'binlogis_fw_n400_iter5_sf1_st20';
 %bunName = 'binlogis_bw_n400_iter5_sf1_st20';
+
+bunName = 'binlogis_bw_proj_n400_iter5_sf1_st20';
+%bunName = 'binlogis_fw_proj_n400_iter5_sf1_st20';
 %
 %bunName = 'binlogis_bw_n400_iter20_s1';
 %bunName = 'binlogis_fw_n1000_iter5_s1';
@@ -30,7 +33,9 @@ bundle=se.loadBundle(bunName);
 %---------- options -----------
 inTensor = trBundle.getInputTensorInstances();
 % median factors 
-medf = [1/10, 1/5, 1/2, 1, 2, 5, 10];
+medf = [1/20, 1/10, 1/5, 1/3, 1/2, 1, 2, 3, 5, 10, 20];
+num_primal_features = 1000; 
+num_inner_primal_features = 500;
 %medf = [1];
 %out_msg_distbuilder = DNormalSDBuilder();
 %out_msg_distbuilder = DistNormalBuilder();
@@ -39,7 +44,8 @@ medf = [1/10, 1/5, 1/2, 1, 2, 5, 10];
 out_msg_distbuilder = DNormalLogVarBuilder();
 %out_msg_distbuilder = DBetaLogBuilder();
 
-kernel_choice = 'ichol_kgg_prod';
+%kernel_choice = 'fm_kgg_joint';
+kernel_choice = 'ichol_kgg_joint';
 kernel_candidates = {};
 fm_candidates = {};
 if strcmp(kernel_choice, 'ichol_kgg_prod')
@@ -85,8 +91,8 @@ learner.opt('use_multicore', true);
 %learner.opt('use_multicore', false);
 %
 % ----- options for RFGJointKGGLearner ----
-learner.opt('num_primal_features', 1000);
-learner.opt('num_inner_primal_features', 500);
+learner.opt('num_primal_features', num_primal_features);
+learner.opt('num_inner_primal_features', num_inner_primal_features);
 learner.opt('use_multicore', true);
 learner.opt('featuremap_candidates', fm_candidates);
 %
@@ -107,7 +113,8 @@ learner.opt('separate_outputs', true);
 
 %n=length(trBundle)+length(teBundle);
 ntr = length(trBundle);
-iden=sprintf('%s-%s-ntr%d-%s.mat', kernel_choice, bunName, ntr, class(out_msg_distbuilder));
+iden=sprintf('%s-irf%d-orf%d-%s-ntr%d-%s.mat', kernel_choice, num_inner_primal_features, ...
+    num_primal_features, bunName, ntr, class(out_msg_distbuilder));
 fpath=Expr.expSavedFile(6, iden);
 
 s=learnMap(learner, trBundle, teBundle, bunName);

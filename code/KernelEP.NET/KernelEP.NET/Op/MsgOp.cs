@@ -364,7 +364,8 @@ namespace KernelEP.Op{
 		public static Gaussian XAverageConditional(Beta logistic, Gaussian x){
 
 
-			Console.WriteLine("XAverageConditional. From: beta: {0} , gaussian: {1}", logistic, x);
+			Console.WriteLine("{0}.XAverageConditional. From: beta: {1} , gaussian: {2}"
+				,typeof(KEPLogisticOp) ,logistic, x );
 			DistMapper<DNormal, DBeta, DNormal> dm = ToXMapper();
 			DBeta l = DBeta.FromBeta(logistic);
 //			if( Math.Abs(logistic.GetMean() - 1.0/3) < 1e-6){
@@ -377,38 +378,41 @@ namespace KernelEP.Op{
 			DNormal fromx = DNormal.FromGaussian(x);
 			DNormal toXProjected = dm.MapToDist(l, fromx);
 			Gaussian projX = (Gaussian)toXProjected.GetWrappedDistribution();
-			Console.WriteLine("toX: {0}", projX);
+
+			Gaussian toX = new Gaussian();
+			toX.SetToRatio(projX, x, true);
+//			toX = projX/x;
+			Console.WriteLine("toX: {0}", toX);
 			if(isPrintTrueMessages){
 				falseMsg = LogisticOp2.FalseMsg(logistic, x, falseMsg);
 				Gaussian trueToX = LogisticOp2.XAverageConditional(logistic, x, falseMsg);
 				Console.WriteLine("True to x: {0}", trueToX);
 			}
-			return projX;
+//			return projX;
 
-			Gaussian toX = projX / x;
-			if(!toX.IsProper()){
-				// According to Tom Minka, Gaussian times sigmoid likelihood (proj distribution)
-				// will give a lower variance than the original Gaussian. 
-				// That means proj dist / Gaussian will have positive precision.
-				// So the outgoing message from here will always be proper.
-				// force proper. If improper, getting mean will throw an exception.
-				// This should never happen
-				double projMTP, projP;
-				projX.GetNatural(out projMTP, out projP);
-				double xMTP, xP;
-				x.GetNatural(out xMTP, out xP);
-				double projMean = projMTP / projP;
-				double newProjP = xP + 1.0 / 1e5;
-				projX = Gaussian.FromNatural(projMean * newProjP, newProjP);
-				// Make sure that the precision of projX > x, so that 
-				// projX / x is proper. 
-				Gaussian fixedToX = projX / x;
-				Console.WriteLine("toX improper: {0}. fixed toX: {1}", toX, fixedToX);
-				toX = fixedToX;
-
-			} else{
-				Console.WriteLine("toX: {0}", toX);
-			}
+//			if(!toX.IsProper()){
+//				// According to Tom Minka, Gaussian times sigmoid likelihood (proj distribution)
+//				// will give a lower variance than the original Gaussian. 
+//				// That means proj dist / Gaussian will have positive precision.
+//				// So the outgoing message from here will always be proper.
+//				// force proper. If improper, getting mean will throw an exception.
+//				// This should never happen
+//				double projMTP, projP;
+//				projX.GetNatural(out projMTP, out projP);
+//				double xMTP, xP;
+//				x.GetNatural(out xMTP, out xP);
+//				double projMean = projMTP / projP;
+//				double newProjP = xP + 1.0 / 1e5;
+//				projX = Gaussian.FromNatural(projMean * newProjP, newProjP);
+//				// Make sure that the precision of projX > x, so that 
+//				// projX / x is proper. 
+//				Gaussian fixedToX = projX / x;
+//				Console.WriteLine("toX improper: {0}. fixed toX: {1}", toX, fixedToX);
+//				toX = fixedToX;
+//
+//			} else{
+//				Console.WriteLine("toX: {0}", toX);
+//			}
 
 
 			Console.WriteLine();
@@ -431,39 +435,29 @@ namespace KernelEP.Op{
 //				Console.WriteLine("beta point mass");
 //			}
 			DBeta fromL = DBeta.FromBeta(logistic);
-			Console.WriteLine("LogisticAverageConditional. beta: {0} , gaussian: {1}", logistic, x);
+			Console.WriteLine("{0}.LogisticAverageConditional. beta: {1} , gaussian: {2}"
+				,typeof(KEPLogisticOp), logistic, x);
 			DistMapper<DBeta, DBeta, DNormal> dm = ToLogisticMapper();
 
 			DNormal fromX = DNormal.FromGaussian(x);
 			DBeta toLProjected = dm.MapToDist(fromL, fromX);
 			Beta projL = (Beta)toLProjected.GetWrappedDistribution();
-			Console.WriteLine("toL: {0}", projL);
+
+			Beta toL = new Beta();
+			toL.SetToRatio(projL, logistic, true);
+			Console.WriteLine("toL: {0}", toL);
 			if(isPrintTrueMessages){
 				Beta trueToLogistic = LogisticOp2.LogisticAverageConditional(logistic, x, falseMsg);
 				Console.WriteLine("True to logistic: {0}", trueToLogistic);
 			}
-			return projL;
-			Beta toL = projL / logistic;
-			
-//			double projT = projL.TrueCount;
-//			double projF = projL.FalseCount;
-//			double loT = logistic.TrueCount;
-//			double loF = logistic.FalseCount;
 
-			if(!projL.IsProper()){
-//				double projMean = projL.GetMean();
-//				double projVar = projL.GetVariance();
-
-			}
 			if(!toL.IsProper()){
 				Console.WriteLine("toL improper: {0}", toL);
 				// force proper. If improper, getting mean will throw an exception.
 
 				// proper if projT > loT - 1 and projF > loF - 1
 //				toL = Beta.Uniform();
-			} else{
-				Console.WriteLine("toL: {0}", toL);
-			}
+			} 
 
 			Console.WriteLine();
 			return toL;

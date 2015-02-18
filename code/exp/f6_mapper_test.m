@@ -60,12 +60,20 @@ teI = isfinite(teDivs) & isreal(teDivs) ;
 trI = isfinite(trDivs) & isreal(trDivs) ;
 
 plotUncertainty( log(trDivs(trI)), log(trU(1, trI)), log(teDivs(teI)), ...
-    log(teU(1, teI)), 'Log KL error', 'Log predictive variance', ...
-    sprintf('Predicting output 1. %s', out_msg_distbuilder.shortSummary()) );
+   log(teU(1, teI)), 'Log KL error', 'Log predictive variance', ...
+   sprintf('Predicting output 1. %s', out_msg_distbuilder.shortSummary()) );
 
 plotUncertainty( log(trDivs(trI)), log(trU(2, trI)), log(teDivs(teI)), ...
-    log(teU(2, teI)), 'Log KL error', 'Log predictive variance', ...
-    sprintf('Predicting output 2. %s', out_msg_distbuilder.shortSummary()) );
+   log(teU(2, teI)), 'Log KL error', 'Log predictive variance', ...
+   sprintf('Predicting output 2. %s', out_msg_distbuilder.shortSummary()) );
+
+%plotUncertainty( log(trDivs(trI)), (trU(1, trI)), log(teDivs(teI)), ...
+%    (teU(1, teI)), 'Log KL error', 'Log predictive variance', ...
+%    sprintf('Predicting output 1. %s', out_msg_distbuilder.shortSummary()) );
+
+%plotUncertainty( log(trDivs(trI)), (trU(2, trI)), log(teDivs(teI)), ...
+%    (teU(2, teI)), 'Log KL error', 'Log predictive variance', ...
+%    sprintf('Predicting output 2. %s', out_msg_distbuilder.shortSummary()) );
 
 rng(oldRng);
 end
@@ -82,12 +90,16 @@ function plotUncertainty(trDivs, trU, teDivs, teU, xaxis, yaxis, titleText)
     figure
     hold on 
 
-    plot(teDivs(teSub), teU(teSub), 'xr', 'LineWidth', 1 );
-    plot(trDivs(trSub), trU(trSub), '*k', 'LineWidth', 1, 'MarkerSize', 4 );
+    teDivsSub = teDivs(teSub);
+    teUSub = teU(teSub);
+    trDivsSub = trDivs(trSub);
+    trUSub = trU(trSub);
+    plot(teDivsSub, teUSub, 'xr', 'LineWidth', 1 );
+    plot(trDivsSub, trUSub, '*k', 'LineWidth', 1, 'MarkerSize', 4 );
     set(gca, 'FontSize', 24);
     xlabel(xaxis);
     ylabel(yaxis);
-    title(titleText);
+    title(sprintf('%s. Corr: %.2g', titleText, corr([trDivs, teDivs]', [trU, teU]')) );
     %grid on
     legend( 'Test set', 'Training set');
     hold off 

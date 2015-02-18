@@ -151,8 +151,8 @@ namespace KernelEP.Tool{
 		public override double Eval(T p, T q){
 			Vector mp = p.GetMeanVector();
 			Vector mq = q.GetMeanVector();
-			PositiveDefiniteMatrix covp = p.GetCovarianceMatrix();
-			PositiveDefiniteMatrix covq = q.GetCovarianceMatrix();
+			Matrix covp = p.GetCovarianceMatrix();
+			Matrix covq = q.GetCovarianceMatrix();
 			// dimensions
 			int dp = mp.Count;
 			int dq = mq.Count;

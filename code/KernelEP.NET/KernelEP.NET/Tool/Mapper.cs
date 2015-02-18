@@ -23,113 +23,6 @@ namespace KernelEP.Tool{
 	}
 
 
-	// Random Fourier Gaussian map as in Rahimi & Recht 2007 for Gaussian kernel.
-	// Euclidean (Vector) input version.
-	public class RFGMap : FeatureMap{
-		// Gaussian width squared
-		public double GaussWidthSq { get; private set; }
-	
-		// weight matrix. dim x numFeatures
-		public Matrix WeightMatrix { get; private set; }
-		// vector of uniformly random coefficients b. Length = numFeatures
-		public Vector BiasVector { get; private set; }
-
-		// Constructor used in RFGMap.FromDict()
-		private RFGMap(){
-
-		}
-
-		// unused at the moment
-		private RFGMap(double gaussWidthSq, int numFeatures, int inputDim){
-			if(numFeatures <= 0){
-				throw new ArgumentException("numFeatures must be positive.");
-			}
-			if(gaussWidthSq <= 0){
-				throw new ArgumentException("Gaussian width must be > 0");
-			}
-			if(inputDim < 0){
-				throw new ArgumentException("inputDim must be > 0");
-			}
-			// We assume the Gaussian kernel is parameterized by one width.
-			this.GaussWidthSq = gaussWidthSq;
-//			this.numFeatures = numFeatures;
-//			this.inputDim = inputDim;
-
-			InitWeights(gaussWidthSq, numFeatures, inputDim);
-		}
-		//initialize the weightMatrix and biasVector
-		private void InitWeights(double gaussWidthSq, int numFeatures, int inputDim){
-			// W = weightMatrix should be draw from a Gaussian with variance
-			// = 1/gaussWidthSq
-			throw new NotImplementedException("don't need it yet. implement later");
-			// don't really need this as weightMatrix and biasVector are loaded 
-			// anyway. 
-		}
-
-		public override int NumFeatures(){
-			// W is dim x numFeatures. We output a vector of length numFeatures 
-			return WeightMatrix.Cols;
-		}
-
-		public override int InputDim(){
-			return WeightMatrix.Rows;
-		}
-
-		public override Vector GenFeatures(Vector x){
-			if(x.Count != InputDim()){
-				throw new ArgumentException("Input vector does not have a compatible dimension.");
-			}
-			// standardize. Divide by sqrt(gauss width^2)
-			Vector s = x * (1.0 / Math.Sqrt(this.GaussWidthSq));
-			Vector cosArg = WeightMatrix.Transpose() * s + BiasVector;
-			double scale = Math.Sqrt(2.0 / NumFeatures());
-			var temp = from ca in cosArg
-			           select Math.Cos(ca) * scale;
-			return Vector.FromArray(temp.ToArray());
-			 
-		}
-
-		// construct a RFGMap from MatlabStruct.
-		// Matlab objects of class RandFourierGaussMap.
-		// See RandFourierGaussMap.toStruct()
-		public static RFGMap FromMatlabStruct(MatlabStruct s){
-//			s.className = class(this);
-//            s.gwidth2=this.gwidth2;
-//            s.numFeatures=this.numFeatures;
-//            s.dim=this.dim;
-//            s.W=this.W;
-//            s.B=this.B;
-			string className = s.GetString("className");
-			if(!className.Equals("RandFourierGaussMap")){
-				throw new ArgumentException("The input does not represent a " + typeof(RFGMap));
-			}
-
-			double gwidth2 = s.GetDouble("gwidth2");
-			int numFeatures = s.GetInt("numFeatures");
-//			int dim = s.GetInt("dim");
-			Matrix W = s.GetMatrix("W");
-			if(W.Rows <= 0 || W.Cols <= 0){
-				throw new Exception("Loaded weight matrix has collapsed dimensions");
-			}
-			if(numFeatures != W.Cols){
-				// expect W to be dim x numFeatures
-				throw new ArgumentException("Loaded weight matrix's #cols does not match numFeatures.");
-			}
-			Vector B = s.Get1DVector("B");
-
-			// construct object
-			RFGMap map = new RFGMap();
-			map.GaussWidthSq = gwidth2;
-			map.WeightMatrix = W;
-			map.BiasVector = B;
-
-			Console.WriteLine("mapMatrix W's size: ({0}, {1})", W.Rows, W.Cols);
-			Console.WriteLine("bias vector length: {0}", B.Count);
-			return map;
-		}
-	}
-	// end of class
-
 	public abstract class VectorMapper<T1, T2> 
 		where T1 : IKEPDist
 		where T2 : IKEPDist{
@@ -144,9 +37,16 @@ namespace KernelEP.Tool{
 			VectorMapper<T1, T2> map = null;
 			if(className.Equals("CondCholFiniteOut")){
 				map = CondCholFiniteOut<T1, T2>.FromMatlabStruct(s);
-			}else if(className.Equals(StackVectorMapper<T1, T2>.MATLAB_CLASS)){
+			} else if(className.Equals(StackVectorMapper<T1, T2>.MATLAB_CLASS)){
 				map = StackVectorMapper<T1, T2>.FromMatlabStruct(s);
-			}  else{
+			} else if(className.Equals(BayesLinRegFM.MATLAB_CLASS)){
+				BayesLinRegFM fm = BayesLinRegFM.FromMatlabStruct(s);
+				map = new VectorMapper2Adapter<T1, T2>(fm);
+			} else if(className.Equals(UAwareVectorMapper<T1, T2>.MATLAB_CLASS)){
+				map = UAwareVectorMapper<T1, T2>.FromMatlabStruct(s);
+			}else if(className.Equals(UAwareStackVectorMapper<T1, T2>.MATLAB_CLASS)){
+				map = UAwareStackVectorMapper<T1, T2>.FromMatlabStruct(s);
+			}else{
 				throw new ArgumentException("Unknown className: " + className);
 			}
 			//			else if(className.Equals("RFGSumEProdMap")){
@@ -163,9 +63,157 @@ namespace KernelEP.Tool{
 		}
 	}
 
+	public class VectorMapper2Adapter<T1, T2> :  VectorMapper<T1, T2>
+		where T1 : IKEPDist
+		where T2 : IKEPDist{
+		private VectorMapper vecMapper;
+
+		public VectorMapper2Adapter(VectorMapper vecMapper){
+			this.vecMapper = vecMapper;
+		}
+
+		public override Vector MapToVector(T1 msg1, T2 msg2){
+			return vecMapper.MapToVector(new IKEPDist[]{ msg1, msg2 });
+		}
+
+		public override int GetOutputDimension(){
+			return vecMapper.GetOutputDimension();
+		}
+	}
+
+	// Correspond to UAwareInstancesMapper in Matlab
+	public abstract class UAwareVectorMapper<T1, T2> : VectorMapper<T1, T2>
+		where T1 : IKEPDist
+		where T2 : IKEPDist{
+		public const string MATLAB_CLASS = UAwareVectorMapper.MATLAB_CLASS;
+		// Estimate uncertainty on the incoming messages d1 and d2.
+		// Uncertainty might be a vector e.g., multioutput operator.
+		public abstract double[] EstimateUncertainty(T1 d1, T2 d2);
+
+		// Map and estiamte uncertainty.
+		public abstract void MapAndEstimateU(out Vector mapped, 
+		                                     out double[] uncertainty, T1 d1, T2 d2);
+
+		public static UAwareVectorMapper<T1, T2> FromMatlabStruct(MatlabStruct s){
+			string className = s.GetString("className");
+			UAwareVectorMapper<T1, T2> map = null;
+			if(className.Equals(UAwareStackVectorMapper<T1, T2>.MATLAB_CLASS)){
+				map = UAwareStackVectorMapper<T1, T2>.FromMatlabStruct(s);
+			} else{
+				throw new ArgumentException("Unknown className: " + className);
+			}
+
+			return map;
+
+		}
+	}
+
+	// Correspond to UAwareInstancesMapper in Matlab
+	public abstract class UAwareVectorMapper : VectorMapper{
+		public const string MATLAB_CLASS = "UAwareInstancesMapper";
+		// Estimate uncertainty on the incoming messages d1 and d2.
+		// Uncertainty might be a vector e.g., multioutput operator.
+		public abstract double[] EstimateUncertainty(params IKEPDist[] dists);
+
+		// Map and estiamte uncertainty.
+		public abstract void MapAndEstimateU(out Vector mapped, 
+		                                     out double[] uncertainty, params IKEPDist[] dists);
+
+		public static UAwareVectorMapper FromMatlabStruct(MatlabStruct s){
+			string className = s.GetString("className");
+			UAwareVectorMapper map = null;
+			if(className.Equals(MATLAB_CLASS)){
+				map = null;
+			} else{
+				throw new ArgumentException("Unknown className: " + className);
+			}
+		
+			return map;
+
+		}
+	}
+
+	// same class name in Matlab
+	public class BayesLinRegFM : UAwareVectorMapper{
+		public const string MATLAB_CLASS = "BayesLinRegFM";
+
+		private VectorMapper featureMap;
+		//		% matrix needed in mapInstances(). dz x numFeatures
+		//		% where dz = dimension of output sufficient statistic.
+		private Matrix mapMatrix;
+
+		//		% posterior covariance matrix. Used for computing predictive variance.
+		//		% DxD where D = number of features
+		private Matrix posteriorCov;
+
+		//		% output noise variance (regularization parameter)
+		private double noise_var;
+
+		private BayesLinRegFM(){
+		}
+
+		public override void MapAndEstimateU(out Vector mapped, out double[] uncertainty, 
+		                                     params IKEPDist[] msgs){
+			Vector feature = featureMap.MapToVector(msgs);
+			mapped = mapMatrix * feature;
+			double predVar = posteriorCov.QuadraticForm(feature) + noise_var;
+			uncertainty = new[]{ predVar };
+		}
+
+		public override Vector MapToVector(params IKEPDist[] msgs){
+			Vector feature = featureMap.MapToVector(msgs);
+			return mapMatrix * feature;
+		}
+
+		public override int GetOutputDimension(){
+			return mapMatrix.Rows;
+		}
+
+		public override int NumInputMessages(){
+			return -1;
+		}
+
+		public override double[] EstimateUncertainty(params IKEPDist[] dists){
+			Vector feature = featureMap.MapToVector(dists);
+			double predVar = posteriorCov.QuadraticForm(feature) + noise_var;
+			return new double[]{ predVar };
+		}
+
+		public static new BayesLinRegFM FromMatlabStruct(MatlabStruct s){
+//			s.className=class(this);
+//			s.featureMap=this.featureMap.toStruct();
+//			%s.regParam=this.regParam;
+//			s.mapMatrix=this.mapMatrix;
+//			s.posteriorCov = this.posteriorCov; 
+//			s.noise_var = this.noise_var;
+
+			string className = s.GetString("className");
+			if(!className.Equals(MATLAB_CLASS)){
+				throw new ArgumentException("The input does not represent a " + MATLAB_CLASS);
+			}
+			MatlabStruct fmStruct = s.GetStruct("featureMap");
+			VectorMapper featureMap = VectorMapper.FromMatlabStruct(fmStruct);
+			Matrix mapMatrix = s.GetMatrix("mapMatrix");
+			if(mapMatrix.Cols != featureMap.GetOutputDimension()){
+				throw new ArgumentException("mapMatrix and featureMap's dimenions are incompatible.");
+			}
+			Matrix postCov = s.GetMatrix("posteriorCov");
+			if(postCov.Cols != featureMap.GetOutputDimension()){
+				throw new ArgumentException("posterior covariance and featureMap's dimenions are incompatible.");
+			}
+			double noise_var = s.GetDouble("noise_var");
+
+			var bayes = new BayesLinRegFM();
+			bayes.featureMap = featureMap;
+			bayes.mapMatrix = mapMatrix;
+			bayes.posteriorCov = postCov;
+			bayes.noise_var = noise_var;
+			return bayes;
+		}
+	}
+
 	// Corresponds to FeatureMap in Matlab code.
 	// Consider VectorMapper<T1, ...>
-	[Obsolete]
 	public abstract class VectorMapper{
 		public abstract Vector MapToVector(params IKEPDist[] msgs);
 
@@ -185,7 +233,11 @@ namespace KernelEP.Tool{
 				map = RFGMVMap.FromMatlabStruct(s);
 			} else if(className.Equals("CondFMFiniteOut")){
 				map = CondFMFiniteOut.FromMatlabStruct(s);
-			}  else{
+			} else if(className.Equals(RFGJointKGG.MATLAB_CLASS)){
+				map = RFGJointKGG.FromMatlabStruct(s);
+			} else if(className.Equals(BayesLinRegFM.MATLAB_CLASS)){
+				map = BayesLinRegFM.FromMatlabStruct(s);
+			} else{
 				throw new ArgumentException("Unknown className: " + className);
 			}
 //			else if(className.Equals("RFGSumEProdMap")){
@@ -202,6 +254,163 @@ namespace KernelEP.Tool{
 		}
 	}
 
+	// Matlab class = UAwareStackInsMapper
+	public class UAwareStackVectorMapper<T1, T2> : UAwareVectorMapper<T1, T2>
+		where T1 : IKEPDist
+		where T2 : IKEPDist{
+		public const string MATLAB_CLASS = UAwareStackVectorMapper.MATLAB_CLASS;
+		private readonly UAwareVectorMapper<T1, T2>[] mappers;
+
+		public UAwareStackVectorMapper(params UAwareVectorMapper<T1, T2>[] mappers){
+			this.mappers = mappers;
+		}
+
+		public override Vector MapToVector(T1 msg1, T2 msg2){
+			Vector[] outs = mappers.Select(map => map.MapToVector(msg1, msg2)).ToArray();
+			Vector stack = MatrixUtils.ConcatAll(outs);
+			return stack;
+		}
+
+		public override int GetOutputDimension(){
+			return mappers.Sum(map => map.GetOutputDimension());
+		}
+
+		public override double[] EstimateUncertainty(T1 d1, T2 d2){
+			// ** Take only the fist uncertainty estimate from each mapper.
+			double[] U = mappers.Select(map => map.EstimateUncertainty(d1, d2)[0]).ToArray();
+			return U;
+		}
+
+		public override void MapAndEstimateU(out Vector mapped, 
+		                                     out double[] uncertainty, 
+		                                     T1 d1, T2 d2){
+			int m = mappers.Length;
+			uncertainty = new double[m];
+			Vector[] outs = new Vector[m];
+			for(int i = 0; i < m; i++){
+				double[] ui;
+				Vector outi;
+				mappers[i].MapAndEstimateU(out outi, out ui, d1, d2);
+				outs[i] = outi;
+				uncertainty[i] = ui[0];
+			}
+			mapped = MatrixUtils.ConcatAll(outs);
+		}
+
+		public new static UAwareStackVectorMapper<T1, T2> FromMatlabStruct(MatlabStruct s){
+			string className = s.GetString("className");
+//			UAwareStackVectorMapper<T1, T2> map = null;
+			if(className.Equals(MATLAB_CLASS)){
+				UAwareStackVectorMapper svm = UAwareStackVectorMapper.FromMatlabStruct(s);
+				return new UAwareStackVectorMapper2Adapter<T1, T2>(svm);
+			} else{
+				throw new ArgumentException("Unknown className: " + className);
+			}
+
+
+		}
+	}
+
+	public class UAwareStackVectorMapper2Adapter<T1, T2>  : UAwareStackVectorMapper<T1, T2>
+		where T1 : IKEPDist
+		where T2 : IKEPDist{
+		private readonly UAwareStackVectorMapper stackMapper;
+
+		public UAwareStackVectorMapper2Adapter(UAwareStackVectorMapper stackMapper){
+			this.stackMapper = stackMapper;
+		}
+		public override Vector MapToVector(T1 msg1, T2 msg2){
+			return stackMapper.MapToVector(new IKEPDist[]{msg1, msg2});
+		}
+
+		public override int GetOutputDimension(){
+			return stackMapper.GetOutputDimension();
+		}
+
+		public override double[] EstimateUncertainty(T1 d1, T2 d2){
+			return stackMapper.EstimateUncertainty(new IKEPDist[]{d1, d2});
+		}
+
+		public override void MapAndEstimateU(out Vector mapped, 
+			out double[] uncertainty, T1 d1, T2 d2){
+			stackMapper.MapAndEstimateU(out mapped, out uncertainty, d1, d2);
+		}
+
+	}
+
+	public class UAwareStackVectorMapper : UAwareVectorMapper{
+		public const string MATLAB_CLASS = "UAwareStackInsMapper";
+		private readonly UAwareVectorMapper[] mappers;
+
+		public UAwareStackVectorMapper(params UAwareVectorMapper[] mappers){
+			this.mappers = mappers;
+		}
+
+		public override Vector MapToVector(params IKEPDist[] msgs){
+			Vector[] outs = mappers.Select(map => map.MapToVector(msgs)).ToArray();
+			Vector stack = MatrixUtils.ConcatAll(outs);
+			return stack;
+		}
+
+		public override int GetOutputDimension(){
+			return mappers.Sum(map => map.GetOutputDimension());
+		}
+
+		public override int NumInputMessages(){
+			throw new NotImplementedException();
+		}
+
+		public override double[] EstimateUncertainty(params IKEPDist[] dists){
+			// ** Take only the fist uncertainty estimate from each mapper.
+			double[] U = mappers.Select(map => map.EstimateUncertainty(dists)[0]).ToArray();
+			return U;
+		}
+
+		public override void MapAndEstimateU(out Vector mapped, 
+		                                     out double[] uncertainty, params IKEPDist[] dists){
+			// ** Take only the fist uncertainty estimate from each mapper.
+			int m = mappers.Length;
+			uncertainty = new double[m];
+			Vector[] outs = new Vector[m];
+			for(int i = 0; i < m; i++){
+				double[] ui;
+				Vector outi;
+				mappers[i].MapAndEstimateU(out outi, out ui, dists);
+				outs[i] = outi;
+				uncertainty[i] = ui[0];
+			}
+			mapped = MatrixUtils.ConcatAll(outs);
+		}
+
+		public new static UAwareStackVectorMapper FromMatlabStruct(MatlabStruct s){
+			//			s = struct();
+			//			s.className=class(this);
+			//			mapperCount = length(this.instancesMappers);
+			//			mapperCell = cell(1, mapperCount);
+			//			for i=1:mapperCount
+			//					mapperCell{i} = this.instancesMappers{i}.toStruct();
+			//			end
+			//			s.instancesMappers = this.instancesMappers;
+
+			string className = s.GetString("className");
+			if(!className.Equals(MATLAB_CLASS)){
+				throw new ArgumentException("The input does not represent a " + MATLAB_CLASS);
+			} 
+
+
+			object[,] mappersCell = s.GetCells("instancesMappers");
+			var mappers = new UAwareVectorMapper[mappersCell.GetLength(1)];
+			for(int i=0; i<mappers.Length; i++){
+				var mapStruct = new MatlabStruct((Dictionary<string, object>)mappersCell[0, i]);
+				VectorMapper m1 = VectorMapper.FromMatlabStruct(mapStruct);
+				mappers[i] = (UAwareVectorMapper)m1;
+			}
+			return new UAwareStackVectorMapper(mappers);
+
+		}
+	}
+
+
 	// StackInstancesMapper in Matlab code
 	public class StackVectorMapper<T1, T2> : VectorMapper<T1, T2>
 		where T1 : IKEPDist
@@ -212,7 +421,7 @@ namespace KernelEP.Tool{
 		public const string MATLAB_CLASS = "StackInstancesMapper";
 
 		public StackVectorMapper(VectorMapper<T1, T2> vectorMapper1, 
-			VectorMapper<T1, T2> vectorMapper2){
+		                         VectorMapper<T1, T2> vectorMapper2){
 			this.vectorMapper1 = vectorMapper1;
 			this.vectorMapper2 = vectorMapper2;
 		}
@@ -295,7 +504,7 @@ namespace KernelEP.Tool{
 
 		public override Vector MapToVector(T1 msg1, T2 msg2){
 
-			var incoming = new Tuple<T1, T2>(msg1, msg2);
+			var incoming = new Tuple<T1, T2>(msg1,msg2);
 			Vector k = Kernel.Eval(inputTensor.GetAll(), incoming);
 			return zOutR3 * k;
 		}
@@ -382,106 +591,6 @@ namespace KernelEP.Tool{
 		}
 	}
 
-	// Random Fourier Gaussian map as in Rahimi & Recht for Gaussian kernel.
-	// Use mean and variance of a distribution to generate features.
-	// - Extract means, variances
-	// - Stack them and treat the vector as an input from Euclidean
-	// - Put Gaussian kernel on the vector
-	// - Approximate the Gaussian kernel with Rahimi & Recht random Fourier features.
-	public class RFGMVMap : VectorMapper{
-		// Gaussian width^2 for each mean
-		public readonly Vector mwidth2s;
-		// Gaussian width^2 for each variance.
-		public readonly Vector vwidth2s;
-		public readonly RFGMap rfgMap;
-
-		public RFGMVMap(Vector mwidth2s, Vector vwidth2s, RFGMap rfgMap){
-			if(mwidth2s.Count != vwidth2s.Count){
-				throw new ArgumentException("Params. for means and variances must have the same length.");
-			}
-			for(int i = 0; i < mwidth2s.Count; ++i){
-				if(mwidth2s[i] <= 0){
-					throw new ArgumentException("mwidth2s: " + mwidth2s + " contains non-positive numbers.");
-				}
-				if(vwidth2s[i] <= 0){
-					throw new ArgumentException("vwidth2s: " + vwidth2s + " contains non-positive numbers.");
-				}
-			}
-			this.mwidth2s = mwidth2s;
-			this.vwidth2s = vwidth2s;
-			this.rfgMap = rfgMap;
-		}
-
-		public override Vector MapToVector(params IKEPDist[] msgs){
-			// *** This implementation must match 
-			// RandFourierGaussMVMap.genFeatures(.) in Matlab code
-			Vector mv = ToMVStack(msgs);
-			if(mv.Count != rfgMap.InputDim()){
-				throw new ArgumentException("Total MV dimension does not match underlying " + typeof(RFGMap));
-			}
-			Vector mapped = rfgMap.GenFeatures(mv);
-			return mapped;
-		}
-
-		public override int GetOutputDimension(){
-			return rfgMap.NumFeatures();
-		}
-
-		public override int NumInputMessages(){
-			Debug.Assert(mwidth2s.Count == vwidth2s.Count);
-			return mwidth2s.Count;
-		}
-
-		private Vector ToMVStack(IKEPDist[] msgs){
-			// stack all means and variances. Divide each by its corresponding 
-			// sqrt(gauss_width2).
-			// *** Implementation must match RandFourierGaussMVMap.toMVStack()
-			// in Matlab ***
-
-			// empty vector
-			Vector meanStack = Vector.Zero(0);
-			Vector varStack = Vector.Zero(0);
-			for(int i = 0; i < msgs.Length; i++){
-				IKEPDist di = msgs[i];
-				Vector smean = di.GetMeanVector() * (1 / Math.Sqrt(mwidth2s[i]));
-				Matrix svar = di.GetCovarianceMatrix() * (1 / Math.Sqrt(vwidth2s[i]));
-				// reshape column-wise as in Matlab. 
-				// Matrix in Infer.NET is stored row-wise
-				Vector svarVec = Vector.FromArray(svar.Transpose().SourceArray);
-
-				meanStack = Vector.Concat(meanStack, smean);
-				varStack = Vector.Concat(varStack, svarVec);
-			}
-			Vector mv = Vector.Concat(meanStack, varStack);
-			return mv;
-
-		}
-		// construct a RFGMVMap from MatlabStruct.
-		// Matlab objects of class RadnFourierGaussMVMap.
-		// See RandFourierGaussMVMap.toStruct()
-		public new static RFGMVMap FromMatlabStruct(MatlabStruct s){
-//            s.className=class(this);
-//            s.mwidth2s=this.mwidth2s;
-//            s.vwidth2s=this.vwidth2s;
-//            s.numFeatures=this.numFeatures;
-//            s.rfgMap=this.rfgMap.toStruct();
-
-			string className = s.GetString("className");
-			if(!className.Equals("RandFourierGaussMVMap")){
-				throw new ArgumentException("The input does not represent a " + typeof(RFGMVMap));
-			}
-
-			// Gaussian width for mean of each input.
-			Vector mwidth2s = s.Get1DVector("mwidth2s");
-			Vector vwidth2s = s.Get1DVector("vwidth2s");
-//			int numFeatures = s.GetInt("numFeatures");
-			RFGMap rfgMap = RFGMap.FromMatlabStruct(s.GetStruct("rfgMap"));
-
-			// construct object
-			return new RFGMVMap(mwidth2s,vwidth2s,rfgMap);
-		}
-	}
-
 	// a map taking incoming messages of types A, B and outputting one
 	// output distribution of type T
 	//
@@ -506,7 +615,17 @@ namespace KernelEP.Tool{
 		}
 	}
 
+	// Conceptually the same as UAwareDistMapper in Matlab
+	// An uncertainty-aware distribution mapper.
+	public interface  IUAwareDistMapper<T, A, B>
+		where T : IKEPDist
+		where A : IKEPDist
+		where B : IKEPDist{
 
+		// Estimate uncertainty on the incoming messages d1 and d2.
+		double[] EstimateUncertainty(A d1, B d2);
+
+	}
 
 	// DistMapper based on sufficient statistic vector.
 	// T is the type of the target distribution
@@ -515,8 +634,8 @@ namespace KernelEP.Tool{
 	public class GenericMapper<T, A, B> : DistMapper<T, A, B> 
 	where T : IKEPDist where A : IKEPDist where B : IKEPDist{
 		// suffMapper maps from messages into sufficient statistic output vector.
-		private VectorMapper<A, B> suffMapper;
-		private DistBuilder<T> distBuilder;
+		protected VectorMapper<A, B> suffMapper;
+		protected DistBuilder<T> distBuilder;
 		public const string MATLAB_CLASS = "GenericMapper";
 
 		public GenericMapper(VectorMapper<A, B> suffMapper, 
@@ -534,7 +653,8 @@ namespace KernelEP.Tool{
 
 		public new static GenericMapper<T, A, B> FromMatlabStruct(MatlabStruct s){
 			string className = s.GetString("className");
-			if(!className.Equals("GenericMapper")){
+			if(!(className.Equals(MATLAB_CLASS)
+			   || className.Equals(UAwareGenericMapper<T, A, B>.MATLAB_CLASS))){
 				throw new ArgumentException("The input does not represent a " +
 				typeof(GenericMapper<T, A, B>));
 			}
@@ -551,6 +671,30 @@ namespace KernelEP.Tool{
 			return new GenericMapper<T, A, B>(instancesMapper,distBuilder);
 		}
 	}
+
+	// Class with the same name in Matlab.
+	// A concrete implementation of an uncertainty-aware distribution mapper.
+	public class UAwareGenericMapper<T, A, B>: GenericMapper<T, A, B>, IUAwareDistMapper<T, A, B>
+		where T: IKEPDist where A : IKEPDist where B : IKEPDist{
+
+		public new const string MATLAB_CLASS = "UAwareGenericMapper";
+
+		// suffMapper must implement IUAwareVectorMapper
+		public UAwareGenericMapper(UAwareVectorMapper<A, B> suffMapper, DistBuilder<T> distBuilder)
+			: base(suffMapper, distBuilder){
+
+		}
+
+		public double[] EstimateUncertainty(A d1, B d2){
+//			double[] u = vm.EstimateUncertainty(new IKEPDist[]{d1, d2});
+//			return u;
+			UAwareVectorMapper<A, B> uvm = (UAwareVectorMapper<A, B>)suffMapper;
+			double[] u =uvm.EstimateUncertainty(d1, d2);
+			return u;
+		}
+
+
+	}
 }
- // end name space
+// end name space
 

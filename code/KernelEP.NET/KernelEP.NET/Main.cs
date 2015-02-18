@@ -26,11 +26,10 @@ namespace KernelEP{
 			
 //			TestMath();
 
-//			LogisticRegression.TestLogisticRegression();
+			LogisticRegression.TestLogisticRegression();
 //			LogisticRegression.TestLogisticRegressionNoBias();
-			CollectLogisticMsgs.CollectMessages();
+//			CollectLogisticMsgs.CollectMessages();
 //			InferenceEngine.ShowFactorManager(true);
-
 
 			
 //			GauArrayan g1 = new Gaussian(0, 1);

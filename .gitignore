@@ -32,3 +32,6 @@ incomp_chol_package
 incomp_chol_package.zip
 incomp_chol_export.sh
 /research_note.pdf
+code/KernelEP.NET/KernelEP.NET/obj/x86/Debug/*
+/questions.pdf
+/pgm_note.pdf

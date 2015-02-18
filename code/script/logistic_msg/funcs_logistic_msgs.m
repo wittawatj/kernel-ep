@@ -130,16 +130,26 @@ end
 function genSigmoidFactorOperator()
    % convenient method to generate a sigmoid FactorOperator from results 
    % in script/saved/
-   %bwFile = 'ichol_learn_ICholMapperLearner_binlogis_bw_n400_iter5_sf1_st20_ntr4000_DNormalLogVarBuilder.mat';  
-   bwFile = 'ichol_learn_ICholMapperLearner_binlogis_bw_n400_iter5_sf1_st20_ntr6000_DNormalLogVarBuilder.mat';  
    %fwFile = 'ichol_learn_ICholMapperLearner_binlogis_fw_n400_iter5_sf1_st20_ntr4000_DistBetaBuilder.mat';
    %fwFile = 'ichol_learn_ICholMapperLearner_binlogis_fw_n400_iter5_sf1_st20_ntr4000_DBetaLogBuilder.mat';
-   fwFile = 'ichol_learn_ICholMapperLearner_binlogis_fw_n400_iter5_sf1_st20_ntr6000_DBetaLogBuilder.mat';
-   foName='ichol_logbeta_n400_iter5_sf1_st200_ntr6000';
+   %fwFile = 'ichol_learn_ICholMapperLearner_binlogis_fw_n400_iter5_sf1_st20_ntr6000_DBetaLogBuilder.mat';
+   fwFile = 'fm_kgg_joint-irf500-orf1000-binlogis_fw_proj_n400_iter5_sf1_st20-ntr5000-DBetaLogBuilder.mat';
+
+   %bwFile = 'ichol_learn_ICholMapperLearner_binlogis_bw_n400_iter5_sf1_st20_ntr4000_DNormalLogVarBuilder.mat';  
+   %bwFile = 'ichol_learn_ICholMapperLearner_binlogis_bw_n400_iter5_sf1_st20_ntr6000_DNormalLogVarBuilder.mat';  
+   bwFile = 'fm_kgg_joint-irf500-orf1000-binlogis_bw_proj_n400_iter5_sf1_st20-ntr5000-DNormalLogVarBuilder.mat';
+   %foName='ichol_logbeta_n400_iter5_sf1_st20_ntr6000';
+   foName='fm_kgg_joint_irf500_orf1000_proj_n400_iter5_sf1_st20_ntr5000';
 
    summary=sprintf(['sigmoid factor. p(x1|x2) where x1 is Beta and '...
        'x2 is Normal. fw: %s. bw: %s'], fwFile, bwFile);
-   fo=getSigmoidFactorOperator(fwFile, bwFile, summary);
+
+   %fwPath = Expr.scriptSavedFile(fwFile);
+   fwPath = Expr.expSavedFile(6, fwFile);
+   %bwPath = Expr.scriptSavedFile(bwFile);
+   bwPath = Expr.expSavedFile(6, bwFile);
+
+   fo=getSigmoidFactorOperator(fwPath, bwPath, summary);
    serializer=FactorOpSerializer();
    % save operator 
    serializer.saveFactorOperator(fo, foName);
@@ -149,13 +159,14 @@ function genSigmoidFactorOperator()
 
 end
 
-function fo=getSigmoidFactorOperator(fwFName, bwFName, summary)
+function fo=getSigmoidFactorOperator(fwPath, bwPath, summary)
    % Construct a FactorOperator for sigmoid problem. 
    % This requires loading from at least two files in script/saved/ folder.
    % We need one DistMapper for forward and another for backward direction.
    %
-   %
-   fwPath = Expr.scriptSavedFile(fwFName) ;
+   
+   %fwPath = Expr.scriptSavedFile(fwFName) ;
+   %bwPath = Expr.scriptSavedFile(bwFName);
    % expect a struct s
    % Example:
    % s = 
@@ -168,7 +179,6 @@ function fo=getSigmoidFactorOperator(fwFName, bwFName, summary)
    fwLoaded = load(fwPath);
    fwResult=fwLoaded.s;
 
-   bwPath = Expr.scriptSavedFile(bwFName);
    bwLoaded = load(bwPath);
    bwResult = bwLoaded.s;
 

@@ -9,14 +9,45 @@ using MicrosoftResearch.Infer.Factors;
 
 namespace KernelEP{
 	public static class MatrixUtils{
-		public static Matrix Diag(double[] diag){
-			throw new NotImplementedException();
-		}
 
 		public static bool IsAllPositive(double[] nums){
 			// True of if all elements are > 0
 			double[] filtered = nums.Where(x => x > 0).ToArray();
 			return filtered.Length == nums.Length;
+		}
+
+		public static Matrix BlkDiag(params Matrix[] mats){
+			// Block-diagonally stack all the matrices
+			int n = mats.Length;
+			int totalRows = mats.Sum(m => m.Rows);
+			int totalCols = mats.Sum(m => m.Cols);
+			Matrix big = new Matrix(totalRows, totalCols);
+			int firstRow = 0, firstCol = 0;
+			for(int i = 0; i < n; i++){
+				big.SetSubmatrix(firstRow, firstCol, mats[i]);
+				firstRow += mats[i].Rows;
+				firstCol += mats[i].Cols;
+			}
+			return big;
+		}
+
+		public static Vector ConcatAll(params Vector[] vecs){
+			// Stack all vectors together
+			Vector big = Vector.Zero(0);
+			foreach(Vector v in vecs){
+				big = Vector.Concat(big, v);
+			}
+			return big;
+		}
+
+		//---------
+		public static void TestBlkDiag(){
+			Matrix m1 = Matrix.Parse("1 2\n 3 4");
+			Matrix m2 = Matrix.Parse("5 6 7\n 8 9 10 ");
+			Matrix m3 = Matrix.Parse("11\n12");
+			Matrix m4 = Matrix.Parse("13 14");
+			Matrix big = MatrixUtils.BlkDiag(m1, m2, m3, m4);
+			Console.WriteLine(big);
 		}
 	}
 	// interface marking that the class's objects have a summary
@@ -100,7 +131,7 @@ namespace KernelEP{
 			ValidateKey(key);
 			Matrix mat = GetMatrix(key);
 			if(mat.Cols != 1 || mat.Rows != 1){
-				string msg = System.String.Format("key {0} is a matrix that cannot be casted as a scalar", key);
+				string msg = System.String.Format("key {0} is a matrix that cannot be cast as a scalar", key);
 				throw new ArgumentException(msg);
 			}
 			return mat[0, 0];
@@ -148,6 +179,7 @@ namespace KernelEP{
 			throw new ArgumentException(msg1);
 		}
 
+
 		public MatlabStruct[,] GetStructCells(string key){
 			object[,] cells = GetCells(key);
 			int rows = cells.GetLength(0);
@@ -155,8 +187,8 @@ namespace KernelEP{
 			MatlabStruct[,] structs = new MatlabStruct[rows, cols];
 			for(int i = 0; i < rows; i++){
 				for(int j = 0; j < cols; j++){
-					var dict = (Dictionary<string, object>)cells[i, j];
-					structs[i, j] = new MatlabStruct(dict);
+					var d = (Dictionary<string, object>)cells[i, j];
+					structs[i, j] = new MatlabStruct(d);
 				}
 			}
 			return structs;

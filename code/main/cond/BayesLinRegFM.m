@@ -105,6 +105,7 @@ classdef BayesLinRegFM < UAwareInstancesMapper & PrimitiveSerializable
 
         % From PrimitiveSerializable interface 
         function s=toStruct(this)
+            s = struct();
             s.className=class(this);
             s.featureMap=this.featureMap.toStruct();
             %s.regParam=this.regParam;

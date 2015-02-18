@@ -27,7 +27,7 @@ namespace KernelEP.Tool{
 		// return mean as a vector. Work on univariate distributions as well.
 		Vector GetMeanVector();
 
-		PositiveDefiniteMatrix GetCovarianceMatrix();
+		Matrix GetCovarianceMatrix();
 
 		ISuff GetSuffStat();
 	}
@@ -64,6 +64,7 @@ namespace KernelEP.Tool{
 		// Get the underlying wrapped Infer.NET distribution
 		IDistribution<Vector> GetWrappedDistribution();
 	}
+
 
 	// A class representing sufficient statistic. 
 	// This is mainly used for construction of an outgoing message. 
@@ -341,7 +342,32 @@ namespace KernelEP.Tool{
 		}
 	}
 
+	public class DVectorNormal : IDistMulti{
+		private Vector mean;
+		private Matrix covariance;
+		public DVectorNormal(Vector mean, Matrix covariance){
+			this.mean = mean;
+			this.covariance = covariance;
+		}
+		
+		public IDistribution<Vector> GetWrappedDistribution(){
+			PositiveDefiniteMatrix pos =(PositiveDefiniteMatrix)covariance;
+			return new VectorGaussian(mean, pos);
+		}
 
+		public Vector GetMeanVector(){
+			return mean;
+		}
+
+		public Matrix GetCovarianceMatrix(){
+			return covariance;
+		}
+
+		public ISuff GetSuffStat(){
+			throw new NotImplementedException();
+		}
+
+	}
 	public  class DNormal : IDistUni{
 		private double mean;
 		private double variance;
@@ -369,7 +395,7 @@ namespace KernelEP.Tool{
 			return Vector.FromArray(this.mean);
 		}
 
-		public PositiveDefiniteMatrix GetCovarianceMatrix(){
+		public Matrix GetCovarianceMatrix(){
 			return PositiveDefiniteMatrix.IdentityScaledBy(1, this.variance);
 		}
 
@@ -443,7 +469,7 @@ namespace KernelEP.Tool{
 			return Vector.FromArray(this.mean);
 		}
 
-		public PositiveDefiniteMatrix GetCovarianceMatrix(){
+		public Matrix GetCovarianceMatrix(){
 			return PositiveDefiniteMatrix.IdentityScaledBy(1, this.variance);
 		}
 

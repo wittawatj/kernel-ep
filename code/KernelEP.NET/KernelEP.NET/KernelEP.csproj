@@ -61,6 +61,7 @@
     <Compile Include="Tool\LocalConfig.cs" />
     <Compile Include="Tool\Kernel.cs" />
     <Compile Include="Tool\Data.cs" />
+    <Compile Include="Tool\RandFeature.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

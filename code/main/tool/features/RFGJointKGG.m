@@ -12,7 +12,7 @@ classdef RFGJointKGG < FeatureMap & PrimitiveSerializable
     
     properties(SetAccess=protected)
         % Gaussian widths^2 for the embedding kernel for each incoming variable.
-        % A numeric array. Length=number of incoming variables.
+        % Length=number of incoming variables.
         % One parameter vector for incoming message.
         % Reciprocal of gwidth2s are used in drawing W's.
         embed_width2s_cell;
@@ -31,12 +31,10 @@ classdef RFGJointKGG < FeatureMap & PrimitiveSerializable
         % number of features for the inner map (expected product kernel). An integer.
         innerNumFeatures;
 
-        % A cell array of weight matrices for the outer features. Each W is 
-        % Din x Dout or nfInEach x nfOutEach.
+        % Din x Dout  
         Wout;
 
-        % A cell array of coefficients b. Each one is 1 x nfOutEach. 
-        % Drawn from U[0, 2*pi]
+        % A vector of length numFeatures.   Drawn from U[0, 2*pi]
         Bout;
     end
     
@@ -122,11 +120,12 @@ classdef RFGJointKGG < FeatureMap & PrimitiveSerializable
         % from PrimitiveSerializable interface
         function s=toStruct(this)
             s.className=class(this);
-            s.embed_width2s_cell = this.embed_width2s_cell;
+            % make it a row cell array
+            s.embed_width2s_cell = {this.embed_width2s_cell{:}};
             s.outer_width2 = this.outer_width2;
             s.numFeatures=this.numFeatures;
-            s.eprodMap=this.eprodMap.toStruct();
             s.innerNumFeatures = this.innerNumFeatures;
+            s.eprodMap=this.eprodMap.toStruct();
             s.Wout = this.Wout;
             s.Bout = this.Bout;
         end
