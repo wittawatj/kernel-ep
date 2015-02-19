@@ -34,7 +34,7 @@ namespace KernelEP.Tool{
 
 		// return the expected number of incoming messages
 		// negative for any number.
-//		public abstract int NumInputMessages();
+		//		public abstract int NumInputMessages();
 
 		// Load a FeatureMap in Matlab represented by the input
 		// All FeatureMap objects can be serialized to struct with .toStruct()
@@ -55,11 +55,11 @@ namespace KernelEP.Tool{
 				map = StackVectorMapper.FromMatlabStruct(s);
 			} else if(className.Equals(BayesLinRegFM.MATLAB_CLASS)){
 				map = BayesLinRegFM.FromMatlabStruct(s);
-			}else if(className.Equals(UAwareVectorMapper.MATLAB_CLASS)){
+			} else if(className.Equals(UAwareVectorMapper.MATLAB_CLASS)){
 				map = UAwareVectorMapper.FromMatlabStruct(s);
 			} else if(className.Equals(UAwareStackVectorMapper.MATLAB_CLASS)){
 				map = UAwareStackVectorMapper.FromMatlabStruct(s);
-			}else{
+			} else{
 				throw new ArgumentException("Unknown className: " + className);
 			}
 			//			else if(className.Equals("RFGSumEProdMap")){
@@ -107,25 +107,25 @@ namespace KernelEP.Tool{
 	public class BayesLinRegFM : OnlineVectorMapper{
 		public new const string MATLAB_CLASS = "BayesLinRegFM";
 
-		private VectorMapper featureMap;
+		protected VectorMapper featureMap;
 		//		% matrix needed in mapInstances(). dz x numFeatures
 		//		% where dz = dimension of output sufficient statistic.
-		private Vector posteriorMean;
+		protected Vector posteriorMean;
 
 		//		% posterior covariance matrix. Used for computing predictive variance.
 		//		% DxD where D = number of features
-		private Matrix posteriorCov;
+		protected Matrix posteriorCov;
 
 		//		% output noise variance (regularization parameter)
-		private double noiseVar;
+		protected double noiseVar;
 
 		// uncertainty threshold for log(predictive variance)
-		private double uThreshold;
+		protected double uThreshold;
 
 		// Cross correlation vector. XY'.
-		private Vector crossCorr;
+		protected Vector crossCorr;
 
-		private BayesLinRegFM(){
+		protected BayesLinRegFM(){
 		}
 
 		public override void MapAndEstimateU(out Vector mapped, out double[] uncertainty, 
@@ -139,16 +139,12 @@ namespace KernelEP.Tool{
 		public override Vector MapToVector(params IKEPDist[] msgs){
 			Vector feature = featureMap.MapToVector(msgs);
 			double predict = posteriorMean.Inner(feature);
-			return Vector.FromArray(new []{predict});
+			return Vector.FromArray(new []{ predict });
 		}
 
 		public override int GetOutputDimension(){
 			return 1;
 		}
-
-//		public override int NumInputMessages(){
-//			return -1;
-//		}
 
 		public override double[] EstimateUncertainty(params IKEPDist[] dists){
 			// return log predictive variance
@@ -312,7 +308,7 @@ namespace KernelEP.Tool{
 		public StackVectorMapper(params VectorMapper[] vectorMappers){
 			this.vectorMappers = vectorMappers;
 		}
-		
+
 
 		public override int GetOutputDimension(){
 			int outDim = vectorMappers.Sum(map => map.GetOutputDimension());
@@ -347,7 +343,7 @@ namespace KernelEP.Tool{
 			}
 			int m = mappersCell.GetLength(1);
 			var maps = new VectorMapper[m];
-			for(int i=0; i<m; i++){
+			for(int i = 0; i < m; i++){
 				var mapStruct = new MatlabStruct((Dictionary<string, object>)mappersCell[0, i]);
 				VectorMapper map = VectorMapper.FromMatlabStruct(mapStruct);
 				maps[i] = map;
@@ -359,65 +355,6 @@ namespace KernelEP.Tool{
 	}
 
 
-	// Corresponds to a class of the same name in Matlab code.
-	// Map two input distributions to a finite dimensional vector.
-//	public class CondCholFiniteOut<T1, T2> : VectorMapper<T1, T2>
-//		where T1 : IKEPDist
-//		where T2 : IKEPDist{
-//		// (Z-Out*R'(RR' + lambda*eye(ra))^-1 R)/lamb. Needed in MapToVector()
-//		private readonly Matrix zOutR3;
-//
-//		// input message pairs
-//		private readonly TensorInstances<T1, T2> inputTensor;
-//
-//		// kernel function that can operator on the input tensor
-//		public Kernel2<T1, T2> Kernel { get; private set; }
-//
-//		public const string MATLAB_CLASS = "CondCholFiniteOut";
-//
-//		public CondCholFiniteOut(Matrix zOutR3, 
-//		                         TensorInstances<T1, T2> inputTensor, Kernel2<T1, T2> kernel){
-//			this.zOutR3 = zOutR3;
-//			this.inputTensor = inputTensor;
-//			this.Kernel = kernel;
-//		}
-//
-//		public override int GetOutputDimension(){
-//			return zOutR3.Rows;
-//		}
-//
-//
-//		public override Vector MapToVector(T1 msg1, T2 msg2){
-//
-//			var incoming = new Tuple<T1, T2>(msg1,msg2);
-//			Vector k = Kernel.Eval(inputTensor.GetAll(), incoming);
-//			return zOutR3 * k;
-//		}
-//
-//		public static new CondCholFiniteOut<T1, T2> FromMatlabStruct(MatlabStruct s){
-////			s = struct();
-////			s.className=class(this);
-////			s.instances = this.In.toStruct();
-////			s.kfunc = this.kfunc.toStruct();
-////			% a matrix
-////			s.ZOutR3 = this.ZOutR3;
-//
-//			string className = s.GetString("className");
-//			if(!className.Equals(MATLAB_CLASS)){
-//				throw new ArgumentException("The input does not represent a " +
-//				typeof(CondCholFiniteOut<T1, T2>));
-//			}
-//			// assume a TensorInstances
-////			var instancesDict = (Dictionary<string, object>)s.GetStruct("instances");
-//			TensorInstances<T1, T2> instances = 
-//				TensorInstances<T1, T2>.FromMatlabStruct(s.GetStruct("instances"));
-//			Kernel2<T1, T2> kfunc = Kernel2<T1, T2>.FromMatlabStruct(
-//				                        s.GetStruct("kfunc"));
-//			Matrix zOutR3 = s.GetMatrix("ZOutR3");
-//			return new CondCholFiniteOut<T1, T2>(zOutR3,instances,kfunc);
-//
-//		}
-//	}
 
 	// Corresponds to a class of the same name in Matlab code.
 	// An InstancesMapper in Matlab code.
@@ -510,7 +447,7 @@ namespace KernelEP.Tool{
 		public new static GenericMapper<T> FromMatlabStruct(MatlabStruct s){
 			string className = s.GetString("className");
 			if(!(className.Equals(MATLAB_CLASS)
-				|| className.Equals(UAwareGenericMapper<T>.MATLAB_CLASS))){
+			   || className.Equals(UAwareGenericMapper<T>.MATLAB_CLASS))){
 				throw new ArgumentException("The input does not represent a " +
 				typeof(GenericMapper<T>));
 			}
@@ -559,6 +496,67 @@ namespace KernelEP.Tool{
 		}
 
 	}
+
+
+	// Corresponds to a class of the same name in Matlab code.
+	// Map two input distributions to a finite dimensional vector.
+	//	public class CondCholFiniteOut<T1, T2> : VectorMapper<T1, T2>
+	//		where T1 : IKEPDist
+	//		where T2 : IKEPDist{
+	//		// (Z-Out*R'(RR' + lambda*eye(ra))^-1 R)/lamb. Needed in MapToVector()
+	//		private readonly Matrix zOutR3;
+	//
+	//		// input message pairs
+	//		private readonly TensorInstances<T1, T2> inputTensor;
+	//
+	//		// kernel function that can operator on the input tensor
+	//		public Kernel2<T1, T2> Kernel { get; private set; }
+	//
+	//		public const string MATLAB_CLASS = "CondCholFiniteOut";
+	//
+	//		public CondCholFiniteOut(Matrix zOutR3,
+	//		                         TensorInstances<T1, T2> inputTensor, Kernel2<T1, T2> kernel){
+	//			this.zOutR3 = zOutR3;
+	//			this.inputTensor = inputTensor;
+	//			this.Kernel = kernel;
+	//		}
+	//
+	//		public override int GetOutputDimension(){
+	//			return zOutR3.Rows;
+	//		}
+	//
+	//
+	//		public override Vector MapToVector(T1 msg1, T2 msg2){
+	//
+	//			var incoming = new Tuple<T1, T2>(msg1,msg2);
+	//			Vector k = Kernel.Eval(inputTensor.GetAll(), incoming);
+	//			return zOutR3 * k;
+	//		}
+	//
+	//		public static new CondCholFiniteOut<T1, T2> FromMatlabStruct(MatlabStruct s){
+	////			s = struct();
+	////			s.className=class(this);
+	////			s.instances = this.In.toStruct();
+	////			s.kfunc = this.kfunc.toStruct();
+	////			% a matrix
+	////			s.ZOutR3 = this.ZOutR3;
+	//
+	//			string className = s.GetString("className");
+	//			if(!className.Equals(MATLAB_CLASS)){
+	//				throw new ArgumentException("The input does not represent a " +
+	//				typeof(CondCholFiniteOut<T1, T2>));
+	//			}
+	//			// assume a TensorInstances
+	////			var instancesDict = (Dictionary<string, object>)s.GetStruct("instances");
+	//			TensorInstances<T1, T2> instances = 
+	//				TensorInstances<T1, T2>.FromMatlabStruct(s.GetStruct("instances"));
+	//			Kernel2<T1, T2> kfunc = Kernel2<T1, T2>.FromMatlabStruct(
+	//				                        s.GetStruct("kfunc"));
+	//			Matrix zOutR3 = s.GetMatrix("ZOutR3");
+	//			return new CondCholFiniteOut<T1, T2>(zOutR3,instances,kfunc);
+	//
+	//		}
+	//	}
 
 }
 // end name space

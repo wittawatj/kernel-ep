@@ -15,22 +15,22 @@ namespace KernelEP.Op{
 	// class to control all operators in our framework
 	public static class OpControl{
 		// a map from a message operator type to its operator parameters
-		private readonly static Dictionary<Type, OpParamsBase> opInternals
-			= new Dictionary<Type, OpParamsBase>();
+		private readonly static Dictionary<Type, MsgOpInstance> opInternals
+		= new Dictionary<Type, MsgOpInstance>();
 
 		static OpControl(){
 			// default operator internals
 //			opInternals.Add(KEPLogisticOp, some_thing )
 		}
 
-		public static void Add(Type t, OpParamsBase oi){
+		public static void Add(Type t, MsgOpInstance oi){
 			if(oi == null){
 				throw new ArgumentException("Operator internal cannot be null.");
 			}
 			opInternals.Add(t, oi);
 		}
 
-		public static OpParamsBase Get(Type t){
+		public static MsgOpInstance Get(Type t){
 			if(!opInternals.ContainsKey(t)){
 				throw new ArgumentException("Parameters undefined for messages operator: " + t);
 			}
@@ -38,35 +38,11 @@ namespace KernelEP.Op{
 		}
 	}
 
+
 	// Equivalent class in Matlab code is FactorOperator.
 	public abstract class OpParamsBase{
 
 	}
-
-	// Internal components (e.g., DistMapper to each variable) of a message
-	// passing operator (e.g., XXXOp). This is useful in setting DistMapper for
-	// each target variable to send to. One object of this class wraps all
-	// DistMapper's.
-	// A, B are types of the distributions.
-//	public class OpParams<A, B> : OpParamsBase 
-//	where A : IKEPDist where B : IKEPDist{
-//		protected DistMapper<A, A, B> DistMapper0;
-//		protected DistMapper<B, A, B> DistMapper1;
-//
-//		public OpParams(DistMapper<A, A, B> dm0, DistMapper<B, A, B> dm1){
-//			this.DistMapper0 = dm0;
-//			this.DistMapper1 = dm1;
-//
-//		}
-//
-//		public DistMapper<A, A, B> GetDistMapper0(){
-//			return this.DistMapper0;
-//		}
-//
-//		public DistMapper<B, A, B> GetDistMapper1(){
-//			return this.DistMapper1;
-//		}
-//	}
 
 
 	// Internal components (e.g., DistMapper to each variable) of a message
@@ -129,6 +105,18 @@ namespace KernelEP.Op{
 
 			return new LogisticOpParams(betaMapper,normalMapper);
 		}
+
+
+		public static LogisticOpParams LoadLogisticFactorOperator(string filePath){
+			// filePath to .mat file containing a serialized FactorOperator from 
+			// Matlab.
+			// These files are typicalll in saved/factor_op/
+			Dictionary<string, object> dict = MatlabReader.Read(filePath);
+			Dictionary<string, object> s = dict["serialFactorOp"] as Dictionary<string, object>;
+			LogisticOpParams factorOp = LogisticOpParams.FromMatlabStruct(new MatlabStruct(s));
+			return factorOp;
+		}
+
 	}
 	//	public class OperatorInternal<A, B, C> : IOperatorInternal
 	//	where A : KEPDist where B : KEPDist where C : KEPDist{
@@ -201,7 +189,7 @@ namespace KernelEP.Op{
 			double projM = m1;
 			double projV = m2 - m1 * m1;
 			// method of moments http://en.wikipedia.org/wiki/Beta_distribution#Method_of_moments
-			if( (Math.Abs(1 - projM) < 1e-6 || Math.Abs(projM) < 1e-6)
+			if((Math.Abs(1 - projM) < 1e-6 || Math.Abs(projM) < 1e-6)
 			   && Math.Abs(projV) < 1e-6){
 				Console.WriteLine("!! neg variance in ProjToLogisticGaussianProposal: m={0}, v={1}", projM, projV);
 				// mean very close to 0 or 1. Tiny variance. 
@@ -211,7 +199,7 @@ namespace KernelEP.Op{
 				projM = Math.Abs(projM);
 				// This should overestimate the variance of proj.
 				// Overestimating should be better than underestimating.
-				projV = projM*(1-projM);
+				projV = projM * (1 - projM);
 			}
 
 			return Beta.FromMeanAndVariance(projM, projV);
@@ -300,9 +288,6 @@ namespace KernelEP.Op{
 			return Gaussian.FromMeanAndVariance(projM, projV);
 		}
 
-
-	
-
 		public static Beta ProjToLogisticUniformProposal(Beta logistic, Gaussian x){
 			// Get the projected message forming part of an outgoing message to logistic.
 
@@ -337,47 +322,64 @@ namespace KernelEP.Op{
 		}
 	}
 
-	/// 
-	/// <summary> Provide an EP operator for logistic (scalar sigmoid) factor.
-	/// </summary>
-	/// logistic = logistic(x)
-	[FactorMethod(typeof(MMath),"Logistic",typeof(double))]
-	[Quality(QualityBand.Experimental)]
-	public static class KEPLogisticOp{
-		// This is used when calling the true Infer.net message operator.
-		private static Gaussian falseMsg = LogisticOp2.FalseMsgInit();
-		// If true, print true messages sent by an Infer.NET's implementation of
-		// logistic factor message operator.
-		private static bool isPrintTrueMessages = false;
+	// A message operator instance.
+	// This is intended to be wrapped by a static class implementing an Infer.NET's 
+	// message operator. It is easier to manage objects rather than static classes.
+	public abstract class MsgOpInstance{
 
-		// static constructor called automatically only once before other
-		// static methods.
-		static KEPLogisticOp(){
+	}
 
-		}
+	// A message operator instance for the MMath.Logistic factor.
+	public abstract class LogisticOpInstance : MsgOpInstance{
+		public abstract Gaussian XAverageConditional(Beta logistic, Gaussian x);
+		public abstract Beta LogisticAverageConditional(Beta logistic, Gaussian x);
 
-		public static void SetPrintTrueMessages(bool v){
-			LogisticOp2.IsPrintLog = !v;
-			isPrintTrueMessages = v;
-		}
+		public abstract OpParams<DBeta, DNormal> GetOpParams();
 
-		private static OpParams<DBeta, DNormal> GetOpParams(){
-			OpParamsBase oi = OpControl.Get(typeof(KEPLogisticOp));
-			OpParams<DBeta, DNormal> oi1 = (OpParams<DBeta, DNormal>)oi;
-			return oi1;
-
-		}
-
-		private static DistMapper<DBeta> ToLogisticMapper(){
+		public DistMapper<DBeta> ToLogisticMapper(){
 			OpParams<DBeta, DNormal> p = GetOpParams();
 			return p.GetDistMapper0();
 		}
 
-		private static DistMapper<DNormal> ToXMapper(){
+		public DistMapper<DNormal> ToXMapper(){
 			OpParams<DBeta, DNormal> p = GetOpParams();
 			return p.GetDistMapper1();
 		}
+	}
 
+	// Kernel EP LogisticOpInstance
+	public class KEPLogisticOpInstance : LogisticOpInstance{
+		// This is used when calling the true Infer.net message operator.
+		private  Gaussian falseMsg = LogisticOp2.FalseMsgInit();
+		// If true, print true messages sent by an Infer.NET's implementation of
+		// logistic factor message operator.
+		private  bool isPrintTrueMessages = false;
+
+		private OpParams<DBeta, DNormal> opParams;
+
+		public KEPLogisticOpInstance(OpParams<DBeta, DNormal> opParams){
+			this.opParams = opParams;
+		}
+
+		public  void SetPrintTrueMessages(bool v){
+			LogisticOp2.IsPrintLog = !v;
+			isPrintTrueMessages = v;
+		}
+
+		public override OpParams<DBeta, DNormal> GetOpParams(){
+			return opParams;
+		}
+
+		public static KEPLogisticOpInstance LoadLogisticOpInstance(string filePath){
+			// filePath to .mat file containing a serialized FactorOperator from 
+			// Matlab.
+			// These files are typicalll in saved/factor_op/
+			Dictionary<string, object> dict = MatlabReader.Read(filePath);
+			Dictionary<string, object> s = dict["serialFactorOp"] as Dictionary<string, object>;
+			LogisticOpParams factorOp = LogisticOpParams.FromMatlabStruct(new MatlabStruct(s));
+
+			return new KEPLogisticOpInstance(factorOp);
+		}
 		/// <summary>
 		/// EP message to 'x'
 		/// </summary>
@@ -387,66 +389,28 @@ namespace KernelEP.Op{
 		//			return Gaussian.PointMass(MMath.Logit(logistic));
 		//		}
 
-		public static Gaussian XAverageConditional(Beta logistic, Gaussian x){
-
+		public override Gaussian XAverageConditional(Beta logistic, Gaussian x){
 
 			Console.WriteLine("{0}.XAverageConditional. From: beta: {1} , gaussian: {2}"
-				,typeof(KEPLogisticOp) ,logistic, x );
+				, typeof(KEPLogisticOp), logistic, x);
 			DistMapper<DNormal> dm = ToXMapper();
 			DBeta l = DBeta.FromBeta(logistic);
-//			if( Math.Abs(logistic.GetMean() - 1.0/3) < 1e-6){
-//				// assume point mass at 0
-//				l = DBeta.FromBeta(Beta.FromMeanAndVariance(0.03, 0.01));
-//			}else if(Math.Abs(logistic.GetMean() - 2.0/3) < 1e-6){
-//				// assume point mass at 1
-//				l = DBeta.FromBeta(Beta.FromMeanAndVariance(0.97, 0.01));
-//			}
 			DNormal fromx = DNormal.FromGaussian(x);
 			DNormal toXProjected = dm.MapToDist(l, fromx);
 			Gaussian projX = (Gaussian)toXProjected.GetWrappedDistribution();
 
 			Gaussian toX = new Gaussian();
 			toX.SetToRatio(projX, x, true);
-//			toX = projX/x;
+			//			toX = projX/x;
 			Console.WriteLine("toX: {0}", toX);
 			if(isPrintTrueMessages){
 				falseMsg = LogisticOp2.FalseMsg(logistic, x, falseMsg);
 				Gaussian trueToX = LogisticOp2.XAverageConditional(logistic, x, falseMsg);
 				Console.WriteLine("True to x: {0}", trueToX);
 			}
-//			return projX;
-
-//			if(!toX.IsProper()){
-//				// According to Tom Minka, Gaussian times sigmoid likelihood (proj distribution)
-//				// will give a lower variance than the original Gaussian. 
-//				// That means proj dist / Gaussian will have positive precision.
-//				// So the outgoing message from here will always be proper.
-//				// force proper. If improper, getting mean will throw an exception.
-//				// This should never happen
-//				double projMTP, projP;
-//				projX.GetNatural(out projMTP, out projP);
-//				double xMTP, xP;
-//				x.GetNatural(out xMTP, out xP);
-//				double projMean = projMTP / projP;
-//				double newProjP = xP + 1.0 / 1e5;
-//				projX = Gaussian.FromNatural(projMean * newProjP, newProjP);
-//				// Make sure that the precision of projX > x, so that 
-//				// projX / x is proper. 
-//				Gaussian fixedToX = projX / x;
-//				Console.WriteLine("toX improper: {0}. fixed toX: {1}", toX, fixedToX);
-//				toX = fixedToX;
-//
-//			} else{
-//				Console.WriteLine("toX: {0}", toX);
-//			}
-
 
 			Console.WriteLine();
 
-			// skipping EP
-//			if(!toX.IsProper()){
-//				return Gaussian.Uniform();
-//			}
 			return toX;
 		}
 
@@ -456,13 +420,13 @@ namespace KernelEP.Op{
 		/// <param name="logistic">Incoming message from 'logistic'.</param>
 		/// <param name="x">Incoming message from 'x'. </param>
 		/// <returns>The outgoing EP message to the 'logistic' argument</returns>
-		public static Beta LogisticAverageConditional(Beta logistic, Gaussian x){
-//			if(logistic.IsPointMass){
-//				Console.WriteLine("beta point mass");
-//			}
+		public override Beta LogisticAverageConditional(Beta logistic, Gaussian x){
+			//			if(logistic.IsPointMass){
+			//				Console.WriteLine("beta point mass");
+			//			}
 			DBeta fromL = DBeta.FromBeta(logistic);
 			Console.WriteLine("{0}.LogisticAverageConditional. beta: {1} , gaussian: {2}"
-				,typeof(KEPLogisticOp), logistic, x);
+				, typeof(KEPLogisticOp), logistic, x);
 			DistMapper<DBeta> dm = ToLogisticMapper();
 
 			DNormal fromX = DNormal.FromGaussian(x);
@@ -482,10 +446,59 @@ namespace KernelEP.Op{
 				// force proper. If improper, getting mean will throw an exception.
 
 				// proper if projT > loT - 1 and projF > loF - 1
-//				toL = Beta.Uniform();
+				//				toL = Beta.Uniform();
 			} 
 
 			Console.WriteLine();
+			return toL;
+		}
+
+	
+	}
+
+	/// 
+	/// <summary> Provide an EP operator for logistic (scalar sigmoid) factor.
+	/// </summary>
+	/// logistic = logistic(x)
+	[FactorMethod(typeof(MMath),"Logistic",typeof(double))]
+	[Quality(QualityBand.Experimental)]
+	public static class KEPLogisticOp{
+
+		// static constructor called automatically only once before other
+		// static methods.
+		static KEPLogisticOp(){
+
+		}
+
+		private static OpParams<DBeta, DNormal> GetOpParams(){
+			MsgOpInstance opIns = OpControl.Get(typeof(KEPLogisticOp));
+			LogisticOpInstance logIns = (LogisticOpInstance)opIns;
+			OpParams<DBeta, DNormal> opParams = logIns.GetOpParams();
+			return opParams;
+		}
+
+		private static DistMapper<DBeta> ToLogisticMapper(){
+			OpParams<DBeta, DNormal> p = GetOpParams();
+			return p.GetDistMapper0();
+		}
+
+		private static DistMapper<DNormal> ToXMapper(){
+			OpParams<DBeta, DNormal> p = GetOpParams();
+			return p.GetDistMapper1();
+		}
+
+
+		public static Gaussian XAverageConditional(Beta logistic, Gaussian x){
+			MsgOpInstance opIns = OpControl.Get(typeof(KEPLogisticOp));
+			LogisticOpInstance logIns = (LogisticOpInstance)opIns;
+			Gaussian toX = logIns.XAverageConditional(logistic, x);
+			return toX;
+		}
+
+		public static Beta LogisticAverageConditional(Beta logistic, Gaussian x){
+			MsgOpInstance opIns = OpControl.Get(typeof(KEPLogisticOp));
+			LogisticOpInstance logIns = (LogisticOpInstance)opIns;
+			Beta toL = logIns.LogisticAverageConditional(logistic, x);
 			return toL;
 		}
 
@@ -536,9 +549,9 @@ namespace KernelEP.Op{
 	[Buffers("falseMsg")]
 	public static class LogisticOp2{
 		// true to save all messages from/to X
-		public static bool IsCollectXMessages = true;
+		public static bool IsCollectXMessages = false;
 		// true to save all messages from/to X
-		public static bool IsCollectLogisticMessages = true;
+		public static bool IsCollectLogisticMessages = false;
 		// If true, collect projected messages instead of the outgoing messages.
 		// Outgoing messages can be obtained by dividing these messages by the cavity.
 		public static bool IsCollectProjMsgs = true;
@@ -900,6 +913,8 @@ namespace KernelEP.Op{
 
 
 
+
+
 #pragma warning disable 162
 		#endif
 
@@ -980,6 +995,8 @@ namespace KernelEP.Op{
 
 		#if SUPPRESS_UNREACHABLE_CODE_WARNINGS
 		
+
+
 
 
 

@@ -160,7 +160,7 @@ namespace KernelEP.TestIdea{
 //			ie.Compiler.GivePriorityTo(typeof(MicrosoftResearch.Infer.Factors.LogisticOp));
 //			ie.Compiler.UseSerialSchedules = true;
 //			ie.Compiler.GivePriorityTo(typeof(KEPLogisticOp));
-			KEPLogisticOp.SetPrintTrueMessages(true);
+		
 			ie.Compiler.GivePriorityTo(logisticOperator);
 //			ie.Compiler.GivePriorityTo(typeof(ISLogisticOp));
 //			ie.Compiler.GivePriorityTo(typeof(KernelEP.Op.LogisticOp2));
@@ -194,16 +194,7 @@ namespace KernelEP.TestIdea{
 			biasPost = ie.Infer<Gaussian>(bias);
 		}
 
-		public static LogisticOpParams LoadLogisticFactorOperator(string filePath){
-			// filePath to .mat file containing a serialized FactorOperator from 
-			// Matlab.
-			// These files are typicall in saved/factor_op/
-			Dictionary<string, object> dict = MatlabReader.Read(filePath);
-			Dictionary<string, object> s = dict["serialFactorOp"] as Dictionary<string, object>;
-			LogisticOpParams factorOp = LogisticOpParams.FromMatlabStruct(new MatlabStruct(s));
-			return factorOp;
-		}
-
+	
 
 		public static void TestLogisticRegressionNoBias(){
 			const int seed = 2;
@@ -229,10 +220,11 @@ namespace KernelEP.TestIdea{
 				//				"serialFactorOp_fm_kgg_joint_irf500_orf1000_n400_iter5_sf1_st20_ntr5000.mat"
 				"serialFactorOp_fm_kgg_joint_irf500_orf1000_proj_n400_iter5_sf1_st20_ntr5000.mat"
 			                      );
-			LogisticOpParams factorOp = LoadLogisticFactorOperator(factorOpPath);
-			OpControl.Add(typeof(KEPLogisticOp), factorOp);
-			LogisticOp2.IsCollectXMessages = false;
-			LogisticOp2.IsCollectLogisticMessages = false;
+
+			KEPLogisticOpInstance opIns = KEPLogisticOpInstance.LoadLogisticOpInstance(factorOpPath);
+			opIns.SetPrintTrueMessages(true);
+
+			OpControl.Add(typeof(KEPLogisticOp), opIns);
 			Type logisticOp = typeof(KEPLogisticOp);
 //			Type logisticOp = typeof(LogisticOp2);
 
@@ -276,18 +268,15 @@ namespace KernelEP.TestIdea{
 			Type logisticOp = typeof(KEPLogisticOp);
 //			Type logisticOp = typeof(LogisticOp2);
 
-			//			string factorOpPath = Config.PathToFactorOperator("ver7.mat");
-			//			string factorOpPath = Config.PathToFactorOperator("factorOp_RFGMVMapperLearner_nicolas_sigmoid_25000.mat");
-			//			string factorOpPath = Config.PathToFactorOperator("serialFactorOp_ichol_logbeta_n400_iter5_sf1_st200_ntr6000.mat");
 			string factorOpPath = Config.PathToFactorOperator(
 //				"serialFactorOp_fm_kgg_joint_irf500_orf1000_n400_iter5_sf1_st20_ntr5000.mat"
 				                      "serialFactorOp_fm_kgg_joint_irf500_orf1000_proj_n400_iter5_sf1_st20_ntr5000.mat"
 			                      );
-			LogisticOpParams factorOp = LoadLogisticFactorOperator(factorOpPath);
-			OpControl.Add(typeof(KEPLogisticOp), factorOp);
-			LogisticOp2.IsCollectXMessages = false;
-			LogisticOp2.IsCollectLogisticMessages = false;
+			KEPLogisticOpInstance opIns = KEPLogisticOpInstance.LoadLogisticOpInstance(factorOpPath);
+			opIns.SetPrintTrueMessages(true);
 
+			OpControl.Add(typeof(KEPLogisticOp), opIns);
+	
 			InferCoefficients(X, Y, out wPost, out biasPost, epIter, logisticOp);
 
 			//print 

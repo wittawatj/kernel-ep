@@ -15,9 +15,9 @@ namespace KernelEP.Tool{
 			string className = s.GetString("className");
 			if(className.Equals(DNormal.MATLAB_CLASS)){
 				return DNormal.FromMatlabStruct(s);
-			}else if(className.Equals(DBeta.MATLAB_CLASS)){
+			} else if(className.Equals(DBeta.MATLAB_CLASS)){
 				return DBeta.FromMatlabStruct(s);
-			}else{
+			} else{
 				throw new ArgumentException("unknown distribution class.");
 			}
 		}
@@ -31,20 +31,20 @@ namespace KernelEP.Tool{
 
 		ISuff GetSuffStat();
 	}
-	// Interface for a distribution in kernel EP framework 
+	// Interface for a distribution in kernel EP framework
 	// Type D parametrizes the domain of the distribution e.g., double
 	// Type V = type of variance. Either double or PositiveDefiniteMatrix
-//	public interface ParamDist<D, V> :  CanGetMean<D>,
-//	CanGetVariance<V>, KEPDist{
-//
-//		// Return true if this Dist is proper e.g., does not have 
-//		// negative variance.
-////		public abstract bool IsProper();
-//
-//		// Get the dimension of the input to the distribution
-////		public abstract int GetDimension();
-//
-//	}
+	//	public interface ParamDist<D, V> :  CanGetMean<D>,
+	//	CanGetVariance<V>, KEPDist{
+	//
+	//		// Return true if this Dist is proper e.g., does not have
+	//		// negative variance.
+	////		public abstract bool IsProper();
+	//
+	//		// Get the dimension of the input to the distribution
+	////		public abstract int GetDimension();
+	//
+	//	}
 
 	// univariate distribution
 	// This is just a wrapper. Infer.NET distributions are sealed (?).
@@ -66,19 +66,19 @@ namespace KernelEP.Tool{
 	}
 
 
-	// A class representing sufficient statistic. 
-	// This is mainly used for construction of an outgoing message. 
+	// A class representing sufficient statistic.
+	// This is mainly used for construction of an outgoing message.
 	// Sufficient statistic for a univariate distribution.
-//	public  class SuffStatUni : SuffStat<double, double>{
-//
-//		public double GetFirstMoment(){
-//			return -1;
-//		}
-//		
-//		public double GetSecondMoment(){
-//			return -1;
-//		}
-//	}
+	//	public  class SuffStatUni : SuffStat<double, double>{
+	//
+	//		public double GetFirstMoment(){
+	//			return -1;
+	//		}
+	//
+	//		public double GetSecondMoment(){
+	//			return -1;
+	//		}
+	//	}
 
 	public interface ISuff{
 		Vector GetFirstMomentAsVector();
@@ -86,8 +86,8 @@ namespace KernelEP.Tool{
 		// uncentered 2nd moment
 		PositiveDefiniteMatrix GetSecondMomentAsMatrix();
 
-		// Return true if this is a sufficient statistic for a univariate 
-		// distribution i.e., first moment has one component, 2nd-moment matrix 
+		// Return true if this is a sufficient statistic for a univariate
+		// distribution i.e., first moment has one component, 2nd-moment matrix
 		// has 1 entry.
 		bool IsUnivariate();
 	}
@@ -104,7 +104,7 @@ namespace KernelEP.Tool{
 			this.firstMoment = firstMoment;
 			this.secondMoment = secondMoment;
 		}
-		
+
 		public Vector GetFirstMomentAsVector(){
 			return firstMoment;
 		}
@@ -114,8 +114,8 @@ namespace KernelEP.Tool{
 			return secondMoment;
 		}
 
-		// Return true if this is a sufficient statistic for a univariate 
-		// distribution i.e., first moment has one component, 2nd-moment matrix 
+		// Return true if this is a sufficient statistic for a univariate
+		// distribution i.e., first moment has one component, 2nd-moment matrix
 		// has 1 entry.
 		public bool IsUnivariate(){
 			return firstMoment.Count == 1;
@@ -130,11 +130,11 @@ namespace KernelEP.Tool{
 				return DNormalBuilder.FromMatlabStruct(s);
 			} else if(className.Equals(DBetaBuilder.MATLAB_CLASS)){
 				return DBetaBuilder.FromMatlabStruct(s);
-			} else if (className.Equals(DNormalLogVarBuilder.MATLAB_CLASS)){
+			} else if(className.Equals(DNormalLogVarBuilder.MATLAB_CLASS)){
 				return DNormalLogVarBuilder.FromMatlabStruct(s);
-			}else if(className.Equals(DBetaLogBuilder.MATLAB_CLASS)){
+			} else if(className.Equals(DBetaLogBuilder.MATLAB_CLASS)){
 				return DBetaLogBuilder.FromMatlabStruct(s);
-			}else{
+			} else{
 				throw new ArgumentException("invalid MatlabStruct for a DistBuilder.");
 			}
 
@@ -150,13 +150,14 @@ namespace KernelEP.Tool{
 		// Construct a distribution from the sufficient statistics s.
 		public abstract T FromStat(ISuff s);
 
-		// This is a legacy method for compatibility with Matlab. 
 		// In Matlab code, sufficient statistic is represented with one vector.
 		// For example, for a 1d Gaussian, s = [x, x^2].
-		// This can be problematic for multivariate statistic as matrix needs 
+		// This can be problematic for multivariate statistic as matrix needs
 		// to be vectorized. If possible, ISuff should be used.
 		public abstract T FromStat(Vector s);
 
+		// Return a representaive statistic vector of the distribution
+		public abstract Vector GetStat(T dist);
 	}
 
 	public class DNormalBuilder : DistBuilder<DNormal>{
@@ -193,6 +194,13 @@ namespace KernelEP.Tool{
 			return new DNormal(mean,variance);
 		}
 
+		public override Vector GetStat(DNormal dist){
+			// return mean and uncentered 2nd moment
+			double mean = dist.GetMean();
+			double m2 = dist.GetVariance() + mean*mean;
+			return Vector.FromArray(new []{mean, m2});
+		}
+
 		public new static DNormalBuilder FromMatlabStruct(MatlabStruct s){
 			string className = s.GetString("className");
 			if(!className.Equals(MATLAB_CLASS)){
@@ -202,7 +210,7 @@ namespace KernelEP.Tool{
 		}
 	}
 
-	// DistBuilder which represents a normal distribution with its mean and 
+	// DistBuilder which represents a normal distribution with its mean and
 	// log variance
 	public class DNormalLogVarBuilder : DistBuilder<DNormal>{
 		private static DNormalLogVarBuilder instance = null;
@@ -219,6 +227,7 @@ namespace KernelEP.Tool{
 		// singleton pattern
 		private DNormalLogVarBuilder(){
 		}
+
 		public override DNormal FromStat(ISuff s){
 			return DNormalBuilder.Instance.FromStat(s);
 		}
@@ -227,13 +236,20 @@ namespace KernelEP.Tool{
 			// assume s = [mean, log variance]
 			if(s.Count != 2){
 				throw new ArgumentException("2-dim vector for containing " +
-					"[mean, log(variance)] expected.");
+				"[mean, log(variance)] expected.");
 			}
 			double mean = s[0];
 			double logVar = s[1];
 			double variance = Math.Exp(logVar);
 			return new DNormal(mean,variance);
 		}
+
+		public override Vector GetStat(DNormal dist){
+			double mean = dist.GetMean();
+			double logVar = dist.GetVariance();
+			return Vector.FromArray(new[]{ mean, logVar });
+		}
+
 		public new static DNormalLogVarBuilder FromMatlabStruct(MatlabStruct s){
 			string className = s.GetString("className");
 			if(!className.Equals(MATLAB_CLASS)){
@@ -276,17 +292,24 @@ namespace KernelEP.Tool{
 			double mean = s[0];
 			// hack 
 			double epsi = 1e-3;
-			mean = Math.Max( Math.Min(mean, 1-epsi), 0+epsi);
+			mean = Math.Max(Math.Min(mean, 1 - epsi), 0 + epsi);
 			double m2 = s[1];
 			double variance = m2 - mean * mean;
 			// hack 
-			if(variance < 0 || variance >= mean*(1-mean) ){
-				variance = mean*(1-mean)*0.9;
+			if(variance < 0 || variance >= mean * (1 - mean)){
+				variance = mean * (1 - mean) * 0.9;
 			}
 			Beta b = Beta.FromMeanAndVariance(mean, variance);
 			return DBeta.FromBeta(b);
 		}
-		
+
+		public override Vector GetStat(DBeta dist){
+			// return mean and uncentered 2nd moment
+			double mean = dist.GetMean();
+			double m2 = dist.GetVariance() + mean*mean;
+			return Vector.FromArray(new []{mean, m2}); 
+		}
+
 		public new static DBetaBuilder FromMatlabStruct(MatlabStruct s){
 			string className = s.GetString("className");
 			if(!className.Equals(MATLAB_CLASS)){
@@ -329,8 +352,15 @@ namespace KernelEP.Tool{
 
 			double alpha = Math.Exp(s[0]);
 			double beta = Math.Exp(s[1]);
-			Beta b = new Beta(alpha, beta);
+			Beta b = new Beta(alpha,beta);
 			return DBeta.FromBeta(b);
+		}
+
+		public override Vector GetStat(DBeta dist){
+			// stat = ( log(alpha), log(beta) )
+			double la = Math.Log(dist.GetAlpha());
+			double lb = Math.Log(dist.GetBeta());
+			return Vector.FromArray(new[]{la, lb});
 		}
 
 		public new static DBetaLogBuilder FromMatlabStruct(MatlabStruct s){
@@ -345,14 +375,15 @@ namespace KernelEP.Tool{
 	public class DVectorNormal : IDistMulti{
 		private Vector mean;
 		private Matrix covariance;
+
 		public DVectorNormal(Vector mean, Matrix covariance){
 			this.mean = mean;
 			this.covariance = covariance;
 		}
-		
+
 		public IDistribution<Vector> GetWrappedDistribution(){
-			PositiveDefiniteMatrix pos =(PositiveDefiniteMatrix)covariance;
-			return new VectorGaussian(mean, pos);
+			PositiveDefiniteMatrix pos = (PositiveDefiniteMatrix)covariance;
+			return new VectorGaussian(mean,pos);
 		}
 
 		public Vector GetMeanVector(){
@@ -368,10 +399,12 @@ namespace KernelEP.Tool{
 		}
 
 	}
+
 	public  class DNormal : IDistUni{
 		private double mean;
 		private double variance;
 		public static string MATLAB_CLASS = "DistNormal";
+
 		public DNormal(double mean, double variance){
 			this.mean = mean;
 			this.variance = variance;
@@ -419,8 +452,9 @@ namespace KernelEP.Tool{
 
 		public override string ToString(){
 			return String.Format("{0}(mean={1}, variance={2})", typeof(DNormal), 
-			                     this.mean, this.variance);
+				this.mean, this.variance);
 		}
+
 		public static DNormal FromMatlabStruct(MatlabStruct s){
 			string className = s.GetString("className");
 			if(!className.Equals(MATLAB_CLASS)){
@@ -432,10 +466,10 @@ namespace KernelEP.Tool{
 			}
 			double mean = meanVec[0];
 			double variance = s.GetDouble("variance");
-			return new DNormal(mean, variance);
+			return new DNormal(mean,variance);
 		}
 	}
-	
+
 	public class DBeta : IDistUni{
 
 		private double alpha;
@@ -443,6 +477,7 @@ namespace KernelEP.Tool{
 		private readonly double mean;
 		private readonly double variance;
 		public static string MATLAB_CLASS = "DistBeta";
+
 		public DBeta(double alpha, double beta){
 			this.alpha = alpha;
 			this.beta = beta; 
@@ -464,6 +499,12 @@ namespace KernelEP.Tool{
 		public double GetVariance(){
 			return this.variance;
 		}
+		public double GetAlpha(){
+			return alpha;
+		}
+		public double GetBeta(){
+			return beta;
+		}
 
 		public Vector GetMeanVector(){
 			return Vector.FromArray(this.mean);
@@ -481,6 +522,11 @@ namespace KernelEP.Tool{
 			return s;
 		}
 
+		public override string ToString(){
+			return String.Format("{0}(mean={1}, variance={2})", typeof(DBeta), 
+				this.mean, this.variance);
+		}
+
 		// construct from Infer.NET Beta object
 		public static DBeta FromBeta(Beta g){
 			return new DBeta(g.TrueCount,g.FalseCount);
@@ -490,10 +536,6 @@ namespace KernelEP.Tool{
 			return DBeta.FromBeta(Beta.PointMass(mean));
 		}
 
-		public override string ToString(){
-			return String.Format("{0}(mean={1}, variance={2})", typeof(DBeta), 
-			                     this.mean, this.variance);
-		}
 		public static DBeta FromMatlabStruct(MatlabStruct s){
 			string className = s.GetString("className");
 			if(!className.Equals(MATLAB_CLASS)){
@@ -501,7 +543,7 @@ namespace KernelEP.Tool{
 			}
 			double a = s.GetDouble("alpha");
 			double b = s.GetDouble("beta");
-			return new DBeta(a, b);
+			return new DBeta(a,b);
 		}
 	}
 
@@ -519,14 +561,15 @@ namespace KernelEP.Tool{
 			this.lowerBound = lowerBound;
 			this.upperBound = upperBound;
 		}
+
 		public Uniform1DSampler(double lowerBound, double upperBound) :
-		this(lowerBound, upperBound, new Random()){
+			this(lowerBound, upperBound, new Random()){
 
 		}
-		
+
 		public double Sample(){
 			double udraw = random.NextDouble();
-			return udraw*(upperBound-lowerBound) + lowerBound;
+			return udraw * (upperBound - lowerBound) + lowerBound;
 
 		}
 
@@ -536,29 +579,29 @@ namespace KernelEP.Tool{
 		}
 	}
 	//	// interface for a bunch of incoming messages
-//	// 2 incoming messages
-//	public abstract class InMsgs<A, B> : IIncomingMessages
-//	where A : KEPDist
-//	where B : KEPDist{
-//
-//		public abstract A GetMsg0();
-//
-//		public abstract B GetMsg1();
-//		// preserve the order of incoming messages.
-//		// If the factor is of the form p(x1 | x2, x3, ..), the order is always
-//		// x1, x2, x3, ....
-//		public abstract KEPDist[] AsArray();
-//	}
-//
-//	// 3 incoming messages
-//	public abstract class InMsgs<A, B, C> : IIncomingMessages{
-//
-//	}
-//	public interface IIncomingMessages{
-//		// number of incoming messages 
-////		int IncomingCount();
-//
-//	}
+	//	// 2 incoming messages
+	//	public abstract class InMsgs<A, B> : IIncomingMessages
+	//	where A : KEPDist
+	//	where B : KEPDist{
+	//
+	//		public abstract A GetMsg0();
+	//
+	//		public abstract B GetMsg1();
+	//		// preserve the order of incoming messages.
+	//		// If the factor is of the form p(x1 | x2, x3, ..), the order is always
+	//		// x1, x2, x3, ....
+	//		public abstract KEPDist[] AsArray();
+	//	}
+	//
+	//	// 3 incoming messages
+	//	public abstract class InMsgs<A, B, C> : IIncomingMessages{
+	//
+	//	}
+	//	public interface IIncomingMessages{
+	//		// number of incoming messages
+	////		int IncomingCount();
+	//
+	//	}
 
 }
 

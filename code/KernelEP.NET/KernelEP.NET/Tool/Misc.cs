@@ -30,6 +30,15 @@ namespace KernelEP{
 			}
 			return big;
 		}
+		//---------
+		public static void TestBlkDiag(){
+			Matrix m1 = Matrix.Parse("1 2\n 3 4");
+			Matrix m2 = Matrix.Parse("5 6 7\n 8 9 10 ");
+			Matrix m3 = Matrix.Parse("11\n12");
+			Matrix m4 = Matrix.Parse("13 14");
+			Matrix big = MatrixUtils.BlkDiag(m1, m2, m3, m4);
+			Console.WriteLine(big);
+		}
 
 		public static Vector ConcatAll(params Vector[] vecs){
 			// Stack all vectors together
@@ -40,15 +49,26 @@ namespace KernelEP{
 			return big;
 		}
 
-		//---------
-		public static void TestBlkDiag(){
-			Matrix m1 = Matrix.Parse("1 2\n 3 4");
-			Matrix m2 = Matrix.Parse("5 6 7\n 8 9 10 ");
-			Matrix m3 = Matrix.Parse("11\n12");
-			Matrix m4 = Matrix.Parse("13 14");
-			Matrix big = MatrixUtils.BlkDiag(m1, m2, m3, m4);
-			Console.WriteLine(big);
+		public static bool Or(bool[] vs){
+			// boolean or 
+			foreach(bool v in vs){
+				if(v){
+					return true;
+				}
+			}
+			return false;
 		}
+
+		public static bool And(bool[] vs){
+			// boolean or 
+			foreach(bool v in vs){
+				if(!v){
+					return false;
+				}
+			}
+			return true;
+		}
+
 	}
 	// interface marking that the class's objects have a summary
 	public interface IHasShortSummary{
