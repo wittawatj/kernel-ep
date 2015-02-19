@@ -11,7 +11,6 @@ function [ s ] = funcs_logistic_msgs(  )
     s.genBinLogBWBundle = @genBinLogBWBundle;
     s.genSigmoidFactorOperator = @genSigmoidFactorOperator;
     s.getSigmoidFactorOperator = @getSigmoidFactorOperator;
-    s.gen2DUncertaintyCheckData = @gen2DUncertaintyCheckData;
     s.gen2DSimpleRegression = @gen2DSimpleRegression;
 end
 
@@ -224,53 +223,4 @@ function [X, Y ] = gen2DSimpleRegression(st, subsample)
     Y = Y(I_sub);
 
 end
-
-
-function [X, Y, Xuns, Yuns] = gen2DUncertaintyCheckData(st, subsample)
-    % generate a 2-dimensional simple regression dataset from the struct loaded 
-    % from a file containing all messages collected from running EP in Infer.NET 
-    % Expected st :
-    %
-    %st = 
-    %        outNormalMeans: [40000x1 double]
-    %    outNormalVariances: [40000x1 double]
-    %         inNormalMeans: [40000x1 double]
-    %     inNormalVariances: [40000x1 double]
-    %               inBetaA: [40000x1 double]
-    %               inBetaB: [40000x1 double]
-    %
-    % - Inputs are (inNormalMeans, log(inNormalVariances)) corresponding to 
-    % Beta(1, 2) incoming messages.
-    % - Output = outNormalMeans.
-    % - Divide data into training and unseen set where the unseen set is from 
-    % an unexplored region. Training would not help in predicting these.
-    %
-
-    assert(subsample > 0);
-    Ibeta = abs(st.inBetaA-1) <=1e-8 & abs(st.inBetaB-2) <= 1e-8;
-    I = Ibeta & st.inNormalMeans <= -1.0;
-    Iunseen = Ibeta & st.inNormalMeans >= 1.0;
-    
-    n = sum(I);
-    nunseen = sum(Iunseen);
-    X = zeros(n, 2);
-    X(:, 1) = st.inNormalMeans(I);
-    X(:, 2) = log(st.inNormalVariances(I));
-    Y = st.outNormalMeans(I);
-
-    Xuns = zeros(nunseen, 2);
-    Xuns(:, 1) = st.inNormalMeans(Iunseen);
-    Xuns(:, 2) = log(st.inNormalVariances(Iunseen));
-    Yuns = st.outNormalMeans(Iunseen);
-
-    I_sub = randperm(n, min(n, subsample));
-    Iuns_sub = randperm(nunseen, min(nunseen, subsample));
-    X = X(I_sub, :);
-    Y = Y(I_sub);
-
-    Xuns = Xuns(Iuns_sub, :);
-    Yuns = Yuns(Iuns_sub);
-
-end
-
 
