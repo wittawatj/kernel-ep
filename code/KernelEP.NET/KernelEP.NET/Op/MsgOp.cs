@@ -48,29 +48,55 @@ namespace KernelEP.Op{
 	// each target variable to send to. One object of this class wraps all
 	// DistMapper's.
 	// A, B are types of the distributions.
-	public class OpParams<A, B> : OpParamsBase 
-	where A : IKEPDist where B : IKEPDist{
-		protected DistMapper<A, A, B> DistMapper0;
-		protected DistMapper<B, A, B> DistMapper1;
+//	public class OpParams<A, B> : OpParamsBase 
+//	where A : IKEPDist where B : IKEPDist{
+//		protected DistMapper<A, A, B> DistMapper0;
+//		protected DistMapper<B, A, B> DistMapper1;
+//
+//		public OpParams(DistMapper<A, A, B> dm0, DistMapper<B, A, B> dm1){
+//			this.DistMapper0 = dm0;
+//			this.DistMapper1 = dm1;
+//
+//		}
+//
+//		public DistMapper<A, A, B> GetDistMapper0(){
+//			return this.DistMapper0;
+//		}
+//
+//		public DistMapper<B, A, B> GetDistMapper1(){
+//			return this.DistMapper1;
+//		}
+//	}
 
-		public OpParams(DistMapper<A, A, B> dm0, DistMapper<B, A, B> dm1){
+
+	// Internal components (e.g., DistMapper to each variable) of a message
+	// passing operator (e.g., XXXOp). This is useful in setting DistMapper for
+	// each target variable to send to. One object of this class wraps all
+	// DistMapper's.
+	// A, B are types of the distributions.
+	public class OpParams<A, B> : OpParamsBase 
+		where A : IKEPDist where B : IKEPDist{
+		protected DistMapper<A> DistMapper0;
+		protected DistMapper<B> DistMapper1;
+
+		public OpParams(DistMapper<A> dm0, DistMapper<B> dm1){
 			this.DistMapper0 = dm0;
 			this.DistMapper1 = dm1;
 
 		}
 
-		public DistMapper<A, A, B> GetDistMapper0(){
+		public DistMapper<A> GetDistMapper0(){
 			return this.DistMapper0;
 		}
 
-		public DistMapper<B, A, B> GetDistMapper1(){
+		public DistMapper<B> GetDistMapper1(){
 			return this.DistMapper1;
 		}
 	}
 
 	public class LogisticOpParams : OpParams<DBeta, DNormal>{
-		public LogisticOpParams(DistMapper<DBeta, DBeta, DNormal> dm0, 
-		                        DistMapper<DNormal, DBeta, DNormal> dm1)
+		public LogisticOpParams(DistMapper<DBeta> dm0, 
+		                        DistMapper<DNormal> dm1)
 			: base(dm0, dm1){
 			 
 		}
@@ -93,13 +119,13 @@ namespace KernelEP.Op{
 
 			// first one is for z (Beta) in p(z|x)
 			MatlabStruct rawBetaMapper = new MatlabStruct((Dictionary<string, object>)mapperCell[0, 0]);
-			DistMapper<DBeta, DBeta, DNormal> betaMapper = 
-				GenericMapper<DBeta, DBeta, DNormal>.FromMatlabStruct(rawBetaMapper);
+			DistMapper<DBeta> betaMapper = 
+				GenericMapper<DBeta>.FromMatlabStruct(rawBetaMapper);
 
 			// for x (Normal) in p(z|x)
 			MatlabStruct rawNormalMapper = new MatlabStruct((Dictionary<string, object>)mapperCell[0, 1]);
-			DistMapper<DNormal, DBeta, DNormal> normalMapper = 
-				GenericMapper<DNormal, DBeta, DNormal>.FromMatlabStruct(rawNormalMapper);
+			DistMapper<DNormal> normalMapper = 
+				GenericMapper<DNormal>.FromMatlabStruct(rawNormalMapper);
 
 			return new LogisticOpParams(betaMapper,normalMapper);
 		}
@@ -342,12 +368,12 @@ namespace KernelEP.Op{
 
 		}
 
-		private static DistMapper<DBeta, DBeta, DNormal> ToLogisticMapper(){
+		private static DistMapper<DBeta> ToLogisticMapper(){
 			OpParams<DBeta, DNormal> p = GetOpParams();
 			return p.GetDistMapper0();
 		}
 
-		private static DistMapper<DNormal, DBeta, DNormal> ToXMapper(){
+		private static DistMapper<DNormal> ToXMapper(){
 			OpParams<DBeta, DNormal> p = GetOpParams();
 			return p.GetDistMapper1();
 		}
@@ -366,7 +392,7 @@ namespace KernelEP.Op{
 
 			Console.WriteLine("{0}.XAverageConditional. From: beta: {1} , gaussian: {2}"
 				,typeof(KEPLogisticOp) ,logistic, x );
-			DistMapper<DNormal, DBeta, DNormal> dm = ToXMapper();
+			DistMapper<DNormal> dm = ToXMapper();
 			DBeta l = DBeta.FromBeta(logistic);
 //			if( Math.Abs(logistic.GetMean() - 1.0/3) < 1e-6){
 //				// assume point mass at 0
@@ -437,7 +463,7 @@ namespace KernelEP.Op{
 			DBeta fromL = DBeta.FromBeta(logistic);
 			Console.WriteLine("{0}.LogisticAverageConditional. beta: {1} , gaussian: {2}"
 				,typeof(KEPLogisticOp), logistic, x);
-			DistMapper<DBeta, DBeta, DNormal> dm = ToLogisticMapper();
+			DistMapper<DBeta> dm = ToLogisticMapper();
 
 			DNormal fromX = DNormal.FromGaussian(x);
 			DBeta toLProjected = dm.MapToDist(fromL, fromX);

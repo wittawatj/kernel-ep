@@ -165,10 +165,10 @@ namespace KernelEP.Tool{
 			return rfgMap.NumFeatures();
 		}
 
-		public override int NumInputMessages(){
-			Debug.Assert(mwidth2s.Count == vwidth2s.Count);
-			return mwidth2s.Count;
-		}
+//		public override int NumInputMessages(){
+//			Debug.Assert(mwidth2s.Count == vwidth2s.Count);
+//			return mwidth2s.Count;
+//		}
 
 		private Vector ToMVStack(IKEPDist[] msgs){
 			// stack all means and variances. Divide each by its corresponding 
@@ -267,9 +267,6 @@ namespace KernelEP.Tool{
 			return numFeatures;
 		}
 
-		public override int NumInputMessages(){
-			return 1;
-		}
 
 		public new static RFGEProdMap FromMatlabStruct(MatlabStruct s){
 			//			s.className=class(this);
@@ -357,10 +354,6 @@ namespace KernelEP.Tool{
 
 		public override int GetOutputDimension(){
 			return numFeatures;
-		}
-
-		public override int NumInputMessages(){
-			return -1;
 		}
 
 
