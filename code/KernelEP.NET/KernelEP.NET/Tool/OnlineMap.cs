@@ -11,7 +11,7 @@ using MicrosoftResearch.Infer.Factors;
 using MicrosoftResearch.Infer.Utils;
 
 // This file contains classes related to online-active message operators
-namespace KernelEP.Op{
+namespace KernelEP.Tool{
 
 	// T is the distribution target to map to
 	public abstract class OnlineVectorMapper : UAwareVectorMapper{

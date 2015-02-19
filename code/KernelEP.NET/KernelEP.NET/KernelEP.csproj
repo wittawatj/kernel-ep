@@ -63,7 +63,8 @@
     <Compile Include="Tool\Kernel.cs" />
     <Compile Include="Tool\Data.cs" />
     <Compile Include="Tool\RandFeature.cs" />
-    <Compile Include="Op\OnlineOp.cs" />
+    <Compile Include="Tool\OnlineMap.cs" />
+    <Compile Include="Op\LogisticOp.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
