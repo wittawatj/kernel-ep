@@ -86,12 +86,14 @@ namespace KernelEP.TestIdea{
 			InferenceEngine ie = new InferenceEngine();
 			ie.Compiler.GivePriorityTo(logisticOperator);
 			ie.Compiler.GenerateInMemory = true;
+			ie.Compiler.IncludeDebugInformation = true;
 			//			ie.Algorithm = new VariationalMessagePassing();
 			ie.Algorithm = new ExpectationPropagation();
 			//			ie.ModelName = "KEPBinaryLogistic";
 			ie.NumberOfIterations = epIteration;
 			//			ie.ShowFactorGraph = true;
 			ie.ShowWarnings = true;
+
 //			ie.Compiler.UseParallelForLoops = true;
 			wPost = ie.Infer<VectorGaussian>(w);
 		}
@@ -226,13 +228,13 @@ namespace KernelEP.TestIdea{
 			string factorOpPath = Config.PathToFactorOperator(
 				//				"serialFactorOp_fm_kgg_joint_irf500_orf1000_n400_iter5_sf1_st20_ntr5000.mat"
 				"serialFactorOp_fm_kgg_joint_irf500_orf1000_proj_n400_iter5_sf1_st20_ntr5000.mat"
-			);
+			                      );
 			LogisticOpParams factorOp = LoadLogisticFactorOperator(factorOpPath);
 			OpControl.Add(typeof(KEPLogisticOp), factorOp);
 			LogisticOp2.IsCollectXMessages = false;
 			LogisticOp2.IsCollectLogisticMessages = false;
-			//			Type logisticOp = typeof(KEPLogisticOp);
-			Type logisticOp = typeof(LogisticOp2);
+			Type logisticOp = typeof(KEPLogisticOp);
+//			Type logisticOp = typeof(LogisticOp2);
 
 			InferCoefficientsNoBias(X, Y, out wPost, epIter, logisticOp);
 

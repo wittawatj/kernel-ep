@@ -27,8 +27,8 @@ namespace KernelEP{
 //			TestMath();
 
 //			LogisticRegression.TestLogisticRegression();
-//			LogisticRegression.TestLogisticRegressionNoBias();
-			CollectLogisticMsgs.CollectMessages();
+			LogisticRegression.TestLogisticRegressionNoBias();
+//			CollectLogisticMsgs.CollectMessages();
 //			InferenceEngine.ShowFactorManager(true);
 
 			

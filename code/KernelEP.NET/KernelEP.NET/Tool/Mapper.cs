@@ -9,6 +9,7 @@ using MicrosoftResearch.Infer.Distributions;
 using MicrosoftResearch.Infer.Maths;
 using MicrosoftResearch.Infer.Factors;
 using MicrosoftResearch.Infer.Utils;
+using KernelEP.Op;
 
 namespace KernelEP.Tool{
 	//A finite-dimensional features generator for Euclidean (vector) inputs.
@@ -44,9 +45,9 @@ namespace KernelEP.Tool{
 				map = new VectorMapper2Adapter<T1, T2>(fm);
 			} else if(className.Equals(UAwareVectorMapper<T1, T2>.MATLAB_CLASS)){
 				map = UAwareVectorMapper<T1, T2>.FromMatlabStruct(s);
-			}else if(className.Equals(UAwareStackVectorMapper<T1, T2>.MATLAB_CLASS)){
+			} else if(className.Equals(UAwareStackVectorMapper<T1, T2>.MATLAB_CLASS)){
 				map = UAwareStackVectorMapper<T1, T2>.FromMatlabStruct(s);
-			}else{
+			} else{
 				throw new ArgumentException("Unknown className: " + className);
 			}
 			//			else if(className.Equals("RFGSumEProdMap")){
@@ -119,7 +120,7 @@ namespace KernelEP.Tool{
 		public abstract void MapAndEstimateU(out Vector mapped, 
 		                                     out double[] uncertainty, params IKEPDist[] dists);
 
-		public static UAwareVectorMapper FromMatlabStruct(MatlabStruct s){
+		public new static UAwareVectorMapper FromMatlabStruct(MatlabStruct s){
 			string className = s.GetString("className");
 			UAwareVectorMapper map = null;
 			if(className.Equals(MATLAB_CLASS)){
@@ -133,21 +134,28 @@ namespace KernelEP.Tool{
 		}
 	}
 
+
 	// same class name in Matlab
-	public class BayesLinRegFM : UAwareVectorMapper{
-		public const string MATLAB_CLASS = "BayesLinRegFM";
+	public class BayesLinRegFM : OnlineVectorMapper{
+		public new const string MATLAB_CLASS = "BayesLinRegFM";
 
 		private VectorMapper featureMap;
 		//		% matrix needed in mapInstances(). dz x numFeatures
 		//		% where dz = dimension of output sufficient statistic.
-		private Matrix mapMatrix;
+		private Vector posteriorMean;
 
 		//		% posterior covariance matrix. Used for computing predictive variance.
 		//		% DxD where D = number of features
 		private Matrix posteriorCov;
 
 		//		% output noise variance (regularization parameter)
-		private double noise_var;
+		private double noiseVar;
+
+		// uncertainty threshold for log(predictive variance)
+		private double uThreshold;
+
+		// Cross correlation vector. XY'.
+		private Vector crossCorr;
 
 		private BayesLinRegFM(){
 		}
@@ -155,18 +163,19 @@ namespace KernelEP.Tool{
 		public override void MapAndEstimateU(out Vector mapped, out double[] uncertainty, 
 		                                     params IKEPDist[] msgs){
 			Vector feature = featureMap.MapToVector(msgs);
-			mapped = mapMatrix * feature;
-			double predVar = posteriorCov.QuadraticForm(feature) + noise_var;
+			mapped = posteriorMean * feature;
+			double predVar = posteriorCov.QuadraticForm(feature) + noiseVar;
 			uncertainty = new[]{ predVar };
 		}
 
 		public override Vector MapToVector(params IKEPDist[] msgs){
 			Vector feature = featureMap.MapToVector(msgs);
-			return mapMatrix * feature;
+			double predict = posteriorMean.Inner(feature);
+			return Vector.FromArray(new []{predict});
 		}
 
 		public override int GetOutputDimension(){
-			return mapMatrix.Rows;
+			return 1;
 		}
 
 		public override int NumInputMessages(){
@@ -174,10 +183,51 @@ namespace KernelEP.Tool{
 		}
 
 		public override double[] EstimateUncertainty(params IKEPDist[] dists){
+			// return log predictive variance
 			Vector feature = featureMap.MapToVector(dists);
-			double predVar = posteriorCov.QuadraticForm(feature) + noise_var;
-			return new double[]{ predVar };
+			double predVar = posteriorCov.QuadraticForm(feature) + noiseVar;
+			return new []{ Math.Log(predVar) };
 		}
+
+		public override bool IsUncertain(params IKEPDist[] msgs){
+			double logPredVar = EstimateUncertainty(msgs)[0];
+			return logPredVar >= uThreshold;
+		}
+
+		public override void UpdateVectorMapper(Vector target, params IKEPDist[] msgs){
+			if(target.Count() != 1){
+				throw new ArgumentException("expect the target to be one-dimensional");
+			}
+			// update XY'
+			Vector x = featureMap.MapToVector(msgs);
+			double y = target[0];
+			crossCorr = crossCorr + x * y;
+
+			// update posterior covariance with the matrix inversion lemma
+			double noise_prec = 1 / noiseVar;
+			Vector covx = posteriorCov * x;
+			double denom = (1.0 + x.Inner(covx) * noise_prec);
+			posteriorCov = posteriorCov - covx.Outer(covx) * (noise_prec / denom);
+
+			// posterior mean 
+			posteriorMean = posteriorCov * (crossCorr * noise_prec);
+		}
+
+		public override double[] GetUncertaintyThreshold(){
+			return new[]{ uThreshold };
+		}
+
+		public override void SetUncertaintyThreshold(params double[] thresh){
+			if(thresh.Length != 1){
+				throw new ArgumentException("Except one threshold");
+			}
+			this.uThreshold = thresh[0];
+		}
+
+		public override bool IsThresholdBased(){
+			return true;
+		}
+
 
 		public static new BayesLinRegFM FromMatlabStruct(MatlabStruct s){
 //			s.className=class(this);
@@ -193,8 +243,9 @@ namespace KernelEP.Tool{
 			}
 			MatlabStruct fmStruct = s.GetStruct("featureMap");
 			VectorMapper featureMap = VectorMapper.FromMatlabStruct(fmStruct);
-			Matrix mapMatrix = s.GetMatrix("mapMatrix");
-			if(mapMatrix.Cols != featureMap.GetOutputDimension()){
+			// This is the same as a posterior mean
+			Vector mapMatrix = s.Get1DVector("mapMatrix");
+			if(mapMatrix.Count() != featureMap.GetOutputDimension()){
 				throw new ArgumentException("mapMatrix and featureMap's dimenions are incompatible.");
 			}
 			Matrix postCov = s.GetMatrix("posteriorCov");
@@ -202,12 +253,13 @@ namespace KernelEP.Tool{
 				throw new ArgumentException("posterior covariance and featureMap's dimenions are incompatible.");
 			}
 			double noise_var = s.GetDouble("noise_var");
-
+			Vector crossCorr = s.Get1DVector("crossCorrelation");
 			var bayes = new BayesLinRegFM();
 			bayes.featureMap = featureMap;
-			bayes.mapMatrix = mapMatrix;
+			bayes.posteriorMean = mapMatrix;
 			bayes.posteriorCov = postCov;
-			bayes.noise_var = noise_var;
+			bayes.noiseVar = noise_var;
+			bayes.crossCorr = crossCorr;
 			return bayes;
 		}
 	}
@@ -319,8 +371,9 @@ namespace KernelEP.Tool{
 		public UAwareStackVectorMapper2Adapter(UAwareStackVectorMapper stackMapper){
 			this.stackMapper = stackMapper;
 		}
+
 		public override Vector MapToVector(T1 msg1, T2 msg2){
-			return stackMapper.MapToVector(new IKEPDist[]{msg1, msg2});
+			return stackMapper.MapToVector(new IKEPDist[]{ msg1, msg2 });
 		}
 
 		public override int GetOutputDimension(){
@@ -328,11 +381,11 @@ namespace KernelEP.Tool{
 		}
 
 		public override double[] EstimateUncertainty(T1 d1, T2 d2){
-			return stackMapper.EstimateUncertainty(new IKEPDist[]{d1, d2});
+			return stackMapper.EstimateUncertainty(new IKEPDist[]{ d1, d2 });
 		}
 
 		public override void MapAndEstimateU(out Vector mapped, 
-			out double[] uncertainty, T1 d1, T2 d2){
+		                                     out double[] uncertainty, T1 d1, T2 d2){
 			stackMapper.MapAndEstimateU(out mapped, out uncertainty, d1, d2);
 		}
 
@@ -400,7 +453,7 @@ namespace KernelEP.Tool{
 
 			object[,] mappersCell = s.GetCells("instancesMappers");
 			var mappers = new UAwareVectorMapper[mappersCell.GetLength(1)];
-			for(int i=0; i<mappers.Length; i++){
+			for(int i = 0; i < mappers.Length; i++){
 				var mapStruct = new MatlabStruct((Dictionary<string, object>)mappersCell[0, i]);
 				VectorMapper m1 = VectorMapper.FromMatlabStruct(mapStruct);
 				mappers[i] = (UAwareVectorMapper)m1;
@@ -615,17 +668,50 @@ namespace KernelEP.Tool{
 		}
 	}
 
-	// Conceptually the same as UAwareDistMapper in Matlab
-	// An uncertainty-aware distribution mapper.
-	public interface  IUAwareDistMapper<T, A, B>
-		where T : IKEPDist
-		where A : IKEPDist
-		where B : IKEPDist{
-
-		// Estimate uncertainty on the incoming messages d1 and d2.
-		double[] EstimateUncertainty(A d1, B d2);
+	public abstract class DistMapper<T>
+		where T:IKEPDist{
+		// Map incoming messages to an output message
+		public abstract T MapToDist(params IKEPDist[] msgs);
 
 	}
+
+	public class GenericMapper<T> : DistMapper<T> 
+		where T:IKEPDist{
+		// suffMapper maps from messages into sufficient statistic output vector.
+		protected VectorMapper suffMapper;
+		protected DistBuilder<T> distBuilder;
+		public const string MATLAB_CLASS = "GenericMapper";
+
+		public GenericMapper(VectorMapper suffMapper, DistBuilder<T> distBuilder){
+			this.suffMapper = suffMapper;
+			this.distBuilder = distBuilder;
+		}
+
+		public override T MapToDist(params IKEPDist[] msgs){
+			Vector mapped = suffMapper.MapToVector(msgs);
+			// mapped vector and distBuilder must be compatible.
+			T outDist = distBuilder.FromStat(mapped);
+			return outDist;
+		}
+
+		public static GenericMapper<T> FromMatlabStruct(MatlabStruct s){
+			string className = s.GetString("className");
+			if(!(className.Equals(MATLAB_CLASS)
+			   || className.Equals(MATLAB_CLASS))){
+				throw new ArgumentException("The input does not represent a " +
+				typeof(GenericMapper<T>));
+			}
+			// nv = number of variables.
+//			int inVars = s.GetInt("nv");
+			MatlabStruct rawOperator = s.GetStruct("operator");
+			VectorMapper instancesMapper = VectorMapper.FromMatlabStruct(rawOperator);
+			MatlabStruct rawBuilder = s.GetStruct("distBuilder");
+			DistBuilder<T> distBuilder = DistBuilderBase.FromMatlabStruct(rawBuilder)
+				as DistBuilder<T>;
+			return new GenericMapper<T>(instancesMapper,distBuilder);
+		}
+	}
+
 
 	// DistMapper based on sufficient statistic vector.
 	// T is the type of the target distribution
@@ -636,7 +722,7 @@ namespace KernelEP.Tool{
 		// suffMapper maps from messages into sufficient statistic output vector.
 		protected VectorMapper<A, B> suffMapper;
 		protected DistBuilder<T> distBuilder;
-		public const string MATLAB_CLASS = "GenericMapper";
+		public const string MATLAB_CLASS = GenericMapper<T>.MATLAB_CLASS;
 
 		public GenericMapper(VectorMapper<A, B> suffMapper, 
 		                     DistBuilder<T> distBuilder){
@@ -671,10 +757,59 @@ namespace KernelEP.Tool{
 			return new GenericMapper<T, A, B>(instancesMapper,distBuilder);
 		}
 	}
+		
+	// Conceptually the same as UAwareDistMapper in Matlab
+	// An uncertainty-aware distribution mapper.
+	public abstract class UAwareDistMapper<T, A, B> :  GenericMapper<T, A, B>
+		where T : IKEPDist
+		where A : IKEPDist
+		where B : IKEPDist{
+
+		protected UAwareDistMapper(VectorMapper<A, B> suffMapper, 
+		                           DistBuilder<T> distBuilder) : base(suffMapper, distBuilder){
+		}
+		
+		// Estimate uncertainty on the incoming messages d1 and d2.
+		public abstract double[] EstimateUncertainty(A d1, B d2);
+	}
+
+	// version with variable number of arguments
+	public abstract class UAwareDistMapper<T> :  GenericMapper<T>
+		where T : IKEPDist{
+
+		protected UAwareDistMapper(UAwareVectorMapper suffMapper, 
+		                           DistBuilder<T> distBuilder) : base(suffMapper, distBuilder){
+		}
+
+		// Estimate uncertainty on the incoming messages d1 and d2.
+		public abstract double[] EstimateUncertainty(params IKEPDist[] msgs);
+	}
+
+	public class UAwareGenericMapper<T>: UAwareDistMapper<T>
+		where T: IKEPDist{
+
+		public new const string MATLAB_CLASS = "UAwareGenericMapper";
+
+		// suffMapper must implement IUAwareVectorMapper
+		public UAwareGenericMapper(UAwareVectorMapper  suffMapper, 
+		                           DistBuilder<T> distBuilder)
+			: base(suffMapper, distBuilder){
+
+		}
+
+		public override double[] EstimateUncertainty(params IKEPDist[] msgs){
+			//			double[] u = vm.EstimateUncertainty(new IKEPDist[]{d1, d2});
+			//			return u;
+			UAwareVectorMapper uvm = (UAwareVectorMapper)suffMapper;
+			double[] u = uvm.EstimateUncertainty(msgs);
+			return u;
+		}
+
+	}
 
 	// Class with the same name in Matlab.
 	// A concrete implementation of an uncertainty-aware distribution mapper.
-	public class UAwareGenericMapper<T, A, B>: GenericMapper<T, A, B>, IUAwareDistMapper<T, A, B>
+	public class UAwareGenericMapper<T, A, B>: UAwareDistMapper<T, A, B>
 		where T: IKEPDist where A : IKEPDist where B : IKEPDist{
 
 		public new const string MATLAB_CLASS = "UAwareGenericMapper";
@@ -685,11 +820,11 @@ namespace KernelEP.Tool{
 
 		}
 
-		public double[] EstimateUncertainty(A d1, B d2){
+		public override double[] EstimateUncertainty(A d1, B d2){
 //			double[] u = vm.EstimateUncertainty(new IKEPDist[]{d1, d2});
 //			return u;
 			UAwareVectorMapper<A, B> uvm = (UAwareVectorMapper<A, B>)suffMapper;
-			double[] u =uvm.EstimateUncertainty(d1, d2);
+			double[] u = uvm.EstimateUncertainty(d1, d2);
 			return u;
 		}
 

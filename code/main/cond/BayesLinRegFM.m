@@ -19,6 +19,11 @@ classdef BayesLinRegFM < UAwareInstancesMapper & PrimitiveSerializable
 
         % output noise variance (regularization parameter)
         noise_var;
+
+        % cross correlation between input and output.
+        % Useful for online learning update.
+        % = XY'.
+        crossCorrelation;
     end
 
     methods
@@ -38,18 +43,20 @@ classdef BayesLinRegFM < UAwareInstancesMapper & PrimitiveSerializable
                 'regularization param must be non-negative.');
 
             %this.Out = Out;
+            Y = Out;
             this.featureMap = fm;
             %this.regParam = noise_var;
 
-            P = fm.genFeatures(In); % D x n where D = numFeatures
-            D = size(P, 1);
-            postPrec = P*P' + noise_var*eye(D);
+            X = fm.genFeatures(In); % D x n where D = numFeatures
+            D = size(X, 1);
+            postPrec = X*X' + noise_var*eye(D);
             % This step can be extremely expensive. O(D^3). 
             % But need to be done only once.
             postCov = inv(postPrec);
 
             % We can use \. But since we will need to store inverse any way.
-            this.mapMatrix = ( postCov*(P*Out(:)) )';
+            this.crossCorrelation = X*Y(:);
+            this.mapMatrix = ( postCov*this.crossCorrelation )';
             this.posteriorCov = postCov;
             this.noise_var = noise_var;
         end
@@ -110,6 +117,7 @@ classdef BayesLinRegFM < UAwareInstancesMapper & PrimitiveSerializable
             s.featureMap=this.featureMap.toStruct();
             %s.regParam=this.regParam;
             s.mapMatrix=this.mapMatrix;
+            s.crossCorrelation = this.crossCorrelation;
             s.posteriorCov = this.posteriorCov; 
             s.noise_var = this.noise_var;
         end
