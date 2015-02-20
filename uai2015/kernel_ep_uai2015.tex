@@ -116,12 +116,15 @@ considers a neural network, the kernel-based message operator we propose
 can be easily extended to allow online updates of the operator during
 inference. 
 
-\hl{TODO:}
+\hl{TODO/TO add:}
 \begin{itemize}
 \item Mention that online learning improves Nicolas's batch training approach.
 \item To connect to Ali's work, can mention that online learning of random
 forests is difficult. Online learning is straightforward and exact
 for Bayesian linear regression. May ask Balaji more on relevant citations.
+\item It was argued in \cite{Hutter2009} (Section 11.2) that a random forest
+may have problems with exploring previously-unseen areas of the input
+domain.
 \end{itemize}
 \hrule{}
 
@@ -349,6 +352,14 @@ This kernel is equivalent to the expected product kernel on the joint
 distributions.
 
 
+\section{Proposed Method}
+
+\hl{TODO}
+\begin{itemize}
+\item Add forest cost computed by Ali. Compare it with online kernel ridge
+regression.
+\end{itemize}
+
 \section{Experiment\label{sec:Experiments}}
 
 \hl{Experiments to have}
@@ -364,6 +375,11 @@ Expect a U-shaped curve where the minimum is at 0. This ensures the
 operator will query the oracle when there are incoming messages from
 an unexplored region. Perhaps plot one curve for one setting of the
 incoming Beta message (fixed).
+\item For predictive variance on unseen region, we may need two plots where
+in one case the training samples are concentrated in one part of the
+space, and in the second case the training samples are concentrated
+in another part. This is to ensure that the uncertainty estimate does
+not depend on the absolute location.
 \item Use the operator for logistic in a binary logistic regression problem
 with a real dataset. Compare the inferred posterior of the coefficient
 vector to the posterior obtained by the handcrafted message operator,
@@ -381,7 +397,7 @@ is not good''. Cite them.
 \item Do we need kNN as a baseline regression function ?
 \item Choose the number of particles in the orable importance sampler so
 that it takes roughly the same time as our operator. Compute the predictive
-quality of the two. We can show that 
+quality of the two. 
 \end{itemize}
 \hrule{}
 
