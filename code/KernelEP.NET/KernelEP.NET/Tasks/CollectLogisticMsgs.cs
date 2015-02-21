@@ -35,7 +35,7 @@ namespace KernelEP{
 			const int n = 400;
 			const int epIter = 5;
 			// true => collect proj messages instead of outgoing messages
-			const bool collectProj = true;
+			const bool collectProj = false;
 			const string targetAnnotate = collectProj ? "_proj" : "";
 			LogisticOp2.IsCollectProjMsgs = collectProj;
 			LogisticOp2.IsCollectLogisticMessages = true;
@@ -59,7 +59,7 @@ namespace KernelEP{
 				LogisticRegression.GenData(n, w, b, out X, out Y);
 
 				Console.Write("Y: ");
-				PrintUtils.PrintArray(Y);
+				StringUtils.PrintArray(Y);
 
 				VectorGaussian wPost;
 				Gaussian biasPost;

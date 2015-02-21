@@ -6,9 +6,37 @@ using MicrosoftResearch.Infer.Maths;
 using MicrosoftResearch.Infer.Models;
 using MicrosoftResearch.Infer.Distributions;
 using MicrosoftResearch.Infer.Factors;
+using MNMatrix = MathNet.Numerics.LinearAlgebra.Matrix<double>;
+
 
 namespace KernelEP{
 	public static class MatrixUtils{
+
+
+		/**
+		 * Find an inverse of Infer.NET's matrix. 
+		 * Infer.NET does not implement Inverse() even though the method is 
+		 * there.
+		*/
+		public static Matrix Inverse(Matrix m){
+			// http://numerics.mathdotnet.com/Matrix.html
+			if(m.Rows != m.Cols){
+				throw new ArgumentException("input matrix must be square");
+			}
+			MNMatrix mnMat = ToMathNetMatrix(m);
+			MNMatrix mnInv = mnMat.Inverse();
+			double[,] invArr = mnInv.ToArray();
+			return new Matrix(invArr);
+		}
+
+		/**Convert from Infer.NET's Matrix to MathNet's Matrix*/
+		public static MNMatrix ToMathNetMatrix(Matrix m){
+			double[,] arr = m.ToArray();
+			// convert to MathNet's matrix
+			var MBuild = MNMatrix.Build;
+			MNMatrix mnMat = MBuild.DenseOfArray(arr);
+			return mnMat;
+		}
 
 		public static bool IsAllPositive(double[] nums){
 			// True of if all elements are > 0
@@ -21,7 +49,7 @@ namespace KernelEP{
 			int n = mats.Length;
 			int totalRows = mats.Sum(m => m.Rows);
 			int totalCols = mats.Sum(m => m.Cols);
-			Matrix big = new Matrix(totalRows, totalCols);
+			Matrix big = new Matrix(totalRows,totalCols);
 			int firstRow = 0, firstCol = 0;
 			for(int i = 0; i < n; i++){
 				big.SetSubmatrix(firstRow, firstCol, mats[i]);
@@ -69,13 +97,161 @@ namespace KernelEP{
 			return true;
 		}
 
-	}
-	// interface marking that the class's objects have a summary
-	public interface IHasShortSummary{
-		string ShortSummary();
+		public static double[] Reciprocal(double[] vec){
+			var q = vec.Select(v => 1.0 / v);
+			return q.ToArray();
+		}
+
+		/**Like in Matlab*/
+		public static int[] Randperm(int n, int k, Random rng){
+			int[] ind = Enumerable.Range(0, n).ToArray();
+			Shuffle<int>(ind, rng);
+			return ind.Take(k).ToArray();
+		}
+
+		public static T[] RandomSubset<T>(T[] array, int k, Random rng){
+			// take a random subset of size k without replacement.
+			int n = array.Length;
+			int[] kInd = Randperm(n, k, rng);
+			T[] subset = Enumerable.Range(0, k).Select(i => array[kInd[i]]).ToArray();
+			return subset;
+		}
+
+		public static List<T> RandomSubset<T>(List<T> list, int k, Random rng){
+			// take a random subset of size k without replacement.
+			int n = list.Count;
+			int[] kInd = Randperm(n, k, rng);
+			List<T> subset = Enumerable.Range(0, k).Select(i => list[kInd[i]]).ToList();
+			return subset;
+		}
+
+		public static void Shuffle<T>(T[] array, Random rng){
+			//http://stackoverflow.com/questions/108819/best-way-to-randomize-a-string-array-with-net
+			int n = array.Length;
+			while(n > 1){
+				int k = rng.Next(n--);
+				T temp = array[n];
+				array[n] = array[k];
+				array[k] = temp;
+			}
+		}
+
+		/**
+		 * Sample from a Gaussian with diagonal covariance.
+		 * diag is the diagonal of the covariance matrix.
+		 * Return a d x n matrix where d is the dimension of the mean.
+		*/
+		public static Matrix SampleDiagonalVectorGaussian(
+			double[] mean, double[] diag, int n){
+
+			if(mean.Length != diag.Length){
+				throw new ArgumentException("mean and diag must have the same length");
+			}
+			int d = mean.Length;
+			Matrix m = new Matrix(d,n);
+			for(int i = 0; i < d; i++){
+				double meani = mean[i];
+				double stdi = Math.Sqrt(diag[i]);
+				for(int j = 0; j < n; j++){
+					m[i, j] = Rand.Normal(meani, stdi); 
+				}
+			}
+			return m;
+		}
+
+		// Draw n samples from U[lower, upper)
+		public static double[] UniformVector(double lower, double upper, int n){
+			double[] vec = new double[n];
+			for(int i = 0; i < n; i++){
+				// in [0, 1)
+				double unit = Rand.Double();
+				vec[i] = unit * (upper - lower) + lower;
+			}
+			return vec;
+		}
+
+		public static double Median(double[] nums){
+			// O(nlog(n) ) cost. Can be O(n). Improve later if needed.
+			if(nums == null || nums.Length == 0){
+				throw new ArgumentException("Cannot compute a median on an empty array");
+			} else if(nums.Length == 1){
+				return nums[0];
+			}
+			int n = nums.Length;
+			Array.Sort(nums);
+			if(n % 2 == 0){
+				// even length 
+				double a = nums[n / 2 - 1];
+				double b = nums[n / 2];
+				return (a + b) / 2.0;
+			} else{
+				return nums[n / 2];
+			}
+
+		}
+
+		/**Return an mxn matrix whose elements follow the standard normal.*/
+		public static Matrix Randn(int m, int n){
+			var q = Enumerable.Range(0, m * n).Select(i => Rand.Normal());
+			Matrix mat = new Matrix(m,n);
+			mat.SetTo(q.ToArray());
+			return mat;
+		}
+
+		public static Matrix StackColumns(Vector[] cols){
+			// assume all vectors have the same length 
+			int d = cols[0].Count;
+			int n = cols.Length;
+			Vector stack = ConcatAll(cols);
+			Matrix tran = new Matrix(n,d,stack.ToArray());
+			return tran.Transpose();
+		}
+
+		public static void TestStackColumns(){
+			Vector v1 = Vector.FromArray(new double[]{ 1, 2, 3 });
+			Vector v2 = Vector.FromArray(new double[]{ 4, 5, 6 });
+			Vector[] cols = { v1, v2 };	
+			Console.WriteLine(StackColumns(cols));
+		}
+
+		public static double Product(double[] vec){
+			if(vec == null || vec.Length == 0){
+				throw new ArgumentException("vec must not be null or empty.");
+			}
+			double prod = 1;
+			foreach(double v in vec){
+				prod *= v;
+			}
+			return prod;
+		}
+
+		public static double Determinant(Matrix m){
+			if(m.Rows != m.Cols){
+				throw new ArgumentException("Matrix must be square");
+			}
+
+			// Infer.NET's Determinant() method of Matrix class has a bug.
+			// It always returns 0.
+			MNMatrix mnMat = ToMathNetMatrix(m);
+			double det = mnMat.Determinant();
+			return det;
+		}
+
 	}
 
-	public static class PrintUtils{
+	public static class StringUtils{
+		public static string ArrayToString<T>(T[] arr){
+			string s = "[";
+			for(int i=0; i<arr.Length; i++){
+				s += string.Format("{0}", arr[i]);
+				if(i < arr.Length-1){
+					s += ", ";
+				}
+			}
+			s += "]";
+			return s;
+		}
+
 		public static void PrintArray(double[] a){
 			Console.Write("[");
 			for(int i = 0; i < a.Length; i++){

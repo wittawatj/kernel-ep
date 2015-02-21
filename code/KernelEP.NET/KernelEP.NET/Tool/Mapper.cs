@@ -12,17 +12,6 @@ using MicrosoftResearch.Infer.Utils;
 using KernelEP.Op;
 
 namespace KernelEP.Tool{
-	//A finite-dimensional features generator for Euclidean (vector) inputs.
-	public abstract class FeatureMap{
-		public abstract Vector GenFeatures(Vector input);
-		
-		// return the number of features (numFeatures) to be generated.
-		public abstract int NumFeatures();
-
-		// return the input dimension expected.
-		public abstract int InputDim();
-	}
-
 
 	// Corresponds to FeatureMap in Matlab code.
 	// Consider VectorMapper<T1, ...>
@@ -76,7 +65,6 @@ namespace KernelEP.Tool{
 		}
 	}
 
-
 	// Correspond to UAwareInstancesMapper in Matlab
 	public abstract class UAwareVectorMapper : VectorMapper{
 		public const string MATLAB_CLASS = "UAwareInstancesMapper";
@@ -107,7 +95,7 @@ namespace KernelEP.Tool{
 	public class BayesLinRegFM : OnlineVectorMapper{
 		public new const string MATLAB_CLASS = "BayesLinRegFM";
 
-		protected VectorMapper featureMap;
+		protected RandomFeatureMap featureMap;
 		//		% matrix needed in mapInstances(). dz x numFeatures
 		//		% where dz = dimension of output sufficient statistic.
 		protected Vector posteriorMean;
@@ -122,10 +110,49 @@ namespace KernelEP.Tool{
 		// uncertainty threshold for log(predictive variance)
 		protected double uThreshold;
 
-		// Cross correlation vector. XY'.
+		/** Cross correlation vector. XY'. */
 		protected Vector crossCorr;
 
+		/** Collected batch inputs before a full online learning.*/
+		protected List<IKEPDist[]> batchInputs = new List<IKEPDist[]>();
+		/** Collected batch outputs befure a full online learning. */
+		protected List<double> batchOutputs = new List<double>();
+		/** The size of initial batch over which a full online learning starts. */
+		protected int onlineBatchSizeTrigger = 500;
+		/** If true, train in batch mode, next time the batch collection 
+		size hits the online learning trigger threshold. Will be set to false
+		after a retrain.*/
+		protected bool WillNeedInitialTrain = true;
+
+		/**
+		 * Initialize an empty Bayesian linear regressor suitable for online 
+		 * learning from scratch.
+		*/
+		public BayesLinRegFM(RandomFeatureMap featureMap){
+//			if(noiseVar < 0){
+//				throw new ArgumentException("Require noise variance >= 0");
+//			}
+//			this.noiseVar = noiseVar;
+//			if(uThreshold < 0){
+//				throw new ArgumentException("Require uncertainty threshold >= 0");
+//			}
+//			this.uThreshold = uThreshold;
+			int D = featureMap.GetOutputDimension();
+			this.featureMap = featureMap;
+//			this.noiseVar = noiseVar;
+//			this.uThreshold = uThreshold;
+			this.posteriorMean = Vector.Zero(D);
+			// assume that the prior for W is N(0, 1)
+			this.posteriorCov = Matrix.IdentityScaledBy(D, 1.0);
+			this.crossCorr = Vector.Zero(D);
+
+		}
+
 		protected BayesLinRegFM(){
+		}
+
+		protected int GetInitialBatchSize(){
+			return batchOutputs.Count;
 		}
 
 		public override void MapAndEstimateU(out Vector mapped, out double[] uncertainty, 
@@ -154,17 +181,38 @@ namespace KernelEP.Tool{
 		}
 
 		public override bool IsUncertain(params IKEPDist[] msgs){
+			if(msgs == null || msgs.Length ==0){
+				throw new ArgumentException("messages cannot be empty");
+			}
+			if(WillNeedInitialTrain){
+				// always uncertain before the initial batch training
+				return true;
+			}
 			double logPredVar = EstimateUncertainty(msgs)[0];
 			return logPredVar >= uThreshold;
 		}
 
 		public override void UpdateVectorMapper(Vector target, params IKEPDist[] msgs){
-			if(target.Count() != 1){
+			if(target.Count != 1){
 				throw new ArgumentException("expect the target to be one-dimensional");
 			}
+			double y = target[0];
+			if(GetInitialBatchSize() < this.onlineBatchSizeTrigger){
+				// just keep the data if the initial batch is still small 
+				this.batchInputs.Add(msgs);
+				this.batchOutputs.Add(y);
+				return;
+			}
+			if(this.WillNeedInitialTrain && GetInitialBatchSize() == this.onlineBatchSizeTrigger ){
+				// trigger initial batch learning.
+				// TODO: may do leave-one-out- cross validation here 
+				BatchLearn();
+				this.WillNeedInitialTrain = false;
+			}
+
+			// --- Online update ---
 			// update XY'
 			Vector x = featureMap.MapToVector(msgs);
-			double y = target[0];
 			crossCorr = crossCorr + x * y;
 
 			// update posterior covariance with the matrix inversion lemma
@@ -175,6 +223,55 @@ namespace KernelEP.Tool{
 
 			// posterior mean 
 			posteriorMean = posteriorCov * (crossCorr * noise_prec);
+
+			Debug.Assert(crossCorr != null);
+			Debug.Assert(!double.IsNaN(crossCorr[0]));
+			Debug.Assert(posteriorCov != null);
+			Debug.Assert(!double.IsNaN(posteriorCov[0, 0]));
+			Debug.Assert(posteriorMean != null);
+			Debug.Assert(!double.IsNaN(posteriorMean[0]));
+			Debug.Assert(noiseVar > 0);
+
+		}
+
+		private void BatchLearn(){
+			// Batch learning uses the collected messages. This will reset many 
+			// properties of the object.
+
+			// TODO: full cross validation later.
+			// For now, we will use median heuristic to set the parameter.
+
+			int[] inOutNumFeatures = {300, 500};
+//			int[] inOutNumFeatures = {50, 50};
+			double[] medianFactors = {1};
+			Random rng = new Random(1);
+			List<IKEPDist[]> inputs = this.batchInputs;
+			List<RandomFeatureMap> candidates = featureMap.GenCandidates(
+				inputs, inOutNumFeatures, medianFactors, rng);
+			// expect only one candidate 
+			RandomFeatureMap fm = candidates[0];
+			this.noiseVar = 1e-4;
+			// threshold on log predict variance
+
+			const double  priorVariance = 1.0;
+
+			this.featureMap = fm;
+			this.uThreshold = -6.0;
+			Vector[] features = inputs.Select(msgs => featureMap.MapToVector(msgs)).ToArray();
+			Matrix x = MatrixUtils.StackColumns(features);
+			Vector y = Vector.FromList(batchOutputs);
+
+			int d = x.Rows;
+			// Matrix x is d x n
+			Matrix xxt = x*x.Transpose();
+			crossCorr = x*y;
+
+			Matrix postPrec = xxt*(1.0/noiseVar) + Matrix.IdentityScaledBy(d, 1.0/priorVariance);
+			this.posteriorCov = MatrixUtils.Inverse(postPrec);
+			this.posteriorMean = this.posteriorCov*crossCorr*(1.0/noiseVar);
+		
+
+//			throw new NotImplementedException();
 		}
 
 		public override double[] GetUncertaintyThreshold(){
@@ -192,6 +289,18 @@ namespace KernelEP.Tool{
 			return true;
 		}
 
+		public static void BatchLinearRegression(
+			Matrix x, Vector y, double priorVariance, double noiseVariance, 
+			out Matrix postCov, out Vector postMean, out Vector crossCorr){
+
+			int d = x.Rows;
+			// Matrix x is d x n
+			Matrix xxt = x*x.Transpose();
+			crossCorr = x*y;
+			Matrix postPrec = xxt*(1.0/noiseVariance) + Matrix.IdentityScaledBy(d, 1.0/priorVariance);
+			postCov = MatrixUtils.Inverse(postPrec);
+			postMean = postCov*crossCorr*(1.0/noiseVariance);
+		}
 
 		public static new BayesLinRegFM FromMatlabStruct(MatlabStruct s){
 //			s.className=class(this);
@@ -206,10 +315,10 @@ namespace KernelEP.Tool{
 				throw new ArgumentException("The input does not represent a " + MATLAB_CLASS);
 			}
 			MatlabStruct fmStruct = s.GetStruct("featureMap");
-			VectorMapper featureMap = VectorMapper.FromMatlabStruct(fmStruct);
+			RandomFeatureMap featureMap = RandomFeatureMap.FromMatlabStruct(fmStruct);
 			// This is the same as a posterior mean
 			Vector mapMatrix = s.Get1DVector("mapMatrix");
-			if(mapMatrix.Count() != featureMap.GetOutputDimension()){
+			if(mapMatrix.Count != featureMap.GetOutputDimension()){
 				throw new ArgumentException("mapMatrix and featureMap's dimenions are incompatible.");
 			}
 			Matrix postCov = s.GetMatrix("posteriorCov");
@@ -224,6 +333,9 @@ namespace KernelEP.Tool{
 			bayes.posteriorCov = postCov;
 			bayes.noiseVar = noise_var;
 			bayes.crossCorr = crossCorr;
+			// No need to do the initial batch train because we loaded the result 
+			// from .mat.
+			bayes.WillNeedInitialTrain = false;
 			return bayes;
 		}
 	}
@@ -548,7 +660,7 @@ namespace KernelEP.Tool{
 	//			}
 	//			// assume a TensorInstances
 	////			var instancesDict = (Dictionary<string, object>)s.GetStruct("instances");
-	//			TensorInstances<T1, T2> instances = 
+	//			TensorInstances<T1, T2> instances =
 	//				TensorInstances<T1, T2>.FromMatlabStruct(s.GetStruct("instances"));
 	//			Kernel2<T1, T2> kfunc = Kernel2<T1, T2>.FromMatlabStruct(
 	//				                        s.GetStruct("kfunc"));

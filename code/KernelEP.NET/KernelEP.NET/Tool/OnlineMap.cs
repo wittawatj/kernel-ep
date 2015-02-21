@@ -42,7 +42,7 @@ namespace KernelEP.Tool{
 		private readonly BayesLinRegFM[] onlineBayes;
 		private readonly UAwareStackVectorMapper stackMapper;
 
-		public OnlineStackBayesLinReg(BayesLinRegFM[] onlineBayes){
+		public OnlineStackBayesLinReg(params BayesLinRegFM[] onlineBayes){
 			this.onlineBayes = onlineBayes;
 			stackMapper = new UAwareStackVectorMapper(onlineBayes);
 		}
@@ -67,16 +67,25 @@ namespace KernelEP.Tool{
 
 		public override bool IsUncertain(params IKEPDist[] msgs){
 			// Return true if at least one of the mappers is uncertain
-			var q = onlineBayes.Select(map => map.IsUncertain());
-			bool[] uncertains = q.ToArray();
-			return MatrixUtils.Or(uncertains);
+			foreach(BayesLinRegFM m in onlineBayes){
+				if(m.IsUncertain(msgs)){
+					return true;
+				}
+			}
+			return false;
 		}
 
 		public override void UpdateVectorMapper(Vector target, params IKEPDist[] msgs){
-			// update each internal mapper 
-			foreach(OnlineVectorMapper map in onlineBayes){
-				map.UpdateVectorMapper(target, msgs);
+			// update each internal mapper
+			if(target.Count != onlineBayes.Length){
+				throw new ArgumentException("Require target length == number of nested Bayes learners");
 			}
+			for(int i=0; i<onlineBayes.Length; i++){
+				Vector oneDTarget = Vector.FromArray( new double[]{target[i] } );
+				BayesLinRegFM map = onlineBayes[i];
+				map.UpdateVectorMapper(oneDTarget, msgs);
+			}
+
 		}
 
 		public override double[] GetUncertaintyThreshold(){
@@ -125,6 +134,7 @@ namespace KernelEP.Tool{
 		// Update the operator online with a new input msgs and output target
 		// The target is typically obtained from an oracle.
 		public abstract void UpdateOperator(T target, params IKEPDist[] msgs);
+
 	}
 
 	public class PrimalGPOnlineMapper<T> : OnlineDistMapper<T>
@@ -132,7 +142,7 @@ namespace KernelEP.Tool{
 
 		private readonly BayesLinRegFM bayesSuffMapper;
 
-		protected PrimalGPOnlineMapper(BayesLinRegFM bayesVecMap, 
+		public PrimalGPOnlineMapper(BayesLinRegFM bayesVecMap, 
 		                               DistBuilder<T> distBuilder)
 			: base(bayesVecMap, distBuilder){
 			this.bayesSuffMapper = bayesVecMap;
@@ -156,8 +166,8 @@ namespace KernelEP.Tool{
 		}
 
 		public override void UpdateOperator(T target, params IKEPDist[] msgs){
-			throw new NotImplementedException();
-//			bayesSuffMapper.UpdateVectorMapper( )
+			Vector suff = distBuilder.GetStat(target);
+			bayesSuffMapper.UpdateVectorMapper(suff, msgs);
 		}
 
 	}

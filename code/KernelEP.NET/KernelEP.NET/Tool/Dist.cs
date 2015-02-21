@@ -63,6 +63,8 @@ namespace KernelEP.Tool{
 	public interface IDistMulti : IKEPDist{
 		// Get the underlying wrapped Infer.NET distribution
 		IDistribution<Vector> GetWrappedDistribution();
+
+		int GetDimension();
 	}
 
 
@@ -397,6 +399,9 @@ namespace KernelEP.Tool{
 		public ISuff GetSuffStat(){
 			throw new NotImplementedException();
 		}
+		public int GetDimension(){
+			return mean.Count;
+		}
 
 	}
 
@@ -410,7 +415,9 @@ namespace KernelEP.Tool{
 			this.variance = variance;
 
 		}
-
+		public Gaussian GetDistribution(){
+			return new Gaussian(this.mean,this.variance);
+		}
 		public IDistribution<double> GetWrappedDistribution(){
 			//MicrosoftResearch.Infer.Distributions.Gaussian
 			return new Gaussian(this.mean,this.variance);
@@ -484,7 +491,7 @@ namespace KernelEP.Tool{
 			GetDistribution().GetMeanAndVariance(out this.mean, out this.variance);
 		}
 
-		private Beta GetDistribution(){
+		public Beta GetDistribution(){
 			return new Beta(this.alpha,this.beta);
 		}
 
