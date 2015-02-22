@@ -98,7 +98,9 @@ and output messages) which allows automated inference to be made on
 any kind of factor that can be sampled.\todo{AE: 1. State the problem. 2. Say why it's interesting. 3. Say what your solution achieves. 4. Say what follows from your solution. Message-passing is useful. Message-passing in general is slow. Our approach speeds it up. This allows us to use it on more complicated / larger problems.}
 \end{abstract}
 
-\section{Background }
+\section{Introduction}
+
+\section{Background}
 
 Existing approaches to automated probabilistic inference can be broadly
 divided into two categories \citep{Heess2013}: uninformed and informed
@@ -288,6 +290,8 @@ its potential use in an online setting (i.e., incremental learning
 during inference), and rich supporting theory. 
 
 
+\section{Proposed Method}
+
 \subsection{Kernel Ridge Regression}
 
 \todo{AE: Too many inline equations in this section. Pull out the most important ones?} We consider here the problem of regressing smoothly from distribution-valued
@@ -372,14 +376,13 @@ and $\mathcal{X}^{(l)}$ denotes the domain of $r^{(l)}$ and $s^{(l)}$.
 This kernel is equivalent to the expected product kernel on the joint
 distributions.
 
-
-\section{Proposed Method}
-
 \hl{TODO}
 \begin{itemize}
 \item Add forest cost computed by Ali. Compare it with online kernel ridge
 regression.
 \end{itemize}
+
+\section{Related Work}
 
 \section{Experiments\label{sec:Experiments}}
 

@@ -1,21 +1,21 @@
 # Fdb version 3
-["bibtex kernel_ep_uai2015"] 1424607191 "kernel_ep_uai2015.aux" "kernel_ep_uai2015.bbl" "kernel_ep_uai2015" 1424607195
+["bibtex kernel_ep_uai2015"] 1424613490 "kernel_ep_uai2015.aux" "kernel_ep_uai2015.bbl" "kernel_ep_uai2015" 1424613495
   "/usr/local/texlive/2014/texmf-dist/bibtex/bst/natbib/abbrvnat.bst" 1233624470 26532 66bed5cc59495faaa3f9ae9af9fa5e42 ""
-  "kernel_ep_uai2015.aux" 1424607194 13686 627e9da3cf1a97600e1b67134d27b76f ""
+  "kernel_ep_uai2015.aux" 1424613493 14516 d845f5c43a99168c9b47e78dc8776fd4 ""
   "kernel_ep_uai2015.bcf" 0 -1 0 ""
   "ref.bib" 1424604498 31423 6065ee6410b9de6387bce0a99f900e98 ""
   (generated)
   "kernel_ep_uai2015.blg"
   "kernel_ep_uai2015.bbl"
-["bibtex sup"] 1424604522 "sup.aux" "sup.bbl" "sup" 1424607195
+["bibtex sup"] 1424613485 "sup.aux" "sup.bbl" "sup" 1424613495
   "/usr/local/texlive/2014/texmf-dist/bibtex/bst/natbib/abbrvnat.bst" 1233624470 26532 66bed5cc59495faaa3f9ae9af9fa5e42 ""
   "refappendix.bib" 1424537740 28957 ac0d30194c0266c8b8ad3bbe4f46d3d0 ""
-  "sup.aux" 1424607194 532 ad7c600a2aa8362df001699c3d50701a ""
+  "sup.aux" 1424613493 622 1a4dc10147d010da66ff628aa490c044 ""
   "sup.bcf" 0 -1 0 ""
   (generated)
-  "sup.blg"
   "sup.bbl"
-["pdflatex"] 1424607192 "kernel_ep_uai2015.tex" "kernel_ep_uai2015.pdf" "kernel_ep_uai2015" 1424607195
+  "sup.blg"
+["pdflatex"] 1424613491 "kernel_ep_uai2015.tex" "kernel_ep_uai2015.pdf" "kernel_ep_uai2015" 1424613495
   "/usr/local/texlive/2014/texmf-dist/tex/context/base/supp-pdf.mkii" 1337017135 71627 94eb9990bed73c364d7f53f960cc8c5b ""
   "/usr/local/texlive/2014/texmf-dist/tex/generic/babel-english/english.ldf" 1367878877 6963 2e0cb3d93aa64508bdb0db58ae900d97 ""
   "/usr/local/texlive/2014/texmf-dist/tex/generic/babel/babel.def" 1395780385 49536 e1475dd245ff2196764ba5b91ac63714 ""
@@ -152,16 +152,17 @@
   "img/pred_var/fm_kgg_joint_-bw-out2-crop.pdf" 1424537740 39869 2dff9ccff5b9bf4d896a18a80a2c3fab ""
   "img/pred_var/fm_kgg_joint_-fw-out1-crop.pdf" 1424537740 39806 4c871e266b67d5c4c41bba2db697c5dc ""
   "img/pred_var/fm_kgg_joint_-fw-out2-crop.pdf" 1424537740 40080 6fb41882c497faf6fc7c56137e24530f ""
-  "kernel_ep_uai2015.aux" 1424607194 13686 627e9da3cf1a97600e1b67134d27b76f ""
-  "kernel_ep_uai2015.bbl" 1424607192 6474 8f0461e623dfd6aee62f58199780193e "bibtex kernel_ep_uai2015"
-  "kernel_ep_uai2015.out" 1424607194 1516 ea56d4533df302ba199fe10cc5b6e77a ""
-  "kernel_ep_uai2015.tex" 1424607187 48552 8d421c00d0f540e8fbb49c7c6f90fc2b ""
+  "img/primal_egauss_sanity-crop.pdf" 1424607739 8147 22a16d4e0592689b1f1476ac03325b63 ""
+  "kernel_ep_uai2015.aux" 1424613493 14516 d845f5c43a99168c9b47e78dc8776fd4 ""
+  "kernel_ep_uai2015.bbl" 1424613491 6158 48128c5bf860195ab760d65f6d8f3a74 "bibtex kernel_ep_uai2015"
+  "kernel_ep_uai2015.out" 1424613493 2086 17d7e94122ed7a79291352f2efb942d3 ""
+  "kernel_ep_uai2015.tex" 1424613481 59173 e8e459f7d2f79dfb2423d830f66ac1ed ""
   "proceed2e.sty" 1424537740 4910 cfe842ae77ff0559b46fc801ee87f54b ""
-  "sup.aux" 1424607194 532 ad7c600a2aa8362df001699c3d50701a ""
-  "sup.bbl" 1424604523 1104 03897fc9485400465e0562fb7709cd9d "bibtex sup"
+  "sup.aux" 1424613493 622 1a4dc10147d010da66ff628aa490c044 ""
+  "sup.bbl" 1424613486 1104 03897fc9485400465e0562fb7709cd9d "bibtex sup"
   (generated)
-  "kernel_ep_uai2015.pdf"
-  "kernel_ep_uai2015.aux"
   "kernel_ep_uai2015.log"
-  "kernel_ep_uai2015.out"
+  "kernel_ep_uai2015.aux"
+  "kernel_ep_uai2015.pdf"
   "sup.aux"
+  "kernel_ep_uai2015.out"
