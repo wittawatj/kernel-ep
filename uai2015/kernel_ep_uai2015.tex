@@ -5,12 +5,19 @@
 \usepackage[latin9]{inputenc}
 \usepackage{color}
 \usepackage{verbatim}
+\usepackage{amsthm}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{esint}
 
 \makeatletter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+\theoremstyle{plain}
+\newtheorem{thm}{\protect\theoremname}
+  \theoremstyle{plain}
+  \newtheorem{lem}[thm]{\protect\lemmaname}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
 % UAI 2015 template
 \usepackage{proceed2e}
@@ -69,6 +76,9 @@
 \makeatother
 
 \usepackage{babel}
+  \providecommand{\lemmaname}{Lemma}
+\providecommand{\theoremname}{Theorem}
+
 \begin{document}
 
 \title{Kernel-Based Just-In-Time Learning for Passing Expectation Propagation
@@ -487,7 +497,7 @@ an appropriate distribution was one of the unsolved problems in \cite{Heess2013}
 \textbf{\textcolor{black}{\LARGE{}Supplementary Materials}}
 \par\end{center}{\LARGE \par}
 
-\todo[inline]{The following content needs to be rewritten and is not coherent. I just copied it from my notes. Some will be moved to the main text.  }
+\todo[inline]{The following incoherent content needs to be rewritten. I just copied it from my notes. Some part will be moved to the main text.  }
 
 
 \section{Bayesian Linear Regression}
@@ -575,21 +585,10 @@ used to update the operator as described previously. Querying the
 oracle incurs a high computational cost.
 
 
-\section{Kernels and Random Features}
-
-This section reviews relevant kernels and their random feature representations.
+\section{Kernel Ridge Regression}
 
 
 \subsection{Kernel Ridge Regression in Primal Form}
-
-A kernel $k(x,y)=\left\langle \phi(x),\phi(y)\right\rangle $ in general
-may correspond to an inner product in an infinite-dimensional space
-whose feature map $\phi$ cannot be explicitly computed. In \cite{Le2013,Rahimi2007},
-methods of computing an approximate feature maps $\hat{\phi}$ were
-proposed. The approximate feature maps are such that $k(x,y)\approx\hat{\phi}(x)^{\top}\hat{\phi}(y)$
-(with equality in expectation) where $\hat{\phi}\in\mathbb{R}^{D}$
-and $D$ is the number of random features. High $D$ yields a better
-approximation with higher computational cost. 
 
 In our work, we can apply random features to the kernel in the conditional
 mean embedding operator. With $\hat{\phi}$, an estimate of an operator
@@ -607,10 +606,109 @@ requires just a matrix vector multiplication whose complexity does
 not depend on $N$ (unlike in the dual form).
 
 
+\subsection{Leave-One-Out Cross Validation with Random Features\label{sub:LOOCV-for-Operator}}
+
+The solution of the kernel ridge regression is given by
+\[
+\hat{C}_{Y|X}=YX^{\top}\left(XX^{\top}+\lambda I\right)^{-1}
+\]
+where $Y\in\mathbb{R}^{d_{y}\times n}$ and $d_{y}$ is the number
+of sufficient statistic outputs i.e., two for a one-dimensional Gaussian.
+With random features, we have $K_{ij}\approx\hat{\phi}_{i}^{\top}\hat{\phi}_{j}:=\hat{\phi}(x_{i})^{\top}\hat{\phi}(x_{j})$
+where $\hat{\phi}_{i}\in\mathbb{R}^{d}$ and $d$ is the number of
+random features. In our work, $x_{i}$ will be an instance in the
+tensor product space of the form $x_{i}=m_{x_{1}\rightarrow f}\otimes m_{x_{2}\rightarrow f}\otimes\cdots$.
+So the estimator can be rewritten as
+\[
+\hat{C}_{Y|X}\approx\underbrace{Y}_{d_{y}\times n}\underbrace{\hat{\Phi}^{\top}}_{n\times d}\underbrace{\left(\hat{\Phi}\hat{\Phi}^{\top}+\lambda I\right)^{-1}}_{d\times d}
+\]
+where $\hat{\Phi}:=\left(\hat{\phi}_{1}|\cdots|\hat{\phi}_{n}\right)\in\mathbb{R}^{d\times n}$.
+The LOOCV error can be written as
+\[
+E_{LOOCV}:=\frac{1}{n}\sum_{j=1}^{n}\|\hat{C}_{Y|X}^{(j)}\hat{\phi}_{j}-y_{j}\|_{d_{y}}^{2}
+\]
+where $\hat{C}_{Y|X}^{(j)}$ is the estimator obtained with $j^{th}$
+instance removed and $y_{j}\in\mathbb{R}^{d_{y}}$. Following the
+same idea as in the ordinary ridge regression, we express $\hat{C}_{Y|X}^{(j)}$
+in terms of $\hat{C}_{Y|X}$.
+\begin{align*}
+\hat{C}_{Y|X}^{(j)} & =\left(Y\hat{\Phi}-y_{j}\phi_{j}^{\top}\right)\left(\hat{\Phi}\hat{\Phi}^{\top}+\lambda I-\hat{\phi}_{j}\hat{\phi}_{j}^{\top}\right)^{-1}\\
+ & =\left(Y\hat{\Phi}-y_{j}\phi_{j}^{\top}\right)\left(A^{-1}+\frac{A^{-1}\phi_{j}\phi_{j}^{\top}A^{-1}}{1-\phi_{j}^{\top}A^{-1}\phi_{j}}\right)\\
+ & =\hat{C}_{Y|X}+h_{jj}^{-1}YL\phi_{j}\phi_{j}^{\top}A^{-1}-h_{jj}^{-1}y_{j}\phi_{j}^{\top}A^{-1}
+\end{align*}
+where $h_{ii}:=\left(H\right)_{ii}=1-\phi_{i}^{\top}A^{-1}\phi_{i}$,
+$A:=\hat{\Phi}\hat{\Phi}^{\top}+\lambda I$ and $L:=\hat{\Phi}^{\top}A^{-1}$.
+Note that with these definitions, we have $\hat{C}_{Y|X}=YL$. By
+plugging $\hat{C}_{Y|X}^{(j)}$ back to $E_{LOOCV}$, we have
+\begin{align*}
+E_{LOOCV} & =\frac{1}{n}\sum_{j=1}^{n}\bigg\|\hat{C}_{Y|X}\hat{\phi}_{j}+h_{jj}^{-1}YL\hat{\phi}_{j}\underbrace{\hat{\phi}_{j}^{\top}A^{-1}\hat{\phi}_{j}}_{1-h_{jj}}-h_{jj}^{-1}y_{j}\underbrace{\hat{\phi}_{j}A^{-1}\hat{\phi}_{j}}_{1-h_{jj}}-y_{j}\bigg\|^{2}\\
+ & =\frac{1}{n}\sum_{j=1}^{n}\bigg\|\hat{C}_{Y|X}\hat{\phi}_{j}+\left(h_{jj}^{-1}-1\right)YL\hat{\phi}_{j}-\left(h_{jj}^{-1}-1\right)y_{j}-y_{j}\bigg\|_{d_{y}}^{2}\\
+ & =\frac{1}{n}\bigg\|\underbrace{\hat{C}_{Y|X}}_{YL}\hat{\Phi}+YL\hat{\Phi}\left(\tilde{H}^{-1}-I\right)-Y\tilde{H}^{-1}\bigg\|_{F}^{2}\\
+ & =\frac{1}{n}\bigg\| YL\hat{\Phi}\tilde{H}^{-1}-Y\tilde{H}^{-1}\bigg\|_{Y}^{2}=\frac{1}{n}\bigg\| Y\left(L\hat{\Phi}-I\right)\tilde{H}^{-1}\bigg\|_{F}^{2}\\
+ & =\frac{1}{n}\bigg\| YH\tilde{H}^{-1}\bigg\|_{F}^{2}
+\end{align*}
+where $H:=I-L\hat{\Phi}=I-\hat{\Phi}^{\top}\left(\hat{\Phi}\hat{\Phi}^{\top}+\lambda I\right)^{-1}\hat{\Phi}\in\mathbb{R}^{n\times n}$,
+$\tilde{H}$ is a diagonal matrix with the same diagonal as $H$ and
+$\|A\|_{F}^{2}:=\trace\left(A^{\top}A\right)$ is the squared Frobenius
+norm.
+
+
+\paragraph{Computing $E_{LOOCV}$}
+
+In computing $E_{LOOCV}$, one should not form $H\in\mathbb{R}^{n\times n}$
+explicitly because $n$ is assumed to be huge. 
+\begin{align*}
+\bigg\| YH\tilde{H}^{-1}\bigg\|_{F}^{2} & =\trace\left(YH\tilde{H}^{-2}H^{\top}Y^{\top}\right)\\
+ & =\trace\left(Y\tilde{H}^{-2}Y^{\top}-Y\tilde{H}^{-2}\hat{\Phi}^{\top}A^{-1}\hat{\Phi}Y^{\top}-Y\hat{\Phi}^{\top}A^{-1}\hat{\Phi}\tilde{H}^{-2}Y^{\top}+Y\hat{\Phi}^{\top}A^{-1}\hat{\Phi}\tilde{H}^{-2}\hat{\Phi}^{\top}A^{-1}\hat{\Phi}Y^{\top}\right)
+\end{align*}
+Let $E:=Y\hat{\Phi}^{\top}A^{-1}\hat{\Phi}\in\mathbb{R}^{d_{y}\times n},B=Y\tilde{H}^{-1}\in\mathbb{R}^{d_{y}\times n}$
+then the last line becomes
+\begin{align*}
+ & \trace\left(BB^{\top}-B\tilde{H}^{-1}E^{\top}-E\tilde{H}^{-1}B^{\top}+E\tilde{H}^{-2}E^{\top}\right)\\
+= & \trace\left(BB^{\top}\right)-2\trace\left(E\tilde{H}^{-1}B^{\top}\right)+\trace\left(E\tilde{H}^{-2}E^{\top}\right).
+\end{align*}
+ Each term in the trace is of size $d_{y}\times d_{y}$. This does
+not involve forming an $n\times n$ matrix. $\tilde{H}$ is the diagonal
+of $H$. So, $\tilde{H}=\diag\left(I-\hat{\Phi}^{\top}A^{-1}\hat{\Phi}\right)$.
+The cost of $O(d^{3})$ seems to be inevitable where $d$ is expected
+to be in the order of thousands. The number is large enough that $d^{3}$
+is expensive. In computing $E_{LOOCV}$ for selecting the best parameter
+combination, we may reduce $d$. The number of features $d$ is set
+back to the desired value during testing. 
+
+
+\paragraph{Operator representation}
+
+Once the best parameter combination is choosen, we increase $d$ to
+the desired value and precompute $\hat{C}_{Y|X}\approx\underbrace{Y}_{d_{y}\times n}\underbrace{\hat{\Phi}^{\top}}_{n\times d}\underbrace{\left(\hat{\Phi}\hat{\Phi}^{\top}+\lambda I\right)^{-1}}_{d\times d}$
+for test time. One obvious improvement is to avoid forming $\hat{\Phi}$
+explicitly since the memory cost will be $O(dn)$ which can already
+be huge. $Y\hat{\Phi}$ can be computed incrementally without the
+need to form $\hat{\Phi}$. Memory cost for computing $\hat{\Phi}\hat{\Phi}^{\top}$
+can be made lower than $O(dn)$ by computing incrementally even though
+the computational complexity remains $O(dn^{2})$ which is still huge.
+The total cost for computing the operator is $O(d^{2}n+d^{3})$. Linear
+dependency on $n$ is unavoidable. 
+
+
+\section{Kernels and Random Features}
+
+This section reviews relevant kernels and their random feature representations.
+
+
 \subsection{Random Features}
 
 This section contains a summary of \citesup{Rahimi2007}'s random
-Fourier features for a translation invariant kernel. Assume $k(x,y)=k(x-y)$
+Fourier features for a translation invariant kernel. 
+
+A kernel $k(x,y)=\left\langle \phi(x),\phi(y)\right\rangle $ in general
+may correspond to an inner product in an infinite-dimensional space
+whose feature map $\phi$ cannot be explicitly computed. In \citesup{Rahimi2007},
+methods of computing an approximate feature maps $\hat{\phi}$ were
+proposed. The approximate feature maps are such that $k(x,y)\approx\hat{\phi}(x)^{\top}\hat{\phi}(y)$
+(with equality in expectation) where $\hat{\phi}\in\mathbb{R}^{D}$
+and $D$ is the number of random features. High $D$ yields a better
+approximation with higher computational cost. Assume $k(x,y)=k(x-y)$
 and $x,y\in\mathbb{R}^{d}$. Random Fourier features $\hat{\phi}(x)\in\mathbb{R}^{D}$
 such that $k(x,y)\approx\hat{\phi}(x)^{\top}\hat{\phi}(y)$ are generated
 as follows.
@@ -618,13 +716,39 @@ as follows.
 \item Compute the Fourier transform $\hat{k}$ of the kernel $k$: $\hat{k}(\omega)=\frac{1}{2\pi}\int e^{-j\omega^{\top}\delta}k(\delta)\, d\delta$.
 For a Gaussian kernel with unit width, $\hat{k}(\omega)=\left(2\pi\right)^{-d/2}e^{-\|\omega\|^{2}/2}$.
 \item Draw $D$ i.i.d. samples $\omega_{1},\ldots,\omega_{D}\in\mathbb{R}^{d}$
-from $\hat{k}$ i.e., \verb|randn(d, D)|. 
+from $\hat{k}$. 
 \item Draw $D$ i.i.d samples $b_{1},\ldots,b_{D}\in\mathbb{R}$ from $U[0,2\pi]$
 (uniform distribution).
 \item $\hat{\phi}(x)=\sqrt{\frac{2}{D}}\left(\cos\left(\omega_{1}^{\top}x+b_{1}\right),\ldots,\cos\left(\omega_{D}^{\top}x+b_{D}\right)\right)^{\top}\in\mathbb{R}^{D}$
 \end{enumerate}
 
-\subsection{MV Kernel}
+\paragraph{Why it works ?}
+\begin{thm}
+Bochner's theorem. A continuous kernel $k(x,y)=k(x-y)$ on $\mathbb{R}^{m}$
+is positive definite iff $k(\delta)$ is the Fourier transform of
+a non-negative measure.
+\end{thm}
+Furthermore, if a translation invariant kernel $k(\delta)$ is properly
+scaled, Bochner's theorem guarantees that its Fourier transform $p(\omega)$
+is a proper probability distribution. From this fact, we have 
+\[
+k(x-y)=\int\hat{k}(\omega)e^{j\omega^{\top}\left(x-y\right)}\, d\omega=\mathbb{E}_{\omega}\left[\eta_{\omega}(x)\eta_{\omega}(y)^{*}\right]
+\]
+where $\eta_{\omega}(x)=e^{j\omega^{\top}x}$ and $\cdot^{*}$ denotes
+the complex conjugate. Since both $p$ and $k$ are real, the complex
+exponential contains only the cosine terms. Drawing $d$ samples is
+for lowering the variance of the approximation.
+\begin{thm}
+\label{thm:Separation-of-variables.}Separation of variables. Let
+$\hat{f}$ be the Fourier transform of $f$. If $f(x_{1},\ldots,x_{n})=f_{1}(x_{1})\cdots f_{n}(x_{n})$,
+then $\hat{f}(\omega_{1},\ldots,\omega_{n})=\prod_{i=1}^{n}\hat{f}_{i}(\omega_{i})$. 
+\end{thm}
+Theorem \ref{thm:Separation-of-variables.} suggests that the random
+Fourier features can be extended to product kernel by drawing $\omega$
+independently for each kernel. 
+
+
+\subsection{MV (Mean-Variance) Kernel}
 
 Assume there are $c$ incoming messages $\left(p^{(i)}\right)_{i=1}^{c}$
 . Assume that
@@ -650,6 +774,129 @@ represented as $\left(\mu_{1},\ldots,\mu_{c},\sigma_{1}^{2},\ldots,\sigma_{c}^{2
 This treatment reduces the problem of having distributions as inputs
 to the familiar problem of having input points from a Euclidean space.
 The random features of \cite{Rahimi2007} can be applied straightforwardly. 
+
+
+\subsection{Expected Product Kernel\label{sub:Expected-Product-Kernel}}
+
+Let $\mu_{r^{(l)}}:=\mathbb{E}_{r^{(l)}(a)}k(\cdot,a)$ be the mean
+embedding \citepsup{Smola2007} of the distribution $r^{(l)}$ into
+RKHS $\mathcal{H}^{(l)}$ induced by the kernel $k$. Assume $k=k_{\text{gauss}}$
+(Gaussian kernel) and assume there are $c$ incoming messages $\mathsf{x}:=(r^{(i)}(a^{(i)}))_{i=1}^{c}$
+and $\mathsf{y}:=(s^{(i)}(b^{(i)}))_{i=1}^{c}$. An expected product
+kernel $\kappa_{\text{pro}}$ is defined as 
+\begin{align*}
+\kappa_{\text{pro}}\left(\mathsf{x},\mathsf{y}\right) & :=\left\langle \bigotimes_{l=1}^{c}\mu_{r^{(l)}},\bigotimes_{l=1}^{c}\mu_{s^{(l)}}\right\rangle _{\otimes_{l}\mathcal{H}^{(l)}}=\prod_{l=1}^{c}\mathbb{E}_{r^{(l)}(a)}\mathbb{E}_{s^{(l)}(b)}k_{\text{gauss}}^{(l)}\left(a,b\right)\approx\hat{\phi}(\mathsf{x})^{\top}\hat{\phi}(\mathsf{y})
+\end{align*}
+where $\hat{\phi}(\mathsf{x})^{\top}\hat{\phi}(\mathsf{y})=\prod_{l=1}^{c}\hat{\phi}^{(l)}(r^{(l)})^{\top}\hat{\phi}^{(l)}(s^{(l)})$.
+The feature map $\hat{\phi}^{(l)}(r^{(l)})$ can be estimated by applying
+the random Fourier features to $k_{\text{gauss }}^{(l)}$and taking
+the expectations $\mathbb{E}_{r^{(l)}(a)}\mathbb{E}_{s^{(l)}(b)}$.
+The final feature map is $\hat{\phi}(\mathsf{x})=\hat{\phi}^{(1)}(r^{(1)})\circledast\hat{\phi}^{(2)}(r^{(2)})\circledast\cdots\circledast\hat{\phi}^{(c)}(r^{(c)})\in\mathbb{R}^{d^{c}}$where
+$\circledast$ denotes a Kronecker product and we assume that $\hat{\phi}^{(l)}\in\mathbb{R}^{d}$
+for $l\in\{1,\ldots,c\}$. 
+
+We first give some results which will be used to derive the Fourier
+features for inner product of mean embeddings.
+\begin{lem}
+If $b\sim\mathcal{N}(b;0,\sigma^{2})$, then $\mathbb{E}[\cos(b)]=\exp\left(-\frac{1}{2}\sigma^{2}\right)$.\label{lemma:e_cos}\end{lem}
+\begin{proof}
+We can see this by considering the characteristic function of $x\sim\mathcal{N}(x;\mu,\sigma^{2})$
+which is given by $c_{x}(t)$.
+\[
+c_{x}(t)=\mathbb{E}_{x}\left[\exp\left(itb\right)\right]=\exp\left(itm-\frac{1}{2}\sigma^{2}t^{2}\right)
+\]
+For $m=0,t=1$, we have 
+\[
+c_{b}(1)=\mathbb{E}_{b}\left[\exp(ib)\right]=\exp\left(-\frac{1}{2}\sigma^{2}\right)=\mathbb{E}_{b}\left[\cos(b)\right]
+\]
+where we have $\cos()$ because the imaginary part is set to 0 i.e.,
+$i\sin(tb)$ vanishes.
+\end{proof}
+Given two messages $p(x)=\mathcal{N}(x;m_{p},V_{p})$ and $q(y)=\mathcal{N}(y;m_{q},V_{q})$
+($d$-dimensional Gaussian), the expected product kernel is defined
+as 
+\[
+\kappa(p,q)=\left\langle \mu_{p},\mu_{q}\right\rangle _{\mathcal{H}}=\mathbb{E}_{p}\mathbb{E}_{q}k(x-y)
+\]
+where $\mu_{p}:=\mathbb{E}_{p}k(x,\cdot)$ is the mean embedding of
+$p$ and we assume that the kernel $k$ associated with $\mathcal{H}$
+is translation invariant i.e.g, $k(x,y)=k(x-y)$. The goal here is
+to derive random Fourier features for the expected product kernel.
+That is, we aim to find $\hat{\phi}$ such that $\kappa(p,q)\approx\hat{\phi}(p)^{\top}\hat{\phi}(q)$
+and $\hat{\phi}\in\mathbb{R}^{D}$. 
+
+From \cite{Rahimi2007} which provides random features for $k(x-y)$,
+we immediately have
+\begin{align*}
+\mathbb{E}_{p}\mathbb{E}_{q}k(x-y) & \approx\mathbb{E}_{p}\mathbb{E}_{q}\frac{2}{D}\sum_{i=1}^{D}\cos\left(w_{i}^{\top}x+b_{i}\right)\cos\left(w_{i}^{\top}y+b_{i}\right)\\
+ & =\frac{2}{D}\sum_{i=1}^{D}\mathbb{E}_{p(x)}\cos\left(w_{i}^{\top}x+b_{i}\right)\mathbb{E}_{q(y)}\cos\left(w_{i}^{\top}y+b_{i}\right)
+\end{align*}
+where $\{w_{i}\}_{i=1}^{D}\sim\hat{k}(w)$ (Fourier transform of $k$)
+and $\{b_{i}\}_{i=1}^{D}\sim U\left[0,2\pi\right]$. 
+
+Consider $\mathbb{E}_{p(y)}\cos\left(w_{i}^{\top}x+b_{i}\right)$.
+Define $z_{i}=w_{i}^{\top}x+b_{i}$. So $z_{i}\sim\mathcal{N}(z_{i};w_{i}^{\top}m_{p}+b_{i},w_{i}^{\top}V_{p}w_{i})$.
+Let $d_{i}\sim\mathcal{N}(0,w_{i}^{\top}V_{p}w_{i})$. Then, $p(d_{i}+w_{i}^{\top}m_{p}+b_{i})=\mathcal{N}(w_{i}^{\top}m_{p}+b_{i},w_{i}^{\top}V_{p}w_{i})$
+which is the same distribution as that of $z_{i}$. From these definitions
+we have,
+\begin{align*}
+\mathbb{E}_{p(x)}\cos\left(w_{i}^{\top}x+b_{i}\right) & =\mathbb{E}_{p(z_{i})}\cos(z_{i})\\
+ & =\mathbb{E}_{p(d_{i})}\cos\left(d_{i}+w_{i}^{\top}m_{p}+b_{i}\right)\\
+ & \overset{(a)}{=}\mathbb{E}_{p(d_{i})}\cos(d_{i})\cos(w_{i}^{\top}m_{p}+b_{i})-\mathbb{E}_{p(d_{i})}\sin(d_{i})\sin(w_{i}^{\top}m_{p}+b_{i})\\
+ & \overset{(b)}{=}\cos(w_{i}^{\top}m_{p}+b_{i})\mathbb{E}_{p(d_{i})}\cos(d_{i})\\
+ & \overset{(c)}{=}\cos(w_{i}^{\top}m_{p}+b_{i})\exp\left(-\frac{1}{2}w_{i}^{\top}V_{p}w_{i}\right)
+\end{align*}
+where at $(a)$ we use $\cos(\alpha+\beta)=\cos(\alpha)\cos(\beta)-\sin(\alpha)\sin(\beta)$.
+We have $(b)$ because $\sin()$ is an odd function and $\mathbb{E}_{p(d_{i})}\sin(d_{i})=0$.
+The last equality $(c)$ follows from Lemma \ref{lemma:e_cos}. It
+follows that the random features $\hat{\phi}(p)\in\mathbb{R}^{D}$
+are given by
+\[
+\hat{\phi}(p)=\sqrt{\frac{2}{D}}\left(\begin{array}{c}
+\cos(w_{1}^{\top}m_{p}+b_{1})\exp\left(-\frac{1}{2}w_{1}^{\top}V_{p}w_{1}\right)\\
+\vdots\\
+\cos(w_{D}^{\top}m_{p}+b_{D})\exp\left(-\frac{1}{2}w_{D}^{\top}V_{p}w_{D}\right)
+\end{array}\right).
+\]
+
+
+Notice that the translation invariant kernel $k$ (i.e., Laplacian)
+plays a role by providing $\hat{k}$ from which $\{w_{i}\}_{i}$ are
+drawn. For different types of distributions $p,q$, we only need to
+be able to compute $\mathbb{E}_{p(x)}\cos\left(w_{i}^{\top}x+b_{i}\right)$.
+With $\hat{\phi}(p)$, we have $\kappa(p,q)\approx\hat{\phi}(p)^{\top}\hat{\phi}(q)$
+with equality in expectation.
+
+
+\paragraph{Analytic expression for Gaussian case}
+
+For reference, if $p,q$ are Gaussians defined as before and $k$
+is also Gaussian kernel, an analytic expression is available. Assume
+$k(x-y)=\exp\left(-\frac{1}{2}\left(x-y\right)^{\top}\Sigma^{-1}\left(x-y\right)\right)$
+where $\Sigma$ is the kernel parameter.
+\begin{align*}
+\mathbb{E}_{p}\mathbb{E}_{q}k(x-y) & =\sqrt{\frac{\det(D_{pq})}{\det(\Sigma^{-1})}}\exp\left(-\frac{1}{2}\left(m_{p}-m_{q}\right)^{\top}D_{pq}\left(m_{p}-m_{q}\right)\right)\\
+D_{pq} & :=\left(V_{p}+V_{q}+\Sigma\right)^{-1}
+\end{align*}
+This is useful in checking the approximation accuracy of $\hat{\phi}$.
+
+
+\paragraph{Approximation Quality}
+
+\begin{comment}
+See \verb|primalKEGauss.m|.
+\end{comment}
+{} The following result compares the randomly generated features to
+the true kernel matrix using various number of $D$. For each $D$,
+we repeat 10 times. Sample size is 1000. The derivation seems to be
+correct. Gaussian kernel width $\sigma^{2}:=3$. ``max entry diff''
+refers to the maximum entry-wise difference between the true kernel
+matrix and the approxmated kernel matrix. Messages are one-dimensional
+Gaussians with randomly drawn means and variances.
+
+~
+
+\includegraphics[width=10cm]{img/primal_egauss_sanity-crop}
 
 
 \subsection{Product Kernel on Mean Embeddings}
@@ -684,66 +931,6 @@ where $\hat{\varphi}(p):=\left(\hat{\phi}^{(1)}(p^{(1)})^{\top},\ldots,\hat{\phi
 whose memory requirement is much lower.
 
 
-\subsection{Expected Product Kernel\label{sub:Expected-Product-Kernel}}
-
-Let $\mu_{r^{(l)}}:=\mathbb{E}_{r^{(l)}(a)}k(\cdot,a)$ be the mean
-embedding \citepsup{Smola2007} of the distribution $r^{(l)}$ into
-RKHS $\mathcal{H}^{(l)}$ induced by the kernel $k$. Assume $k=k_{\text{gauss}}$
-(Gaussian kernel) and assume there are $c$ incoming messages $\mathsf{x}:=(r^{(i)}(a^{(i)}))_{i=1}^{c}$
-and $\mathsf{y}:=(s^{(i)}(b^{(i)}))_{i=1}^{c}$. An expected product
-kernel $\kappa_{\text{pro}}$ is defined as 
-\begin{align*}
-\kappa_{\text{pro}}\left(\mathsf{x},\mathsf{y}\right) & :=\left\langle \bigotimes_{l=1}^{c}\mu_{r^{(l)}},\bigotimes_{l=1}^{c}\mu_{s^{(l)}}\right\rangle _{\otimes_{l}\mathcal{H}^{(l)}}=\prod_{l=1}^{c}\mathbb{E}_{r^{(l)}(a)}\mathbb{E}_{s^{(l)}(b)}k_{\text{gauss}}^{(l)}\left(a,b\right)\approx\hat{\phi}(\mathsf{x})^{\top}\hat{\phi}(\mathsf{y})
-\end{align*}
-where $\hat{\phi}(\mathsf{x})^{\top}\hat{\phi}(\mathsf{y})=\prod_{l=1}^{c}\hat{\phi}^{(l)}(r^{(l)})^{\top}\hat{\phi}^{(l)}(s^{(l)})$.
-The feature map $\hat{\phi}^{(l)}(r^{(l)})$ can be estimated by applying
-the random Fourier features to $k_{\text{gauss }}^{(l)}$and taking
-the expectations $\mathbb{E}_{r^{(l)}(a)}\mathbb{E}_{s^{(l)}(b)}$.
-The final feature map is $\hat{\phi}(\mathsf{x})=\hat{\phi}^{(1)}(r^{(1)})\circledast\hat{\phi}^{(2)}(r^{(2)})\circledast\cdots\circledast\hat{\phi}^{(c)}(r^{(c)})\in\mathbb{R}^{d^{c}}$where
-$\circledast$ denotes a Kronecker product and we assume that $\hat{\phi}^{(l)}\in\mathbb{R}^{d}$
-for $l\in\{1,\ldots,c\}$. 
-
-
-\paragraph{Random Features for Expected Product Kernel}
-
-Given two distributions (messages) $p$ and $q$, the expected product
-kernel is defined as 
-\[
-\kappa(p,q)=\left\langle \mu_{p},\mu_{q}\right\rangle _{\mathcal{H}}=\mathbb{E}_{p}\mathbb{E}_{q}k(x-y)
-\]
-where $\mu_{p}:=\mathbb{E}_{p}k(x,\cdot)$ is the mean embedding of
-$p$ and we assume that the kernel $k$ associated with $\mathcal{H}$
-is translation invariant i.e., $k(x,y)=k(x-y)$. Assume the two incoming
-messages are Gaussian i.e.g, $p(x)=\mathcal{N}(x;m_{p},V_{p})$ and
-$q(y)=\mathcal{N}(y;m_{q},V_{q})$ ($d$-dimensional Gaussian), By
-applying the previous result for random Fourier features on $k$,
-it can be shown (detail omitted) that the random features for $\kappa(p,q)\approx\hat{\phi}(p)^{\top}\hat{\phi}(q)$
-are given by
-
-\[
-\hat{\phi}(p)=\sqrt{\frac{2}{D}}\left(\begin{array}{c}
-\cos(w_{1}^{\top}m_{p}+b_{1})\exp\left(-\frac{1}{2}w_{1}^{\top}V_{p}w_{1}\right)\\
-\vdots\\
-\cos(w_{D}^{\top}m_{p}+b_{D})\exp\left(-\frac{1}{2}w_{D}^{\top}V_{p}w_{D}\right)
-\end{array}\right)
-\]
-where $\{w_{i}\}_{i=1}^{D}\sim\hat{k}$ (the Fourier transform of
-$k$) and $\{b_{i}\}_{i=1}^{D}\sim U[0,2\pi]$. 
-
-
-\paragraph{Analytic Expression}
-
-For reference, if $p,q$ are Gaussians defined as before and $k$
-is also Gaussian kernel, an analytic expression is available. Assume
-$k(x-y)=\exp\left(-\frac{1}{2}\left(x-y\right)^{\top}\Sigma^{-1}\left(x-y\right)\right)$
-where $\Sigma$ is the kernel parameter.
-\begin{align*}
-\mathbb{E}_{p}\mathbb{E}_{q}k(x-y) & =\sqrt{\frac{\det(D_{pq})}{\det(\Sigma^{-1})}}\exp\left(-\frac{1}{2}\left(m_{p}-m_{q}\right)^{\top}D_{pq}\left(m_{p}-m_{q}\right)\right)\\
-D_{pq} & :=\left(V_{p}+V_{q}+\Sigma\right)^{-1}
-\end{align*}
-
-
-
 \subsection{Gaussian Kernel on Mean Embeddings }
 
 Given two distributions $p$ and $q$, a Gaussian kernel on mean embeddings
@@ -762,7 +949,7 @@ where $q\in(0,2]$. We might be able to treat $q$ as a hyperparameter
 and tune it by a gradient ascent on the marginal likelihood.
 
 
-\paragraph{Random features for Gaussian kernel on mean embeddings}
+\subsubsection{Random features for Gaussian kernel on mean embeddings}
 
 One straightforward way to get random features for the kernel is given
 by a two-stage approximation procedure by Zoltan and Dino.
@@ -786,7 +973,7 @@ k_{\text{gauss}}\left(\hat{\phi}(p)-\hat{\phi}(q);\gamma^{2}\right)\approx\hat{\
 where $\hat{\psi}(p)\in\mathbb{R}^{D_{out}}$. 
 
 
-\paragraph{Pseudo code }
+\subsubsection{Pseudo code }
 
 To obtain an approximation $\hat{\psi}(p)^{\top}\hat{\psi}(q)\approx\kappa_{\text{gauss}}(p,q)$,
 do the following. Assume $d$ is the dimension of the input domain
@@ -816,7 +1003,7 @@ the random seed used to generate them. The coefficients are generated
 only when needed. 
 
 
-\paragraph{Kernel on tuples of messages}
+\subsubsection{Kernel on tuples of messages}
 
 As our prediction is from $M_{j}=[m_{V_{i}\rightarrow f}^{j}(v_{i})]_{i=1}^{c}$
 ($c$ is the number of variables connected to the factor $f$) to

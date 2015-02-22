@@ -30,6 +30,13 @@ namespace KernelEP{
 			return PathTo(LocalConfig.K_FACTOR_OP_MAT_FOLDER, fileName);
 		}
 
+		public static string PathToCompiledModelFolder(){
+			Dictionary<string, string> config = LocalConfig.GetLocalConfigs();
+			string folder = config[LocalConfig.K_COMPILED_MODEL_FOLDER];
+			return folder;
+
+		}
+
 	}
 }
 

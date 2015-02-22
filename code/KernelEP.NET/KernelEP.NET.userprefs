@@ -1,16 +1,21 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="KernelEP.NET/Tool/RandFeature.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release|x86" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="KernelEP.NET/TestIdea/LogisticRegression.cs">
     <Files>
-      <File FileName="KernelEP.NET/TestIdea/LogisticRegression.cs" Line="237" Column="23" />
-      <File FileName="KernelEP.NET/Main.cs" Line="29" Column="35" />
-      <File FileName="KernelEP.NET/TestIdea/MultinomialRegressionBlog.cs" Line="38" Column="37" />
-      <File FileName="KernelEP.NET/Op/MsgOp.cs" Line="444" Column="12" />
-      <File FileName="KernelEP.NET/Tool/RandFeature.cs" Line="47" Column="4" />
+      <File FileName="KernelEP.NET/TestIdea/LogisticRegression.cs" Line="89" Column="59" />
+      <File FileName="KernelEP.NET/Tool/Mapper.cs" Line="1" Column="1" />
+      <File FileName="KernelEP.NET/Op/LogisticOp.cs" Line="388" Column="23" />
+      <File FileName="KernelEP.NET/Tool/Misc.cs" Line="1" Column="1" />
+      <File FileName="KernelEP.NET/Main.cs" Line="1" Column="1" />
+      <File FileName="KernelEP.NET/Tool/Config.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="/nfs/nhome/live/wittawat/SHARE/gatsby/research/code/KernelEP.NET/KernelEP.NET/Op/LogisticOp.cs" line="439" column="39" />
+      <Breakpoint file="/nfs/nhome/live/wittawat/SHARE/gatsby/research/code/KernelEP.NET/KernelEP.NET/TestIdea/LogisticRegression.cs" line="63" column="23" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <AuthorInfo Name="Wittawat Jitkrittum" Email="wittawatj@gmail.com" Copyright="Wittawat Jitkrittum" Company="" Trademark="" />
 </Properties>

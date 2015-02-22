@@ -68,7 +68,7 @@ function plotUncertaintyAlongSlices(s, trBundle, teBundle, subsample)
     
     % line passing through the cloud
     % A function mapping means to log(precision)
-    testMeans = linspace(-10, 10, 500);
+    testMeans = linspace(-13, 13, 500);
     strLine = @(m)2e-2*m + 2.6;
     paraLine = @(m)-2e-2*m.^2 + 1.6;
     str2Line = @(m)-12e-2*m + 1.5;
@@ -152,6 +152,8 @@ function [betaMsgs, normalMsgs] = genMsgBundleFromMeanPrec(means, logPrecs, beta
 end
 
 function [Xtr, Ytr, Xte1, Xte2] = gen2DUncertaintyCheckData2(trBundle )
+    % This method is used to generate data for Balaji.
+    %
     % input s:
     % s = 
     %  learner_class: 'RFGJointKGGLearner'

@@ -142,10 +142,22 @@ namespace KernelEP.Tool{
 
 		public static string MATLAB_CLASS = "KEGaussian";
 		// Gausisan width^2 for each dimension
-		private double[] gwidth2s;
+		private readonly double[] gwidth2s;
+		private readonly Matrix sigma;
+
+		// determinant of sigma matrix
+		private readonly double detSigma;
 
 		public KEGaussian(double[] gwidth2s){
 			this.gwidth2s = gwidth2s;
+			sigma = new Matrix(gwidth2s.Length, gwidth2s.Length);
+			sigma.SetToDiagonal(Vector.FromArray(gwidth2s));
+			detSigma = MatrixUtils.Product(gwidth2s);
+			if(detSigma <= 0 || detSigma <= 1e-12){
+				string text = string.Format("determinant of Sigma is not proper. Found: {0}.", 
+					detSigma);
+				throw new ArgumentException(text);
+			}
 		}
 
 		public override double Eval(T p, T q){
@@ -181,7 +193,17 @@ namespace KernelEP.Tool{
 				double eval = Math.Sqrt(dpq*kerParam)*exp;
 				return eval;
 			}else{
-				throw new ArgumentException("Multivariate distribution not supported yet");
+				// not so efficient. 
+				// TODO: improve it
+				Matrix dpq = MatrixUtils.Inverse( covp + covq + sigma); 
+				Vector meanDiff = mp-mq;
+				double dist2 = dpq.QuadraticForm(meanDiff);
+				// !! Infer.NET's Determinant() has a bug
+				double dpqDet = MatrixUtils.Determinant(dpq);
+				double z = Math.Sqrt(dpqDet * detSigma);
+				double eval = z*Math.Exp(-0.5*dist2);
+				return eval;
+
 			}
 		}
 
@@ -197,6 +219,7 @@ namespace KernelEP.Tool{
 			return new KEGaussian<T>(gwidth2s);
 		}
 	}
+
 	// Gaussian on mean embeddings as in "Universal kernels on non-standard input
 	// spaces" by Christmann and Steinwart.
 	public class KGGaussian<T> : KDist<T> where T : IKEPDist{
@@ -226,6 +249,33 @@ namespace KernelEP.Tool{
 
 		public override string ToString(){
 			return string.Format("[KGGaussian]");
+		}
+
+		/**Compute the median of the pairwise distance. The distance is  
+		 * |mu_p - mu_q|^2 where mu_p is the mean embedding.
+		*/
+
+		public static double MedianPairwise<D>(
+			List<D> dists, double[] embedSquaredWidths)
+			where D: IKEPDist{
+
+			KEGaussian<D> ke = new KEGaussian<D>(embedSquaredWidths);
+			int n =dists.Count;
+			double[] selfKers = dists.Select(di => ke.Eval(di, di)).ToArray();
+			List<double> pairDists = new List<double>();
+			for(int i=0; i<n; i++){
+				D p = dists[i];
+				double pp = selfKers[i];
+				for(int j=i; j<n; j++){ // include j=i just like in Matlab
+					D q = dists[j];
+					double qq = selfKers[j];
+					double dist2 =  pp - 2*ke.Eval(p, q) + qq;
+					Debug.Assert(dist2 >= 0);
+					pairDists.Add(dist2);
+				}
+			}
+			double med = MatrixUtils.Median(pairDists.ToArray());
+			return med;
 		}
 
 		public new static KGGaussian<T> FromMatlabStruct(MatlabStruct s){

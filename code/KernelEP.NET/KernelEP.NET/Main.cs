@@ -9,10 +9,13 @@ using MicrosoftResearch.Infer.Distributions;
 using MicrosoftResearch.Infer.Maths;
 using MicrosoftResearch.Infer.Factors;
 using MicrosoftResearch.Infer.Utils;
+using MNMatrix = MathNet.Numerics.LinearAlgebra.Matrix<double>;
 
 namespace KernelEP{
 	class MainClass{
 		public static void Main(string[] args){
+
+
 //			Console.WriteLine("{0}", Beta.FromMeanAndVariance(1, 0));
 //			TestMultinomialRegression();
 //		
@@ -25,22 +28,75 @@ namespace KernelEP{
 //			TestJaggedSubarray();
 			
 //			TestMath();
-
 //			LogisticRegression.TestLogisticRegression();
+
 			LogisticRegression.TestLogisticRegressionNoBias();
+
+
 //			CollectLogisticMsgs.CollectMessages();
 //			InferenceEngine.ShowFactorManager(true);
 
-			
+			//			Console.WriteLine(MatrixUtils.Randn(30, 5));
+//			MatrixUtils.TestStackColumns();
 //			GauArrayan g1 = new Gaussian(0, 1);
 //			Gaussian g2 = new Gaussian(2, 3);
 //			Console.WriteLine(g1/g2);
 //			Beta b1 = new Beta(1, 2);
 //			Beta b2 = new Beta(2, 4);
 //			Console.WriteLine(b1/b2);
-		
+//			TestDeterminant();
 //			Console.WriteLine(DBeta.PointMass(0.3));
 //			TestMatrix();
+		}
+
+		public static void TestDeterminant(){
+			Matrix m1 = Matrix.Parse("6 0 \n 0 1");
+			Matrix m2 = Matrix.Parse("3.0 2.0 \n 1.5 3.0");
+			Matrix m3 = Matrix.Parse("0.7493 0.5074\n -0.004 -0.4204");
+			Matrix m4 = PositiveDefiniteMatrix.Identity(4);
+			Console.WriteLine(m1);
+			// expect 6
+			Console.WriteLine("m1 det: {0}", m1.Determinant());
+			// expect 6
+			Console.WriteLine("m2 det: {0}", m2.Determinant());
+			// expect -0.313
+			Console.WriteLine("m3 det: {0}", m3.Determinant());
+			Console.WriteLine("m4 det: {0}", m4.Determinant());
+			// expect 6
+			Console.WriteLine("m1 my det: {0}", MatrixUtils.Determinant(m1) );
+			// expect 6
+			Console.WriteLine("m2 my det: {0}", MatrixUtils.Determinant(m2));
+			// expect -0.313
+			Console.WriteLine("m3 my det: {0}", MatrixUtils.Determinant(m3));
+			Console.WriteLine("m4 my det: {0}", MatrixUtils.Determinant(m4));
+
+			// Use MathNet
+			MNMatrix m5 = MNMatrix.Build.Dense(2, 2, new double[]{6, 0, 0, 1});
+			Console.WriteLine(m5);
+			Console.WriteLine("m5 det: {0}", m5.Determinant());
+		}
+
+		public static void TestMathNetInverse(){
+			// http://numerics.mathdotnet.com/Matrix.html
+			// inverse is 
+//
+//			ans =
+//
+//				0.5000   -0.3333
+//				-0.2500    0.5000
+
+			Matrix inferMat = Matrix.Parse("3 2 \n 1.5 3");
+			Console.WriteLine(inferMat);
+			Matrix inv = MatrixUtils.Inverse(inferMat);
+			Console.WriteLine("Inverse: ");
+			Console.WriteLine(inv);
+		}
+
+		public static void TestMatrixSetTo(){
+			double[] vec = { 1, 2, 3, 4, 5, 6 };
+			Matrix m = new Matrix(2,3);
+			m.SetTo(vec);
+			Console.WriteLine(m);
 		}
 
 		public static void TestJaggedSubarray(){
@@ -72,7 +128,7 @@ namespace KernelEP{
 			Matrix m = Matrix.Parse("1 2 3\n 4 5 6");
 			m[3] = 44;
 			Console.WriteLine(m);
-			PrintUtils.PrintArray(m.Transpose().SourceArray);
+			StringUtils.PrintArray(m.Transpose().SourceArray);
 
 		}
 
