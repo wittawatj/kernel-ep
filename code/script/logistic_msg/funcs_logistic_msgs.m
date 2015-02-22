@@ -134,13 +134,16 @@ function genSigmoidFactorOperator()
    %fwFile = 'ichol_learn_ICholMapperLearner_binlogis_fw_n400_iter5_sf1_st20_ntr4000_DistBetaBuilder.mat';
    %fwFile = 'ichol_learn_ICholMapperLearner_binlogis_fw_n400_iter5_sf1_st20_ntr4000_DBetaLogBuilder.mat';
    %fwFile = 'ichol_learn_ICholMapperLearner_binlogis_fw_n400_iter5_sf1_st20_ntr6000_DBetaLogBuilder.mat';
-   fwFile = 'fm_kgg_joint-irf500-orf1000-binlogis_fw_proj_n400_iter5_sf1_st20-ntr5000-DBetaLogBuilder.mat';
+   %fwFile = 'fm_kgg_joint-irf500-orf1000-binlogis_fw_proj_n400_iter5_sf1_st20-ntr5000-DBetaLogBuilder.mat';
+   fwFile = 'fm_kgg_joint-irf300-orf500-binlogis_fw_proj_n400_iter5_sf1_st20-ntr5000-DBetaLogBuilder.mat';
 
    %bwFile = 'ichol_learn_ICholMapperLearner_binlogis_bw_n400_iter5_sf1_st20_ntr4000_DNormalLogVarBuilder.mat';  
    %bwFile = 'ichol_learn_ICholMapperLearner_binlogis_bw_n400_iter5_sf1_st20_ntr6000_DNormalLogVarBuilder.mat';  
-   bwFile = 'fm_kgg_joint-irf500-orf1000-binlogis_bw_proj_n400_iter5_sf1_st20-ntr5000-DNormalLogVarBuilder.mat';
+   %bwFile = 'fm_kgg_joint-irf500-orf1000-binlogis_bw_proj_n400_iter5_sf1_st20-ntr5000-DNormalLogVarBuilder.mat';
+   bwFile = 'fm_kgg_joint-irf300-orf500-binlogis_bw_proj_n400_iter5_sf1_st20-ntr5000-DNormalLogVarBuilder.mat';
    %foName='ichol_logbeta_n400_iter5_sf1_st20_ntr6000';
-   foName='fm_kgg_joint_irf500_orf1000_proj_n400_iter5_sf1_st20_ntr5000';
+   %foName='fm_kgg_joint_irf500_orf1000_proj_n400_iter5_sf1_st20_ntr5000';
+   foName='fm_kgg_joint_irf300_orf500_proj_n400_iter5_sf1_st20_ntr6000';
 
    summary=sprintf(['sigmoid factor. p(x1|x2) where x1 is Beta and '...
        'x2 is Normal. fw: %s. bw: %s'], fwFile, bwFile);
