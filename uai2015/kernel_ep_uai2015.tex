@@ -55,6 +55,7 @@
 \usepackage[resetlabels,labeled]{multibib}
 %\usepackage{microtype}
 \usepackage{soul}
+\usepackage{subfig}
 \usepackage{tikz}
 \usepackage[textsize=small]{todonotes}
 
@@ -308,6 +309,10 @@ its ease of use in an online setting during inference (see \secref{sec:kernel_ep
 
 
 \subsection{Kernel Ridge Regression}
+\wjnote{We need to unify Kernel ridge regression and Bayesian linear regression sections. 
+Posterior mean estimate of the Bayesian regression is the same as the solution to primal kernel ridge regression.
+Bayesian regression assumes a Gaussian noise output allowing us to compute predictive variance.}
+
 
 %\aenote{AE: Too many inline equations in this section. Pull out the most important ones?} 
 We consider here the problem of regressing smoothly from distribution-valued
@@ -355,9 +360,6 @@ from the incoming messages.
 
 
 \subsection{Bayesian Linear Regression}
-\wjnote{We need to unify Kernel ridge regression and Bayesian linear regression sections. 
-Posterior mean estimate of the Bayesian regression is the same as the solution to primal kernel ridge regression.
-Bayesian regression assumes a Gaussian noise output allowing us to compute predictive variance.}
 
 Denote $X=\left(x_{1}|\cdots|x_{N}\right)\in\mathbb{R}^{D\times N}$
 as (finite-dimensional) input and $Y=\left(y_{1}|\cdots|y_{N}\right)\in\mathbb{R}^{1\times N}$
@@ -372,7 +374,7 @@ Y\mid X,w & \sim\mathcal{N}\left(Y;w^{\top}X,\sigma_{y}^{2}I_{N}\right).
 %
 The output noise variance $\sigma_{y}^{2}$ should capture the intrinsic
 stochasticity of the importance sampler used to generate $Y$. It
-follows that the posterior of $w$ is given by 
+follows that the posterior of $w$ is given by \citep{Bishop2006}
 \begin{align*}
 p(w\mid Y) & =\mathcal{N}(w;\mu_{w},\Sigma_{w})\\
 \Sigma_{w} & = \left( XX^{\top}\sigma_{y}^{-2}+\sigma_{0}^{-2}I \right)^{-1} \\
@@ -410,9 +412,9 @@ $D$ be the dimensionality of message representation,
 and $N$ be the number of oracle consultations so far.
 Let $M$ be number of training points in each leaf.
 Assuming that the depth of trees is $O(\log(N))$, one prediction from a random forest costs $O(KD\log(N))$, and one update costs $O(KD^2 \log(N))$.
-This is because for each tree in forest $O(K)$, tree traversal takes $O(log(N))$, 
+This is because for each tree in forest $O(K)$, tree traversal takes $O(\log(N))$, 
 and one prediction costs $O(D)$. 
-One full training of a regression function costs $O(D^2 * (D + M))$ which depends on $M$. 
+One full training of a regression function costs $O(D^2 (D + M))$ which depends on $M$. 
 However typically $M$ is negligible at a lower depth, a full training costs $O(D^3)$.
 The total updating cost across all trees is $O(KD^3log(N))$.
 
@@ -506,6 +508,8 @@ distributions.
 
 
 \section{Related Work}
+\wjnote{This section may be merged with introduction ?}
+
 \cite{Heess2013}, \cite{Eslami2014}, \cite{Barthelme2011}. 
 Possibly \cite{Jampani2014} is also related ?
 
@@ -521,7 +525,7 @@ of incoming and outgoing messages, we first consider a batch learning setting.
 \label{fig:factor_graph_binlog}
 \end{figure}
 
-\subsection{Accuracy}
+\subsection{Predictive Power}
 
 \paragraph{Logistic} 
 As in \cite{Heess2013, Eslami2014}, we consider the logistic factor 
@@ -566,36 +570,59 @@ of incoming and outgoing messages.
 embeddings.\label{fig:Log-KL-divergence-on}}
 \end{figure}
 
+
 \subsection{Uncertainty Estimate}
+In this experiment, we aim to verify that the predictive variance of the 
+kernel-based message operator is a reliable quantity to be used as a criterion
+for deciding whether or not to query the oracle.
+We compute the predictive variance using the same operator as used in the logistic factor experiment on the training and test sets.
+Plots of KL-divergence errors versus predictive variances are shown in \figref{fig:logistic_predvar}
+, where the variance for predicting the mean of $m_{f \rightarrow X}$ is shown in \figref{fig:logistic_predvar}.a 
+and the variance for predicting $\log(\alpha)$ of $m_{f \rightarrow Z}$ is shown in \figref{fig:logistic_predvar}.b. 
 
-\subsection{Actual EP messages. Mix of multiple EP runs. Predictive variance.}
+\begin{figure}[t]
+	\centering
 
-As before, we consider the same dataset i.e. messages collected from
-actual EP. Train/test = 5000/2000. In this experiment, we run Steinwart
-(Gaussian kernel on mean embeddings) kernel on joint embeddings with
-random Fourier features (two staged approximation). 1000 outer features,
-500 inner features. We compute predictive variance as in Bayesian
-linear regression. The regularization parameter is now proportional
-to the output noise in Bayesian linear regression. 
+	%DNormalLogVarBuilder means regressing to Gaussian mean and $\log$ variance.
+	\subfloat[Predicting the mean of $m_{f \rightarrow X}$]{
+	\includegraphics[width=0.9\columnwidth]{img/pred_var/fm_kgg_joint_-bw-out1-crop}
+	}
+	%\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-bw-out2-crop}
+	
+	\subfloat[Predicting $\log(\alpha)$ of $m_{f \rightarrow Z}$]{
+	\includegraphics[width=0.9\columnwidth]{img/pred_var/fm_kgg_joint_-fw-out1-crop}
+	}
+	%\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-fw-out2-crop} 	
+	\caption{KL-divergence errors versus predictive variances in the logistic factor problem.}
+	\label{fig:logistic_predvar}
+\end{figure}
+
+\wjnote{To explain.} No points lie at the bottom right i.e., high confidence when it makes a big error.
+No points lie at the top left i.e., not confident when it should not be.
+
+%
+%\begin{figure}
+%	\begin{subfigure}[t]{0.9\textwidth}
+%	\centering 
+%	%DNormalLogVarBuilder means regressing to Gaussian mean and $\log$ variance.
+%	\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-bw-out1-crop}
+%	%\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-bw-out2-crop}
+%	\caption{aa}
+%	\end{subfigure}
+%
+%	\begin{subfigure}[t]{0.9\textwidth}
+%	\centering 
+%	\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-fw-out1-crop}
+%	%\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-fw-out2-crop} 
+%	\caption{aa}
+%	\end{subfigure}
+%	
+%	\caption{some thing}
+%	\label{fig:logistic_predvar}
+%\end{figure}
 
 
-\paragraph{Backward direction (output: Normal message)}
-
-DNormalLogVarBuilder means regressing to Gaussian mean and $\log$
-variance.
-
-\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-bw-out1-crop}
-\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-bw-out2-crop}
-
-
-\paragraph{Forward direction (output: Beta message)}
-
-DBetaLogBuilder means regressing to $\log\alpha$ and $\log\beta$.
-
-\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-fw-out1-crop}
-\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-fw-out2-crop} 
-
-
+\hrule{}
 \hl{Experiments to have}
 \begin{itemize}
 \item Experiments on the logistic factor for comparing with Nicolas and
