@@ -48,7 +48,7 @@
                  hyperfigures
                  ]{hyperref} 
 %\usepackage{index}
-\usepackage{longtable}
+%\usepackage{longtable}
 
 %\usepackage{mdwlist}
 \usepackage{natbib}
@@ -56,7 +56,7 @@
 %\usepackage{microtype}
 \usepackage{soul}
 \usepackage{tikz}
-\usepackage{todonotes}
+\usepackage[textsize=small]{todonotes}
 
 \usepackage{url}
 %\usepackage[all]{xy}
@@ -70,7 +70,11 @@
 \newcommand{\trace}{\mathop{\mathrm{tr}}}
 \newcommand{\median}{\mathop{\mathrm{median}}}
 
-\newcommand{\witta}[1]{\color{blue!50!black}{#1} }
+\newcommand{\wjnote}[1]{\textbf{\color{blue!80!black}{#1}} }
+\newcommand{\aenote}[1]{\textbf{\color{red!50!black}{#1}} }
+\newcommand{\nhnote}[1]{\textbf{\color{magenta!80!black}{#1}} }
+\newcommand{\agnote}[1]{\textbf{\color{green!70!black}{#1}} }
+
 \newcites{sup}{Supplementary}
 
 \makeatother
@@ -85,7 +89,7 @@
 Messages}
 \maketitle
 \begin{abstract}
-\todo{This is the old abstract. Add online learning ?}We propose
+\wjnote{WJ: This is the old abstract. Add online learning ?}We propose
 to learn a kernel-based message operator which takes as input all
 expectation propagation (EP) incoming messages to a factor node and
 produces an outgoing message. In ordinary EP, computing an outgoing
@@ -95,7 +99,7 @@ to bypass the expensive computation of the integral during inference
 by directly mapping all incoming messages into an outgoing message.
 The operator can be learned from training data (examples of input
 and output messages) which allows automated inference to be made on
-any kind of factor that can be sampled.\todo{AE: 1. State the problem. 2. Say why it's interesting. 3. Say what your solution achieves. 4. Say what follows from your solution. Message-passing is useful. Message-passing in general is slow. Our approach speeds it up. This allows us to use it on more complicated / larger problems.}
+any kind of factor that can be sampled.\aenote{AE: 1. State the problem. 2. Say why it's interesting. 3. Say what your solution achieves. 4. Say what follows from your solution. Message-passing is useful. Message-passing in general is slow. Our approach speeds it up. This allows us to use it on more complicated / larger problems.}
 \end{abstract}
 
 \section{Introduction}
@@ -201,11 +205,11 @@ $q(\theta)$ which is given by the product of all approximate factors.
 In finding the $i^{th}$ approximate factor $m_{f_{i}\rightarrow\theta}$,
 EP uses other approximate factors $m_{\theta\rightarrow f_{i}}(\theta):=\prod_{j\neq i}m_{f_{j}\rightarrow\theta}(\theta)$
 as a context to determine the plausible range of $\theta$. EP iteratively
-refines $m_{f_{i}\rightarrow\theta}$ for each $i$ with \todo{No need to mention this special-case msg.}$m_{f_{i}\rightarrow\theta}(\theta)=\frac{\text{proj}\left[\int dX\, f(X|\theta)m_{X\rightarrow f_{i}}(X)m_{\theta\rightarrow f_{i}}(\theta)\right]}{m_{\theta\rightarrow f_{i}}(\theta)}$
+refines $m_{f_{i}\rightarrow\theta}$ for each $i$ with \wjnote{WJ: No need to mention this special-case msg.}$m_{f_{i}\rightarrow\theta}(\theta)=\frac{\text{proj}\left[\int dX\, f(X|\theta)m_{X\rightarrow f_{i}}(X)m_{\theta\rightarrow f_{i}}(\theta)\right]}{m_{\theta\rightarrow f_{i}}(\theta)}$
 where $\text{proj}\left[r\right]=\arg\min_{q\in\text{ExpFam}}\text{KL}\left[r\,\|\, q\right]$
 and $m_{X\rightarrow f_{i}}(X):=\delta(X-X_{0})$ if $X$ is observed
 to be $X_{0}$. In the EP literature, $m_{\theta\rightarrow f_{i}}$
-is known as a cavity distribution. \todo{AE: Too many inline equations.} 
+is known as a cavity distribution. \aenote{AE: Too many inline equations.} 
 
 The projection can be carried out by the following moment matching
 procedure. Assume an ExpFam distribution $q(\theta|\eta)=h(\theta)\exp\left(\eta^{\top}u(\theta)-A(\eta)\right)$
@@ -216,7 +220,7 @@ satisfies $\mathbb{E}_{q^{*}(\theta)}\left[u(\theta)\right]=\mathbb{E}_{r(\theta
 That is, the projection of $r$ onto ExpFam is given by $q^{*}\in\text{ExpFam}$
 that has the same moment parameters as the moments under $r$. 
 
-\todo{Should jump to this general msg from the beginning.}In general,
+\wjnote{WJ: Should jump to this general msg from the beginning.}In general,
 under the approximation that each factor fully factorizes, an EP message
 from a factor $f$ to a variable $V$ takes the form 
 \begin{align}
@@ -229,7 +233,7 @@ we have $\mathcal{V}(f)=\left\{ X,\theta\right\} $ and $V$ in Eq.
 \ref{eq:general_ep_msg} corresponds to $\theta$. Typically, when
 the factor $f$ is complicated, the integral defining $r_{f\rightarrow V}$
 becomes intractable. Quadrature rules or other numerical integration
-techniques are often applied to approximate the integral. \todo{AE: This is the main point we want to get accross. Either needs more emphasis or should be mentioned sooner.}
+techniques are often applied to approximate the integral. \aenote{AE: This is the main point we want to get accross. Either needs more emphasis or should be mentioned sooner.}
 
 
 \section{Learning to Pass EP Messages\label{sec:Learning-to-Pass}}
@@ -263,7 +267,7 @@ is available. The distribution is used solely to give a rough idea
 of incoming messages the learned operator will encounter during the
 actual EP inference. In practice, we only need to ensure that the
 distribution sufficiently covers the relevant region in the space
-of incoming messages. \todo{AE: This sentence needs reworking now that you only train on messages observed in the model.}
+of incoming messages. \aenote{AE: This sentence needs reworking now that you only train on messages observed in the model.}
 
 In recent years, there have been a number of works on the regression
 task with distributional inputs, including \cite{Poczos2013,Szabo2014}
@@ -294,7 +298,7 @@ during inference), and rich supporting theory.
 
 \subsection{Kernel Ridge Regression}
 
-\todo{AE: Too many inline equations in this section. Pull out the most important ones?} We consider here the problem of regressing smoothly from distribution-valued
+\aenote{AE: Too many inline equations in this section. Pull out the most important ones?} We consider here the problem of regressing smoothly from distribution-valued
 inputs to feature-valued outputs. We follow the regression framework
 of \cite{Micchelli2005}, with convergence guarantees provided by
 \cite{Caponnetto2007}. Under smoothness constraints, this regression
@@ -319,12 +323,12 @@ $\left(K\right)_{ij}=\kappa(\mathsf{x}_{i},\mathsf{x}_{j})$ yielding
 the regression function of the form $g(\mathsf{x})=\sum_{i=1}^{N}a_{i}\kappa(\mathsf{x}_{i},\mathsf{x})$
 where $A:=(a_{1}|\cdots|a_{N})$. The dual formulation therefore allows
 one to straightforwardly regress from incoming messages to vectors
-of mean parameters.\todo{AE: Best not to use `in our setting' until section 4 (proposed method). This section is still `background', right?} Although this property is appealing, the training
+of mean parameters.\aenote{AE: Best not to use `in our setting' until section 4 (proposed method). This section is still `background', right?} Although this property is appealing, the training
 size $N$ in our setting can be chosen to be arbitrarily large, making
 computation of $g(\mathsf{x})$ expensive for a new unseen point $\mathsf{x}$.
 
 
-\todo{AE: Best not to use `we propose' until section 4 (proposed method).}To eliminate the dependency on $N$, we propose to apply random Fourier
+\aenote{AE: Best not to use `we propose' until section 4 (proposed method).}To eliminate the dependency on $N$, we propose to apply random Fourier
 features \citep{Rahimi2007} $\hat{\phi}(\mathsf{x})\in\mathbb{R}^{D}$
 for $\mathsf{x}:=[m_{V\rightarrow f}]_{V\in\mathcal{V}(f)}$ such
 that $\kappa(\mathsf{x},\mathsf{x}')\approx\hat{\phi}(\mathsf{x})^{\top}\hat{\phi}(\mathsf{x}')$
@@ -396,7 +400,7 @@ far away from the training set. Say the mean of the means of Gaussian
 incoming messages in the training set is 0. Vary the mean of the Gaussian
 message from -10 to 10 on x-axis and plot predictive variance on y-axis.
 Expect a U-shaped curve where the minimum is at 0. This ensures the
-operator will query the \todo{AE: Need to talk about online training, concept of an oracle, concept of querying oracle when uncertain.}oracle when there are incoming messages from
+operator will query the \aenote{AE: Need to talk about online training, concept of an oracle, concept of querying oracle when uncertain.}oracle when there are incoming messages from
 an unexplored region. Perhaps plot one curve for one setting of the
 incoming Beta message (fixed).
 \item For predictive variance on unseen region, we may need two plots where
@@ -418,28 +422,28 @@ dataset (say a binary classification dataset from UCI repository).
 \item Andrew Gelman \citep{Gelman2006}, Tom Minka: ``Gamma prior on precision
 is not good''. Cite them.
 \end{itemize}
-\item Do we need kNN as a baseline regression function? \todo{AE: Maybe enough to point to JIT paper and say KNN performs badly there?}
-\item Choose the number of particles in the oracle importance sampler so
+%\item Do we need kNN as a baseline regression function? \aenote{AE: Maybe enough to point to JIT paper and say KNN performs badly there?}
+\eitem Choose the number of particles in the oracle importance sampler so
 that it takes roughly the same time as our operator. Compute the predictive
 quality of the two. 
 \item As in Fig 3.c of Ali's paper, show that the inference error of sampling
 + JIT is better than sampling alone. This asserts that JIT interpolates
-in the message space in a useful way. \todo{AE: This would be nice but is probably not critical. Could be one of the last experiments you run?}
+in the message space in a useful way. \aenote{AE: This would be nice but is probably not critical. Could be one of the last experiments you run?}
 \end{itemize}
 
 As a preliminary experiment, we consider the logistic factor $f(z|x)=\delta\left(z-\frac{1}{1+\exp(-x)}\right)$
 which is deterministic when conditioning on $x$. The factor is used
 in many common models including binary logistic regression. The two
 incoming messages are $m_{X\rightarrow f}(x)=\mathcal{N}(x;\mu,\sigma^{2})$
-and $m_{Z\rightarrow f}(z)=\text{Beta}(z;\alpha,\beta)$. \todo{AE: I think at this point you need to properly define the logistic regression model otherwise incoming messages will be incomprehensible.} We randomly
+and $m_{Z\rightarrow f}(z)=\text{Beta}(z;\alpha,\beta)$. \aenote{AE: I think at this point you need to properly define the logistic regression model otherwise incoming messages will be incomprehensible.} We randomly
 generate 2000 training input messages and learn a message operator
 using the kernel on joint embeddings. Kernel parameters are chosen
 by cross validation and the number of random features $D$ is set
-to 2000. \todo{AE: Why 2000?} We report $\log KL[q\|\hat{q}]$ where $q=q_{f\rightarrow X}$
+to 2000. \aenote{AE: Why 2000?} We report $\log KL[q\|\hat{q}]$ where $q=q_{f\rightarrow X}$
 is the ground truth output message obtained by importance sampling
 and $\hat{q}$ is the message output from the operator. For better
 numerical scaling, regression outputs are set to $(\mathbb{E}_{q}\left[x\right],\log\mathbb{V}_{q}\left[x\right])$
-instead of the expectations of the first two moments. \todo{AE: No need to mention log-scaling?} The histogram
+instead of the expectations of the first two moments. \aenote{AE: No need to mention log-scaling?} The histogram
 of log KL errors is shown on the left of Fig. \ref{fig:Log-KL-divergence-on}.
 The right figure shows sample output messages at different log KL
 errors. It can be seen that the operator is able to capture the relationship
@@ -484,7 +488,7 @@ the importance sampler (oracle) and update the operator. Otherwise,
 the outgoing message is efficiently computed by the operator. Online
 learning of the operator lessens the need of the distribution on natural
 parameters of incoming messages used in training set generation. Determining
-an appropriate distribution was one of the unsolved problems in \cite{Heess2013}. \todo{AE: These paragraphs are very informative. Would be great to have them in some form towards the beginning of the paper too. 1. Say what you're going to say. 2. Say it. 3. Say what you just said. there }
+an appropriate distribution was one of the unsolved problems in \cite{Heess2013}. \aenote{AE: These paragraphs are very informative. Would be great to have them in some form towards the beginning of the paper too. 1. Say what you're going to say. 2. Say it. 3. Say what you just said. there }
 
 \bibliographystyle{abbrvnat}
 \bibliography{ref}
