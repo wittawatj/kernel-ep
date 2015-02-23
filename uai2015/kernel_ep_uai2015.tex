@@ -113,6 +113,7 @@ any kind of factor that can be sampled.\aenote{AE: 1. State the problem. 2. Say 
 
 
 \section{Background}
+\wjnote{Do we need both introduction and background sections ?}
 
 Existing approaches to automated probabilistic inference can be broadly
 divided into two categories \citep{Heess2013}: uninformed and informed
@@ -268,14 +269,17 @@ The assumptions needed for the generation of a training set are as
 follows. First, we assume the factor $f$ takes the form of a
 conditional distribution $f(v_{1}|v_{2},\ldots,v_{|\mathcal{V}(f)|})$.
 Second, given $v_{2},\ldots,v_{|\mathcal{V}(f)|}$, $v_{1}$ can
-be sampled from $f(\cdot|v_{2},\ldots,v_{|\mathcal{V}(f)|})$. The
-ability to evaluate $f$ is not assumed. Finally we assume that a
-distribution on the natural parameters of all incoming messages $\left\{ m_{V\rightarrow f}\right\} _{V\in\mathcal{V}(f)}$
-is available. The distribution is used solely to give a rough idea
-of incoming messages the learned operator will encounter during the
-actual EP inference. In practice, we only need to ensure that the
-distribution sufficiently covers the relevant region in the space
-of incoming messages. \aenote{AE: This sentence needs reworking now that you only train on messages observed in the model.}
+be sampled from $f(\cdot|v_{2},\ldots,v_{|\mathcal{V}(f)|})$. 
+The ability to evaluate $f$ is not assumed. 
+In contrast to \cite{Heess2013}, we do not assume that a distribution on the natural parameters of all incoming messages is available. \wjnote{because we use onlne-active learning... More text here.}
+
+%Finally we assume that a distribution on the natural parameters of all incoming messages $\left\{ m_{V\rightarrow f}\right\} _{V\in\mathcal{V}(f)}$
+%is available. The distribution is used solely to give a rough idea
+%of incoming messages the learned operator will encounter during the
+%actual EP inference. In practice, we only need to ensure that the
+%distribution sufficiently covers the relevant region in the space
+%of incoming messages. 
+%\aenote{AE: This sentence needs reworking now that you only train on messages observed in the model.}
 
 In recent years, there have been a number of works on the regression
 task with distributional inputs, including \cite{Poczos2013,Szabo2014}
@@ -301,12 +305,13 @@ which can be computed analytically. We opt for kernel ridge regression
 its potential use in an online setting (i.e., incremental learning
 during inference), and rich supporting theory. 
 
-
 \section{Proposed Method}
+
 
 \subsection{Kernel Ridge Regression}
 
-\aenote{AE: Too many inline equations in this section. Pull out the most important ones?} We consider here the problem of regressing smoothly from distribution-valued
+%\aenote{AE: Too many inline equations in this section. Pull out the most important ones?} 
+We consider here the problem of regressing smoothly from distribution-valued
 inputs to feature-valued outputs. We follow the regression framework
 of \cite{Micchelli2005}, with convergence guarantees provided by
 \cite{Caponnetto2007}. Under smoothness constraints, this regression
@@ -331,12 +336,13 @@ $\left(K\right)_{ij}=\kappa(\mathsf{x}_{i},\mathsf{x}_{j})$ yielding
 the regression function of the form $g(\mathsf{x})=\sum_{i=1}^{N}a_{i}\kappa(\mathsf{x}_{i},\mathsf{x})$
 where $A:=(a_{1}|\cdots|a_{N})$. The dual formulation therefore allows
 one to straightforwardly regress from incoming messages to vectors
-of mean parameters.\aenote{AE: Best not to use `in our setting' until section 4 (proposed method). This section is still `background', right?} Although this property is appealing, the training
+of mean parameters.
+Although this property is appealing, the training
 size $N$ in our setting can be chosen to be arbitrarily large, making
 computation of $g(\mathsf{x})$ expensive for a new unseen point $\mathsf{x}$.
 
 
-\aenote{AE: Best not to use `we propose' until section 4 (proposed method).}To eliminate the dependency on $N$, we propose to apply random Fourier
+To eliminate the dependency on $N$, we propose to apply random Fourier
 features \citep{Rahimi2007} $\hat{\phi}(\mathsf{x})\in\mathbb{R}^{D}$
 for $\mathsf{x}:=[m_{V\rightarrow f}]_{V\in\mathcal{V}(f)}$ such
 that $\kappa(\mathsf{x},\mathsf{x}')\approx\hat{\phi}(\mathsf{x})^{\top}\hat{\phi}(\mathsf{x}')$
@@ -347,6 +353,96 @@ can be computed efficiently. In effect, computing an EP outgoing message
 requires nothing more than a multiplication of a matrix $\mathsf{W}$
 ($D_{y}\times D$ ) with the $D$-dimensional feature vector generated
 from the incoming messages. 
+
+
+\subsection{Bayesian Linear Regression}
+\wjnote{We need to unify Kernel ridge regression and Bayesian linear regression sections. 
+Posterior mean estimate of the Bayesian regression is the same as the solution to primal kernel ridge regression.
+Bayesian regression assumes a Gaussian noise output allowing us to compute predictive variance.}
+
+Denote $X=\left(x_{1}|\cdots|x_{N}\right)\in\mathbb{R}^{D\times N}$
+as (finite-dimensional) input and $Y=\left(y_{1}|\cdots|y_{N}\right)\in\mathbb{R}^{1\times N}$
+(one coordinate of all expected sufficient statistics) as regression
+output. In our application, $x_{n}$ will denote a random feature
+vector for $[m_{V\rightarrow f}^{n}]_{V\in\mathcal{V}(f)}$. Assume
+%
+\begin{align*}
+w & \sim\mathcal{N}\left(w;0,I_{D}\sigma_{0}^{2}\right)\\
+Y\mid X,w & \sim\mathcal{N}\left(Y;w^{\top}X,\sigma_{y}^{2}I_{N}\right).
+\end{align*}
+%
+The output noise variance $\sigma_{y}^{2}$ should capture the intrinsic
+stochasticity of the importance sampler used to generate $Y$. It
+follows that the posterior of $w$ is given by 
+\begin{align*}
+p(w\mid Y) & =\mathcal{N}(w;\mu_{w},\Sigma_{w})\\
+\Sigma_{w} & = \left( XX^{\top}\sigma_{y}^{-2}+\sigma_{0}^{-2}I \right)^{-1} \\
+\mu_{w} & =\Sigma_{w}XY^{\top}\sigma_{y}^{-2}.
+%=\left(XX^{\top}+\frac{\sigma_{y}^{2}}{\sigma_{0}^{2}}I\right)^{-1}XY^{\top}.
+\end{align*}
+The noise variance $\sigma_{y}^{2}$ is proportional to the regularization
+parameter in linear regression. 
+The predictive distribution on the output $y^{*}$ given an observation $x^{*}$ is
+%
+\begin{align*}
+p(y^{*}|x^{*},Y) & =\int dw\, p(y^{*}|w,x^{*},Y)p(w|Y)\\
+ & =\mathcal{N}\left(y^{*};x^{*\top}\mu_{w},x^{*\top}\Sigma_{w}x^{*}+\sigma_{y}^{2}\right)\\
+ & =\mathcal{N}(y^{*};m^{*},v^{*}).
+\end{align*}
+
+% The marginal likelihood is given by
+%\begin{align*}
+%p(Y|X) & =\int dw\, p(Y|X,w)p(w)\\
+% & =\mathcal{\mathcal{N}}\left(Y;0,K\sigma_{0}^{2}+\sigma_{y}^{2}I_{N}\right)\\
+% & =\det\left(2\pi\Sigma\right)^{-1/2}\exp\left(-\frac{1}{2}Y^{\top}\left(K\sigma_{0}^{2}+\sigma_{y}^{2}I_{N}\right)^{-1}Y\right)
+%\end{align*}
+%where $K=X^{\top}X$ is a gram matrix of $X$. 
+%One can do gradient ascent on $\log p(Y|X)$
+%to optimize $\sigma_{0}^{2},\sigma_{y}^{2}$ and kernel parameters.
+
+For simplicity, we treat each output (expected sufficient statistic) as a separate regression problem. 
+Treating all outputs jointly can be achieved with a multi-output kernel \citep{Alvarez2011}.
+
+\subsection{Online Update}
+
+In this section, we consider an online update for $\Sigma_{w}$ and
+$\mu_{w}$ when observations $X$ comes in stream. We will use $\cdot^{(n)}$
+to denote a quantity constructed from $n$ samples. Recall that $\Sigma_{w}^{-1(N)}=XX^{\top}\sigma_{y}^{-2}+\sigma_{0}^{-2}I$.
+The posterior covariance matrix at time $N+1$ can be written as 
+\begin{align*}
+\Sigma_{w}^{(N+1)} & =\left(XX^{\top}\sigma_{y}^{-2}+x_{N+1}x_{N+1}^{\top}\sigma_{y}^{-2}+\sigma_{0}^{-2}I\right)^{-1}\\
+ & =\left(\Sigma_{w}^{-1(N)}+x_{N+1}x_{N+1}^{\top}\sigma_{y}^{-2}\right)^{-1}\\
+ & =\Sigma_{w}^{(N)}-\frac{\Sigma_{w}^{(N)}x_{N+1}x_{N+1}^{\top}\Sigma_{w}^{(N)}\sigma_{y}^{-2}}{1+x_{N+1}^{\top}\Sigma_{w}^{(N)}x_{N+1}\sigma_{y}^{-2}}
+\end{align*}
+where we used the Sherman-Morrison formula.
+%\[
+%\left(A+uv^{\top}\right)^{-1}=A^{-1}-\frac{A^{-1}uv^{\top}A^{-1}}{1+v^{\top}A^{-1}u}
+%\]
+%with $A=\Sigma_{w}^{-1(N)}$. 
+
+Updating $\Sigma_{w}$ costs $O(D^{2})$ per a observation. 
+For $\mu_{w}=\Sigma_{w}XY^{\top}\sigma_{y}^{-2}$, we maintain
+$XY^{\top}\in\mathbb{R}^{D}$ and update it with
+\[
+\left(XY^{\top}\right)^{(N+1)}=\left(XY^{\top}+x_{N+1}y_{N+1}\right).
+\]
+costing $O(D)$ per update. 
+%In the first iteration when no data are observed, $\Sigma_{w}^{(1)}=\sigma_{0}^{2}I$.
+
+\subsection{Active Learning}
+
+If the predictive variance on the current incoming messages $x^{*}$
+is high, then we query the outgoing message from the importance sampler
+(oracle) and update the $\Sigma_{w}$ and $\mu_{w}$. Otherwise, the
+outgoing message is efficiently computed by the operator. We have
+$D_{y}$ regression functions. Thus, for each $x^{*}$, we have $D_{y}$
+predictive variances, $v_{1}^{*},\ldots,v_{D_{y}}^{*}$, one for each
+output. Given a new input $x^{*}$, if $v_{1}^{*}>\tau_{1}$ or $\cdots$
+or $v_{D_{y}}^{*}>\tau_{D_{y}}$ where $\{\tau_{i}\}_{i}$ are pre-specified
+predictive variance thresholds, then a query is made to the oracle
+to obtain a ground truth $y^{*}$. The pair $(x^{*},y^{*})$ is then
+used to update the operator as described previously. Querying the
+oracle incurs a high computational cost.
 
 
 \subsection{Kernels on Distributions}
@@ -395,19 +491,25 @@ regression.
 \end{itemize}
 
 \section{Related Work}
+\cite{Heess2013}, \cite{Eslami2014}, \cite{Barthelme2011}. 
+Possibly \cite{Jampani2014} is also related ?
 
-\section{Experiments\label{sec:Experiments}}
+\section{Experiments  \label{sec:Experiments}}
 
+To ensure that the operator is capable of learning the relationship 
+of incoming and outgoing messages, we first consider a batch learning setting.
 
 \begin{figure}
 \centering
-\missingfigure{Factor graph for binary logistic regression}
-\caption{Factor graph for binary logistic regression}
+\missingfigure{Factor graph for binary logistic regression. Just imagine by yourself for now.}
+\caption{Factor graph for binary logistic regression.}
 \label{fig:factor_graph_binlog}
 \end{figure}
 
-\paragraph{Logistic} To ensure that the operator is capable of learning the relationship 
-of incoming and outgoing messages, we first consider a batch learning setting on the logistic factor 
+\subsection{Accuracy}
+
+\paragraph{Logistic} 
+As in \cite{Heess2013, Eslami2014}, we consider the logistic factor 
 $f(z|x)=\delta\left(z-\frac{1}{1+\exp(-x)}\right)$ in the context of 
 a binary logistic regression model as shown in \figref{fig:factor_graph_binlog}.
 %The factor is deterministic when conditioning on $x$. 
@@ -443,6 +545,35 @@ of incoming and outgoing messages.
 \protect\caption{Log KL-divergence on a logistic factor test set using kernel on joint
 embeddings.\label{fig:Log-KL-divergence-on}}
 \end{figure}
+
+\subsection{Uncertainty Estimate}
+
+\subsection{Actual EP messages. Mix of multiple EP runs. Predictive variance.}
+
+As before, we consider the same dataset i.e. messages collected from
+actual EP. Train/test = 5000/2000. In this experiment, we run Steinwart
+(Gaussian kernel on mean embeddings) kernel on joint embeddings with
+random Fourier features (two staged approximation). 1000 outer features,
+500 inner features. We compute predictive variance as in Bayesian
+linear regression. The regularization parameter is now proportional
+to the output noise in Bayesian linear regression. 
+
+
+\paragraph{Backward direction (output: Normal message)}
+
+DNormalLogVarBuilder means regressing to Gaussian mean and $\log$
+variance.
+
+\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-bw-out1-crop}
+\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-bw-out2-crop}
+
+
+\paragraph{Forward direction (output: Beta message)}
+
+DBetaLogBuilder means regressing to $\log\alpha$ and $\log\beta$.
+
+\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-fw-out1-crop}
+\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-fw-out2-crop} 
 
 
 \hl{Experiments to have}
@@ -526,89 +657,6 @@ an appropriate distribution was one of the unsolved problems in \cite{Heess2013}
 \todo[inline]{The following incoherent content needs to be rewritten. I just copied it from my notes. Some part will be moved to the main text.  }
 
 
-\section{Bayesian Linear Regression}
-
-Denote $X=\left(x_{1}|\cdots|x_{N}\right)\in\mathbb{R}^{D\times N}$
-as (finite-dimensional) input and $Y=\left(y_{1}|\cdots|y_{N}\right)\in\mathbb{R}^{1\times N}$
-(one coordinate of all expected sufficient statistics) as regression
-output. In our application, $x_{n}$ will denote a random feature
-vector for $[m_{V\rightarrow f}^{n}]_{V\in\mathcal{V}(f)}$. Assume
-\begin{align*}
-w & \sim\mathcal{N}\left(w;0,I_{D}\sigma_{0}^{2}\right)\\
-Y\mid X,w & \sim\mathcal{N}\left(Y;w^{\top}X,\sigma_{y}^{2}I_{N}\right).
-\end{align*}
-The output noise variance $\sigma_{y}^{2}$ should capture the intrinsic
-stochasticity of the importance sampler used to generate $Y$. It
-follows that the posterior of $w$ is given by 
-\begin{align*}
-p(w\mid Y) & =\mathcal{N}(w;\mu_{w},\Sigma_{w})\\
-\Sigma_{w}^{-1} & =XX^{\top}\sigma_{y}^{-2}+\sigma_{0}^{-2}I\\
-\mu_{w} & =\Sigma_{w}XY^{\top}\sigma_{y}^{-2}=\left(XX^{\top}+\frac{\sigma_{y}^{2}}{\sigma_{0}^{2}}I\right)^{-1}XY^{\top}.
-\end{align*}
-The quantity $\sigma_{y}^{2}$ is proportional to the regularization
-parameter in linear regression. The predictive distribution on the
-output $y^{*}$ given an observation $x^{*}$ is
-\begin{align*}
-p(y^{*}|x^{*},Y) & =\int dw\, p(y^{*}|w,x^{*},Y)p(w|Y)\\
- & =\mathcal{N}\left(y^{*};x^{*\top}\mu_{w},x^{*\top}\Sigma_{w}x^{*}+\sigma_{y}^{2}\right)\\
- & =\mathcal{N}(y^{*};m^{*},v^{*}).
-\end{align*}
- The marginal likelihood is given by
-\begin{align*}
-p(Y|X) & =\int dw\, p(Y|X,w)p(w)\\
- & =\mathcal{\mathcal{N}}\left(Y;0,K\sigma_{0}^{2}+\sigma_{y}^{2}I_{N}\right)\\
- & =\det\left(2\pi\Sigma\right)^{-1/2}\exp\left(-\frac{1}{2}Y^{\top}\left(K\sigma_{0}^{2}+\sigma_{y}^{2}I_{N}\right)^{-1}Y\right)
-\end{align*}
-where $K=X^{\top}X$ is a gram matrix of $X$. \textbf{TODO:} We should
-be able to write the marginal likelihood in terms of covariance matrix
-instead of a gram matrix. One can do gradient ascent on $\log p(Y|X)$
-to optimize $\sigma_{0}^{2},\sigma_{y}^{2}$ and kernel parameters.
-In our application, we can treat each output (expected sufficient
-statistic) separately. Treating all outputs jointly can be achieved
-with a multi-output kernel (see \citesup{Alvarez2011}).
-
-
-\subsection{Online Update}
-
-In this section, we consider an online update for $\Sigma_{w}$ and
-$\mu_{w}$ when observations $X$ comes in stream. We will use $\cdot^{(n)}$
-to denote a quantity constructed from $n$ samples. Recall that $\Sigma_{w}^{-1(N)}=XX^{\top}\sigma_{y}^{-2}+\sigma_{0}^{-2}I$.
-The posterior covariance matrix at time $N+1$ can be written as 
-\begin{align*}
-\Sigma_{w}^{(N+1)} & =\left(XX^{\top}\sigma_{y}^{-2}+x_{N+1}x_{N+1}^{\top}\sigma_{y}^{-2}+\sigma_{0}^{-2}I\right)^{-1}\\
- & =\left(\Sigma_{w}^{-1(N)}+x_{N+1}x_{N+1}^{\top}\sigma_{y}^{-2}\right)^{-1}\\
- & =\Sigma_{w}^{(N)}-\frac{\Sigma_{w}^{(N)}x_{N+1}x_{N+1}^{\top}\Sigma_{w}^{(N)}\sigma_{y}^{-2}}{1+x_{N+1}^{\top}\Sigma_{w}^{(N)}x_{N+1}\sigma_{y}^{-2}}
-\end{align*}
-where we used Sherman-Morrison formula
-\[
-\left(A+uv^{\top}\right)^{-1}=A^{-1}-\frac{A^{-1}uv^{\top}A^{-1}}{1+v^{\top}A^{-1}u}
-\]
-with $A=\Sigma_{w}^{-1(N)}$. Updating $\Sigma_{w}$ costs $O(D^{2})$
-per one new observation. 
-
-For $\mu_{w}=\Sigma_{w}XY^{\top}\sigma_{y}^{-2}$, we should maintain
-$XY^{\top}\in\mathbb{R}^{D}$ and update it with
-\[
-\left(XY^{\top}\right)^{(N+1)}=\left(XY^{\top}+x_{N+1}y_{N+1}\right).
-\]
-One update of $\mu_{w}$ costs $O(D)$. In the first iteration when
-no data are observed, $\Sigma_{w}^{(1)}=\sigma_{0}^{2}I$.
-
-
-\subsection{Active Learning}
-
-If the predictive variance on the current incoming messages $x^{*}$
-is high, then we query the outgoing message from the importance sampler
-(oracle) and update the $\Sigma_{w}$ and $\mu_{w}$. Otherwise, the
-outgoing message is efficiently computed by the operator. We have
-$D_{y}$ regression functions. Thus, for each $x^{*}$, we have $D_{y}$
-predictive variances, $v_{1}^{*},\ldots,v_{D_{y}}^{*}$, one for each
-output. Given a new input $x^{*}$, if $v_{1}^{*}>\tau_{1}$ or $\cdots$
-or $v_{D_{y}}^{*}>\tau_{D_{y}}$ where $\{\tau_{i}\}_{i}$ are pre-specified
-predictive variance thresholds, then a query is made to the oracle
-to obtain a ground truth $y^{*}$. The pair $(x^{*},y^{*})$ is then
-used to update the operator as described previously. Querying the
-oracle incurs a high computational cost.
 
 
 \section{Kernel Ridge Regression}
@@ -1085,36 +1133,6 @@ the averaged Frobenius norm.
 The result suggests that $D_{out}$ has more effect in improving the
 approximation.
 
-
-\section{Experiments on Kernel-Based Message Operators}
-
-
-\subsection{Actual EP messages. Mix of multiple EP runs. Predictive variance.}
-
-As before, we consider the same dataset i.e. messages collected from
-actual EP. Train/test = 5000/2000. In this experiment, we run Steinwart
-(Gaussian kernel on mean embeddings) kernel on joint embeddings with
-random Fourier features (two staged approximation). 1000 outer features,
-500 inner features. We compute predictive variance as in Bayesian
-linear regression. The regularization parameter is now proportional
-to the output noise in Bayesian linear regression. 
-
-
-\paragraph{Backward direction (output: Normal message)}
-
-DNormalLogVarBuilder means regressing to Gaussian mean and $\log$
-variance.
-
-\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-bw-out1-crop}
-\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-bw-out2-crop}
-
-
-\paragraph{Forward direction (output: Beta message)}
-
-DBetaLogBuilder means regressing to $\log\alpha$ and $\log\beta$.
-
-\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-fw-out1-crop}
-\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-fw-out2-crop} 
 
 \bibliographystylesup{abbrvnat}
 \bibliographysup{refappendix} 
