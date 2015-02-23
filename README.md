@@ -23,6 +23,10 @@ This project extends the following work
     3219–27, 2013. 
     http://media.nips.cc/nipsbooks/nipspapers/paper_files/nips26/1493.pdf.
 
+    Eslami, S. M. A.; Tarlow, D.; Kohli, P. & Winn, 
+    "Just-In-Time Learning for Fast and Flexible Inference." 
+    In Advances in Neural Information Processing Systems 27, 2014, 154-162
+    http://papers.nips.cc/paper/5595-just-in-time-learning-for-fast-and-flexible-inference.pdf
 
 ### Useful Functions
 
