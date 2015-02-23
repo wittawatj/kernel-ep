@@ -400,8 +400,8 @@ The predictive distribution on the output $y^{*}$ given an observation $x^{*}$ i
 %
 \begin{align*}
 p(y^{*}|x^{*},Y) & =\int dw\, p(y^{*}|w,x^{*},Y)p(w|Y)\\
- & =\mathcal{N}\left(y^{*};x^{*\top}\mu_{w},x^{*\top}\Sigma_{w}x^{*}+\sigma_{y}^{2}\right)\\
- & =\mathcal{N}(y^{*};m^{*},v^{*}).
+ & =\mathcal{N}\left(y^{*};x^{*\top}\mu_{w},x^{*\top}\Sigma_{w}x^{*}+\sigma_{y}^{2}\right)
+% & =\mathcal{N}(y^{*};m^{*},v^{*}).
 \end{align*}
 
 % The marginal likelihood is given by
@@ -570,12 +570,12 @@ $ k_{\text{gauss}}\left(\hat{\phi}(p), \hat{\phi}(q);\gamma^{2}\right)\approx\ha
 %
 by standard random Fourier features \citep{Rahimi2007} where $\hat{\psi}(p)\in\mathbb{R}^{D_{out}}$. 
 A pseudocode for generating the random features is summarized in Algorithm~\ref{algo:random_features_kgg}.
-
-\subsubsection{Pseudo code }
-
-To obtain an approximation $\hat{\psi}(p)^{\top}\hat{\psi}(q)\approx\kappa_{\text{gauss}}(p,q)$,
-do the following. Assume $d$ is the dimension of the input domain
-of $p$ and $q$.
+We need to pre-compute $\left\{ \omega_{i}\right\} _{i=1}^{D_{in}},\left\{ b_{i}\right\} _{i=1}^{D_{in}},\left\{ \nu_{i}\right\} _{i=1}^{D_{out}}$
+and $\left\{ c_{i}\right\} _{i=1}^{D_{out}}$ where $D_{in}$ and
+$D_{out}$ are the number of random features to be specified. 
+A more efficient way to support a large number of random features 
+is to store only the random seed used to generate 
+them. The coefficients are generated on the fly when needed \citep{Dai2014}. 
 
 \begin{algorithm}[t]
 \caption{Construction of two-staged random features for a Gaussian kernel on mean embeddings}
@@ -604,14 +604,6 @@ i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
 \end{algorithm}
 
 
-We need to store $\left\{ \omega_{i}\right\} _{i=1}^{D_{in}},\left\{ b_{i}\right\} _{i=1}^{D_{in}},\left\{ \nu_{i}\right\} _{i=1}^{D_{out}}$
-and $\left\{ c_{i}\right\} _{i=1}^{D_{out}}$ where $D_{in}$ and
-$D_{out}$ are the number of random features to be specified. A more
-advanced way to store all the random coefficients is to store only
-the random seed used to generate them. The coefficients are generated
-only when needed. 
-
-
 %%%%%%%%%%%%%%
 %\section{Related Work}
 %\wjnote{This section may be merged with introduction ?}
@@ -626,12 +618,12 @@ of incoming and outgoing messages, we first consider a batch learning setting.
 
 \begin{figure}
 \centering
-%\missingfigure{Factor graph for binary logistic regression. Just imagine by yourself for now.}
-\includegraphics[scale=0.8,page=2,clip,trim=8cm 18.5cm 8cm 1cm]{img/heess_passing_ep_supp.pdf}
+\missingfigure{Factor graph for binary logistic regression. Just imagine by yourself for now.}
+%\includegraphics[scale=0.8,page=2,clip,trim=8cm 18.5cm 8cm 1cm]{img/heess_passing_ep_supp.pdf}
 \caption{Factor graph for binary logistic regression. 
-The logistic factor is highlighted in red. 
-We set $\boldsymbol{\mu}:=\boldsymbol{0}$ and $\boldsymbol{\Lambda}:=I$. 
-\wjnote{This figure will be updated later.}
+%The logistic factor is highlighted in red. 
+%We set $\boldsymbol{\mu}:=\boldsymbol{0}$ and $\boldsymbol{\Lambda}:=I$. 
+%\wjnote{This figure will be updated later.}
 }
 \label{fig:factor_graph_binlog}
 \end{figure}
@@ -640,6 +632,7 @@ We set $\boldsymbol{\mu}:=\boldsymbol{0}$ and $\boldsymbol{\Lambda}:=I$.
 
 \paragraph{Logistic} 
 As in \cite{Heess2013, Eslami2014}, we consider the logistic factor 
+\wjnote{This x is not x in the factor graph. Fix this.}
 %
 \begin{equation*}
 f(z|x)=\delta\left(z-\frac{1}{1+\exp(-x)}\right)
@@ -743,6 +736,8 @@ same problem are shown in \figref{fig:tree_uncertainty_unexplored} where
 \figref{fig:breiman_uncertainty} shows uncertainty estimates of Breiman's 
 random forests \citep{Breiman2001} and \figref{fig:ert_uncertainty} shows 
 uncertainty estimates of extremely randomized trees \citep{Geurts2006}.
+We set the number of trees to 100 in both cases and other parameters to 
+the default settings as set in Scikit-learn package \citep{Pedregosa2011}. 
 
 \wjnote{Need to add how they compute the uncertainty estimates. ?}
 \wjnote{Add comments on uncertainty estimates of the trees.}
@@ -778,6 +773,7 @@ estimates of the proposed method on the two uncertainty test sets.}
 %\caption{Log KL-divergence on a logistic factor test set using kernel on joint embeddings.}
 %\label{fig:tree_uncertainty_unexplored}
 %\end{figure}
+
 
 \hrulefill{}
 
