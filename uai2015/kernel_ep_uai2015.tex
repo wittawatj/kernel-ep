@@ -556,6 +556,7 @@ The histogram of log KL errors is shown on the left of \figref{fig:Log-KL-diverg
 The right figure shows sample output messages at different log KL errors. 
 It can be seen that the operator is able to capture the relationship
 of incoming and outgoing messages. 
+\wjnote{some more explanation here.}
 
 \begin{figure}
 \begin{centering}
@@ -584,45 +585,53 @@ and the variance for predicting $\log(\alpha)$ of $m_{f \rightarrow Z}$ is shown
 	\centering
 
 	%DNormalLogVarBuilder means regressing to Gaussian mean and $\log$ variance.
-	\subfloat[Predicting the mean of $m_{f \rightarrow X}$]{
-	\includegraphics[width=0.9\columnwidth]{img/pred_var/fm_kgg_joint_-bw-out1-crop}
+	\subfloat[Predicting the mean of $m_{f \rightarrow X}$ (normal distribution)]{
+	\includegraphics[width=0.7\columnwidth]{img/pred_var/fm_kgg_joint_-bw-out1-crop}
 	}
-	%\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-bw-out2-crop}
+	%\includegraphicse[width=7cm]{img/pred_var/fm_kgg_joint_-bw-out2-crop}
 	
-	\subfloat[Predicting $\log(\alpha)$ of $m_{f \rightarrow Z}$]{
-	\includegraphics[width=0.9\columnwidth]{img/pred_var/fm_kgg_joint_-fw-out1-crop}
+	\subfloat[Predicting $\log(\alpha)$ of $m_{f \rightarrow Z} = \text{Beta}(z; \alpha, \beta)$]{
+	\includegraphics[width=0.7\columnwidth]{img/pred_var/fm_kgg_joint_-fw-out1-crop}
 	}
 	%\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-fw-out2-crop} 	
 	\caption{KL-divergence errors versus predictive variances in the logistic factor problem.}
 	\label{fig:logistic_predvar}
 \end{figure}
 
-\wjnote{To explain.} No points lie at the bottom right i.e., high confidence when it makes a big error.
+\wjnote{Feel free to fill in more explanation.} 
+The uncertainty estimates show a positive correlation with the KL-divergence errors. No points lie at the bottom right i.e., high confidence when it makes a big error.
 No points lie at the top left i.e., not confident when it should not be.
+The fact that the errors on the training set are roughly the same as the errors on the test set
+indicates that the operator does not overfit.
 
-%
-%\begin{figure}
-%	\begin{subfigure}[t]{0.9\textwidth}
-%	\centering 
-%	%DNormalLogVarBuilder means regressing to Gaussian mean and $\log$ variance.
-%	\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-bw-out1-crop}
-%	%\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-bw-out2-crop}
-%	\caption{aa}
-%	\end{subfigure}
-%
-%	\begin{subfigure}[t]{0.9\textwidth}
-%	\centering 
-%	\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-fw-out1-crop}
-%	%\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-fw-out2-crop} 
-%	\caption{aa}
-%	\end{subfigure}
-%	
-%	\caption{some thing}
-%	\label{fig:logistic_predvar}
-%\end{figure}
+\paragraph{Unexplored Region}
+One of the most important tasks in JIT learning is to correctly estimate 
+the predictive uncertainty in unexplored regions in the space of incoming messages. 
+In this section, we show that the operator reports a high
+uncertainty when encountered with incoming messages from a region far 
+away from the messages in the training set. 
+The first figure in \figref{fig:logistic_predvar_unexplored} shows the training set 
+as used in the logistic factor experiment. Each point represents one incoming message
+from $X$ i.e., $m_{X \rightarrow f}$. The incoming messages from $Z$ are not shown.
+We consider two test sets represented as two curves in the first figure. 
+The second figure in \figref{fig:logistic_predvar_unexplored} shows predict variance
+of each point in the two test sets, where we fix $m_{Z \rightarrow f} := \text{Beta}(z; 1, 2)$.
 
+\wjnote{Finish this explanation. Two key observations. 1. As a test point lies further away
+from the training set, the predictive variance grows exponentially.
+2. In both test sets, the operator is most certain around zeros mean. 
+However, the first test set passes through a lower density region, the operator 
+reports a higher uncertainty compared to the second test set. }
 
-\hrule{}
+\begin{figure}
+\centering
+\includegraphics[width=\columnwidth]{img/logistic_uncertainty-crop}
+\caption{Log KL-divergence on a logistic factor test set using kernel on joint embeddings.}
+\label{fig:logistic_predvar_unexplored}
+\end{figure}
+
+\hrulefill{}
+
 \hl{Experiments to have}
 \begin{itemize}
 \item Experiments on the logistic factor for comparing with Nicolas and
