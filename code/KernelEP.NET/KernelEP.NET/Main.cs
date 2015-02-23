@@ -30,8 +30,9 @@ namespace KernelEP{
 //			TestMath();
 //			LogisticRegression.TestLogisticRegression();
 
-			LogisticRegression.TestLogisticRegressionNoBias();
-
+//			LogisticRegression.TestLogisticRegressionNoBias();
+			CollectOnlineLogistic.RunOnlineKEPSampling();
+//			Console.WriteLine(new Matrix(0, 0));
 
 //			CollectLogisticMsgs.CollectMessages();
 //			InferenceEngine.ShowFactorManager(true);
@@ -47,6 +48,53 @@ namespace KernelEP{
 //			TestDeterminant();
 //			Console.WriteLine(DBeta.PointMass(0.3));
 //			TestMatrix();
+
+//			TestImproperMessages();
+//			TestWritingMat();
+		}
+
+		public static void TestWritingMat(){
+			string p = Config.PathToSavedFile("test_save_mat.mat");
+			MatlabWriter w = new MatlabWriter(p);
+			w.Write("b", 2);
+			double[] arr = new double[]{ 1, 2, 3 };
+			w.Write("arr", arr);
+			Vector vec = Vector.FromArray(new double[]{ 4, 5, 6, 7 });
+			w.Write("vec", vec);
+
+			List<double> list = new List<double>(arr);
+			w.Write("list", list);
+			Matrix m = Matrix.Parse("1 2\n 3 4");
+			w.Write("m", m);
+
+			long time = 1329L;
+			w.Write("longNum", time);
+
+			List<Matrix> mats = new List<Matrix>();
+			mats.Add(Matrix.IdentityScaledBy(2, 3.0));
+			mats.Add(Matrix.IdentityScaledBy(3, 4.0));
+			w.Write("list_mats", mats);
+			w.Dispose();
+		}
+
+		public static void TestImproperMessages(){
+			/**
+			 * Conclusions: 
+			 * - We can get natural parameters from an improper Gaussian 
+			 * but not mean and variance.
+			 * - We can get true count and false count form an improper Beta 
+			 * but not mean and variance.
+			*/
+//			Gaussian propG = Gaussian.FromMeanAndVariance(0, 1);
+			Gaussian imG = Gaussian.FromMeanAndVariance(0, -8);
+			double mtp, prec;
+			imG.GetNatural(out mtp, out prec);
+			Console.WriteLine("mtp: {0}, prec: {1}", mtp, prec);
+
+			Beta imB = Beta.FromMeanAndVariance(0.3, 0.8);
+			Console.WriteLine(imB);
+			Console.WriteLine(imB.FalseCount);
+
 		}
 
 		public static void TestDeterminant(){
@@ -63,7 +111,7 @@ namespace KernelEP{
 			Console.WriteLine("m3 det: {0}", m3.Determinant());
 			Console.WriteLine("m4 det: {0}", m4.Determinant());
 			// expect 6
-			Console.WriteLine("m1 my det: {0}", MatrixUtils.Determinant(m1) );
+			Console.WriteLine("m1 my det: {0}", MatrixUtils.Determinant(m1));
 			// expect 6
 			Console.WriteLine("m2 my det: {0}", MatrixUtils.Determinant(m2));
 			// expect -0.313
@@ -71,7 +119,7 @@ namespace KernelEP{
 			Console.WriteLine("m4 my det: {0}", MatrixUtils.Determinant(m4));
 
 			// Use MathNet
-			MNMatrix m5 = MNMatrix.Build.Dense(2, 2, new double[]{6, 0, 0, 1});
+			MNMatrix m5 = MNMatrix.Build.Dense(2, 2, new double[]{ 6, 0, 0, 1 });
 			Console.WriteLine(m5);
 			Console.WriteLine("m5 det: {0}", m5.Determinant());
 		}

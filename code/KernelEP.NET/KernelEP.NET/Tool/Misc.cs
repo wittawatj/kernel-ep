@@ -28,7 +28,9 @@ namespace KernelEP{
 			double[,] invArr = mnInv.ToArray();
 			return new Matrix(invArr);
 		}
-
+		public static List<T> ToList<T>(params T[] arr){
+			return arr.ToList();
+		}
 		/**Convert from Infer.NET's Matrix to MathNet's Matrix*/
 		public static MNMatrix ToMathNetMatrix(Matrix m){
 			double[,] arr = m.ToArray();
@@ -37,6 +39,20 @@ namespace KernelEP{
 			MNMatrix mnMat = MBuild.DenseOfArray(arr);
 			return mnMat;
 		}
+
+		public static List<double> ToDouble(List<bool> list){
+			// convert to a list of 0-1 double list 
+			return list.Select(v => v ? 1.0 : 0).ToList();
+		}
+		public static List<double> ToDouble(bool[] list){
+			// convert to a list of 0-1 double list 
+			return list.Select(v => v ? 1.0 : 0).ToList();
+		}
+		public static List<double> ToDouble(List<int> list){
+			// convert to a list of 0-1 double list 
+			return list.Select(v => (double)v).ToList();
+		}
+
 
 		public static bool IsAllPositive(double[] nums){
 			// True of if all elements are > 0
@@ -159,6 +175,7 @@ namespace KernelEP{
 			return m;
 		}
 
+
 		// Draw n samples from U[lower, upper)
 		public static double[] UniformVector(double lower, double upper, int n){
 			double[] vec = new double[n];
@@ -198,8 +215,21 @@ namespace KernelEP{
 			return mat;
 		}
 
+		public static Matrix StackColumns(List<double[]> cols){
+			if(cols.Count == 0){
+				return new Matrix(0, 0);
+			}
+			// TODO: not the most efficient way...
+			Vector[] vecCols = cols.Select(col => Vector.FromArray(col)).ToArray();
+			Matrix m = StackColumns(vecCols);
+			return m;
+		}
+
 		public static Matrix StackColumns(Vector[] cols){
 			// assume all vectors have the same length 
+			if(cols.Length == 0){
+				return new Matrix(0, 0);
+			}
 			int d = cols[0].Count;
 			int n = cols.Length;
 			Vector stack = ConcatAll(cols);

@@ -22,8 +22,9 @@ namespace KernelEP.TestIdea{
 		}
 
 		public static void GenData(int n, Vector w, double b, 
-		                           out Vector[] X, out bool[] Y){
+			out Vector[] X, out bool[] Y, int seed=1){
 
+			Rand.Restart(seed);
 			int d = w.Count;
 			X = new Vector[n];
 			Y = new bool[n];
@@ -139,7 +140,8 @@ namespace KernelEP.TestIdea{
 			//			opIns.SetPrintTrueMessages(true);
 			//			OpControl.Add(typeof(KEPLogisticOp), opIns);
 			//			Type logisticOp = typeof(KEPLogisticOp);
-			OpControl.Add(typeof(KEPOnlineLogisticOp), new KEPOnlineISLogisticOpIns());
+			LogisticOpRecords records = new LogisticOpRecords();
+			OpControl.Add(typeof(KEPOnlineLogisticOp), new KEPOnlineISLogisticOpIns(records));
 			Type logisticOp = typeof(KEPOnlineLogisticOp);
 			//			Type logisticOp = typeof(LogisticOp2);
 
@@ -157,6 +159,19 @@ namespace KernelEP.TestIdea{
 			Console.WriteLine("Inferred w: ");
 			Console.WriteLine(wPost);
 
+			// write the records to a file 
+			string fname = string.Format("rec_onlinekep_is_logistic_iter{0}_n{1}.mat", 
+				epIter, n);
+			string recordPath = Config.PathToSavedFile(fname);
+			var extra = new Dictionary<string, object>();
+			// MatlabWriter cannot write int
+			extra.Add("d", (double)d);
+			extra.Add("n", (double)n);
+			extra.Add("epIter", (double)epIter);
+			extra.Add("trueW", w);
+			extra.Add("X", MatrixUtils.StackColumns(X));
+			extra.Add("Y", MatrixUtils.ToDouble(Y));
+			records.WriteRecords(recordPath, extra);
 		}
 
 

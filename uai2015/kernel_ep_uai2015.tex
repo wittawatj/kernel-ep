@@ -149,6 +149,16 @@ considers a neural network, the kernel-based message operator we propose
 can be easily extended to allow online updates of the operator during
 inference. 
 
+\wjnote{add some text to link to ridge regression. Then...}
+By virtue of the primal form, it is straightforward to derive an update
+equation for an online-active learning during EP inference: if the
+predictive variance  on the current incoming messages is high, then we query the outgoing message from
+the importance sampler (oracle) and update the operator. Otherwise,
+the outgoing message is efficiently computed by the operator. Online
+learning of the operator lessens the need of the distribution on natural
+parameters of incoming messages used in training set generation. Determining
+an appropriate distribution was one of the unsolved problems in \cite{Heess2013}. 
+
 \hl{TODO/TO add:}
 \begin{itemize}
 \item Mention that online learning improves Nicolas's batch training approach. 
@@ -420,7 +430,7 @@ The total updating cost across all trees is $O(KD^3log(N))$.
 
 
 \subsection{Online Update \label{sec:kernel_ep_online}}
-
+ 
 In this section, we consider an online update for $\Sigma_{w}$ and
 $\mu_{w}$ when observations $X$ comes in stream. We will use $\cdot^{(n)}$
 to denote a quantity constructed from $n$ samples. Recall that $\Sigma_{w}^{-1(N)}=XX^{\top}\sigma_{y}^{-2}+\sigma_{0}^{-2}I$.
@@ -534,7 +544,7 @@ As in \cite{Heess2013, Eslami2014}, we consider the logistic factor
 f(z|x)=\delta\left(z-\frac{1}{1+\exp(-x)}\right)
 \end{equation*}
 %
-where $\delta$ is the Dirac delta fucntion, in the context of 
+where $\delta$ is the Dirac delta function, in the context of 
 a binary logistic regression model as shown in \figref{fig:factor_graph_binlog}.
 %The factor is deterministic when conditioning on $x$. 
 The two incoming messages are $m_{X\rightarrow f}(x)=\mathcal{N}(x;\mu,\sigma^{2})$
@@ -685,16 +695,6 @@ With random features, incoming messages to a learned operator are
 converted to a finite-dimensional vector. Computing an outgoing message
 amounts to computing the moment parameters by multiplying the vector
 with a matrix given by the solution of the primal ridge regression.
-
-By virtue of the primal form, it is straightforward to derive an update
-equation for an online-active learning during EP inference: if the
-predictive variance (similar to a Gaussian process) on the current
-incoming messages is high, then we query the outgoing message from
-the importance sampler (oracle) and update the operator. Otherwise,
-the outgoing message is efficiently computed by the operator. Online
-learning of the operator lessens the need of the distribution on natural
-parameters of incoming messages used in training set generation. Determining
-an appropriate distribution was one of the unsolved problems in \cite{Heess2013}. \aenote{AE: These paragraphs are very informative. Would be great to have them in some form towards the beginning of the paper too. 1. Say what you're going to say. 2. Say it. 3. Say what you just said. there }
 
 \bibliographystyle{abbrvnat}
 \bibliography{ref}

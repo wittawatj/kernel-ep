@@ -10,6 +10,8 @@ using MicrosoftResearch.Infer.Maths;
 using MicrosoftResearch.Infer.Factors;
 using MicrosoftResearch.Infer.Utils;
 using KernelEP.Op;
+using MNMatrix = MathNet.Numerics.LinearAlgebra.Matrix<double>;
+
 
 namespace KernelEP.Tool{
 
@@ -118,7 +120,7 @@ namespace KernelEP.Tool{
 		/** Collected batch outputs befure a full online learning. */
 		protected List<double> batchOutputs = new List<double>();
 		/** The size of initial batch over which a full online learning starts. */
-		protected int onlineBatchSizeTrigger = 500;
+		protected int onlineBatchSizeTrigger = 300;
 		/** If true, train in batch mode, next time the batch collection 
 		size hits the online learning trigger threshold. Will be set to false
 		after a retrain.*/
@@ -154,9 +156,14 @@ namespace KernelEP.Tool{
 		protected int GetInitialBatchSize(){
 			return batchOutputs.Count;
 		}
-
+		protected void CheckPredictionReady(){
+			if(WillNeedInitialTrain){
+				throw new SystemException("The map is not ready for prediction. Need initial batch training first.");
+			}
+		}
 		public override void MapAndEstimateU(out Vector mapped, out double[] uncertainty, 
 		                                     params IKEPDist[] msgs){
+			CheckPredictionReady();
 			Vector feature = featureMap.MapToVector(msgs);
 			mapped = posteriorMean * feature;
 			double predVar = posteriorCov.QuadraticForm(feature) + noiseVar;
@@ -164,6 +171,7 @@ namespace KernelEP.Tool{
 		}
 
 		public override Vector MapToVector(params IKEPDist[] msgs){
+			CheckPredictionReady();
 			Vector feature = featureMap.MapToVector(msgs);
 			double predict = posteriorMean.Inner(feature);
 			return Vector.FromArray(new []{ predict });
@@ -175,6 +183,7 @@ namespace KernelEP.Tool{
 
 		public override double[] EstimateUncertainty(params IKEPDist[] dists){
 			// return log predictive variance
+			CheckPredictionReady();
 			Vector feature = featureMap.MapToVector(dists);
 			double predVar = posteriorCov.QuadraticForm(feature) + noiseVar;
 			return new []{ Math.Log(predVar) };
@@ -190,6 +199,9 @@ namespace KernelEP.Tool{
 			}
 			double logPredVar = EstimateUncertainty(msgs)[0];
 			return logPredVar >= uThreshold;
+		}
+		public override bool IsOnlineReady(){
+			return !WillNeedInitialTrain;
 		}
 
 		public override void UpdateVectorMapper(Vector target, params IKEPDist[] msgs){
@@ -240,10 +252,11 @@ namespace KernelEP.Tool{
 
 			// TODO: full cross validation later.
 			// For now, we will use median heuristic to set the parameter.
-
-			int[] inOutNumFeatures = {300, 500};
+			 
+//			int[] inOutNumFeatures = {300, 500};
+			int[] inOutNumFeatures = {400, 700};
 //			int[] inOutNumFeatures = {50, 50};
-			double[] medianFactors = {1};
+			double[] medianFactors = {0.5};
 			Random rng = new Random(1);
 			List<IKEPDist[]> inputs = this.batchInputs;
 			List<RandomFeatureMap> candidates = featureMap.GenCandidates(
@@ -256,7 +269,7 @@ namespace KernelEP.Tool{
 			const double  priorVariance = 1.0;
 
 			this.featureMap = fm;
-			this.uThreshold = -6.0;
+			this.uThreshold = -9.1;
 			Vector[] features = inputs.Select(msgs => featureMap.MapToVector(msgs)).ToArray();
 			Matrix x = MatrixUtils.StackColumns(features);
 			Vector y = Vector.FromList(batchOutputs);
@@ -272,6 +285,33 @@ namespace KernelEP.Tool{
 		
 
 //			throw new NotImplementedException();
+		}
+
+		/**Return a D x N matrix*/
+		public static Matrix ToInputMatrix(RandomFeatureMap fm, List<IKEPDist[]> inputs){
+			Vector[] features = inputs.Select(msgs => fm.MapToVector(msgs)).ToArray();
+			Matrix m = MatrixUtils.StackColumns(features);
+			return m;
+		}
+
+		/**
+		 * Evaluate the feature map with a leave-one-out cross validation. 
+		Return a vector of squared loss values, each corresponding to a regularization 
+		parameter in regList.
+		This implementation follows cond_fm_finiteout.m
+		*/
+		public static double[] EvaluateFeatureMap(RandomFeatureMap fm, 
+			double[] regList, List<IKEPDist[]> inputs, List<double> outputs){
+			// see http://numerics.mathdotnet.com/Matrix.html for how to use MathNet Matrix
+
+			Matrix xtemp = ToInputMatrix(fm, inputs);
+			MNMatrix x = MatrixUtils.ToMathNetMatrix(xtemp);
+			double[] errs = new double[regList.Length];
+			for(int i=0; i<regList.Length; i++){
+				double lambda = regList[i];
+
+			}
+			throw new NotImplementedException();
 		}
 
 		public override double[] GetUncertaintyThreshold(){

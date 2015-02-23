@@ -248,7 +248,7 @@ namespace KernelEP.Tool{
 
 		public override Vector GetStat(DNormal dist){
 			double mean = dist.GetMean();
-			double logVar = dist.GetVariance();
+			double logVar = Math.Log ( dist.GetVariance() );
 			return Vector.FromArray(new[]{ mean, logVar });
 		}
 

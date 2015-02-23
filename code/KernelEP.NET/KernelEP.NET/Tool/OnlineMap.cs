@@ -33,6 +33,13 @@ namespace KernelEP.Tool{
 
 		// True if the map is threshold-based.
 		public abstract bool IsThresholdBased();
+
+		/** 
+		 * Return false if the mapper is not ready for an online learning.
+		 * This will be the case in the beginning for an operator requiring an 
+		 * initial minibatch training.
+		*/
+		public abstract bool IsOnlineReady();
 	}
 
 
@@ -74,7 +81,15 @@ namespace KernelEP.Tool{
 			}
 			return false;
 		}
-
+		public override bool IsOnlineReady(){
+			// Return false if at least one of the mappers is not ready
+			foreach(BayesLinRegFM m in onlineBayes){
+				if(!m.IsOnlineReady()){
+					return false;
+				}
+			}
+			return true;
+		}
 		public override void UpdateVectorMapper(Vector target, params IKEPDist[] msgs){
 			// update each internal mapper
 			if(target.Count != onlineBayes.Length){
@@ -135,6 +150,19 @@ namespace KernelEP.Tool{
 		// The target is typically obtained from an oracle.
 		public abstract void UpdateOperator(T target, params IKEPDist[] msgs);
 
+		/** 
+		 * Return false if the mapper is not ready for an online learning.
+		 * This will be the case in the beginning for an operator requiring an 
+		 * initial minibatch training.
+		*/
+		public abstract bool IsOnlineReady();
+		public abstract double[] GetUncertaintyThreshold();
+
+//		public abstract void SetUncertaintyThreshold(params double[] thresh);
+
+		// True if the map is threshold-based.
+		public abstract bool IsThresholdBased();
+
 	}
 
 	public class PrimalGPOnlineMapper<T> : OnlineDistMapper<T>
@@ -169,7 +197,17 @@ namespace KernelEP.Tool{
 			Vector suff = distBuilder.GetStat(target);
 			bayesSuffMapper.UpdateVectorMapper(suff, msgs);
 		}
+		public override bool IsOnlineReady(){
+			return bayesSuffMapper.IsOnlineReady();
+		}
 
+		public override double[] GetUncertaintyThreshold(){
+			return bayesSuffMapper.GetUncertaintyThreshold();
+		}
+
+		public override bool IsThresholdBased(){
+			return bayesSuffMapper.IsThresholdBased();
+		}
 	}
 
 

@@ -29,6 +29,12 @@ namespace KernelEP.Op{
 			}
 			opInternals.Add(t, oi);
 		}
+		public static void Set(Type t, MsgOpInstance oi){
+			if(oi == null){
+				throw new ArgumentException("Operator internal cannot be null.");
+			}
+			opInternals[t] = oi;
+		}
 
 		public static MsgOpInstance Get(Type t){
 			if(!opInternals.ContainsKey(t)){
