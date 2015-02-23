@@ -70,10 +70,15 @@
 \newcommand{\trace}{\mathop{\mathrm{tr}}}
 \newcommand{\median}{\mathop{\mathrm{median}}}
 
-\newcommand{\wjnote}[1]{\textbf{\color{blue!80!black}{#1}} }
+\newcommand{\wjnote}[1]{\textbf{\color{blue!80!black}{WJ: #1}} }
 \newcommand{\aenote}[1]{\textbf{\color{red!50!black}{#1}} }
 \newcommand{\nhnote}[1]{\textbf{\color{magenta!80!black}{#1}} }
 \newcommand{\agnote}[1]{\textbf{\color{green!70!black}{#1}} }
+
+\newcommand{\figref}[1]{Fig.~\ref{#1}}
+\newcommand{\secref}[1]{Sec.~\ref{#1}}
+\newcommand{\tabref}[1]{Table.~\ref{#1}}
+%\newcommand{\eqref}[1]{Eq.~\ref{#1}}
 
 \newcites{sup}{Supplementary}
 
@@ -87,9 +92,11 @@
 
 \title{Kernel-Based Just-In-Time Learning for Passing Expectation Propagation
 Messages}
+\author{}
+
 \maketitle
 \begin{abstract}
-\wjnote{WJ: This is the old abstract. Add online learning ?}We propose
+\wjnote{This is the old abstract. Add online learning ?}We propose
 to learn a kernel-based message operator which takes as input all
 expectation propagation (EP) incoming messages to a factor node and
 produces an outgoing message. In ordinary EP, computing an outgoing
@@ -103,6 +110,7 @@ any kind of factor that can be sampled.\aenote{AE: 1. State the problem. 2. Say 
 \end{abstract}
 
 \section{Introduction}
+
 
 \section{Background}
 
@@ -205,7 +213,7 @@ $q(\theta)$ which is given by the product of all approximate factors.
 In finding the $i^{th}$ approximate factor $m_{f_{i}\rightarrow\theta}$,
 EP uses other approximate factors $m_{\theta\rightarrow f_{i}}(\theta):=\prod_{j\neq i}m_{f_{j}\rightarrow\theta}(\theta)$
 as a context to determine the plausible range of $\theta$. EP iteratively
-refines $m_{f_{i}\rightarrow\theta}$ for each $i$ with \wjnote{WJ: No need to mention this special-case msg.}$m_{f_{i}\rightarrow\theta}(\theta)=\frac{\text{proj}\left[\int dX\, f(X|\theta)m_{X\rightarrow f_{i}}(X)m_{\theta\rightarrow f_{i}}(\theta)\right]}{m_{\theta\rightarrow f_{i}}(\theta)}$
+refines $m_{f_{i}\rightarrow\theta}$ for each $i$ with \wjnote{No need to mention this special-case msg.}$m_{f_{i}\rightarrow\theta}(\theta)=\frac{\text{proj}\left[\int dX\, f(X|\theta)m_{X\rightarrow f_{i}}(X)m_{\theta\rightarrow f_{i}}(\theta)\right]}{m_{\theta\rightarrow f_{i}}(\theta)}$
 where $\text{proj}\left[r\right]=\arg\min_{q\in\text{ExpFam}}\text{KL}\left[r\,\|\, q\right]$
 and $m_{X\rightarrow f_{i}}(X):=\delta(X-X_{0})$ if $X$ is observed
 to be $X_{0}$. In the EP literature, $m_{\theta\rightarrow f_{i}}$
@@ -220,7 +228,7 @@ satisfies $\mathbb{E}_{q^{*}(\theta)}\left[u(\theta)\right]=\mathbb{E}_{r(\theta
 That is, the projection of $r$ onto ExpFam is given by $q^{*}\in\text{ExpFam}$
 that has the same moment parameters as the moments under $r$. 
 
-\wjnote{WJ: Should jump to this general msg from the beginning.}In general,
+\wjnote{Should jump to this general msg from the beginning.}In general,
 under the approximation that each factor fully factorizes, an EP message
 from a factor $f$ to a variable $V$ takes the form 
 \begin{align}
@@ -390,6 +398,53 @@ regression.
 
 \section{Experiments\label{sec:Experiments}}
 
+
+\begin{figure}
+\centering
+\missingfigure{Factor graph for binary logistic regression}
+\caption{Factor graph for binary logistic regression}
+\label{fig:factor_graph_binlog}
+\end{figure}
+
+\paragraph{Logistic} To ensure that the operator is capable of learning the relationship 
+of incoming and outgoing messages, we first consider a batch learning setting on the logistic factor 
+$f(z|x)=\delta\left(z-\frac{1}{1+\exp(-x)}\right)$ in the context of 
+a binary logistic regression model as shown in \figref{fig:factor_graph_binlog}.
+%The factor is deterministic when conditioning on $x$. 
+The two incoming messages are $m_{X\rightarrow f}(x)=\mathcal{N}(x;\mu,\sigma^{2})$
+and $m_{Z\rightarrow f}(z)=\text{Beta}(z;\alpha,\beta)$. 
+%\aenote{AE: I think at this point you need to properly define the logistic regression model otherwise incoming messages will be incomprehensible.} 
+Following \cite{Eslami2014}, we draw $x, w \sim \mathcal{N}(0, I_{20})$, and set the number of observations to 400.
+We repeat the experiment 20 times where in each trial a new $w$ and a new set of observations are generated.
+In each trial we collect messages in only the first five iterations of EP from Infer.NET's default implementation of the logistic factor.
+All collected messages are randomly partitioned into 5000 training messages and 2000 testing messages.
+We learn a message operator using a Gaussian kernel on joint embeddings as described in Eq. .... for sending $m_{f\rightarrow X}$.
+Regularization and kernel parameters are chosen by leave-one-out cross validation. 
+The number of features are set to $D_{in}=500$ and $D_{out}=1000$ \wjnote{need to refer to some already mentioned equations} \aenote{AE: Why 1000?}. 
+We report $\log KL[q\|\hat{q}]$ where $q=q_{f\rightarrow X}$
+is the ground truth output message obtained from Infer.NET's 
+and $\hat{q}$ is the message output from the operator. 
+For better numerical scaling, regression outputs are set to $(\mathbb{E}_{q}\left[x\right],\log\mathbb{V}_{q}\left[x\right])$ instead of the expectations of the first two moments. 
+\aenote{AE: No need to mention log-scaling?} 
+The histogram of log KL errors is shown on the left of \figref{fig:Log-KL-divergence-on}.
+The right figure shows sample output messages at different log KL errors. 
+It can be seen that the operator is able to capture the relationship
+of incoming and outgoing messages. 
+
+\begin{figure}
+\begin{centering}
+\includegraphics[width=6cm]{img/kl_ntr5000_iter5_sf1_st20_fm_joint-crop}
+\par\end{centering}
+
+\begin{centering}
+\includegraphics[width=6cm]{img/4plots_ntr5000_iter5_sf1_st20_fm_joint-crop.pdf}
+\par\end{centering}
+
+\protect\caption{Log KL-divergence on a logistic factor test set using kernel on joint
+embeddings.\label{fig:Log-KL-divergence-on}}
+\end{figure}
+
+
 \hl{Experiments to have}
 \begin{itemize}
 \item Experiments on the logistic factor for comparing with Nicolas and
@@ -423,7 +478,7 @@ dataset (say a binary classification dataset from UCI repository).
 is not good''. Cite them.
 \end{itemize}
 %\item Do we need kNN as a baseline regression function? \aenote{AE: Maybe enough to point to JIT paper and say KNN performs badly there?}
-\eitem Choose the number of particles in the oracle importance sampler so
+\item Choose the number of particles in the oracle importance sampler so
 that it takes roughly the same time as our operator. Compute the predictive
 quality of the two. 
 \item As in Fig 3.c of Ali's paper, show that the inference error of sampling
@@ -431,43 +486,7 @@ quality of the two.
 in the message space in a useful way. \aenote{AE: This would be nice but is probably not critical. Could be one of the last experiments you run?}
 \end{itemize}
 
-As a preliminary experiment, we consider the logistic factor $f(z|x)=\delta\left(z-\frac{1}{1+\exp(-x)}\right)$
-which is deterministic when conditioning on $x$. The factor is used
-in many common models including binary logistic regression. The two
-incoming messages are $m_{X\rightarrow f}(x)=\mathcal{N}(x;\mu,\sigma^{2})$
-and $m_{Z\rightarrow f}(z)=\text{Beta}(z;\alpha,\beta)$. \aenote{AE: I think at this point you need to properly define the logistic regression model otherwise incoming messages will be incomprehensible.} We randomly
-generate 2000 training input messages and learn a message operator
-using the kernel on joint embeddings. Kernel parameters are chosen
-by cross validation and the number of random features $D$ is set
-to 2000. \aenote{AE: Why 2000?} We report $\log KL[q\|\hat{q}]$ where $q=q_{f\rightarrow X}$
-is the ground truth output message obtained by importance sampling
-and $\hat{q}$ is the message output from the operator. For better
-numerical scaling, regression outputs are set to $(\mathbb{E}_{q}\left[x\right],\log\mathbb{V}_{q}\left[x\right])$
-instead of the expectations of the first two moments. \aenote{AE: No need to mention log-scaling?} The histogram
-of log KL errors is shown on the left of Fig. \ref{fig:Log-KL-divergence-on}.
-The right figure shows sample output messages at different log KL
-errors. It can be seen that the operator is able to capture the relationship
-of incoming and outgoing messages. With higher training size, increased
-number of random features and well chosen kernel parameters, we expect
-to see a significant improvement in the operator's accuracy. 
-
-\begin{figure}
-\begin{centering}
-\includegraphics[width=6.2cm]{img/percentile75/log_kl_hist-crop}
-\par\end{centering}
-
-\begin{centering}
-\includegraphics[width=6.5cm]{img/percentile75/4dists-crop}
-\par\end{centering}
-
-\begin{comment}
-Joint embedding. exp1. RFGJointEProdLearner\_sigmoid\_bw\_proposal\_10000\_ntr2000.mat
-\end{comment}
-\vspace{-4mm}
-
-\protect\caption{Log KL-divergence on a logistic factor test set using kernel on joint
-embeddings.\label{fig:Log-KL-divergence-on}}
-\end{figure}
+\hrule 
 
 
 
