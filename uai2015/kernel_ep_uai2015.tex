@@ -537,8 +537,12 @@ This kernel has two parameters, one for $k$ in $\mu_{\mathsf{r}} = \mathbb{E}_{\
 and $\gamma^{2}$. Empirically, this kernel performs significantly
 better than other kernels on predicting outgoing messages from incoming messages.
 
+\wjnote{Since the norm squared inside exp is nothing but MMD$^2$ in a unit-ball RKHS (Gaussian kernel),
+Arthur may have some good intuition why it works well in practice ? 
+Would be nice to have a paragraph on theoretical explanation if any.}
+
 \paragraph{Random features for Gaussian kernel on mean embeddings}
-\todo{Change p, q to $\mathsf{r}, \mathsf{s}$}
+\todo{WJ: Change p, q to $\mathsf{r}, \mathsf{s}$}
 One way to get random features for the kernel is given
 by a two-staged approximation procedure as follows.
 By expanding the square in $\kappa_{\text{gauss}}$, we have
@@ -581,8 +585,8 @@ of $p$ and $q$.
 \ENSURE Random features $\hat{\psi}(\mathsf{r}) \in \mathbb{R}^{D_{out}}$.
 
 %\STATE Compute the Fourier transform $\hat{k}$ of the kernel $k$.
-\STATE Draw  $\{ \omega_i \}_{i=1}^{D_{in}} \overset{i.i.d}{\sim} \hat{k}$.
-\STATE Draw $\{b_i\}_{i=1}^{D_{in}} \overset{i.i.d}{\sim} \text{Uniform}[0, 2\pi] $.
+\STATE Sample  $\{ \omega_i \}_{i=1}^{D_{in}} \overset{i.i.d}{\sim} \hat{k}$.
+\STATE Sample $\{b_i\}_{i=1}^{D_{in}} \overset{i.i.d}{\sim} \text{Uniform}[0, 2\pi] $.
 \STATE $\hat{\phi}(\mathsf{r}) = \sqrt{\frac{2}{D_{in}}} \left( \mathbb{E}_{\mathsf{r(x)}} \cos(\omega_{i}^{\top}x+b_{i} ) \right)_{i=1}^{D_{in}} \in \mathbb{R}^{D_{in}}$ \\
 %\STATE  $\hat{\phi}(p)=\mathbb{E}_{p(x)}\sqrt{\frac{2}{D_{in}}}\left(\cos\left(\omega_{1}^{\top}x+b_{1}\right),\ldots,\cos\left(\omega_{D_{in}}^{\top}x+b_{D_{in}}\right)\right)^{\top}$.
 If $\mathsf{r}(x)=\mathcal{N}(x;m, V )$, 
@@ -592,9 +596,9 @@ If $\mathsf{r}(x)=\mathcal{N}(x;m, V )$,
 \end{equation*}
 %Even if $p$ is not a normal distribution, we may still use it as an approximation.
 %
-\STATE Draw  $\{ \nu_i \}_{i=1}^{D_{out}} \overset{i.i.d}{\sim} \hat{k}_{\text{gauss}}(\gamma^{2})$.  
+\STATE Sample $\{ \nu_i \}_{i=1}^{D_{out}} \overset{i.i.d}{\sim} \hat{k}_{\text{gauss}}(\gamma^{2})$.  
 i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
-\STATE Draw $\{c_i\}_{i=1}^{D_{out}} \overset{i.i.d}{\sim} \text{Uniform}[0, 2\pi] $.
+\STATE Sample $\{c_i\}_{i=1}^{D_{out}} \overset{i.i.d}{\sim} \text{Uniform}[0, 2\pi] $.
 \STATE $\hat{\psi}(\mathsf{r}) = \sqrt{\frac{2}{D_{out}}} \left(  \cos(\nu_{i}^{\top}x + c_{i} ) \right)_{i=1}^{D_{out}} \in \mathbb{R}^{D_{out}}$
 \end{algorithmic}
 \end{algorithm}
@@ -622,8 +626,13 @@ of incoming and outgoing messages, we first consider a batch learning setting.
 
 \begin{figure}
 \centering
-\missingfigure{Factor graph for binary logistic regression. Just imagine by yourself for now.}
-\caption{Factor graph for binary logistic regression.}
+%\missingfigure{Factor graph for binary logistic regression. Just imagine by yourself for now.}
+\includegraphics[scale=0.8,page=2,clip,trim=8cm 18.5cm 8cm 1cm]{img/heess_passing_ep_supp.pdf}
+\caption{Factor graph for binary logistic regression. 
+The logistic factor is highlighted in red. 
+We set $\boldsymbol{\mu}:=\boldsymbol{0}$ and $\boldsymbol{\Lambda}:=I$. 
+\wjnote{This figure will be updated later.}
+}
 \label{fig:factor_graph_binlog}
 \end{figure}
 
@@ -648,7 +657,7 @@ In each trial we collect messages in only the first five iterations of EP from I
 All collected messages are randomly partitioned into 5000 training messages and 2000 testing messages.
 We learn a message operator using a Gaussian kernel on joint embeddings as described in Eq. .... for sending $m_{f\rightarrow X}$.
 Regularization and kernel parameters are chosen by leave-one-out cross validation. 
-The number of features are set to $D_{in}=500$ and $D_{out}=1000$ \wjnote{need to refer to some already mentioned equations} \aenote{AE: Why 1000?}. 
+The number of features are set to $D_{in}=500$ and $D_{out}=1000$. \aenote{AE: Why 1000?}. 
 We report $\log KL[q\|\hat{q}]$ where $q=q_{f\rightarrow X}$
 is the ground truth output message obtained from Infer.NET's 
 and $\hat{q}$ is the message output from the operator. 
@@ -669,7 +678,7 @@ of incoming and outgoing messages.
 \includegraphics[width=6cm]{img/4plots_ntr5000_iter5_sf1_st20_fm_joint-crop.pdf}
 \par\end{centering}
 
-\protect\caption{Log KL-divergence on a logistic factor test set using kernel on joint
+\protect\caption{KL-divergence on a logistic factor test set using kernel on joint
 embeddings.\label{fig:Log-KL-divergence-on}}
 \end{figure}
 
@@ -682,19 +691,21 @@ kernel-based message operator is a reliable quantity to be used as a criterion
 for deciding whether or not to query the oracle.
 We compute the predictive variance using the same operator as used in the logistic factor experiment on the training and test sets.
 Plots of KL-divergence errors versus predictive variances are shown in \figref{fig:logistic_predvar}
-, where the variance for predicting the mean of $m_{f \rightarrow X}$ is shown in \figref{fig:logistic_predvar}.a 
-and the variance for predicting $\log(\alpha)$ of $m_{f \rightarrow Z}$ is shown in \figref{fig:logistic_predvar}.b. 
+, where the variance for predicting the mean of $m_{f \rightarrow X}$ is shown in \figref{fig:logistic_predvar_g}
+and the variance for predicting $\log(\alpha)$ of $m_{f \rightarrow Z}$ is shown in \figref{fig:logistic_predvar_b}. 
 
 \begin{figure}[t]
 	\centering
 
 	%DNormalLogVarBuilder means regressing to Gaussian mean and $\log$ variance.
-	\subfloat[Predicting the mean of $m_{f \rightarrow X}$ (normal distribution)]{
+	\subfloat[Predicting the mean of $m_{f \rightarrow X}$ (normal distribution)
+	\label{fig:logistic_predvar_g}]{
 	\includegraphics[width=0.7\columnwidth]{img/pred_var/fm_kgg_joint_-bw-out1-crop}
 	}
 	%\includegraphicse[width=7cm]{img/pred_var/fm_kgg_joint_-bw-out2-crop}
 	
-	\subfloat[Predicting $\log(\alpha)$ of $m_{f \rightarrow Z} = \text{Beta}(z; \alpha, \beta)$]{
+	\subfloat[Predicting $\log(\alpha)$ of $m_{f \rightarrow Z} = \text{Beta}(z; \alpha, \beta)$
+	\label{fig:logistic_predvar_b}]{
 	\includegraphics[width=0.7\columnwidth]{img/pred_var/fm_kgg_joint_-fw-out1-crop}
 	}
 	%\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-fw-out2-crop} 	
@@ -727,28 +738,53 @@ from the training set, the predictive variance grows exponentially.
 However, the first test set passes through a lower density region, the operator 
 reports a higher uncertainty compared to the second test set. }
 
+Uncertainty estimates from two commonly used random forests on the 
+same problem are shown in \figref{fig:tree_uncertainty_unexplored} where
+\figref{fig:breiman_uncertainty} shows uncertainty estimates of Breiman's 
+random forests \citep{Breiman2001} and \figref{fig:ert_uncertainty} shows 
+uncertainty estimates of extremely randomized trees \citep{Geurts2006}.
+
+\wjnote{Need to add how they compute the uncertainty estimates. ?}
+\wjnote{Add comments on uncertainty estimates of the trees.}
+
 \begin{figure}
 \centering
-\includegraphics[width=\columnwidth]{img/logistic_uncertainty-crop}
-\caption{Log KL-divergence on a logistic factor test set using kernel on joint embeddings.}
+\includegraphics[width=\columnwidth]{img/uncertainty/logistic_uncertainty-crop}
+\caption{Collected training messages for the logistic factor and uncertainty 
+estimates of the proposed method on the two uncertainty test sets.}
 \label{fig:logistic_predvar_unexplored}
 \end{figure}
+
+
+\begin{figure}[t]
+	\centering
+
+	\subfloat[Breiman's random forests\label{fig:breiman_uncertainty}]{
+	\includegraphics[width=0.49\columnwidth]{img/uncertainty/rf-n_trees-100-crop}
+	}
+	%
+	\subfloat[Extremely randomized trees\label{fig:ert_uncertainty}]{
+	\includegraphics[width=0.49\columnwidth]{img/uncertainty/ert-n_trees-100-crop}
+	}
+	\caption{Uncertainty estimates of random forests on two uncertainty test sets 
+	shown in \figref{fig:logistic_predvar_unexplored}. }
+	\label{fig:tree_uncertainty_unexplored}
+\end{figure}
+
+%\begin{figure}
+%\centering
+%\includegraphics[width=0.49\columnwidth]{img/uncertainty/rf-n_trees-100-crop}
+%\includegraphics[width=0.49\columnwidth]{img/uncertainty/ert-n_trees-100-crop}
+%\caption{Log KL-divergence on a logistic factor test set using kernel on joint embeddings.}
+%\label{fig:tree_uncertainty_unexplored}
+%\end{figure}
 
 \hrulefill{}
 
 \hl{Experiments to have}
 \begin{itemize}
-\item Experiments on the logistic factor for comparing with Nicolas and
-Ali's results. Show prediction accuracy. Histogram of log KL. 4 plots
-(best, 2 median, worst) of predicted msgs vs. true.
-\item Plot the predictive variance as a test point (incoming messages) is
-far away from the training set. Say the mean of the means of Gaussian
-incoming messages in the training set is 0. Vary the mean of the Gaussian
-message from -10 to 10 on x-axis and plot predictive variance on y-axis.
-Expect a U-shaped curve where the minimum is at 0. This ensures the
-operator will query the \aenote{AE: Need to talk about online training, concept of an oracle, concept of querying oracle when uncertain.}oracle when there are incoming messages from
-an unexplored region. Perhaps plot one curve for one setting of the
-incoming Beta message (fixed).
+\item Binary logistic regression with real data using our message operator for 
+the logistic factor.
 \item For predictive variance on unseen region, we may need two plots where
 in one case the training samples are concentrated in one part of the
 space, and in the second case the training samples are concentrated
@@ -779,7 +815,9 @@ in the message space in a useful way. \aenote{AE: This would be nice but is prob
 
 \hrule 
 
-
+%\subsection*{Acknowledgement}
+%Thank Balaji for testing uncertainty estimates of random forests.
+%Gatsby Charitable Foundation for funding.
 
 \section{Conclusions and Future Work\label{sec:Conclusions-and-Future} }
 
