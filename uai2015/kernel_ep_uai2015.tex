@@ -72,8 +72,8 @@
 
 \newcommand{\wjnote}[1]{\textbf{\color{blue!80!black}{WJ: #1}} }
 \newcommand{\aenote}[1]{\textbf{\color{red!50!black}{#1}} }
-\newcommand{\nhnote}[1]{\textbf{\color{magenta!80!black}{#1}} }
-\newcommand{\agnote}[1]{\textbf{\color{green!70!black}{#1}} }
+\newcommand{\nhnote}[1]{\textbf{\color{magenta!90!black}{#1}} }
+\newcommand{\agnote}[1]{\textbf{\color{green!50!black}{#1}} }
 
 \newcommand{\figref}[1]{Fig.~\ref{#1}}
 \newcommand{\secref}[1]{Sec.~\ref{#1}}
@@ -96,17 +96,17 @@ Messages}
 
 \maketitle
 \begin{abstract}
-\wjnote{This is the old abstract. Add online learning ?}We propose
-to learn a kernel-based message operator which takes as input all
+We propose to learn a kernel-based message operator which takes as input all
 expectation propagation (EP) incoming messages to a factor node and
 produces an outgoing message. In ordinary EP, computing an outgoing
 message involves estimating a multivariate integral which may not
 have an analytic expression. Learning such an operator allows one
 to bypass the expensive computation of the integral during inference
 by directly mapping all incoming messages into an outgoing message.
-The operator can be learned from training data (examples of input
+The operator can be learned online during inference (from examples of input
 and output messages) which allows automated inference to be made on
-any kind of factor that can be sampled.\aenote{AE: 1. State the problem. 2. Say why it's interesting. 3. Say what your solution achieves. 4. Say what follows from your solution. Message-passing is useful. Message-passing in general is slow. Our approach speeds it up. This allows us to use it on more complicated / larger problems.}
+any kind of factor that can be sampled.
+\aenote{AE: 1. State the problem. 2. Say why it's interesting. 3. Say what your solution achieves. 4. Say what follows from your solution. Message-passing is useful. Message-passing in general is slow. Our approach speeds it up. This allows us to use it on more complicated / larger problems.}
 \end{abstract}
 
 \section{Introduction}
@@ -302,8 +302,7 @@ Given incoming messages, the operator outputs $q_{f\rightarrow V'}$
 from which the outgoing EP message is given by $m_{f\rightarrow V'}=q_{f\rightarrow V'}/m_{V'\rightarrow f}$
 which can be computed analytically. We opt for kernel ridge regression
 \citep{Scholkopf2002} as our message operator for its simplicity,
-its potential use in an online setting (i.e., incremental learning
-during inference), and rich supporting theory. 
+its ease of use in an online setting during inference (see \secref{sec:kernel_ep_online}), and rich supporting theory. 
 
 \section{Proposed Method}
 
@@ -403,7 +402,22 @@ p(y^{*}|x^{*},Y) & =\int dw\, p(y^{*}|w,x^{*},Y)p(w|Y)\\
 For simplicity, we treat each output (expected sufficient statistic) as a separate regression problem. 
 Treating all outputs jointly can be achieved with a multi-output kernel \citep{Alvarez2011}.
 
-\subsection{Online Update}
+\subsection{Computational Complexity}
+\wjnote{Compare ridge regression cost with Ali's forest here ?}
+
+Let $K$ be the number of trees in the random forest,
+$D$ be the dimensionality of message representation,
+and $N$ be the number of oracle consultations so far.
+Let $M$ be number of training points in each leaf.
+Assuming that the depth of trees is $O(\log(N))$, one prediction from a random forest costs $O(KD\log(N))$, and one update costs $O(KD^2 \log(N))$.
+This is because for each tree in forest $O(K)$, tree traversal takes $O(log(N))$, 
+and one prediction costs $O(D)$. 
+One full training of a regression function costs $O(D^2 * (D + M))$ which depends on $M$. 
+However typically $M$ is negligible at a lower depth, a full training costs $O(D^3)$.
+The total updating cost across all trees is $O(KD^3log(N))$.
+
+
+\subsection{Online Update \label{sec:kernel_ep_online}}
 
 In this section, we consider an online update for $\Sigma_{w}$ and
 $\mu_{w}$ when observations $X$ comes in stream. We will use $\cdot^{(n)}$
@@ -429,21 +443,27 @@ $XY^{\top}\in\mathbb{R}^{D}$ and update it with
 costing $O(D)$ per update. 
 %In the first iteration when no data are observed, $\Sigma_{w}^{(1)}=\sigma_{0}^{2}I$.
 
-\subsection{Active Learning}
+\wjnote{Mention initial minibatch training here.}
 
-If the predictive variance on the current incoming messages $x^{*}$
-is high, then we query the outgoing message from the importance sampler
-(oracle) and update the $\Sigma_{w}$ and $\mu_{w}$. Otherwise, the
-outgoing message is efficiently computed by the operator. We have
-$D_{y}$ regression functions. Thus, for each $x^{*}$, we have $D_{y}$
+\subsection{Online-Active Learning}
+
+%If the predictive variance of the current incoming messages $x^{*}$
+%is high, the operator queries the correct outgoing message from the importance sampler
+%(oracle) and update the $\Sigma_{w}$ and $\mu_{w}$. 
+%Otherwise, the outgoing message is efficiently computed by the operator. 
+
+Since we have $D_{y}$ regression functions, 
+for each tuple of incoming messages $x^{*}$, there are $D_{y}$
 predictive variances, $v_{1}^{*},\ldots,v_{D_{y}}^{*}$, one for each
-output. Given a new input $x^{*}$, if $v_{1}^{*}>\tau_{1}$ or $\cdots$
-or $v_{D_{y}}^{*}>\tau_{D_{y}}$ where $\{\tau_{i}\}_{i}$ are pre-specified
-predictive variance thresholds, then a query is made to the oracle
-to obtain a ground truth $y^{*}$. The pair $(x^{*},y^{*})$ is then
-used to update the operator as described previously. Querying the
-oracle incurs a high computational cost.
-
+output. 
+Let $\{\tau_{i}\}_{i=1}^{D_{y}}$ be pre-specified predictive variance thresholds.
+\wjnote{How should we choose these thresholds ?}
+Given a new input $x^{*}$, if $v_{1}^{*}>\tau_{1}$ or $\cdots$
+or $v_{D_{y}}^{*}>\tau_{D_{y}}$ i.e., the operator is uncertain, 
+a query is made to the oracle to obtain a ground truth $y^{*}$. 
+The pair $(x^{*},y^{*})$ is then
+used to update $\Sigma_{w}$ and $\mu_{w}$ as described previously. 
+%Querying the oracle incurs a high computational cost.
 
 \subsection{Kernels on Distributions}
 
@@ -454,7 +474,7 @@ we only give a few examples here.
 
 
 \paragraph{Expected Product Kernel}
-
+also known as a set kernel. 
 Let $\mu_{r^{(l)}}:=\mathbb{E}_{r^{(l)}(a)}k(\cdot,a)$ be the mean
 embedding \citep{Smola2007} of the distribution $r^{(l)}$ into RKHS
 $\mathcal{H}^{(l)}$ induced by the kernel $k$. Assume $k=k_{\text{gauss}}$
@@ -484,11 +504,6 @@ and $\mathcal{X}^{(l)}$ denotes the domain of $r^{(l)}$ and $s^{(l)}$.
 This kernel is equivalent to the expected product kernel on the joint
 distributions.
 
-\hl{TODO}
-\begin{itemize}
-\item Add forest cost computed by Ali. Compare it with online kernel ridge
-regression.
-\end{itemize}
 
 \section{Related Work}
 \cite{Heess2013}, \cite{Eslami2014}, \cite{Barthelme2011}. 
@@ -510,7 +525,12 @@ of incoming and outgoing messages, we first consider a batch learning setting.
 
 \paragraph{Logistic} 
 As in \cite{Heess2013, Eslami2014}, we consider the logistic factor 
-$f(z|x)=\delta\left(z-\frac{1}{1+\exp(-x)}\right)$ in the context of 
+%
+\begin{equation*}
+f(z|x)=\delta\left(z-\frac{1}{1+\exp(-x)}\right)
+\end{equation*}
+%
+where $\delta$ is the Dirac delta fucntion, in the context of 
 a binary logistic regression model as shown in \figref{fig:factor_graph_binlog}.
 %The factor is deterministic when conditioning on $x$. 
 The two incoming messages are $m_{X\rightarrow f}(x)=\mathcal{N}(x;\mu,\sigma^{2})$
