@@ -80,6 +80,8 @@
 \newcommand{\xin}{\mathbf{x}_{ \mathrm{in} }} 			% parents of directed factor
 \newcommand{\xout}{\mathbf{x}_{ \mathrm{out} }}			% child of directed factor
 \newcommand{\msg}[2]{m_{#1 \rightarrow #2}}			% message from arg1 to arg2
+\newcommand{\approxMsg}[3]{\hat{m}_{#1 \rightarrow #2}^{#3}}			% message from arg1 to arg2
+\newcommand{\uncertaintyMsg}[3]{\hat{u}_{#1 \rightarrow #2}^{#3}}			% message from arg1 to arg2
 \newcommand{\diffd}{\mathrm{d}}
 \newcommand{\proj}{\mathrm{proj}}
 \newcommand{\projP}[1]{\mathrm{proj} \left [ #1 \right]}
@@ -114,7 +116,21 @@ any kind of factor that can be sampled.\todo{AE: 1. State the problem. 2. Say wh
 
 \section{Introduction}
 
-\section{Background}
+\begin{itemize}
+\item In general: learning to infer is becoming a THING (variational community, inference networks for NN; probabilistic programming literature [kernel EP, stochastic inverses, Wingate stuff, etc.; can have additional properties beyond being accurate like better convergence properties (Eslami); all super-awesome and we need more research).
+\item Inference is hard (several problems: global [need to manipulate many interdependent variables]; unclear how to represent distributions [which, in the continuous case, can be infinite-dimensional objects], update rules are typically intractable [need to solve non-trivial integrals].
+\item Message passing reduces inference to local, deterministic update rules.
+\item VMP, EP solve the question of representation of distribution by mapping onto simple parametric forms, but the problem remains that we need to map / transform messages.
+\item remaining fundamental question: how to manipulate distributions or messages (distribution-to-distribution mappings).
+\item Barthelme, Heess, Eslami propose solutions, the first is asymptotically exact and principled but stochastic and therefore slow / high variance (this is especially bad as it is an inner loop to MP algorithm); Heess learns a deterministic mapping in a batch setup with NNs but does not produces uncertainty estimates and therefore blows up without warning, no factor refinement, need to do a lot of (potentially unnecessary) hard work up front; Eslami combines the two approaches by learning a deterministic mapping on the fly but uses several crude heuristics, computationally relatively expensive online updates and ultimately unprincipled uncertainty estimates.
+\item Here we present a kernel-based method for just-in-time learning of distribution-to-distribution mappings and apply it to learning message passing computations (KJIT). KJIT is fast, statistically efficient and its uncertainty estimates are principled.
+\item Our first contribution is to develop an N-independent kernel based method for regressing from distributions to distributions.
+\item Our second contribution is to apply this to the JIT setting.
+\item Experiments on a number of models demonstrate state-of-the-art speed and accuracy.
+\end{itemize}
+
+
+% \section{Background}
 
 Existing approaches to automated probabilistic inference can be broadly
 divided into two categories \citep{Heess2013}: uninformed and informed
@@ -198,7 +214,7 @@ Our paper is structured as follows: In section \ref{sec:EP} we briefly review th
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Expectation Propagation (EP)\label{sec:Expectation-Propagation-(EP)}}
+\section{Background}
 \label{sec:EP}
 
 As is common in the message passing community we assume that distributions (or densities) over a set of variables $\bx = (x_1, \dots x_D)$ of interest can be represented as factor graphs, i.e.\
@@ -239,6 +255,7 @@ A sample based approximation of this expectation can, in general, obtained via M
 \begin{align}
 \expectationE{u(x)}{\fx{\factor}\sim b }
 &\approx \frac{1}{N} \sum_{l=1}^N w(\fx{\factor}^l) u(x_i^l),~~~~\fx{\factor}^s \sim \tilde{b}
+\label{eq:msgIS}
 \end{align}
 where, on the left hand side, $b(\fx{\factor}) = \factor (\fx{\factor}) \prod_{i \in \fis{\factor}} \msg{i}{\factor}(x_{i})$. On the right hand side we draw samples $\fx{\factor}^l$ from some proposal distribution $\tilde{b}$ which we choose to be $\tilde{b}(\fx{\factor}) = r(\xin)\factor(\xout | \xin)$ for some $r$ with appropriate support, and compute importance weights $w(\fx{\factor}) = \frac{\prod_{i \in \fis{\factor}} \msg{i}{\factor}(x_{i})}{r(\xin)}$.
 
@@ -249,7 +266,20 @@ The thus estimated expected sufficient statistics provide us with an estimate of
 
 \subsection{Just-in-time learning of messages}
 
-Message approximations as in the previous section could be used directly when running the EP algorithm as in \cite{Barthelme2011}, but this approach can suffer from the unreliability of the importance sampling estimates when the number of samples $N$ is small. On the other hand, for large $N$ the computational cost of running EP with approximate messages can be very high, as the message approximations have to be re-computed in each iteration of EP. To obtain more reliable message approximations at lower computational cost \cite{Heess2013,Eslami2014} both amortize previously computed approximate message by training a function approximator to directly map a tuple of incoming variable-to-factor messages $(\msg{i'}{\factor} )_{i' \in \fis{\factor}}$ to an approximate factor to variable message $\msg{\factor}{i}$. (To understand this note that any message in EP can be represented by a low-dimensional parameter vector, typically corresponding to the parameters of an exponential family distribution, and the message update (\ref{eq:msgPassing:EP}) can thus be understood as a vector valued function.) \cite{Heess2013} use a fixed training set to train their approximate message operator prior to running EP with the intractable factor; \cite{Eslami2014} investigate an online learning approach in which the approximate message operator can is updated on the fly as required:
+Message approximations as in the previous section could be used directly when running the EP algorithm as in \cite{Barthelme2011}, but this approach can suffer from the unreliability of the importance sampling estimates when the number of samples $N$ is small. On the other hand, for large $N$ the computational cost of running EP with approximate messages can be very high, as the message approximations have to be re-computed in each iteration of EP. To obtain low-variance message approximations at lower computational cost \cite{Heess2013,Eslami2014} both amortize previously computed approximate messages by training a function approximator to directly map a tuple of incoming variable-to-factor messages $(\msg{i'}{\factor} )_{i' \in \fis{\factor}}$ to an approximate factor to variable message $\msg{\factor}{i}$, i.e.\ they learn a mapping
+\begin{equation}
+\approxMsg{\factor}{i}{\theta}: (\msg{i'}{\factor} )_{i' \in \fis{\factor}} \mapsto \msg{\factor}{i},
+\end{equation}
+where $\theta$ are the parameters of the function approximator. Note that for exponential family distribution this effectively reduces to a multi-variate regression problem as each message can be represented by a finite-dimensional parameter vector, and the message update (\ref{eq:msgPassing:EP}) can thus be understood as a vector valued function.
+
+While \cite{Heess2013} use neural networks and a very large, fixed training set to learn their approximate message operator prior to running EP with the intractable factor, \cite{Eslami2014} investigate an online learning approach in which the approximate message operator is updated on the fly, during inference, depending on whether the function approximator can be expected to produce a reliable message approximation. To this end, they endow their function approximator with an uncertainty estimate which  
+\begin{equation}
+\uncertaintyMsg{\factor}{i}{\theta}: (\msg{i'}{\factor} )_{i' \in \fis{\factor}} \mapsto u,
+\end{equation}
+where $u$ indicates the expected unreliability  of the predicted, approximate message $\msg{\factor}{i}$ returned by $\approxMsg{\factor}{i}{\theta}$. If $u = \uncertaintyMsg{\factor}{i}{\theta} \left( (\msg{i'}{\factor} )_{i' \in \fis{\factor}}\right)$ exceeds a pre-defined threshold, the required message is approximated via importance sampling (cf.\ eq.\ \ref{eq:msgIS}) and $\approxMsg{\factor}{i}{\theta}$ is re-trained on this new datapoint (leading to a new set of parameters  $\theta'$ with $\uncertaintyMsg{\factor}{i}{\theta'} \left( (\msg{i'}{\factor} )_{i' \in \fis{\factor}}\right)) < \uncertaintyMsg{\factor}{i}{\theta} \left( (\msg{i'}{\factor} )_{i' \in \fis{\factor}}\right)$.
+
+The just-in-time approach of \cite{Eslami2014} critically relies on two properties of the class of function approximators used to represent $\approxMsg{\factor}{i}{\theta}$: they need to provide  (un)reliability estimates $\uncertaintyMsg{\factor}{i}{\theta}$ over their domain, and they need to allow for online learning. \cite{Eslami2014} use decision trees. [ These do fulfill both criteria, however, only when resorting to unprincipled heuristics. In the next section we present a framework based on kernel mean embeddings which possesses the desired properties and achieves this in a principled manner. ]
+
 
 
 
@@ -565,6 +595,8 @@ an appropriate distribution was one of the unsolved problems in \cite{Heess2013}
 \bibliographystyle{abbrvnat}
 \bibliography{ref}
 
+
+\end{document}
 
 \newpage
 
