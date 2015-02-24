@@ -707,7 +707,8 @@ and the variance for predicting $\log(\alpha)$ of $m_{f \rightarrow Z}$ is shown
 \end{figure}
 
 \wjnote{Feel free to fill in more explanation.} 
-The uncertainty estimates show a positive correlation with the KL-divergence errors. No points lie at the bottom right i.e., high confidence when it makes a big error.
+The uncertainty estimates show a positive correlation with the KL-divergence errors. 
+No points lie at the bottom right i.e., high confidence when it makes a big error.
 No points lie at the top left i.e., not confident when it should not be.
 The fact that the errors on the training set are roughly the same as the errors on the test set
 indicates that the operator does not overfit.
@@ -774,6 +775,43 @@ estimates of the proposed method on the two uncertainty test sets.}
 %\label{fig:tree_uncertainty_unexplored}
 %\end{figure}
 
+\subsection{Online Learning}
+\figref{fig:logistic_temporal_uncertainty} shows predictive variance of KJIT 
+on predicting the mean of each $m_{f \rightarrow X}$. The black dotted lines
+mark the start of a new inference problem. We set the number of observations 
+in the logistic regression problem to 300. It can be seen that the uncertainty
+estimate exhibits a periodic structure, repeating itself for every 300 time 
+steps. The predictive variance levels off after the operator sees roughly 1000
+incoming messages (roughly one-third of the total messages in the first problem).
+
+\figref{fig:logistic_01_loss} shows binary classification errors obtained by 
+using the inferred posterior mean parameter on a test set of size 10000 generated 
+from the true parameter vector. The loss of KJIT matches that of the importance 
+samplier and Infer.NET. \figref{fig:logistic_inference_time} shows the inference 
+time spent by all methods in each problem.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.9\textwidth]{img/online/logistic_temporal_uncertainty-crop}
+\caption{Uncertainty estimate of KJIT for all incoming messages at each time point 
+in the binary logistic regression problem.
+\label{fig:logistic_temporal_uncertainty}
+}
+\end{figure*}
+
+\begin{figure}[t]
+	\centering
+	\subfloat[Binary classification error\label{fig:logistic_01_loss}]{
+	\includegraphics[width=0.49\columnwidth]{img/online/logistic_01_loss-crop}
+	}
+	%
+	\subfloat[Inference time\label{fig:logistic_inference_time}]{
+	\includegraphics[width=0.49\columnwidth]{img/online/logistic_inference_time-crop}
+	}
+	\caption{Classification performance and inference times of all methods. }
+	\label{fig:logistic_performance}
+\end{figure}
+
 
 \hrulefill{}
 
@@ -784,17 +822,26 @@ in one case the training samples are concentrated in one part of the
 space, and in the second case the training samples are concentrated
 in another part. This is to ensure that the uncertainty estimate does
 not depend on the absolute location.
+
 \item Use the operator for logistic in a binary logistic regression problem
 with a real dataset. Compare the inferred posterior of the coefficient
 vector to the posterior obtained by the handcrafted message operator,
 possibly with a histogram of log KL (of posteriors).
+
 \item Experiments on compound gamma factor whose handcrafted operator is
 slow. We can show that using a regression-based operator can be faster
 and possibly more accurate. A compound gamma can be used as a prior
 on a Gaussian precision in some model. Would be nice to have a real
 dataset (say a binary classification dataset from UCI repository).
+
 \item A table comparing performance of different kernels. Put in the main 
-text if there is space.
+text if there is enough space. If not, put it in the appendix. This 
+provides an explanation for why we chose the Gaussian kernel on joint 
+mean embeddgins.
+
+\item To determine thresholds, compute the median of log predictive variance 
+on the test set split from the initial minibatch. 
+
 
 \begin{itemize}
 \item Andrew Gelman \citep{Gelman2006}, Tom Minka: ``Gamma prior on precision
