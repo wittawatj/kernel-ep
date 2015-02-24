@@ -224,7 +224,16 @@ namespace KernelEP{
 			Matrix m = StackColumns(vecCols);
 			return m;
 		}
+		public static Matrix StackColumnsIgnoreNull(List<double[]> cols){
+			// skip null double array in the list
+			if(cols.Count == 0){
+				return new Matrix(0, 0);
+			}
 
+			var q = from c in cols where c != null select c ;
+			List<double[]> nonNull = q.ToList();
+			return StackColumns(nonNull);
+		}
 		public static Matrix StackColumns(Vector[] cols){
 			// assume all vectors have the same length 
 			if(cols.Length == 0){

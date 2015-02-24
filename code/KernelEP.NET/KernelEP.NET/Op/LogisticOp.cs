@@ -46,7 +46,7 @@ namespace KernelEP.Op{
 		public List<Gaussian?> OracleOutX = new List<Gaussian?>();
 		public List<Gaussian?> OracleProjX = new List<Gaussian?>();
 
-		public List<long> inferenceTimes ;
+		public List<long> inferenceTimes;
 		// posterior of W in logistic regression.
 		public List<VectorGaussian> dotNetPostW;
 		public List<VectorGaussian> postW;
@@ -100,12 +100,16 @@ namespace KernelEP.Op{
 			WriteGaussianList(writer, ProjX, "projXMtp", "projXPrec");
 			// MatlabWritter cannot write boolean
 			writer.Write("consultOracleOutLog", MatrixUtils.ToDouble(ConsultOracleOutLog));
-			Matrix uncertaintyMatLog = MatrixUtils.StackColumns(UncertaintyOutLog);
+
+			Matrix uncertaintyMatLog = MatrixUtils.StackColumnsIgnoreNull(UncertaintyOutLog);	
+
 			// write a Matrix
 			writer.Write("uncertaintyOutLog", uncertaintyMatLog);
 			// MatlabWritter cannot write boolean
 			writer.Write("consultOracleOutX", MatrixUtils.ToDouble(ConsultOracleOutX));
-			Matrix uncertaintyMatX = MatrixUtils.StackColumns(UncertaintyOutX);
+			Matrix uncertaintyMatX = MatrixUtils.StackColumnsIgnoreNull(UncertaintyOutX); 
+
+		
 			// write a Matrix
 			writer.Write("uncertaintyOutX", uncertaintyMatX);
 
@@ -117,17 +121,17 @@ namespace KernelEP.Op{
 			if(extra != null){
 				writer.Write("extra", extra);
 			}
-			if(inferenceTimes!=null){
+			if(inferenceTimes != null){
 				List<double> times = inferenceTimes.Select(x => (double)x).ToList();
 				writer.Write("inferenceTimes", times);
 			}
 			if(dotNetPostW != null){
-				writer.Write("dnetPostMeans", dotNetPostW.Select(p => p.GetMean()).ToList() );
-				writer.Write("dnetPostCovs", dotNetPostW.Select(p => p.GetVariance()).ToList() );
+				writer.Write("dnetPostMeans", dotNetPostW.Select(p => p.GetMean()).ToList());
+				writer.Write("dnetPostCovs", dotNetPostW.Select(p => p.GetVariance()).ToList());
 			}
 			if(postW != null){
 				writer.Write("postMeans", postW.Select(p => p.GetMean()).ToList());
-				writer.Write("postCovs", dotNetPostW.Select(p => p.GetVariance()).ToList());
+				writer.Write("postCovs", postW.Select(p => p.GetVariance()).ToList());
 			}
 			writer.Dispose();
 		}
@@ -165,7 +169,7 @@ namespace KernelEP.Op{
 		}
 
 		public void RecordToLogistic(Beta inLog, Gaussian inX, Beta? outLog, Beta? projLog,
-		                             bool consult, double[] uncertainty, Beta oracleOutLog, Beta? oracleProjLog){
+			bool consult, double[] uncertainty, Beta? oracleOutLog, Beta? oracleProjLog){
 
 			InLogisticOutLog.Add(inLog);
 			InXOutLog.Add(inX);
@@ -178,7 +182,7 @@ namespace KernelEP.Op{
 		}
 
 		public void RecordToX(Beta inLog, Gaussian inX, Gaussian? outX, Gaussian? projX, 
-		                      bool consult, double[] uncertainty, Gaussian oracleOutX, Gaussian? oracleProjX){
+			bool consult, double[] uncertainty, Gaussian? oracleOutX, Gaussian? oracleProjX){
 			InLogisticOutX.Add(inLog);
 			InXOutX.Add(inX);
 			OutX.Add(outX);
@@ -312,7 +316,7 @@ namespace KernelEP.Op{
 	[Quality(QualityBand.Experimental)]
 	public static class ISGaussianLogisticOp{
 	
-		public static ISGaussianLogisticOpIns isLogisticOpIns = new ISGaussianLogisticOpIns();
+		public static ISGaussianLogisticOpIns isLogisticOpIns = null;
 
 	
 		public static Gaussian XAverageConditional(Beta logistic, Gaussian x){
@@ -332,7 +336,6 @@ namespace KernelEP.Op{
 	}
 
 
-
 	/**
 	* logistic operator instance based on an importance sampler with a Gaussian 
 	proposal distribution. 
@@ -341,12 +344,21 @@ namespace KernelEP.Op{
 	public class ISGaussianLogisticOpIns : LogisticOpInstance{
 	
 		// Need at least 20000 or more.
-		public  int GaussianImportanceSampleSize { get; private set; }
+		public  int GaussianImportanceSampleSize { get;  set; }
 
 		public Gaussian Proposal = Gaussian.FromMeanAndVariance(0, 200);
+		/**True to record every message passed/computed*/
+		public bool IsRecordMessages = true;
+		public LogisticOpRecords records;
 
-		public ISGaussianLogisticOpIns(){
-			GaussianImportanceSampleSize = 20000;
+		public Stopwatch watch;
+
+
+		public ISGaussianLogisticOpIns(int samplingSize = 10000, 
+			LogisticOpRecords records=null, Stopwatch watch=null){
+			GaussianImportanceSampleSize = samplingSize;
+			this.records = records==null ? new LogisticOpRecords() : records;
+			this.watch = watch == null ? new Stopwatch() : watch;
 		}
 
 		public override OpParams<DBeta, DNormal> GetOpParams(){
@@ -354,67 +366,14 @@ namespace KernelEP.Op{
 		}
 
 
-		public override Gaussian XAverageConditional(Beta logistic, Gaussian x){
-			Console.WriteLine("{0}.XAverageConditional: beta: {1} , gaussian: {2}", 
-				typeof(ISGaussianLogisticOpIns), logistic, x);
-			// initial toX is improper
-			Gaussian toX, projToX;
-
-			XAverageConditionalSilent(logistic, x, out toX, out projToX);
-			Console.WriteLine("Proj To X: Gaussian({0}, {1})", projToX.GetMean(), 
-				projToX.GetVariance());
-			Console.WriteLine("To X: Gaussian({0}, {1})", toX.GetMean(), toX.GetVariance());
-			Console.WriteLine();
-			return toX;
-		}
-
-		public void XAverageConditionalSilent(Beta logistic, Gaussian x, 
-		                                      out Gaussian toX, out Gaussian projToX){
-			projToX = ProjToXGaussianProposal(logistic, x);
-			//			Gaussian projToX = ProjToXUniformProposal(logistic, x);
-			if(!projToX.IsProper()){
-				toX = Gaussian.Uniform();
-				projToX = Gaussian.Uniform();
-			}else{
-				double projM, projV;
-				projToX.GetMeanAndVariance(out projM, out projV);
-				toX = Gaussian.FromMeanAndVariance(0, 1e5);
-				toX.SetToRatio(projToX, x, true);
-
-			}
-
-
-		}
-
-		public  Gaussian ProjToXGaussianProposal(Beta logistic, Gaussian x){
-			// Get the projected message forming part of an outogoing message to X.
-			double m1 = 0, m2 = 0;
-			double wsum = 0;
-			for(int i = 0; i < GaussianImportanceSampleSize; i++){
-				double xi = Proposal.Sample();
-				double yi = MMath.Logistic(xi);
-				double lbi = logistic.GetLogProb(yi);
-				double lgi = x.GetLogProb(xi);
-				double si = Proposal.GetLogProb(xi);
-				// importance weight
-				double wi = Math.Exp(lbi + lgi - si);
-				wsum += wi;
-				m1 += wi * xi;
-				m2 += wi * xi * xi;
-			}
-			m1 /= wsum;
-			m2 /= wsum;
-			double projM = m1;
-			double projV = m2 - m1 * m1;
-			return Gaussian.FromMeanAndVariance(projM, projV);
-		}
-
 
 		public override Beta LogisticAverageConditional(Beta logistic, Gaussian x){
 			Console.WriteLine("{0}.LogisticAverageConditional: beta: {1} , gaussian: {2}", 
 				typeof(ISGaussianLogisticOpIns), logistic, x);
 			Beta toL, projToLogistic;
+			watch.Start();
 			LogisticAverageConditionalSilent(logistic, x, out toL, out projToLogistic);
+			watch.Stop();
 
 //			if(!toL.IsProper()){
 //				Beta rawDivide = projToLogistic/toL;
@@ -425,6 +384,13 @@ namespace KernelEP.Op{
 			Console.WriteLine("Proj To Logistic: {0}", projToLogistic);
 			Console.WriteLine("To logistic: {0}", toL);
 			Console.WriteLine();
+
+			if(IsRecordMessages){
+//				var uncertainty = new double[]{double.NaN, double.NaN};
+				double[] uncertainty = null;
+				records.RecordToLogistic(logistic, x, toL, projToLogistic, false, 
+					uncertainty, null, null);
+			}
 			return toL;
 		}
 
@@ -472,9 +438,81 @@ namespace KernelEP.Op{
 				// Overestimating should be better than underestimating.
 				projV = projM * (1 - projM);
 			}
+			if(projV <= 0){
+				// It is possible that the supplied variance is negative and tiny.
+				// Then given up. 
+				return Beta.Uniform();
+			}
 
 			return Beta.FromMeanAndVariance(projM, projV);
 		}
+
+
+		public override Gaussian XAverageConditional(Beta logistic, Gaussian x){
+			Console.WriteLine("{0}.XAverageConditional: beta: {1} , gaussian: {2}", 
+				typeof(ISGaussianLogisticOpIns), logistic, x);
+			// initial toX is improper
+			Gaussian toX, projToX;
+			watch.Start();
+			XAverageConditionalSilent(logistic, x, out toX, out projToX);
+			watch.Stop();
+
+			Console.WriteLine("Proj To X: Gaussian({0}, {1})", projToX.GetMean(), 
+				projToX.GetVariance());
+			Console.WriteLine("To X: Gaussian({0}, {1})", toX.GetMean(), toX.GetVariance());
+			Console.WriteLine();
+
+			if(IsRecordMessages){
+//				var uncertainty = new double[]{double.NaN, double.NaN};
+				double[] uncertainty = null;
+				records.RecordToX(logistic, x, toX, projToX, false, 
+					uncertainty, null, null);
+			}
+			return toX;
+		}
+
+		public void XAverageConditionalSilent(Beta logistic, Gaussian x, 
+			out Gaussian toX, out Gaussian projToX){
+
+			projToX = ProjToXGaussianProposal(logistic, x);
+			//			Gaussian projToX = ProjToXUniformProposal(logistic, x);
+			if(!projToX.IsProper()){
+				toX = Gaussian.Uniform();
+				projToX = Gaussian.Uniform();
+			} else{
+				double projM, projV;
+				projToX.GetMeanAndVariance(out projM, out projV);
+				toX = Gaussian.FromMeanAndVariance(0, -1);
+				toX.SetToRatio(projToX, x, true);
+
+			}
+
+
+		}
+
+		public  Gaussian ProjToXGaussianProposal(Beta logistic, Gaussian x){
+			// Get the projected message forming part of an outogoing message to X.
+			double m1 = 0, m2 = 0;
+			double wsum = 0;
+			for(int i = 0; i < GaussianImportanceSampleSize; i++){
+				double xi = Proposal.Sample();
+				double yi = MMath.Logistic(xi);
+				double lbi = logistic.GetLogProb(yi);
+				double lgi = x.GetLogProb(xi);
+				double si = Proposal.GetLogProb(xi);
+				// importance weight
+				double wi = Math.Exp(lbi + lgi - si);
+				wsum += wi;
+				m1 += wi * xi;
+				m2 += wi * xi * xi;
+			}
+			m1 /= wsum;
+			m2 /= wsum;
+			double projM = m1;
+			double projV = m2 - m1 * m1;
+			return Gaussian.FromMeanAndVariance(projM, projV);
+		}
+
 
 	}
 
@@ -521,7 +559,7 @@ namespace KernelEP.Op{
 		}
 
 	}
-
+	 
 	// Kernel EP LogisticOpInstance with online learning using importance sampler oracle
 	public class KEPOnlineISLogisticOpIns : LogisticOpInstance{
 
@@ -540,10 +578,10 @@ namespace KernelEP.Op{
 		public Stopwatch watch;
 
 		public KEPOnlineISLogisticOpIns(LogisticOpRecords records = null, 
-			Stopwatch watch = null){
+		                                Stopwatch watch = null){
 			this.IsRecordMessages = records != null;
 			this.records = records;
-			this.watch = watch == null ? new Stopwatch() : watch;
+			this.watch = watch ?? new Stopwatch();
 
 			LogisticOp2.IsPrintLog = false;
 
@@ -565,6 +603,10 @@ namespace KernelEP.Op{
 			opParams = new OpParams<DBeta, DNormal>(toLogisticMap,toXMap);
 		}
 
+		public void SetImportanceSamplingSize(int samplingSize){
+			this.isGaussianOp = new ISGaussianLogisticOpIns(samplingSize);
+		}
+
 		public void SetRecorder(LogisticOpRecords recorder){
 			if(recorder == null){
 				throw new ArgumentException("recorder cannot be null");
@@ -576,10 +618,20 @@ namespace KernelEP.Op{
 			var msgs = new IKEPDist[] {
 				DBeta.FromBeta(logistic),
 				DNormal.FromGaussian(x)
-			};
-	
+			}; 
+			// Compute operator proj and outgoing messages
+			Beta predictProj, predictOut;
+			Vector[] randomFeatures = null;
 			watch.Start();
-			bool isUn = toLogisticMap.IsUncertain(msgs);
+			bool isUn = true;
+			bool onlineReady = toLogisticMap.IsOnlineReady();
+			if(onlineReady){
+				randomFeatures = toLogisticMap.GenAllRandomFeatures(msgs);
+				isUn = toLogisticMap.IsUncertain(randomFeatures);
+			}else{
+				isUn = true;
+			}
+
 			watch.Stop();
 			if(isUn){
 				watch.Start();
@@ -597,7 +649,7 @@ namespace KernelEP.Op{
 						typeof(KEPOnlineISLogisticOpIns), oracleOut);
 					double mean = oracleOut.GetMean();
 					mean = Math.Max(1e-5, Math.Min(1 - 1e-5, mean));
-					return Beta.FromMeanAndVariance(mean, mean * (1 - mean) );
+					return Beta.FromMeanAndVariance(mean, mean * (1 - mean));
 				}
 				DBeta target = DBeta.FromBeta(oracleProj);
 				// learn proj
@@ -605,10 +657,9 @@ namespace KernelEP.Op{
 				watch.Stop();
 
 				if(IsRecordMessages){
-					if(toLogisticMap.IsOnlineReady()){
-						// Compute operator proj and outgoing messages
-						Beta predictProj, predictOut;
-						PredictToLogistic(msgs, logistic, out predictProj, out predictOut);
+					if(onlineReady){
+
+						PredictToLogistic(randomFeatures, logistic, out predictProj, out predictOut);
 						double[] logPredVar = toLogisticMap.EstimateUncertainty(msgs);
 						records.RecordToLogistic(logistic, x, predictOut, predictProj, 
 							true, logPredVar, oracleOut, oracleProj);
@@ -626,9 +677,8 @@ namespace KernelEP.Op{
 			} else{
 
 				// operator is sure
-				Beta predictProj, predictOut;
 				watch.Start();
-				PredictToLogistic(msgs, logistic, out predictProj, out predictOut);
+				PredictToLogistic(randomFeatures, logistic, out predictProj, out predictOut);
 				watch.Stop();
 				Console.WriteLine("{0}.LogisticAverageConditional. logistic: {1}, x: {2}", 
 					typeof(KEPOnlineISLogisticOpIns), logistic, x);
@@ -661,10 +711,10 @@ namespace KernelEP.Op{
 
 		}
 
-		public void PredictToLogistic(IKEPDist[] msgs, Beta logistic, out Beta predictProj, 
+		public void PredictToLogistic(Vector[] features, Beta logistic, out Beta predictProj, 
 		                              out Beta predictOut){
 
-			DBeta pp = toLogisticMap.MapToDist(msgs);
+			DBeta pp = toLogisticMap.MapToDistFromRandomFeatures(features);
 			predictProj = pp.GetDistribution();
 			predictOut = new Beta();
 			predictOut.SetToRatio(predictProj, logistic, true);
@@ -675,15 +725,26 @@ namespace KernelEP.Op{
 				DBeta.FromBeta(logistic),
 				DNormal.FromGaussian(x)
 			};
+
+			// Compute operator proj and outgoing messages
+			Gaussian predictProj, predictOut;
+			Vector[] randomFeatures = null;
 			watch.Start();
-			bool isUn = toXMap.IsUncertain(msgs);
+			bool isUn = true;
+			bool onlineReady = toXMap.IsOnlineReady();
+			if(onlineReady){
+				randomFeatures = toXMap.GenAllRandomFeatures(msgs);
+				isUn = toXMap.IsUncertain(randomFeatures);
+			}else{
+				isUn = true;
+			}
 			watch.Stop();
 
 			if(isUn){
 				watch.Start();
 				Gaussian oracleOut, oracleProj;
 				isGaussianOp.XAverageConditionalSilent(logistic, x, out oracleOut, out oracleProj);
-
+				Console.WriteLine("oracleOut: {0}", oracleOut);
 				// Sadly, SetToRatio(.) can give an improper message.
 				if(!oracleOut.IsProper()){
 					Console.WriteLine("{0}.XAverageConditional. Improper ground-truth toX: {1}. Skip.", 
@@ -700,11 +761,10 @@ namespace KernelEP.Op{
 
 				toXMap.UpdateOperator(target, msgs);
 				watch.Stop();
+				 
 				if(IsRecordMessages){
-					if(toXMap.IsOnlineReady()){
-						// Compute operator proj and outgoing messages
-						Gaussian predictProj, predictOut;
-						PredictToX(msgs, x, out predictProj, out predictOut);
+					if(onlineReady){
+						PredictToX(randomFeatures, x, out predictProj, out predictOut);
 						double[] logPredVar = toXMap.EstimateUncertainty(msgs);
 						records.RecordToX(logistic, x, predictOut, predictProj, 
 							true, logPredVar, oracleOut, oracleProj);
@@ -721,9 +781,9 @@ namespace KernelEP.Op{
 
 			} else{
 				// operator is sure
-				Gaussian predictProj, predictOut;
+			
 				watch.Start();
-				PredictToX(msgs, x, out predictProj, out predictOut);
+				PredictToX(randomFeatures, x, out predictProj, out predictOut);
 				watch.Stop();
 
 				Console.WriteLine("{0}.XAverageConditional. logistic: {1}, x: {2}", 
@@ -755,10 +815,10 @@ namespace KernelEP.Op{
 
 		}
 
-		public void PredictToX(IKEPDist[] msgs, Gaussian x, out Gaussian predictProj, 
+		public void PredictToX(Vector[] features, Gaussian x, out Gaussian predictProj, 
 		                       out Gaussian predictOut){
 
-			DNormal pp = toXMap.MapToDist(msgs);
+			DNormal pp = toXMap.MapToDistFromRandomFeatures(features);
 			predictProj = pp.GetDistribution();
 			predictOut = new Gaussian();
 			predictOut.SetToRatio(predictProj, x, true);
@@ -990,6 +1050,7 @@ namespace KernelEP.Op{
 		private static List<Tuple<Beta, Gaussian, Beta>> toLogisticMessages;
 		private static ISGaussianLogisticOpIns isGaussianOp = new ISGaussianLogisticOpIns();
 
+		public static Stopwatch Watch = new Stopwatch();
 		// static constructor
 		static LogisticOp2(){
 			ResetMessageCollection();
@@ -1029,7 +1090,7 @@ namespace KernelEP.Op{
 				Console.WriteLine("XAverageConditional([SkipIfUniform] Beta logistic, Gaussian falseMsg)");
 				Console.WriteLine("x: {0}", x);
 			}
-
+			Watch.Start();
 			if(logistic.IsPointMass)
 				return XAverageConditional(logistic.Point);
 			if(falseMsg.IsPointMass)
@@ -1040,7 +1101,7 @@ namespace KernelEP.Op{
 			double tc1 = logistic.TrueCount - 1;
 			double fc1 = logistic.FalseCount - 1;
 			Gaussian toX = Gaussian.FromNatural((tc1 + fc1) * falseMsg.MeanTimesPrecision + tc1, (tc1 + fc1) * falseMsg.Precision);
-
+			Watch.Stop();
 			// ### Message collection ###
 			if(IsCollectXMessages){
 				if(IsCollectProjMsgs){
@@ -1077,18 +1138,22 @@ namespace KernelEP.Op{
 			Beta toLogistic;
 
 			if(x.IsPointMass){
+				Watch.Start();
 				toLogistic = Beta.PointMass(MMath.Logistic(x.Point));
+				Watch.Stop();
 				CollectCheckLogisticMsg(toLogistic, x, logistic);
 				return toLogistic;
 			}
 
 
 			if(logistic.IsPointMass || x.IsUniform()){
+				Watch.Start();
 				toLogistic = Beta.Uniform();
+				Watch.Stop();
 				CollectCheckLogisticMsg(toLogistic, x, logistic);
 				return toLogistic;
 			}
-
+			Watch.Start();
 			double m, v;
 			x.GetMeanAndVariance(out m, out v);
 
@@ -1140,6 +1205,7 @@ namespace KernelEP.Op{
 				toLogistic = BetaFromMeanAndIntegral(Ep, logZ, tc1, fc1);
 
 			}
+			Watch.Stop();
 			CollectCheckLogisticMsg(toLogistic, x, logistic);
 			return toLogistic;
 		}
@@ -1350,6 +1416,8 @@ namespace KernelEP.Op{
 
 
 
+
+
 #pragma warning disable 162
 		#endif
 
@@ -1439,6 +1507,8 @@ namespace KernelEP.Op{
 
 
 		
+
+
 
 
 

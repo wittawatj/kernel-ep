@@ -15,7 +15,7 @@ namespace KernelEP{
 	class MainClass{
 		public static void Main(string[] args){
 
-
+			RunInference(args);
 //			Console.WriteLine("{0}", Beta.FromMeanAndVariance(1, 0));
 //			TestMultinomialRegression();
 //		
@@ -31,7 +31,7 @@ namespace KernelEP{
 //			LogisticRegression.TestLogisticRegression();
 
 //			LogisticRegression.TestLogisticRegressionNoBias();
-			CollectOnlineLogistic.RunOnlineKEPSampling();
+//			CollectOnlineLogistic.RunOnlineKEPSampling();
 //			Console.WriteLine(new Matrix(0, 0));
 
 //			CollectLogisticMsgs.CollectMessages();
@@ -51,6 +51,24 @@ namespace KernelEP{
 
 //			TestImproperMessages();
 //			TestWritingMat();
+		}
+
+		public static void RunInference(string[] args){
+			if(args.Length == 0){
+				Console.WriteLine("usage: app.exe {is|kep_is}");
+				Console.WriteLine(" - is for importance sampling.");
+				Console.WriteLine(" - kep_is for kernel-based EP with importance sampling oracle.");
+				return;
+			}
+			string routine = args[0];
+			if(routine.Equals("is")){
+				CollectOnlineLogistic.RunOnlineImportanceSampling();
+			}else if(routine.Equals("kep_is")){
+				CollectOnlineLogistic.RunOnlineKEPSampling();
+			}else{
+				string msg = string.Format("unknown routine: {0}", routine);
+				throw new ArgumentException(msg);
+			}
 		}
 
 		public static void TestWritingMat(){

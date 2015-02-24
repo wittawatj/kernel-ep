@@ -10,6 +10,7 @@
     <RootNamespace>KernelEP</RootNamespace>
     <AssemblyName>KernelEP</AssemblyName>
     <newfilesearch>OnLoad</newfilesearch>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,6 +22,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
     <ConsolePause>false</ConsolePause>
+    <Commandlineparameters>kep_is</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>none</DebugType>
@@ -35,6 +37,7 @@
         <Command type="AfterBuild" command="cp -rv /nfs/nhome/live/wittawat/SHARE/gatsby/research/code/KernelEP.NET/KernelEP.NET/bin/Release  /nfs/nhome/live/wittawat/SHARE/gatsby/research/code/KernelEP.NET/KernelEP.NET/" />
       </CustomCommands>
     </CustomCommands>
+    <Commandlineparameters>kep_is</Commandlineparameters>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

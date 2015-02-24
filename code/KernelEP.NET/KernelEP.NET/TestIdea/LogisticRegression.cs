@@ -88,9 +88,11 @@ namespace KernelEP.TestIdea{
 			//http://research.microsoft.com/en-us/um/cambridge/projects/infernet/docs/Inference%20engine%20settings.aspx
 			ie.Compiler.GivePriorityTo(logisticOperator);
 			// If you want to debug into your generated inference code, you must set this to false:
-			ie.Compiler.GenerateInMemory = false;
-			ie.Compiler.WriteSourceFiles = true;
-			ie.Compiler.GeneratedSourceFolder = Config.PathToCompiledModelFolder();
+//			ie.Compiler.GenerateInMemory = false;
+//			ie.Compiler.WriteSourceFiles = true;
+//			ie.Compiler.GeneratedSourceFolder = Config.PathToCompiledModelFolder();
+			ie.Compiler.GenerateInMemory = true;
+			ie.Compiler.WriteSourceFiles = false;
 
 			ie.Compiler.IncludeDebugInformation = true;
 			//			ie.Algorithm = new VariationalMessagePassing();

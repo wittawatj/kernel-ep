@@ -63,7 +63,7 @@ namespace KernelEP.Tool{
 			//
 			//			}
 			return map;
-
+			 
 		}
 	}
 
@@ -76,7 +76,8 @@ namespace KernelEP.Tool{
 
 		// Map and estiamte uncertainty.
 		public abstract void MapAndEstimateU(out Vector mapped, 
-		                                     out double[] uncertainty, params IKEPDist[] dists);
+		                                     out double[] uncertainty, out bool uncertain,
+		                                     params IKEPDist[] dists);
 
 		public new static UAwareVectorMapper FromMatlabStruct(MatlabStruct s){
 			string className = s.GetString("className");
@@ -156,41 +157,86 @@ namespace KernelEP.Tool{
 		protected int GetInitialBatchSize(){
 			return batchOutputs.Count;
 		}
+
 		protected void CheckPredictionReady(){
 			if(WillNeedInitialTrain){
 				throw new SystemException("The map is not ready for prediction. Need initial batch training first.");
 			}
 		}
+
 		public override void MapAndEstimateU(out Vector mapped, out double[] uncertainty, 
-		                                     params IKEPDist[] msgs){
-			CheckPredictionReady();
-			Vector feature = featureMap.MapToVector(msgs);
+		                                     out bool uncertain, params IKEPDist[] msgs){
+			if(WillNeedInitialTrain){
+				uncertain = true;
+				mapped = null;
+				uncertainty = null;
+				return;
+			}
+			Vector feature = GenRandomFeatures(msgs);
 			mapped = posteriorMean * feature;
-			double predVar = posteriorCov.QuadraticForm(feature) + noiseVar;
-			uncertainty = new[]{ predVar };
+			double logPredVar = UncertaintyFromFeatures(feature);
+			uncertainty = new[]{ logPredVar };
+			uncertain = logPredVar >= uThreshold;
 		}
 
 		public override Vector MapToVector(params IKEPDist[] msgs){
 			CheckPredictionReady();
-			Vector feature = featureMap.MapToVector(msgs);
+			Vector feature = GenRandomFeatures(msgs);
 			double predict = posteriorMean.Inner(feature);
 			return Vector.FromArray(new []{ predict });
+		}
+
+		/**Map to a one-dimensional output by explicitly specifying the random 
+		feature vector.*/
+		public  Vector MapToVector(Vector randomFeature){
+			CheckPredictionReady();
+			double predict = posteriorMean.Inner(randomFeature);
+			return Vector.FromArray(new []{ predict });
+		}
+
+		public double MapToDouble(params IKEPDist[] msgs){
+			CheckPredictionReady();
+			Vector feature = GenRandomFeatures(msgs);
+			double predict = posteriorMean.Inner(feature);
+			return predict;
+		}
+
+		public double MapToDouble(Vector randomFeature){
+			CheckPredictionReady();
+			double predict = posteriorMean.Inner(randomFeature);
+			return predict;
 		}
 
 		public override int GetOutputDimension(){
 			return 1;
 		}
 
+		public Vector GenRandomFeatures(params IKEPDist[] dists){
+			Vector feature = featureMap.MapToVector(dists);
+			return feature;
+		}
+
 		public override double[] EstimateUncertainty(params IKEPDist[] dists){
 			// return log predictive variance
 			CheckPredictionReady();
-			Vector feature = featureMap.MapToVector(dists);
+			Vector feature = GenRandomFeatures(dists);
+			double u = UncertaintyFromFeatures(feature);
+			return new[]{ u };
+		}
+
+		public double[] EstimateUncertainty(Vector feature){
+			double u = UncertaintyFromFeatures(feature);
+			return new[]{ u };
+		}
+
+		private double UncertaintyFromFeatures(Vector feature){
+
 			double predVar = posteriorCov.QuadraticForm(feature) + noiseVar;
-			return new []{ Math.Log(predVar) };
+			return Math.Log(predVar);
 		}
 
 		public override bool IsUncertain(params IKEPDist[] msgs){
-			if(msgs == null || msgs.Length ==0){
+			if(msgs == null || msgs.Length == 0){
 				throw new ArgumentException("messages cannot be empty");
 			}
 			if(WillNeedInitialTrain){
@@ -200,6 +246,16 @@ namespace KernelEP.Tool{
 			double logPredVar = EstimateUncertainty(msgs)[0];
 			return logPredVar >= uThreshold;
 		}
+
+		public bool IsUncertain(Vector feature){
+			if(WillNeedInitialTrain){
+				// always uncertain before the initial batch training
+				return true;
+			}
+			double logPredVar = EstimateUncertainty(feature)[0];
+			return logPredVar >= uThreshold;
+		}
+
 		public override bool IsOnlineReady(){
 			return !WillNeedInitialTrain;
 		}
@@ -215,7 +271,7 @@ namespace KernelEP.Tool{
 				this.batchOutputs.Add(y);
 				return;
 			}
-			if(this.WillNeedInitialTrain && GetInitialBatchSize() == this.onlineBatchSizeTrigger ){
+			if(this.WillNeedInitialTrain && GetInitialBatchSize() == this.onlineBatchSizeTrigger){
 				// trigger initial batch learning.
 				// TODO: may do leave-one-out- cross validation here 
 				BatchLearn();
@@ -238,12 +294,12 @@ namespace KernelEP.Tool{
 
 			Debug.Assert(crossCorr != null);
 			Debug.Assert(!double.IsNaN(crossCorr[0]));
-			Debug.Assert(posteriorCov != null);
+			Debug.Assert(posteriorCov != null); 
 			Debug.Assert(!double.IsNaN(posteriorCov[0, 0]));
 			Debug.Assert(posteriorMean != null);
 			Debug.Assert(!double.IsNaN(posteriorMean[0]));
 			Debug.Assert(noiseVar > 0);
-
+			 
 		}
 
 		private void BatchLearn(){
@@ -253,35 +309,36 @@ namespace KernelEP.Tool{
 			// TODO: full cross validation later.
 			// For now, we will use median heuristic to set the parameter.
 			 
-//			int[] inOutNumFeatures = {300, 500};
-			int[] inOutNumFeatures = {400, 700};
+			int[] inOutNumFeatures = { 300, 500 };
+//			int[] inOutNumFeatures = { 200, 400 };
+//			int[] inOutNumFeatures = {400, 700};
 //			int[] inOutNumFeatures = {50, 50};
-			double[] medianFactors = {0.5};
+			double[] medianFactors = { 0.5 };
 			Random rng = new Random(1);
 			List<IKEPDist[]> inputs = this.batchInputs;
 			List<RandomFeatureMap> candidates = featureMap.GenCandidates(
-				inputs, inOutNumFeatures, medianFactors, rng);
+				                                    inputs, inOutNumFeatures, medianFactors, rng);
 			// expect only one candidate 
 			RandomFeatureMap fm = candidates[0];
 			this.noiseVar = 1e-4;
 			// threshold on log predict variance
 
-			const double  priorVariance = 1.0;
+			const double priorVariance = 1.0;
 
 			this.featureMap = fm;
-			this.uThreshold = -9.1;
+			this.uThreshold = -8.5;
 			Vector[] features = inputs.Select(msgs => featureMap.MapToVector(msgs)).ToArray();
 			Matrix x = MatrixUtils.StackColumns(features);
 			Vector y = Vector.FromList(batchOutputs);
 
 			int d = x.Rows;
 			// Matrix x is d x n
-			Matrix xxt = x*x.Transpose();
-			crossCorr = x*y;
+			Matrix xxt = x * x.Transpose();
+			crossCorr = x * y;
 
-			Matrix postPrec = xxt*(1.0/noiseVar) + Matrix.IdentityScaledBy(d, 1.0/priorVariance);
+			Matrix postPrec = xxt * (1.0 / noiseVar) + Matrix.IdentityScaledBy(d, 1.0 / priorVariance);
 			this.posteriorCov = MatrixUtils.Inverse(postPrec);
-			this.posteriorMean = this.posteriorCov*crossCorr*(1.0/noiseVar);
+			this.posteriorMean = this.posteriorCov * crossCorr * (1.0 / noiseVar);
 		
 
 //			throw new NotImplementedException();
@@ -301,13 +358,13 @@ namespace KernelEP.Tool{
 		This implementation follows cond_fm_finiteout.m
 		*/
 		public static double[] EvaluateFeatureMap(RandomFeatureMap fm, 
-			double[] regList, List<IKEPDist[]> inputs, List<double> outputs){
+		                                          double[] regList, List<IKEPDist[]> inputs, List<double> outputs){
 			// see http://numerics.mathdotnet.com/Matrix.html for how to use MathNet Matrix
 
 			Matrix xtemp = ToInputMatrix(fm, inputs);
 			MNMatrix x = MatrixUtils.ToMathNetMatrix(xtemp);
 			double[] errs = new double[regList.Length];
-			for(int i=0; i<regList.Length; i++){
+			for(int i = 0; i < regList.Length; i++){
 				double lambda = regList[i];
 
 			}
@@ -335,11 +392,11 @@ namespace KernelEP.Tool{
 
 			int d = x.Rows;
 			// Matrix x is d x n
-			Matrix xxt = x*x.Transpose();
-			crossCorr = x*y;
-			Matrix postPrec = xxt*(1.0/noiseVariance) + Matrix.IdentityScaledBy(d, 1.0/priorVariance);
+			Matrix xxt = x * x.Transpose();
+			crossCorr = x * y;
+			Matrix postPrec = xxt * (1.0 / noiseVariance) + Matrix.IdentityScaledBy(d, 1.0 / priorVariance);
 			postCov = MatrixUtils.Inverse(postPrec);
-			postMean = postCov*crossCorr*(1.0/noiseVariance);
+			postMean = postCov * crossCorr * (1.0 / noiseVariance);
 		}
 
 		public static new BayesLinRegFM FromMatlabStruct(MatlabStruct s){
@@ -407,20 +464,22 @@ namespace KernelEP.Tool{
 			return U;
 		}
 
-		public override void MapAndEstimateU(out Vector mapped, 
-		                                     out double[] uncertainty, params IKEPDist[] dists){
+		public override void MapAndEstimateU(out Vector mapped,
+		                                     out double[] uncertainty, out bool uncertain, params IKEPDist[] dists){
 			// ** Take only the fist uncertainty estimate from each mapper.
 			int m = mappers.Length;
 			uncertainty = new double[m];
 			Vector[] outs = new Vector[m];
+			bool[] uncertains = new bool[m];
 			for(int i = 0; i < m; i++){
 				double[] ui;
 				Vector outi;
-				mappers[i].MapAndEstimateU(out outi, out ui, dists);
+				mappers[i].MapAndEstimateU(out outi, out ui, out uncertains[i], dists);
 				outs[i] = outi;
 				uncertainty[i] = ui[0];
 			}
 			mapped = MatrixUtils.ConcatAll(outs);
+			uncertain = MatrixUtils.Or(uncertains);
 		}
 
 		public new static UAwareStackVectorMapper FromMatlabStruct(MatlabStruct s){
@@ -625,6 +684,12 @@ namespace KernelEP.Tool{
 
 		// Estimate uncertainty on the incoming messages d1 and d2.
 		public abstract double[] EstimateUncertainty(params IKEPDist[] msgs);
+
+		// Map and estiamte uncertainty.
+		public abstract void MapAndEstimateU(out T mapped, 
+		                                     out double[] uncertainty, out bool certain,
+		                                     params IKEPDist[] dists);
+
 	}
 
 	public class UAwareGenericMapper<T>: UAwareDistMapper<T>
@@ -646,6 +711,16 @@ namespace KernelEP.Tool{
 			double[] u = uvm.EstimateUncertainty(msgs);
 			return u;
 		}
+
+		public override void MapAndEstimateU(out T mapped, 
+		                                     out double[] uncertainty, out bool uncertain, params IKEPDist[] dists){
+
+			UAwareVectorMapper uvm = (UAwareVectorMapper)suffMapper;
+			Vector mappedVec;
+			uvm.MapAndEstimateU(out mappedVec, out uncertainty, out uncertain, dists);
+			mapped = distBuilder.FromStat(mappedVec);
+		}
+
 
 	}
 
