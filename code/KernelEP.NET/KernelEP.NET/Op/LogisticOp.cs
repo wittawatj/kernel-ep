@@ -744,7 +744,7 @@ namespace KernelEP.Op{
 				watch.Start();
 				Gaussian oracleOut, oracleProj;
 				isGaussianOp.XAverageConditionalSilent(logistic, x, out oracleOut, out oracleProj);
-				Console.WriteLine("oracleOut: {0}", oracleOut);
+//				Console.WriteLine("oracleOut: {0}", oracleOut);
 				// Sadly, SetToRatio(.) can give an improper message.
 				if(!oracleOut.IsProper()){
 					Console.WriteLine("{0}.XAverageConditional. Improper ground-truth toX: {1}. Skip.", 

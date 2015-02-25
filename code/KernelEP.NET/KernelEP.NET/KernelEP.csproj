@@ -37,7 +37,7 @@
         <Command type="AfterBuild" command="cp -rv /nfs/nhome/live/wittawat/SHARE/gatsby/research/code/KernelEP.NET/KernelEP.NET/bin/Release  /nfs/nhome/live/wittawat/SHARE/gatsby/research/code/KernelEP.NET/KernelEP.NET/" />
       </CustomCommands>
     </CustomCommands>
-    <Commandlineparameters>kep_is</Commandlineparameters>
+    <Commandlineparameters>dnet</Commandlineparameters>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

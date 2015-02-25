@@ -14,7 +14,7 @@ using MNMatrix = MathNet.Numerics.LinearAlgebra.Matrix<double>;
 namespace KernelEP{
 	class MainClass{
 		public static void Main(string[] args){
-
+//			args = new string[]{"dnet"};
 			RunInference(args);
 //			Console.WriteLine("{0}", Beta.FromMeanAndVariance(1, 0));
 //			TestMultinomialRegression();
@@ -48,14 +48,14 @@ namespace KernelEP{
 //			TestDeterminant();
 //			Console.WriteLine(DBeta.PointMass(0.3));
 //			TestMatrix();
-
+			 
 //			TestImproperMessages();
 //			TestWritingMat();
 		}
 
 		public static void RunInference(string[] args){
 			if(args.Length == 0){
-				Console.WriteLine("usage: app.exe {is|kep_is}");
+				Console.WriteLine("usage: app.exe {is|kep_is|dnet}");
 				Console.WriteLine(" - is for importance sampling.");
 				Console.WriteLine(" - kep_is for kernel-based EP with importance sampling oracle.");
 				return;
@@ -65,6 +65,8 @@ namespace KernelEP{
 				CollectOnlineLogistic.RunOnlineImportanceSampling();
 			}else if(routine.Equals("kep_is")){
 				CollectOnlineLogistic.RunOnlineKEPSampling();
+			}else if(routine.Equals("dnet")){
+				CollectOnlineLogistic.RecordInferNETTime();
 			}else{
 				string msg = string.Format("unknown routine: {0}", routine);
 				throw new ArgumentException(msg);

@@ -49,7 +49,9 @@ namespace KernelEP{
 			return list.Select(v => v ? 1.0 : 0).ToList();
 		}
 		public static List<double> ToDouble(List<int> list){
-			// convert to a list of 0-1 double list 
+			return list.Select(v => (double)v).ToList();
+		}
+		public static List<double> ToDouble(List<long> list){
 			return list.Select(v => (double)v).ToList();
 		}
 
