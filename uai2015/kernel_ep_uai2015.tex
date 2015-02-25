@@ -275,7 +275,10 @@ We may remove this section.}
 
 Expectation propagation \citep{Minka2001,Bishop2006} (EP) is a commonly
 used approximate inference method for inferring the posterior distribution
-of latent variables given observations. In a typical directed graphical
+of latent variables given observations. 
+%
+\begin{comment}
+In a typical directed graphical
 model, the joint distribution of the data $X=\left\{ X_{1},\ldots,X_{n}\right\} $
 and latent variables $\theta=\left\{ \theta_{1},\ldots,\theta_{t}\right\} $
 takes the form of a product of factors, $p(X,\theta)=\prod_{i=1}^{m}f_{i}(X|\theta)$
@@ -305,8 +308,9 @@ satisfies $\mathbb{E}_{q^{*}(\theta)}\left[u(\theta)\right]=\mathbb{E}_{r(\theta
 That is, the projection of $r$ onto ExpFam is given by $q^{*}\in\text{ExpFam}$
 that has the same moment parameters as the moments under $r$. 
 
-\wjnote{Should jump to this general msg from the beginning.}In general,
-under the approximation that each factor fully factorizes, an EP message
+\wjnote{Should jump to this general msg from the beginning.}
+\end{comment}
+Under an approximation that each factor fully factorizes, an EP message
 from a factor $f$ to a variable $V$ takes the form 
 \begin{align}
 m_{f\rightarrow V}(v) & =\frac{\text{proj}\left[\int d\mathcal{V}\backslash\{v\}\, f(\mathcal{V})\prod_{V'\in\mathcal{V}}m_{V'\rightarrow f}(v')\right]}{m_{V\rightarrow f}(v)}\nonumber \\
@@ -747,34 +751,48 @@ embeddings.\label{fig:Log-KL-divergence-on}}
 
 \paragraph{Compound Gamma}
 \wjnote{Hopefully I will have enough time to do this.}
+Andrew Gelman \citep{Gelman2006}: ``Gamma prior on precision
+is not good''.
 
 \subsection{Uncertainty Estimate}
 In this experiment, we aim to verify that the predictive variance of the 
 kernel-based message operator is a reliable quantity to be used as a criterion
 for deciding whether or not to query the oracle.
 We compute the predictive variance using the same operator as used in the logistic factor experiment on the training and test sets.
-Plots of KL-divergence errors versus predictive variances are shown in \figref{fig:logistic_predvar}
-, where the variance for predicting the mean of $m_{f \rightarrow X}$ is shown in \figref{fig:logistic_predvar_g}
-and the variance for predicting $\log(\alpha)$ of $m_{f \rightarrow Z}$ is shown in \figref{fig:logistic_predvar_b}. 
+A plots of KL-divergence errors versus predictive variances for predicting the mean of $m_{f \rightarrow X}$ is shown in \figref{fig:logistic_predvar_g}
+% and the variance for predicting $\log(\alpha)$ of $m_{f \rightarrow Z}$ is shown in \figref{fig:logistic_predvar_b}. 
 
+% \begin{figure}[t]
+%   \centering
+% 
+%   %DNormalLogVarBuilder means regressing to Gaussian mean and $\log$ variance.
+%   \subfloat[Predicting the mean of $m_{f \rightarrow X}$ (normal distribution)
+%   \label{fig:logistic_predvar_g}]{
+%   \includegraphics[width=0.7\columnwidth]{img/pred_var/fm_kgg_joint_-bw-out1-crop}
+%   }
+%   %\includegraphicse[width=7cm]{img/pred_var/fm_kgg_joint_-bw-out2-crop}
+%   
+%   \subfloat[Predicting $\log(\alpha)$ of $m_{f \rightarrow Z} = \text{Beta}(z; \alpha, \beta)$
+%   \label{fig:logistic_predvar_b}]{
+%   \includegraphics[width=0.7\columnwidth]{img/pred_var/fm_kgg_joint_-fw-out1-crop}
+%   }
+%   %\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-fw-out2-crop} 	
+%   \caption{KL-divergence errors versus predictive variances in the logistic factor problem.}
+%   \label{fig:logistic_predvar}
+% \end{figure}
+  
+  
 \begin{figure}[t]
-	\centering
+  \centering
 
-	%DNormalLogVarBuilder means regressing to Gaussian mean and $\log$ variance.
-	\subfloat[Predicting the mean of $m_{f \rightarrow X}$ (normal distribution)
-	\label{fig:logistic_predvar_g}]{
-	\includegraphics[width=0.7\columnwidth]{img/pred_var/fm_kgg_joint_-bw-out1-crop}
-	}
-	%\includegraphicse[width=7cm]{img/pred_var/fm_kgg_joint_-bw-out2-crop}
-	
-	\subfloat[Predicting $\log(\alpha)$ of $m_{f \rightarrow Z} = \text{Beta}(z; \alpha, \beta)$
-	\label{fig:logistic_predvar_b}]{
-	\includegraphics[width=0.7\columnwidth]{img/pred_var/fm_kgg_joint_-fw-out1-crop}
-	}
-	%\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-fw-out2-crop} 	
-	\caption{KL-divergence errors versus predictive variances in the logistic factor problem.}
-	\label{fig:logistic_predvar}
+  \includegraphics[width=0.7\columnwidth]{img/pred_var/fm_kgg_joint_-bw-out1-crop}
+  
+  \caption{KL-divergence errors versus predictive variances for predicting the 
+  mean of $m_{f \rightarrow X}$ (normal distribution) in the logistic factor problem. }
+  \label{fig:logistic_predvar_g}
 \end{figure}
+  
+
 
 \wjnote{Feel free to fill in more explanation.} 
 The uncertainty estimates show a positive correlation with the KL-divergence errors. 
@@ -887,16 +905,14 @@ in the binary logistic regression problem.
 
 \hl{Experiments to have}
 \begin{itemize}
-\item For predictive variance on unseen region, we may need two plots where
-in one case the training samples are concentrated in one part of the
-space, and in the second case the training samples are concentrated
-in another part. This is to ensure that the uncertainty estimate does
-not depend on the absolute location.
+% \item For predictive variance on unseen region, we may need two plots where
+% in one case the training samples are concentrated in one part of the
+% space, and in the second case the training samples are concentrated
+% in another part. This is to ensure that the uncertainty estimate does
+% not depend on the absolute location.
 
 \item Use the operator for logistic in a binary logistic regression problem
-with a real dataset. Compare the inferred posterior of the coefficient
-vector to the posterior obtained by the handcrafted message operator,
-possibly with a histogram of log KL (of posteriors).
+with a real dataset. 
 
 \item Experiments on compound gamma factor whose handcrafted operator is
 slow. We can show that using a regression-based operator can be faster
@@ -912,18 +928,17 @@ mean embeddgins.
 \item To determine thresholds, compute the median of log predictive variance 
 on the test set split from the initial minibatch. 
 
-
-\begin{itemize}
-\item Andrew Gelman \citep{Gelman2006}, Tom Minka: ``Gamma prior on precision
-is not good''. Cite them.
-\end{itemize}
 %\item Do we need kNN as a baseline regression function? \aenote{AE: Maybe enough to point to JIT paper and say KNN performs badly there?}
+
 \item Choose the number of particles in the oracle importance sampler so
 that it takes roughly the same time as our operator. Compute the predictive
 quality of the two. 
-\item As in Fig 3.c of Ali's paper, show that the inference error of sampling
-+ JIT is better than sampling alone. This asserts that JIT interpolates
-in the message space in a useful way. \aenote{AE: This would be nice but is probably not critical. Could be one of the last experiments you run?}
+
+% \item As in Fig 3.c of Ali's paper, show that the inference error of sampling
+% + JIT is better than sampling alone. This asserts that JIT interpolates
+% in the message space in a useful way. \aenote{AE: This would be nice but 
+% is probably not critical. Could be one of the last experiments you run?}
+
 \end{itemize}
 
 \hrule 
