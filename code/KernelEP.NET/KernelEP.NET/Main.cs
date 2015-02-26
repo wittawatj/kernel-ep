@@ -16,6 +16,8 @@ namespace KernelEP{
 		public static void Main(string[] args){
 //			args = new string[]{"dnet"};
 			RunInference(args);
+
+//			CompoundGamma.TestInference();
 //			Console.WriteLine("{0}", Beta.FromMeanAndVariance(1, 0));
 //			TestMultinomialRegression();
 //		

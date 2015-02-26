@@ -187,6 +187,7 @@ function [kepCells, isCells, kepInferTimes, isInferTimes, ...
 
     % importance sampling size
     isSize = 20000;
+    %isSize = 100000;
     epIter = 10;
     seeds =  1:seed_to;
     scriptFol = Global.getScriptFolder();
@@ -312,7 +313,7 @@ function plotInferenceResults(seed_to)
     legend('Log predictive variance', sprintf('Moving average'));
     hold off
 
-    %plotPosteriorKL(kepCells, isCells);
+    plotPosteriorKL(kepCells, isCells);
 
     % load Infer.NET results
     dnet = loadDnetResults();

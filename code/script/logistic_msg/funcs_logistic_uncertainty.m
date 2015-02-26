@@ -191,9 +191,8 @@ function [Xtr, Ytr, Xte1, Xte2] = gen2DUncertaintyCheckData2(trBundle )
     
     % mean of Xtr 
     daOut = trBundle.getOutBundle();
-    Ytr = [daOut.mean];
-    Ytr = Ytr(Itr);
-    Ytr = Ytr(:);
+    Ytr = [ [daOut.mean] ; -log([daOut.variance]) ]';
+    Ytr = Ytr(Itr, :);
 
     nte = 500;
     testMeans = linspace(-10, 10, nte);

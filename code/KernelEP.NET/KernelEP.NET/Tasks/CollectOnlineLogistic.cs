@@ -17,15 +17,16 @@ using MicrosoftResearch.Infer.Utils;
 namespace KernelEP{
 	public class CollectOnlineLogistic{
 		const int seed_from = 1;
-		const int seed_to = 500;
+		const int seed_to = 10;
 
 		const int d = 20;
 		const int n = 300;
-		const int epIter = 10;
-		const int importanceSamplingSize = 20000;
+		const int epIter = 10; 
+		const int importanceSamplingSize = 100000;
 		const int init_fixed_seed = 1;
 
 		public CollectOnlineLogistic(){ 
+
 		}
 
 
@@ -91,8 +92,8 @@ namespace KernelEP{
 				Console.WriteLine(wPost);
 			
 			}
-			string fnameM = string.Format("rec_dnet_logistic_iter{0}_sf{1}_st{2}.mat", 
-				                 epIter, seed_from, seed_to);
+			string fnameM = string.Format("rec_dnet_n{0}_logistic_iter{1}_sf{2}_st{3}.mat", 
+				n,  epIter, seed_from, seed_to);
 			string recordPathM = Config.PathToSavedFile(fnameM);
 			MatlabWriter writer = new MatlabWriter(recordPathM);
 
@@ -196,8 +197,8 @@ namespace KernelEP{
 				recorder.dotNetPostW = MatrixUtils.ToList<VectorGaussian>(dotNetPostW);
 				allDotNetPosteriors.Add(dotNetPostW);
 				// write the records to a file 
-				string fname = string.Format("rec_is{0}_logistic_iter{1}_s{2}.mat", 
-					               importanceSamplingSize, epIter, seed);
+				string fname = string.Format("rec_is{0}_n{1}_logistic_iter{2}_s{3}.mat", 
+					importanceSamplingSize, n, epIter, seed);
 				string recordPath = Config.PathToSavedFile(fname);
 				var extra = new Dictionary<string, object>();
 				// MatlabWriter cannot write int
@@ -215,8 +216,8 @@ namespace KernelEP{
 			merged.dotNetPostW = allDotNetPosteriors;
 			merged.postW = allPosteriors;
 
-			string fnameM = string.Format("rec_is{0}_logistic_iter{1}_sf{2}_st{3}.mat", 
-				                importanceSamplingSize, epIter, seed_from, seed_to);
+			string fnameM = string.Format("rec_is{0}_n{1}_logistic_iter{2}_sf{3}_st{4}.mat", 
+				importanceSamplingSize, n, epIter, seed_from, seed_to);
 			string recordPathM = Config.PathToSavedFile(fnameM);
 			merged.WriteRecords(recordPathM);
 
@@ -310,8 +311,8 @@ namespace KernelEP{
 				recorder.dotNetPostW = MatrixUtils.ToList<VectorGaussian>(dotNetPostW);
 				allDotNetPosteriors.Add(dotNetPostW);
 				// write the records to a file 
-				string fname = string.Format("rec_onlinekep_is{0}_logistic_iter{1}_s{2}.mat", 
-					               importanceSamplingSize, epIter, seed);
+				string fname = string.Format("rec_onlinekep_is{0}_n{1}_logistic_iter{2}_s{3}.mat", 
+					importanceSamplingSize, n, epIter, seed);
 				string recordPath = Config.PathToSavedFile(fname);
 				var extra = new Dictionary<string, object>();
 				// MatlabWriter cannot write int
@@ -329,8 +330,8 @@ namespace KernelEP{
 			merged.dotNetPostW = allDotNetPosteriors;
 			merged.postW = allPosteriors;
 
-			string fnameM = string.Format("rec_onlinekep_is{0}_logistic_iter{1}_sf{2}_st{3}.mat", 
-				                importanceSamplingSize, epIter, seed_from, seed_to);
+			string fnameM = string.Format("rec_onlinekep_is{0}_n{1}_logistic_iter{2}_sf{3}_st{4}.mat", 
+				importanceSamplingSize, n, epIter, seed_from, seed_to);
 			string recordPathM = Config.PathToSavedFile(fnameM);
 			merged.WriteRecords(recordPathM);
 
