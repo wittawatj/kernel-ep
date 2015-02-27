@@ -880,7 +880,7 @@ time spent by all methods in each problem.
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.9\textwidth]{img/online/logistic_temporal_uncertainty-crop}
+\includegraphics[width=0.95\textwidth]{img/online/logistic_temporal_uncertainty-crop}
 \caption{Uncertainty estimate of KJIT for all incoming messages at each time point 
 in the binary logistic regression problem.
 \label{fig:logistic_temporal_uncertainty}
@@ -901,6 +901,45 @@ in the binary logistic regression problem.
 \end{figure}
 
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.95\textwidth]{img/online/cg_temporal_uncertainty-crop}
+\caption{Uncertainty estimate of KJIT for all incoming messages at each time point 
+in the compound Gamma problem.
+\label{fig:cg_temporal_uncertainty}
+}
+\end{figure*}
+
+\begin{figure}[t]
+	\centering
+	\subfloat[Binary classification error\label{fig:logistic_01_loss}]{
+	\includegraphics[width=0.49\columnwidth]{img/online/logistic_01_loss-crop}
+	}
+	%
+	\subfloat[Inference time\label{fig:logistic_inference_time}]{
+	\includegraphics[width=0.49\columnwidth]{img/online/logistic_inference_time-crop}
+	}
+	\caption{Classification performance and inference times in the logistic 
+	regression problem.}
+	\label{fig:logistic_performance}
+\end{figure}
+
+
+\begin{figure}[t]
+	\centering
+	\subfloat[KL divergence]{
+	%\includegraphics[width=0.49\columnwidth]{img/online/logistic_01_loss-crop}
+	\missingfigure[figwidth=0.49\columnwidth]{}
+	}
+	%
+	\subfloat[Inference time\label{fig:cg_inference_time}]{
+	\includegraphics[width=0.49\columnwidth]{img/online/cg_inference_time-crop}
+	}
+	\caption{KL divergence of the posteriors and inference times in the compound 
+	Gamma problem.}
+	\label{fig:logistic_performance}
+\end{figure}
+
 \hrulefill{}
 
 \hl{Experiments to have}
@@ -914,12 +953,6 @@ in the binary logistic regression problem.
 \item Use the operator for logistic in a binary logistic regression problem
 with a real dataset. 
 
-\item Experiments on compound gamma factor whose handcrafted operator is
-slow. We can show that using a regression-based operator can be faster
-and possibly more accurate. A compound gamma can be used as a prior
-on a Gaussian precision in some model. Would be nice to have a real
-dataset (say a binary classification dataset from UCI repository).
-
 \item A table comparing performance of different kernels. Put in the main 
 text if there is enough space. If not, put it in the appendix. This 
 provides an explanation for why we chose the Gaussian kernel on joint 
@@ -928,11 +961,9 @@ mean embeddgins.
 \item To determine thresholds, compute the median of log predictive variance 
 on the test set split from the initial minibatch. 
 
-%\item Do we need kNN as a baseline regression function? \aenote{AE: Maybe enough to point to JIT paper and say KNN performs badly there?}
-
-\item Choose the number of particles in the oracle importance sampler so
-that it takes roughly the same time as our operator. Compute the predictive
-quality of the two. 
+%\item Choose the number of particles in the oracle importance sampler so
+%that it takes roughly the same time as our operator. Compute the predictive
+%quality of the two. 
 
 % \item As in Fig 3.c of Ali's paper, show that the inference error of sampling
 % + JIT is better than sampling alone. This asserts that JIT interpolates
