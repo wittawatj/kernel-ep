@@ -28,9 +28,11 @@ namespace KernelEP{
 			double[,] invArr = mnInv.ToArray();
 			return new Matrix(invArr);
 		}
+
 		public static List<T> ToList<T>(params T[] arr){
 			return arr.ToList();
 		}
+
 		/**Convert from Infer.NET's Matrix to MathNet's Matrix*/
 		public static MNMatrix ToMathNetMatrix(Matrix m){
 			double[,] arr = m.ToArray();
@@ -44,17 +46,22 @@ namespace KernelEP{
 			// convert to a list of 0-1 double list 
 			return list.Select(v => v ? 1.0 : 0).ToList();
 		}
+
 		public static List<double> ToDouble(bool[] list){
 			// convert to a list of 0-1 double list 
 			return list.Select(v => v ? 1.0 : 0).ToList();
 		}
+
 		public static List<double> ToDouble(List<int> list){
 			return list.Select(v => (double)v).ToList();
 		}
+
 		public static List<double> ToDouble(List<long> list){
 			return list.Select(v => (double)v).ToList();
 		}
-
+		public static double[] ToDoubleArray(int[] arr){
+			return arr.Select(v => (double)v).ToArray();
+		}
 
 		public static bool IsAllPositive(double[] nums){
 			// True of if all elements are > 0
@@ -219,27 +226,31 @@ namespace KernelEP{
 
 		public static Matrix StackColumns(List<double[]> cols){
 			if(cols.Count == 0){
-				return new Matrix(0, 0);
+				return new Matrix(0,0);
 			}
 			// TODO: not the most efficient way...
 			Vector[] vecCols = cols.Select(col => Vector.FromArray(col)).ToArray();
 			Matrix m = StackColumns(vecCols);
 			return m;
 		}
+
 		public static Matrix StackColumnsIgnoreNull(List<double[]> cols){
 			// skip null double array in the list
 			if(cols.Count == 0){
-				return new Matrix(0, 0);
+				return new Matrix(0,0);
 			}
 
-			var q = from c in cols where c != null select c ;
+			var q = from c in cols
+			        where c != null
+			        select c;
 			List<double[]> nonNull = q.ToList();
 			return StackColumns(nonNull);
 		}
+
 		public static Matrix StackColumns(Vector[] cols){
 			// assume all vectors have the same length 
 			if(cols.Length == 0){
-				return new Matrix(0, 0);
+				return new Matrix(0,0);
 			}
 			int d = cols[0].Count;
 			int n = cols.Length;
@@ -283,9 +294,9 @@ namespace KernelEP{
 	public static class StringUtils{
 		public static string ArrayToString<T>(T[] arr){
 			string s = "[";
-			for(int i=0; i<arr.Length; i++){
+			for(int i = 0; i < arr.Length; i++){
 				s += string.Format("{0}", arr[i]);
-				if(i < arr.Length-1){
+				if(i < arr.Length - 1){
 					s += ", ";
 				}
 			}

@@ -6,7 +6,7 @@ using MicrosoftResearch.Infer.Models;
 using MicrosoftResearch.Infer;
 using MicrosoftResearch.Infer.Maths;
 
-using MicrosoftResearch.Infer.Models.User;
+//using MicrosoftResearch.Infer.Models.User;
 using MicrosoftResearch.Infer.Distributions;
 using MicrosoftResearch.Infer.Factors;
 using MicrosoftResearch.Infer.Utils;

@@ -15,9 +15,11 @@ namespace KernelEP{
 	class MainClass{
 		public static void Main(string[] args){
 //			args = new string[]{"dnet"};
-			RunInference(args);
-
+//			RunInference(args);
+//			TestImproperGamma();
+			CollectOnlineCG.RunOnlineKEPDotNet();
 //			CompoundGamma.TestInference();
+//			CompoundGamma.TestInferenceCustomFactor();
 //			Console.WriteLine("{0}", Beta.FromMeanAndVariance(1, 0));
 //			TestMultinomialRegression();
 //		
@@ -65,14 +67,22 @@ namespace KernelEP{
 			string routine = args[0];
 			if(routine.Equals("is")){
 				CollectOnlineLogistic.RunOnlineImportanceSampling();
-			}else if(routine.Equals("kep_is")){
+			} else if(routine.Equals("kep_is")){
 				CollectOnlineLogistic.RunOnlineKEPSampling();
-			}else if(routine.Equals("dnet")){
+			} else if(routine.Equals("dnet")){
 				CollectOnlineLogistic.RecordInferNETTime();
-			}else{
+			} else{
 				string msg = string.Format("unknown routine: {0}", routine);
 				throw new ArgumentException(msg);
 			}
+		}
+
+		public static void TestImproperGamma(){
+			Gamma g = Gamma.FromShapeAndRate(3, 1);
+			Console.WriteLine(g);
+			Gamma g2 = Gamma.FromShapeAndRate(-3, -1);
+			Console.WriteLine(g2.Shape);
+			Console.WriteLine(g2.Rate);
 		}
 
 		public static void TestWritingMat(){

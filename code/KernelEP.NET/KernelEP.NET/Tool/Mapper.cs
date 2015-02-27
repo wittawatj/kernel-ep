@@ -151,6 +151,18 @@ namespace KernelEP.Tool{
 
 		}
 
+		/**Set the uncertainty threshold (log predict variance).*/
+		public void SetUncertaintyThreshold(double t){
+			this.uThreshold = t;
+		}
+
+		public void SetOnlineBatchSizeTrigger(int size){
+			if(size <= 0){
+				throw new ArgumentException("online batch size trigger size must be positive.");
+			}
+			this.onlineBatchSizeTrigger = size;
+		}
+
 		protected BayesLinRegFM(){
 		}
 
@@ -308,7 +320,8 @@ namespace KernelEP.Tool{
 
 			// TODO: full cross validation later.
 			// For now, we will use median heuristic to set the parameter.
-			 
+			Console.WriteLine("#### Performing initial batch learning ####");
+			Console.WriteLine();
 			int[] inOutNumFeatures = { 300, 500 };
 //			int[] inOutNumFeatures = { 200, 400 };
 //			int[] inOutNumFeatures = {400, 700};
@@ -326,7 +339,8 @@ namespace KernelEP.Tool{
 			const double priorVariance = 1.0;
 
 			this.featureMap = fm;
-			this.uThreshold = -8.5;
+			// Used -8.5 for the logistic regression problem
+			this.uThreshold = -6;
 			Vector[] features = inputs.Select(msgs => featureMap.MapToVector(msgs)).ToArray();
 			Matrix x = MatrixUtils.StackColumns(features);
 			Vector y = Vector.FromList(batchOutputs);

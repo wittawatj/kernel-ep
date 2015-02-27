@@ -148,6 +148,15 @@ namespace KernelEP.Tool{
 			}
 
 		}
+		public  void UpdateVectorMapper(Vector target, Vector[] randomFeatures){
+			// update each internal mapper
+			if(target.Count != onlineBayes.Length){
+				throw new ArgumentException("Require target length == number of nested Bayes learners");
+			}
+			throw new NotImplementedException();
+
+		}
+
 
 		public override double[] GetUncertaintyThreshold(){
 			// Get the threshold for only the first one of each mapper 
@@ -261,6 +270,12 @@ namespace KernelEP.Tool{
 		public bool IsUncertain(Vector[] features){
 			return bayesSuffMappers.IsUncertain(features);
 		}
+
+		public  void UpdateOperator(T target, Vector[] features){
+			Vector suff = distBuilder.GetStat(target);
+			throw new NotImplementedException("should implement this for efficiency");
+		}
+
 		public override void UpdateOperator(T target, params IKEPDist[] msgs){
 			Vector suff = distBuilder.GetStat(target);
 			bayesSuffMappers.UpdateVectorMapper(suff, msgs);

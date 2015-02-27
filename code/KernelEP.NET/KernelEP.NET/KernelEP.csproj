@@ -73,9 +73,9 @@
     <Compile Include="Tool\RandFeature.cs" />
     <Compile Include="Tool\OnlineMap.cs" />
     <Compile Include="Op\LogisticOp.cs" />
-    <Compile Include="Compiled\BinaryLogistic_EP.cs" />
     <Compile Include="Tasks\CollectOnlineLogistic.cs" />
-    <Compile Include="TestIdea\CompoundGamma.cs" />
+    <Compile Include="Op\CompoundGamma.cs" />
+    <Compile Include="Tasks\CollectOnlineCG.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

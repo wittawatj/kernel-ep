@@ -1,14 +1,15 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release|x86" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
   <MonoDevelop.Ide.Workbench ActiveDocument="KernelEP.NET/Main.cs">
     <Files>
-      <File FileName="KernelEP.NET/Main.cs" Line="69" Column="48" />
-      <File FileName="KernelEP.NET/Tasks/CollectOnlineLogistic.cs" Line="32" Column="36" />
+      <File FileName="KernelEP.NET/Tasks/CollectOnlineLogistic.cs" Line="60" Column="5" />
       <File FileName="KernelEP.NET/Tool/Mapper.cs" Line="35" Column="3" />
-      <File FileName="KernelEP.NET/Tool/OnlineMap.cs" Line="245" Column="27" />
-      <File FileName="KernelEP.NET/Op/LogisticOp.cs" Line="1208" Column="17" />
-      <File FileName="KernelEP.NET/Tool/Dist.cs" Line="241" Column="5" />
-      <File FileName="KernelEP.NET/TestIdea/LogisticRegression.cs" Line="53" Column="3" />
+      <File FileName="KernelEP.NET/Tool/OnlineMap.cs" Line="22" Column="3" />
+      <File FileName="KernelEP.NET/TestIdea/LogisticRegression.cs" Line="121" Column="20" />
+      <File FileName="KernelEP.NET/Main.cs" Line="21" Column="36" />
+      <File FileName="KernelEP.NET/Op/LogisticOp.cs" Line="695" Column="60" />
+      <File FileName="KernelEP.NET/Tool/Dist.cs" Line="385" Column="5" />
+      <File FileName="KernelEP.NET/Op/CompoundGamma.cs" Line="61" Column="13" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

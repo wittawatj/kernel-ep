@@ -199,8 +199,8 @@ namespace KernelEP.Tool{
 		public override Vector GetStat(DNormal dist){
 			// return mean and uncentered 2nd moment
 			double mean = dist.GetMean();
-			double m2 = dist.GetVariance() + mean*mean;
-			return Vector.FromArray(new []{mean, m2});
+			double m2 = dist.GetVariance() + mean * mean;
+			return Vector.FromArray(new []{ mean, m2 });
 		}
 
 		public new static DNormalBuilder FromMatlabStruct(MatlabStruct s){
@@ -248,7 +248,7 @@ namespace KernelEP.Tool{
 
 		public override Vector GetStat(DNormal dist){
 			double mean = dist.GetMean();
-			double logVar = Math.Log ( dist.GetVariance() );
+			double logVar = Math.Log(dist.GetVariance());
 			return Vector.FromArray(new[]{ mean, logVar });
 		}
 
@@ -308,8 +308,8 @@ namespace KernelEP.Tool{
 		public override Vector GetStat(DBeta dist){
 			// return mean and uncentered 2nd moment
 			double mean = dist.GetMean();
-			double m2 = dist.GetVariance() + mean*mean;
-			return Vector.FromArray(new []{mean, m2}); 
+			double m2 = dist.GetVariance() + mean * mean;
+			return Vector.FromArray(new []{ mean, m2 }); 
 		}
 
 		public new static DBetaBuilder FromMatlabStruct(MatlabStruct s){
@@ -362,7 +362,7 @@ namespace KernelEP.Tool{
 			// stat = ( log(alpha), log(beta) )
 			double la = Math.Log(dist.GetAlpha());
 			double lb = Math.Log(dist.GetBeta());
-			return Vector.FromArray(new[]{la, lb});
+			return Vector.FromArray(new[]{ la, lb });
 		}
 
 		public new static DBetaLogBuilder FromMatlabStruct(MatlabStruct s){
@@ -371,6 +371,32 @@ namespace KernelEP.Tool{
 				throw new ArgumentException("The input does not represent a " + typeof(DBetaLogBuilder));
 			}
 			return DBetaLogBuilder.Instance;
+		}
+	}
+
+	/**Gamma distribution builder based on log(shape) and log(rate).
+	According to Ali et. al (appendix), this parameterization works the best for Gamma dists.*/
+	public class DGammaLogBuilder : DistBuilder<DGamma>{
+		public override DGamma FromStat(ISuff s){
+			throw new NotImplementedException();
+		}
+
+		public override DGamma FromStat(Vector suff){
+			// Expect (log(shape), log(rate))
+			if(suff.Count != 2){
+				throw new ArgumentException("Expect 2-dim vector: (log(shape), log(rate)).");
+			}
+			double shape = Math.Exp(suff[0]);
+			double rate = Math.Exp(suff[1]);
+			Gamma g = Gamma.FromShapeAndRate(shape, rate);
+			return new DGamma(g);
+		}
+
+		public override Vector GetStat(DGamma dist){
+			// stat = (log(shape), log(rate))
+			double ls = Math.Log(dist.GetShape());
+			double lr = Math.Log(dist.GetRate());
+			return Vector.FromArray(new []{ ls, lr });
 		}
 	}
 
@@ -399,11 +425,63 @@ namespace KernelEP.Tool{
 		public ISuff GetSuffStat(){
 			throw new NotImplementedException();
 		}
+
 		public int GetDimension(){
 			return mean.Count;
 		}
 
 	}
+
+	public class DGamma : IDistUni{
+
+		private Gamma gam;
+
+		public DGamma(double shape, double rate){
+			gam = Gamma.FromShapeAndRate(shape, rate);
+		}
+
+		public DGamma(Gamma gam){
+			this.gam = gam;
+		}
+
+		public IDistribution<double> GetWrappedDistribution(){
+			return gam;
+		}
+
+		public double GetShape(){
+			return gam.Shape;
+		}
+
+		public double GetRate(){
+			return gam.Rate;
+		}
+
+		public double GetMean(){
+			return gam.GetMean();
+		}
+
+		public double GetVariance(){
+			return gam.GetVariance();
+		}
+
+		public Vector GetMeanVector(){
+			return Vector.FromArray(gam.GetMean());
+		}
+
+		public Matrix GetCovarianceMatrix(){
+			return PositiveDefiniteMatrix.IdentityScaledBy(1, gam.GetVariance());
+		}
+
+		public DGamma FromMeanAndVariance(double mean, double variance){
+			Gamma g = Gamma.FromMeanAndVariance(mean, variance);
+			return new DGamma(g);
+		}
+
+		public ISuff GetSuffStat(){
+			throw new NotImplementedException();
+		}
+	}
+
 
 	public  class DNormal : IDistUni{
 		private double mean;
@@ -415,9 +493,11 @@ namespace KernelEP.Tool{
 			this.variance = variance;
 
 		}
+
 		public Gaussian GetDistribution(){
 			return new Gaussian(this.mean,this.variance);
 		}
+
 		public IDistribution<double> GetWrappedDistribution(){
 			//MicrosoftResearch.Infer.Distributions.Gaussian
 			return new Gaussian(this.mean,this.variance);
@@ -506,9 +586,11 @@ namespace KernelEP.Tool{
 		public double GetVariance(){
 			return this.variance;
 		}
+
 		public double GetAlpha(){
 			return alpha;
 		}
+
 		public double GetBeta(){
 			return beta;
 		}
