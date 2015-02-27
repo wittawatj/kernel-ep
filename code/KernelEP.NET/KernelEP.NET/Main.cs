@@ -18,6 +18,7 @@ namespace KernelEP{
 //			RunInference(args);
 //			TestImproperGamma();
 			CollectOnlineCG.RunOnlineKEPDotNet();
+
 //			CompoundGamma.TestInference();
 //			CompoundGamma.TestInferenceCustomFactor();
 //			Console.WriteLine("{0}", Beta.FromMeanAndVariance(1, 0));
@@ -59,18 +60,23 @@ namespace KernelEP{
 
 		public static void RunInference(string[] args){
 			if(args.Length == 0){
-				Console.WriteLine("usage: app.exe {is|kep_is|dnet}");
+				Console.WriteLine("usage: app.exe {log_is|log_kep_is|log_dnet|cg_kep_dnet}");
 				Console.WriteLine(" - is for importance sampling.");
 				Console.WriteLine(" - kep_is for kernel-based EP with importance sampling oracle.");
+				Console.WriteLine(" - log_ = binary logistic regression problem");
+				Console.WriteLine(" - cg_ = compound gamma factor problem.");
+				Console.WriteLine(" - dnet = Infer.NET's operator");
 				return;
 			}
 			string routine = args[0];
-			if(routine.Equals("is")){
+			if(routine.Equals("log_is")){
 				CollectOnlineLogistic.RunOnlineImportanceSampling();
-			} else if(routine.Equals("kep_is")){
+			} else if(routine.Equals("log_kep_is")){
 				CollectOnlineLogistic.RunOnlineKEPSampling();
-			} else if(routine.Equals("dnet")){
+			} else if(routine.Equals("log_dnet")){
 				CollectOnlineLogistic.RecordInferNETTime();
+			}else if(routine.Equals("cg_kep_dnet")){
+				CollectOnlineCG.RunOnlineKEPDotNet();
 			} else{
 				string msg = string.Format("unknown routine: {0}", routine);
 				throw new ArgumentException(msg);

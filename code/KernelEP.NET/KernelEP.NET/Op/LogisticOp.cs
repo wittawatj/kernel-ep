@@ -578,7 +578,7 @@ namespace KernelEP.Op{
 		public Stopwatch watch;
 
 		public KEPOnlineISLogisticOpIns(LogisticOpRecords records = null, 
-		                                Stopwatch watch = null){
+			Stopwatch watch = null, double? initialThreshold = null){
 			this.IsRecordMessages = records != null;
 			this.records = records;
 			this.watch = watch ?? new Stopwatch();
@@ -594,6 +594,12 @@ namespace KernelEP.Op{
 			BayesLinRegFM toX2 = new BayesLinRegFM(RFGJointKGG.EmptyMap());
 			OnlineStackBayesLinReg toXSuffMap = new OnlineStackBayesLinReg(toX1,toX2);
 
+			if(initialThreshold != null){
+				toLogistic1.SetUncertaintyThreshold(initialThreshold.Value);
+				toLogistic2.SetUncertaintyThreshold(initialThreshold.Value);
+				toX1.SetUncertaintyThreshold(initialThreshold.Value);
+				toX2.SetUncertaintyThreshold(initialThreshold.Value);
+			}
 			toLogisticMap = new PrimalGPOnlineMapper<DBeta>(
 				toLogisticSuffMap,DBetaLogBuilder.Instance);
 
@@ -623,13 +629,14 @@ namespace KernelEP.Op{
 			Beta predictProj, predictOut;
 			Vector[] randomFeatures = null;
 			watch.Start();
-			bool isUn = true;
+			double[] uncertainty = null;
 			bool onlineReady = toLogisticMap.IsOnlineReady();
+			bool isUn = true;
 			if(onlineReady){
 				randomFeatures = toLogisticMap.GenAllRandomFeatures(msgs);
-				isUn = toLogisticMap.IsUncertain(randomFeatures);
-			}else{
-				isUn = true;
+				double[] thresh = toLogisticMap.GetUncertaintyThreshold();
+				uncertainty = toLogisticMap.EstimateUncertainty(randomFeatures);
+				isUn = MatrixUtils.SomeGeq(uncertainty, thresh);
 			}
 
 			watch.Stop();
@@ -660,7 +667,7 @@ namespace KernelEP.Op{
 					if(onlineReady){
 
 						PredictToLogistic(randomFeatures, logistic, out predictProj, out predictOut);
-						double[] logPredVar = toLogisticMap.EstimateUncertainty(msgs);
+						double[] logPredVar = uncertainty;
 						records.RecordToLogistic(logistic, x, predictOut, predictProj, 
 							true, logPredVar, oracleOut, oracleProj);
 					} else{
@@ -682,7 +689,7 @@ namespace KernelEP.Op{
 				watch.Stop();
 				Console.WriteLine("{0}.LogisticAverageConditional. logistic: {1}, x: {2}", 
 					typeof(KEPOnlineISLogisticOpIns), logistic, x);
-				double[] logPredVar = toLogisticMap.EstimateUncertainty(msgs);
+				double[] logPredVar = uncertainty;
 				Console.WriteLine("Certain with log predictive variance: {0}", 
 					StringUtils.ArrayToString(logPredVar));
 				Console.WriteLine("Predicted proj: {0}", predictProj);
@@ -730,13 +737,15 @@ namespace KernelEP.Op{
 			Gaussian predictProj, predictOut;
 			Vector[] randomFeatures = null;
 			watch.Start();
-			bool isUn = true;
+
 			bool onlineReady = toXMap.IsOnlineReady();
+			bool isUn = true;
+			double[] uncertainty = null;
 			if(onlineReady){
 				randomFeatures = toXMap.GenAllRandomFeatures(msgs);
-				isUn = toXMap.IsUncertain(randomFeatures);
-			}else{
-				isUn = true;
+				double[] thresh = toXMap.GetUncertaintyThreshold();
+				uncertainty = toXMap.EstimateUncertainty(randomFeatures);
+				isUn = MatrixUtils.SomeGeq(uncertainty, thresh);
 			}
 			watch.Stop();
 
@@ -765,7 +774,7 @@ namespace KernelEP.Op{
 				if(IsRecordMessages){
 					if(onlineReady){
 						PredictToX(randomFeatures, x, out predictProj, out predictOut);
-						double[] logPredVar = toXMap.EstimateUncertainty(msgs);
+						double[] logPredVar = uncertainty;
 						records.RecordToX(logistic, x, predictOut, predictProj, 
 							true, logPredVar, oracleOut, oracleProj);
 					} else{
@@ -788,7 +797,7 @@ namespace KernelEP.Op{
 
 				Console.WriteLine("{0}.XAverageConditional. logistic: {1}, x: {2}", 
 					typeof(KEPOnlineISLogisticOpIns), logistic, x);
-				double[] logPredVar = toXMap.EstimateUncertainty(msgs);
+				double[] logPredVar = uncertainty;
 				Console.WriteLine("Certain with log predictive variance: {0}", 
 					StringUtils.ArrayToString(logPredVar));
 				Console.WriteLine("Predicted proj: {0}", predictProj);

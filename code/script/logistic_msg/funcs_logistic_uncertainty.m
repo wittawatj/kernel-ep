@@ -73,18 +73,18 @@ function plotUncertaintyAlongSlices(s, trBundle, teBundle, subsample)
     paraLine = @(m)-2e-2*m.^2 + 1.6;
     str2Line = @(m)-12e-2*m + 1.5;
 
-    strPrecs = strLine(testMeans);
-    paraPrecs = paraLine(testMeans);
-    str2Precs = str2Line(testMeans);
+    strLogPrecs = strLine(testMeans);
+    paraLogPrecs = paraLine(testMeans);
+    str2LogPrecs = str2Line(testMeans);
 
     betaMsg = DistBeta(1, 2);
-    [betaMsgs, strNormalMsgs] = genMsgBundleFromMeanPrec(testMeans, strPrecs, betaMsg);
+    [betaMsgs, strNormalMsgs] = genMsgBundleFromMeanLogPrec(testMeans, strLogPrecs, betaMsg);
     U_straight = s.dist_mapper.estimateUDistArrays(betaMsgs, strNormalMsgs );
 
-    [betaMsgs, paraNormalMsgs] = genMsgBundleFromMeanPrec(testMeans, paraPrecs, betaMsg);
+    [betaMsgs, paraNormalMsgs] = genMsgBundleFromMeanLogPrec(testMeans, paraLogPrecs, betaMsg);
     U_para = s.dist_mapper.estimateUDistArrays(betaMsgs, paraNormalMsgs);
 
-    %[betaMsgs, str2NormalMsgs] = genMsgBundleFromMeanPrec(testMeans, str2Precs, betaMsg);
+    %[betaMsgs, str2NormalMsgs] = genMsgBundleFromMeanLogPrec(testMeans, str2LogPrecs, betaMsg);
     %U_str2 = s.dist_mapper.estimateUDistArrays(betaMsgs, str2NormalMsgs);
 
     xlabel_text ='Mean of incoming Gaussian messages'; 
@@ -96,9 +96,9 @@ function plotUncertaintyAlongSlices(s, trBundle, teBundle, subsample)
     hold on 
     %plot(teX_mean_fil, -log(teX_var_fil), 'xr', 'LineWidth', 1);
     plot(trX_mean_fil, -log(trX_var_fil), '*k', 'LineWidth', 1, 'MarkerSize', 4 );
-    plot(testMeans, strPrecs, '-b', 'LineWidth', 2)
-    plot(testMeans, paraPrecs, '-m', 'LineWidth', 2)
-    %plot(testMeans, str2Precs, '-r', 'LineWidth', 2)
+    plot(testMeans, strLogPrecs, '-b', 'LineWidth', 2)
+    plot(testMeans, paraLogPrecs, '-m', 'LineWidth', 2)
+    %plot(testMeans, str2LogPrecs, '-r', 'LineWidth', 2)
     set(gca, 'FontSize', fontsize);
     %legend('Test set', 'Training set');
     %legend('Training set', 'Uncertainty test #1', 'Uncertainty test #2', ...
@@ -143,7 +143,7 @@ function plotUncertaintyAlongSlices(s, trBundle, teBundle, subsample)
     rng(oldRng);
 end
 
-function [betaMsgs, normalMsgs] = genMsgBundleFromMeanPrec(means, logPrecs, betaMsg)
+function [betaMsgs, normalMsgs] = genMsgBundleFromMeanLogPrec(means, logPrecs, betaMsg)
     assert(isa(betaMsg, 'DistBeta'));
     n = length(means);
     vars = exp(-logPrecs);
@@ -151,8 +151,9 @@ function [betaMsgs, normalMsgs] = genMsgBundleFromMeanPrec(means, logPrecs, beta
     betaMsgs = DistBeta(repmat(betaMsg.alpha, 1, n), repmat(betaMsg.beta, 1, n));
 end
 
-function [Xtr, Ytr, Xte1, Xte2] = gen2DUncertaintyCheckData2(trBundle )
+function [Xtr, Ytr, Xte1, Xte2, Ttr, Tte1, Tte2] = gen2DUncertaintyCheckData2(trBundle )
     % This method is used to generate data for Balaji.
+    % Include tree parameterization of Ali et. al (see appendix).
     %
     % input s:
     % s = 
@@ -199,17 +200,56 @@ function [Xtr, Ytr, Xte1, Xte2] = gen2DUncertaintyCheckData2(trBundle )
     strLine = @(m)2e-2*m + 2.6;
     paraLine = @(m)-2e-2*m.^2 + 1.6;
 
-    strPrecs = strLine(testMeans);
-    paraPrecs = paraLine(testMeans);
+    strLogPrecs = strLine(testMeans);
+    paraLogPrecs = paraLine(testMeans);
 
     % beta message fixed to (alpha=1, beta=2) in the test sets
     Xte1(:, 1:2) = repmat([1, 2], nte, 1 );
     Xte1(:, 3) = testMeans(:);
-    Xte1(:, 4) = strPrecs(:);
+    Xte1(:, 4) = strLogPrecs(:);
     Xte2(:, 1:2) = Xte1(:, 1:2);
     Xte2(:, 3) = testMeans(:);
-    Xte2(: ,4) = paraPrecs(:);
+    Xte2(: ,4) = paraLogPrecs(:);
 
+    logistic = @(x)(1./(1+exp(-x)));
+    % Tree parameterization
+    Ttr = [treeParameterizeBeta(trLog(Itr), logistic), treeParameterizeGauss(trX(Itr), logistic) ];
+    te1Log = DistBeta(ones(1, nte), 2*ones(1, nte));
+    te1X = DistNormal(testMeans(:)', 1./exp(strLogPrecs(:)') );
+    Tte1 = [treeParameterizeBeta(te1Log, logistic), treeParameterizeGauss(te1X, logistic) ];
+
+    te2Log = te1Log;
+    te2X = DistNormal(testMeans(:)', 1./exp(paraLogPrecs(:)') );
+    Tte2 = [treeParameterizeBeta(te2Log, logistic), treeParameterizeGauss(te2X, logistic) ];
+
+end
+
+function T = treeParameterizeGauss(da, fac)
+    % fac is a function handle representing the factor
+    % Expand the distribution array into features as described in Ali et. al in the 
+    % appendix.
+    assert(isa(da, 'DistNormal'));
+
+    prec = 1./[da.variance];
+    means = [da.mean];
+    % mean = mode. Include the values of the factor evaluated at the modes.
+    X = [ means; [da.variance]; means.*prec; prec; fac(means)];
+    T = X';
+end
+
+function T = treeParameterizeBeta(da, fac)
+    % fac is a function handle representing the factor
+    % Expand the distribution array into features as described in Ali et. al in the 
+    % appendix.
+    assert(isa(da, 'DistBeta'));
+    a = [da.alpha];
+    b = [da.beta];
+    means = [da.mean];
+    vars =[da.variance];
+    % modes do not exist for a<1 or b<1 ?
+    modes = (a-1)./(a + b-2);
+    X = [a; b; means; vars; fac(modes)];
+    T = X';
 end
 
 function [X, Y ] = gen2DUncertaintyCheckData(st, subsample)

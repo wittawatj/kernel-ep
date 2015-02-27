@@ -137,6 +137,14 @@ namespace KernelEP.Op{
 
 		}
 
+		public static double[] DrawFromGaussian(double mean, double precision, int n){
+			double[] data = new double[n];
+			for(int i = 0; i < n; i++){
+				data[i] = Gaussian.Sample(mean, precision);
+			}
+			return data;
+		}
+
 		public void GenData(int n, int seed, out double[] data, 
 		                    out double trueR2, out double truePrec){
 			Rand.Restart(seed);
@@ -425,7 +433,7 @@ namespace KernelEP.Op{
 			KEP_CGFacOpIns cgOpIns = (KEP_CGFacOpIns)opIns;
 			Gamma toPrec = cgOpIns.PrecisionAverageConditional(precision);
 			return toPrec;
-		}
+		} 
 
 	}
 
@@ -479,11 +487,14 @@ namespace KernelEP.Op{
 			watch.Start();
 			bool isUn = true;
 			bool onlineReady = toPrecisionMap.IsOnlineReady();
+			double[] uncertainty = null;
 			if(onlineReady){
 				randomFeatures = toPrecisionMap.GenAllRandomFeatures(incom);
 				Debug.Assert(randomFeatures.Length == 2, 
 					"Should have 2 feature vectors: one for shape, one for rate.");
-				isUn = toPrecisionMap.IsUncertain(randomFeatures);
+				double[] thresh = toPrecisionMap.GetUncertaintyThreshold();
+				uncertainty = toPrecisionMap.EstimateUncertainty(randomFeatures);
+				isUn = MatrixUtils.SomeGeq(uncertainty, thresh);
 			}
 			watch.Stop();
 
@@ -501,7 +512,7 @@ namespace KernelEP.Op{
 						// What to do if this is improper ?
 						DGamma rawOut = toPrecisionMap.MapToDistFromRandomFeatures(randomFeatures);
 						predictOut = (Gamma)rawOut.GetWrappedDistribution();
-						double[] logPredVar = toPrecisionMap.EstimateUncertainty(randomFeatures);
+						double[] logPredVar = uncertainty;
 						record.Record(precision, predictOut, true, logPredVar, oracleOut);
 					} else{
 						// Not record the predicted messages 
@@ -517,7 +528,7 @@ namespace KernelEP.Op{
 				predictOut = (Gamma)rawOut.GetWrappedDistribution();
 				watch.Stop();
 
-				double[] logPredVar = toPrecisionMap.EstimateUncertainty(randomFeatures);
+				double[] logPredVar = uncertainty;
 				Console.WriteLine(" ** Certain with log predictive variance: {0}", 
 					StringUtils.ArrayToString(logPredVar));
 				Console.WriteLine("Predicted outgoing: {0}", predictOut);

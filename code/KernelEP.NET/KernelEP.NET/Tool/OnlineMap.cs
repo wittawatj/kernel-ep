@@ -18,7 +18,7 @@ namespace KernelEP.Tool{
 
 		// true if the operator is uncertain on the input tuple.
 		// This suggests that UpdateOperator(.) should be called.
-		public abstract bool IsUncertain(params IKEPDist[] msgs);
+//		public abstract bool IsUncertain(params IKEPDist[] msgs);
 
 
 		// Update the operator online with a new input msgs and output target
@@ -32,7 +32,7 @@ namespace KernelEP.Tool{
 		public abstract void SetUncertaintyThreshold(params double[] thresh);
 
 		// True if the map is threshold-based.
-		public abstract bool IsThresholdBased();
+//		public abstract bool IsThresholdBased();
 
 		/** 
 		 * Return false if the mapper is not ready for an online learning.
@@ -107,26 +107,37 @@ namespace KernelEP.Tool{
 			mapped = MapToVector(features);
 		}
 
-		public override bool IsUncertain(params IKEPDist[] msgs){
+//		public override bool IsUncertain(params IKEPDist[] msgs){
+//			// Return true if at least one of the mappers is uncertain
+//			for(int i=0; i<onlineBayes.Length; i++){
+//				if(onlineBayes[i].IsUncertain(msgs)){
+//					return true;
+//				}
+//			}
+//			return false;
+//		}
+
+		private  bool IsUncertain(Vector[] features){
 			// Return true if at least one of the mappers is uncertain
 			for(int i=0; i<onlineBayes.Length; i++){
-				if(onlineBayes[i].IsUncertain(msgs)){
+				BayesLinRegFM bi = onlineBayes[i];
+				double[] thresh = bi.GetUncertaintyThreshold();
+				if(thresh.Length != 1){
+					throw new ArgumentException("Threshold from a Bayesian linear regression should have just one number.");
+				}
+				double t= thresh[0];
+				double[] un = bi.EstimateUncertainty();
+				if(un.Length != 1){
+					throw new ArgumentException("Uncertainty from a Bayesian linear regression should have just one number");
+				}
+				double u = un[0];
+				if(u >= t){
 					return true;
 				}
 			}
 			return false;
-
 		}
-		public  bool IsUncertain(Vector[] features){
-			// Return true if at least one of the mappers is uncertain
-			for(int i=0; i<onlineBayes.Length; i++){
-				if(onlineBayes[i].IsUncertain(features[i])){
-					return true;
-				}
-			}
-			return false;
 
-		}
 		public override bool IsOnlineReady(){
 			// Return false if at least one of the mappers is not ready
 			foreach(BayesLinRegFM m in onlineBayes){
@@ -160,8 +171,11 @@ namespace KernelEP.Tool{
 
 		public override double[] GetUncertaintyThreshold(){
 			// Get the threshold for only the first one of each mapper 
-			var q = onlineBayes.Select(map => map.GetUncertaintyThreshold()[0]);
-			double[] thresholds = q.ToArray();
+			double[] thresholds = new double[onlineBayes.Length];
+			for(int i=0; i<onlineBayes.Length; i++){
+				double[] t = onlineBayes[i].GetUncertaintyThreshold();
+				thresholds[i] = t[0];
+			}
 			return thresholds;
 		}
 
@@ -178,12 +192,12 @@ namespace KernelEP.Tool{
 			}
 		}
 
-		public override bool IsThresholdBased(){
-			// true if all mappers are threshold based 
-			var q = onlineBayes.Select(map => map.IsThresholdBased());
-			bool[] tb = q.ToArray();
-			return MatrixUtils.And(tb);
-		}
+//		public override bool IsThresholdBased(){
+//			// true if all mappers are threshold based 
+//			var q = onlineBayes.Select(map => map.IsThresholdBased());
+//			bool[] tb = q.ToArray();
+//			return MatrixUtils.And(tb);
+//		}
 
 	}
 
@@ -199,7 +213,7 @@ namespace KernelEP.Tool{
 
 		// true if the operator is uncertain on the input tuple.
 		// This suggests that UpdateOperator(.) should be called.
-		public abstract bool IsUncertain(params IKEPDist[] msgs);
+//		public abstract bool IsUncertain(params IKEPDist[] msgs);
 
 		// Update the operator online with a new input msgs and output target
 		// The target is typically obtained from an oracle.
@@ -215,8 +229,6 @@ namespace KernelEP.Tool{
 
 //		public abstract void SetUncertaintyThreshold(params double[] thresh);
 
-		// True if the map is threshold-based.
-		public abstract bool IsThresholdBased();
 
 	}
 
@@ -263,13 +275,13 @@ namespace KernelEP.Tool{
 		}
 
 
-		public override bool IsUncertain(params IKEPDist[] msgs){
-			return bayesSuffMappers.IsUncertain(msgs);
-		}
+//		public override bool IsUncertain(params IKEPDist[] msgs){
+//			return bayesSuffMappers.IsUncertain(msgs);
+//		}
 
-		public bool IsUncertain(Vector[] features){
-			return bayesSuffMappers.IsUncertain(features);
-		}
+//		public bool IsUncertain(Vector[] features){
+//			return bayesSuffMappers.IsUncertain(features);
+//		}
 
 		public  void UpdateOperator(T target, Vector[] features){
 			Vector suff = distBuilder.GetStat(target);
@@ -288,9 +300,9 @@ namespace KernelEP.Tool{
 			return bayesSuffMappers.GetUncertaintyThreshold();
 		}
 
-		public override bool IsThresholdBased(){
-			return bayesSuffMappers.IsThresholdBased();
-		}
+//		public override bool IsThresholdBased(){
+//			return bayesSuffMappers.IsThresholdBased();
+//		}
 
 		public override void MapAndEstimateU(out T mapped, 
 			out double[] uncertainty, out bool uncertain, params IKEPDist[] dists){

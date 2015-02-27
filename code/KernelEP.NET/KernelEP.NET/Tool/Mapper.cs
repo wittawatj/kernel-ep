@@ -111,7 +111,7 @@ namespace KernelEP.Tool{
 		protected double noiseVar;
 
 		// uncertainty threshold for log(predictive variance)
-		protected double uThreshold;
+		protected double uThreshold = double.NaN;
 
 		/** Cross correlation vector. XY'. */
 		protected Vector crossCorr;
@@ -237,6 +237,7 @@ namespace KernelEP.Tool{
 		}
 
 		public double[] EstimateUncertainty(Vector feature){
+			CheckPredictionReady();
 			double u = UncertaintyFromFeatures(feature);
 			return new[]{ u };
 		}
@@ -247,26 +248,26 @@ namespace KernelEP.Tool{
 			return Math.Log(predVar);
 		}
 
-		public override bool IsUncertain(params IKEPDist[] msgs){
-			if(msgs == null || msgs.Length == 0){
-				throw new ArgumentException("messages cannot be empty");
-			}
-			if(WillNeedInitialTrain){
-				// always uncertain before the initial batch training
-				return true;
-			}
-			double logPredVar = EstimateUncertainty(msgs)[0];
-			return logPredVar >= uThreshold;
-		}
+		//		public override bool IsUncertain(params IKEPDist[] msgs){
+		//			if(msgs == null || msgs.Length == 0){
+		//				throw new ArgumentException("messages cannot be empty");
+		//			}
+		//			if(WillNeedInitialTrain){
+		//				// always uncertain before the initial batch training
+		//				return true;
+		//			}
+		//			double logPredVar = EstimateUncertainty(msgs)[0];
+		//			return logPredVar >= uThreshold;
+		//		}
 
-		public bool IsUncertain(Vector feature){
-			if(WillNeedInitialTrain){
-				// always uncertain before the initial batch training
-				return true;
-			}
-			double logPredVar = EstimateUncertainty(feature)[0];
-			return logPredVar >= uThreshold;
-		}
+		//		public bool IsUncertain(Vector feature){
+		//			if(WillNeedInitialTrain){
+		//				// always uncertain before the initial batch training
+		//				return true;
+		//			}
+		//			double logPredVar = EstimateUncertainty(feature)[0];
+		//			return logPredVar >= uThreshold;
+		//		}
 
 		public override bool IsOnlineReady(){
 			return !WillNeedInitialTrain;
@@ -334,13 +335,11 @@ namespace KernelEP.Tool{
 			// expect only one candidate 
 			RandomFeatureMap fm = candidates[0];
 			this.noiseVar = 1e-4;
-			// threshold on log predict variance
-
 			const double priorVariance = 1.0;
-
 			this.featureMap = fm;
+			// threshold on log predict variance
 			// Used -8.5 for the logistic regression problem
-			this.uThreshold = -6;
+//			this.uThreshold = -8.5;
 			Vector[] features = inputs.Select(msgs => featureMap.MapToVector(msgs)).ToArray();
 			Matrix x = MatrixUtils.StackColumns(features);
 			Vector y = Vector.FromList(batchOutputs);
@@ -353,7 +352,9 @@ namespace KernelEP.Tool{
 			Matrix postPrec = xxt * (1.0 / noiseVar) + Matrix.IdentityScaledBy(d, 1.0 / priorVariance);
 			this.posteriorCov = MatrixUtils.Inverse(postPrec);
 			this.posteriorMean = this.posteriorCov * crossCorr * (1.0 / noiseVar);
-		
+			if(double.IsNaN(uThreshold)){
+				uThreshold = -8.5;
+			}
 
 //			throw new NotImplementedException();
 		}
@@ -396,9 +397,6 @@ namespace KernelEP.Tool{
 			this.uThreshold = thresh[0];
 		}
 
-		public override bool IsThresholdBased(){
-			return true;
-		}
 
 		public static void BatchLinearRegression(
 			Matrix x, Vector y, double priorVariance, double noiseVariance, 

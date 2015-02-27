@@ -186,16 +186,18 @@ function [kepCells, isCells, kepInferTimes, isInferTimes, ...
     %end
 
     % importance sampling size
-    isSize = 20000;
+    isSize = 100000;
     %isSize = 100000;
     epIter = 10;
+    n = 100;
     seeds =  1:seed_to;
     scriptFol = Global.getScriptFolder();
-    fullFileFunc = @(fn)fullfile(scriptFol, 'logistic_msg', 'infer.net_saved', fn);
-    kepFNames =arrayfun(@(s)sprintf('rec_onlinekep_is%d_logistic_iter%d_s%d.mat', isSize, epIter, s), ...
+    fullFileFunc = @(fn)fullfile(scriptFol, 'logistic_msg', ...
+        'infer.net_saved',  fn);
+    kepFNames =arrayfun(@(s)sprintf('rec_onlinekep_is%d_n%d_logistic_iter%d_s%d.mat', isSize, n, epIter, s), ...
         seeds, 'UniformOutput', false);
     kepFPaths = cellfun(fullFileFunc, kepFNames, 'UniformOutput', false );
-    isFNames =arrayfun(@(s)sprintf('rec_is%d_logistic_iter%d_s%d.mat', isSize, epIter, s), ...
+    isFNames =arrayfun(@(s)sprintf('rec_is%d_n%d_logistic_iter%d_s%d.mat', isSize, n, epIter, s), ...
         seeds, 'UniformOutput', false);
     isFPaths = cellfun(fullFileFunc, isFNames, 'UniformOutput', false );
 
@@ -272,8 +274,9 @@ function dnet = loadDnetResults()
     dnet = load(dnetPath);
 end
 
-function plotInferenceResults(seed_to)
+function plotInferenceResults()
 
+    seed_to = 10;
     seeds = 1:seed_to;
 
     [kepCells, isCells, kepInferTimes, isInferTimes, ...
@@ -297,7 +300,7 @@ function plotInferenceResults(seed_to)
     figure
     hold on 
     % 1 for predicing the mean of X
-    unSub = 1:6500; 
+    unSub = 1:min(2500, size(uncertaintyOutX, 2)); 
     window = 60;
     b = ones(1, window)/window;
     unOutXFil = filter(b, 1, uncertaintyOutX(1, :));

@@ -20,13 +20,24 @@ namespace KernelEP{
 
 		public static Dictionary<string, string> GetLocalConfigs(){
 			Dictionary<string, string> config = new Dictionary<string, string>();
-			config.Add(K_SAVED_FOLDER, 
+		
+            config.Add(K_SAVED_FOLDER, 
 				"/nfs/nhome/live/wittawat/Dropbox/gatsby/research/code/KernelEP.NET/KernelEP.NET/Saved/");
 			config.Add(K_FACTOR_OP_MAT_FOLDER, 
 				"/nfs/nhome/live/wittawat/Dropbox/gatsby/research/code/saved/factor_op/");
 
 			config.Add(K_COMPILED_MODEL_FOLDER, 
 				"/nfs/nhome/live/wittawat/Dropbox/gatsby/research/code/KernelEP.NET/KernelEP.NET/Compiled");
+            
+//            config.Add(K_SAVED_FOLDER, 
+//				@"C:\Users\nuke\Dropbox\gatsby\research\code\KernelEP.NET\KernelEP.NET\Saved");
+//			config.Add(K_FACTOR_OP_MAT_FOLDER, 
+//				"/nfs/nhome/live/wittawat/Dropbox/gatsby/research/code/saved/factor_op/");
+//
+//			config.Add(K_COMPILED_MODEL_FOLDER, 
+//				@"C:\Users\nuke\Dropbox\gatsby\research\code\KernelEP.NET\KernelEP.NET\Compiled");
+
+            
 			return config;
 		}
 	}

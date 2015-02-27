@@ -18,12 +18,13 @@ using MicrosoftResearch.Infer.Utils;
 /**For running online learning on compound Gamma factor. */
 namespace KernelEP{
 
-	public class CollectOnlineCG{
+	public class CollectOnlineCG{ 
 
-		const int seed_to = 2000;
+		const int seed_to = 5000;
 		const int epIter = 10;
 		const double GaussMean = 0;
 		const int onlineBatchSizeTrigger = 20;
+		const double initialThreshold = -6;
 
 		public static InferenceEngine NewInferenceEngine(string modelName){
 			InferenceEngine ie = new InferenceEngine(new ExpectationPropagation());
@@ -66,7 +67,7 @@ namespace KernelEP{
 			// stopwatch for measuring inference time for each problem
 			Stopwatch watch = new Stopwatch();
 			CGOpRecords record = new CGOpRecords();
-			var opIns = new KEP_CGFacOpIns(onlineBatchSizeTrigger,record,watch);
+			var opIns = new KEP_CGFacOpIns(onlineBatchSizeTrigger,record,watch, initialThreshold);
 			opIns.IsPrintTrueWhenCertain = true;
 			opIns.IsRecordMessages = true;
 
@@ -92,8 +93,9 @@ namespace KernelEP{
 			InferenceEngine dnetIe = NewInferenceEngine("Oracle_CG");
 			dnetIe.Compiler.GivePriorityTo(typeof(CGFacOp));
 
+			Random precRand = new Random(1);
 			for(int seed = 1; seed <= seed_to; seed++){
-				int i = seed-1;
+				int i = seed - 1;
 				Rand.Restart(seed);
 				// n is between 10 and 100 for. Could be different for each seed.
 				int N = Rand.Int(10, 100 + 1);
@@ -102,11 +104,18 @@ namespace KernelEP{
 				Ns[i] = N;
 				CompoundGamma cg = new CompoundGamma();
 
-				double[] obs;
 				double trueR2, truePrec;
+				double[] obs;
 				cg.GenData(N, seed, out obs, out trueR2, out truePrec);
+
+				// Draw a number uniformly from log(1e-4)
+				// to log(1e4) and exp(.) it to get the precision.
+//				double logPrec = precRand.NextDouble()*(Math.Log(1e4) - Math.Log(1e-4)) + Math.Log(1e-4);
+//				double truePrec = Math.Exp(logPrec);
+//				double[] obs = CompoundGamma.DrawFromGaussian(GaussMean, truePrec, N);
+
 				allObs.Add(obs);
-				trueRate2s[i] = trueR2;
+//				trueRate2s[i] = trueR2;
 				truePrecs[i] = truePrec;
 
 				dataCount.ObservedValue = N;
@@ -138,7 +147,7 @@ namespace KernelEP{
 				//print 
 				Console.WriteLine("seed: {0}", seed);
 				Console.WriteLine("n: {0}", N);
-				Console.WriteLine("True r2: {0}", trueR2);
+//				Console.WriteLine("True r2: {0}", trueR2);
 				Console.WriteLine("True precision: {0}", truePrec);
 				Console.WriteLine("Inferred precision posterior: {0}", postPrec);
 				Console.WriteLine("Infer.NET posterior: {0}", dnetPost);
@@ -152,7 +161,7 @@ namespace KernelEP{
 			// MatlabWriter cannot write int
 			var extra = new Dictionary<string, object>();
 
-			extra.Add("inferTimes",  MatrixUtils.ToDouble(allInferTimes));
+			extra.Add("inferTimes", MatrixUtils.ToDouble(allInferTimes));
 			extra.Add("oraInferTimes", MatrixUtils.ToDouble(allOracleInferTimes));
 			double[] postShapes, postRates;
 			double[] oraPostShapes, oraPostRates;
@@ -173,7 +182,7 @@ namespace KernelEP{
 			// write the records to a file 
 
 			string fname = string.Format("kjit_cg_iter{0}_bt{1}_st{2}.mat", 
-				epIter, onlineBatchSizeTrigger, seed_to);
+				               epIter, onlineBatchSizeTrigger, seed_to);
 			string recordPath = Config.PathToSavedFile(fname);
 			record.WriteRecords(recordPath, extra);			
 

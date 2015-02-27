@@ -289,6 +289,34 @@ namespace KernelEP{
 			return det;
 		}
 
+		/**Return true if a[i] >= b[i] for all i. a and b must have the same 
+		length.*/
+		public static bool AllGeq(double[] a, double[] b){
+			if(a.Length != b.Length){
+				throw new ArgumentException("a and b must have the same length.");
+			}
+			for(int i=0; i<a.Length; i++){
+				if(a[i] < b[i]){
+					return false;
+				}
+			}
+			return true;
+		}
+
+
+		/**Return true if a[i] >= b[i] for some i. a and b must have the same 
+		length.*/
+		public static bool SomeGeq(double[] a, double[] b){
+			if(a.Length != b.Length){
+				throw new ArgumentException("a and b must have the same length.");
+			}
+			for(int i=0; i<a.Length; i++){
+				if(a[i] >= b[i]){
+					return true;
+				}
+			}
+			return false;
+		}
 	}
 
 	public static class StringUtils{

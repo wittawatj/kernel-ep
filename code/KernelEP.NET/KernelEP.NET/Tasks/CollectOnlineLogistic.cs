@@ -17,10 +17,10 @@ using MicrosoftResearch.Infer.Utils;
 namespace KernelEP{
 	public class CollectOnlineLogistic{
 		const int seed_from = 1;
-		const int seed_to = 10;
+		const int seed_to = 50;
 
 		const int d = 20;
-		const int n = 300;
+		const int n = 100;
 		const int epIter = 10; 
 		const int importanceSamplingSize = 100000;
 		const int init_fixed_seed = 1;
