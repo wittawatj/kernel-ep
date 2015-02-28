@@ -11,6 +11,7 @@ using MicrosoftResearch.Infer.Factors;
 using MicrosoftResearch.Infer.Utils;
 using KernelEP.Op;
 using MNMatrix = MathNet.Numerics.LinearAlgebra.Matrix<double>;
+using MNVector = MathNet.Numerics.LinearAlgebra.Vector<double>;
 
 
 namespace KernelEP.Tool{
@@ -126,6 +127,16 @@ namespace KernelEP.Tool{
 		size hits the online learning trigger threshold. Will be set to false
 		after a retrain.*/
 		protected bool WillNeedInitialTrain = true;
+
+		/**Number of inner features to use for prediction*/
+		public int InnerFeatures = 300;
+		/**Number of outer features to use for prediction*/
+		public int OuterFeatures = 500;
+
+		/**Number of inner features to use for initial parameter selection.*/
+		public int MinibatchInnerFeatures = 300;
+		/**Number of outer features to use for initial parameter selection.*/
+		public int MinibatchOuterFeatures = 300;
 
 		/**
 		 * Initialize an empty Bayesian linear regressor suitable for online 
@@ -315,15 +326,14 @@ namespace KernelEP.Tool{
 			 
 		}
 
+
 		private void BatchLearn(){
 			// Batch learning uses the collected messages. This will reset many 
 			// properties of the object.
 
 			// TODO: full cross validation later.
 			// For now, we will use median heuristic to set the parameter.
-			Console.WriteLine("#### Performing initial batch learning ####");
-			Console.WriteLine();
-			int[] inOutNumFeatures = { 300, 500 };
+			int[] inOutNumFeatures = { this.MinibatchInnerFeatures, this.MinibatchOuterFeatures };
 //			int[] inOutNumFeatures = { 200, 400 };
 //			int[] inOutNumFeatures = {400, 700};
 //			int[] inOutNumFeatures = {50, 50};
@@ -331,12 +341,51 @@ namespace KernelEP.Tool{
 			Random rng = new Random(1);
 			List<IKEPDist[]> inputs = this.batchInputs;
 			List<RandomFeatureMap> candidates = featureMap.GenCandidates(
-				                                    inputs, inOutNumFeatures, medianFactors, rng);
-			// expect only one candidate 
-			RandomFeatureMap fm = candidates[0];
+				inputs, inOutNumFeatures, medianFactors, rng);
+			/*
+			 * unfinished cross validation implementation
+			double[] noiseVarCandidates = new double[]{1e-4, 1e-3, 1e-2};
+			var M = MNMatrix.Build;
+			int n = inputs.Count;
+			MNVector Y = MNVector.Build.Dense(batchOutputs.ToArray());
+			double[][] looMSErrs = new double[candidates.Count][];
+			// TODO: Improve this with parallel for-loop ?
+			Console.WriteLine("#### Performing initial batch learning ####");
+			Console.WriteLine();
+
+			for(int i=0; i<candidates.Count; i++){
+				RandomFeatureMap fm = candidates[i];
+				int d = fm.GetOutputDimension();
+				MNMatrix Idd = M.SparseIdentity(d);
+				// D x N matrix
+				MNMatrix phi = fm.GenFeaturesMNMat(inputs);
+				MNMatrix ppt = phi.TransposeAndMultiply(phi);
+				looMSErrs[i] = new double[noiseVarCandidates.Length];
+				for(int nj=0; nj<noiseVarCandidates.Length; nj++){
+					double noiseVariance = noiseVarCandidates[nj];
+					MNMatrix regI = M.SparseDiagonal(d, noiseVariance);
+					MNMatrix A = ppt + regI;
+					MNMatrix X = A.Solve(phi);
+					Debug.Assert(X.RowCount == d);
+					Debug.Assert(X.ColumnCount == n);
+					// TODO: H does not need to be formed explicitly. 
+					// This is efficient if n > d. Later.
+					MNMatrix H = Idd - phi.TransposeThisAndMultiply(X);
+					MNVector HDiagInv = H.Diagonal();
+					HDiagInv.MapInplace(delegate(double v){
+						return 1.0/v;
+					});
+					double errSqrt = H.LeftMultiply(Y).PointwiseMultiply(HDiagInv).L2Norm();
+					looMSErrs[i][nj] = errSqrt*errSqrt/n;
+
+					Console.WriteLine("");
+				}
+			}
+			*/
+			this.featureMap = candidates[0];
 			this.noiseVar = 1e-4;
 			const double priorVariance = 1.0;
-			this.featureMap = fm;
+//			this.featureMap = fm;
 			// threshold on log predict variance
 			// Used -8.5 for the logistic regression problem
 //			this.uThreshold = -8.5;
@@ -344,14 +393,14 @@ namespace KernelEP.Tool{
 			Matrix x = MatrixUtils.StackColumns(features);
 			Vector y = Vector.FromList(batchOutputs);
 
-			int d = x.Rows;
+			int Dout = x.Rows;
 			// Matrix x is d x n
 			Matrix xxt = x * x.Transpose();
 			crossCorr = x * y;
 
-			Matrix postPrec = xxt * (1.0 / noiseVar) + Matrix.IdentityScaledBy(d, 1.0 / priorVariance);
+			Matrix postPrec = xxt * (1.0 / noiseVar) + Matrix.IdentityScaledBy(Dout, 1.0 / priorVariance);
 			this.posteriorCov = MatrixUtils.Inverse(postPrec);
-			this.posteriorMean = this.posteriorCov * crossCorr * (1.0 / noiseVar);
+			this.posteriorMean = this.posteriorCov * crossCorr * (1.0 / this.noiseVar);
 			if(double.IsNaN(uThreshold)){
 				uThreshold = -8.5;
 			}

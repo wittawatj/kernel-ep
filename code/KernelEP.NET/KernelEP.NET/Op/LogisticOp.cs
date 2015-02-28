@@ -169,7 +169,7 @@ namespace KernelEP.Op{
 		}
 
 		public void RecordToLogistic(Beta inLog, Gaussian inX, Beta? outLog, Beta? projLog,
-			bool consult, double[] uncertainty, Beta? oracleOutLog, Beta? oracleProjLog){
+		                             bool consult, double[] uncertainty, Beta? oracleOutLog, Beta? oracleProjLog){
 
 			InLogisticOutLog.Add(inLog);
 			InXOutLog.Add(inX);
@@ -182,7 +182,7 @@ namespace KernelEP.Op{
 		}
 
 		public void RecordToX(Beta inLog, Gaussian inX, Gaussian? outX, Gaussian? projX, 
-			bool consult, double[] uncertainty, Gaussian? oracleOutX, Gaussian? oracleProjX){
+		                      bool consult, double[] uncertainty, Gaussian? oracleOutX, Gaussian? oracleProjX){
 			InLogisticOutX.Add(inLog);
 			InXOutX.Add(inX);
 			OutX.Add(outX);
@@ -335,6 +335,70 @@ namespace KernelEP.Op{
 
 	}
 
+	public interface ImportanceProposal<T> : CanGetLogProb<T>, Sampleable<T>{
+
+	}
+
+	public class GaussianProposal : ImportanceProposal<double>{
+		private readonly Gaussian gauss;
+
+		public GaussianProposal(Gaussian gauss){
+			this.gauss = gauss;
+		}
+
+		public double Sample(double result){
+			return this.gauss.Sample();
+		}
+
+		public double Sample(){
+			return this.gauss.Sample();
+		}
+
+		public double GetLogProb(double value){
+			return this.gauss.GetLogProb(value);
+		}
+	}
+
+	public class Mixture2Proposal : ImportanceProposal<double>{
+		private readonly ImportanceProposal<double> com1;
+		private readonly ImportanceProposal<double> com2;
+		private readonly double[] weights;
+		private readonly Discrete prior;
+		private ImportanceProposal<double>[] comps;
+
+		public Mixture2Proposal(ImportanceProposal<double> com1,
+		                        ImportanceProposal<double> com2, double[] weights){
+			if(weights.Length != 2){
+				throw new ArgumentException("expect weights to have length 2");
+			}
+
+			this.com1 = com1;
+			this.com2 = com2;
+			this.comps = new ImportanceProposal<double>[]{ com1, com2 };
+			this.prior = new Discrete(weights);
+			this.weights = weights;
+		}
+
+		public double Sample(){
+			// 0 or 1
+			int compInd = prior.Sample();
+			ImportanceProposal<double> pick = comps[compInd];
+			double s = pick.Sample();
+			return s;
+		}
+
+		public double Sample(double result){
+			return Sample();
+		}
+
+		public double GetLogProb(double value){
+			double p1 = Math.Exp(com1.GetLogProb(value));
+			double p2 = Math.Exp(com2.GetLogProb(value));
+			double density = weights[0] * p1 + weights[1] * p2;
+			return Math.Log(density);
+		}
+
+	}
 
 	/**
 	* logistic operator instance based on an importance sampler with a Gaussian 
@@ -344,27 +408,28 @@ namespace KernelEP.Op{
 	public class ISGaussianLogisticOpIns : LogisticOpInstance{
 	
 		// Need at least 20000 or more.
-		public  int GaussianImportanceSampleSize { get;  set; }
+		public  int ImportanceSampleSize { get; set; }
 
-		public Gaussian Proposal = Gaussian.FromMeanAndVariance(0, 200);
+		public ImportanceProposal<double> gaussProposal;
 		/**True to record every message passed/computed*/
 		public bool IsRecordMessages = true;
 		public LogisticOpRecords records;
-
 		public Stopwatch watch;
+		/**If true, Sample from a mixture of N(0, 200) and the incoming message.*/
+		public bool useMixtureProposal = true;
 
+		public ISGaussianLogisticOpIns(int samplingSize = 100000, 
+		                               LogisticOpRecords records = null, Stopwatch watch = null){
 
-		public ISGaussianLogisticOpIns(int samplingSize = 10000, 
-			LogisticOpRecords records=null, Stopwatch watch=null){
-			GaussianImportanceSampleSize = samplingSize;
-			this.records = records==null ? new LogisticOpRecords() : records;
+			ImportanceSampleSize = samplingSize;
+			this.records = records == null ? new LogisticOpRecords() : records;
 			this.watch = watch == null ? new Stopwatch() : watch;
+			gaussProposal = new GaussianProposal(Gaussian.FromMeanAndVariance(0, 200));
 		}
 
 		public override OpParams<DBeta, DNormal> GetOpParams(){
-			return null;
+			return null; 
 		}
-
 
 
 		public override Beta LogisticAverageConditional(Beta logistic, Gaussian x){
@@ -383,7 +448,7 @@ namespace KernelEP.Op{
 //			}
 			Console.WriteLine("Proj To Logistic: {0}", projToLogistic);
 			Console.WriteLine("To logistic: {0}", toL);
-			Console.WriteLine();
+			Console.WriteLine();  
 
 			if(IsRecordMessages){
 //				var uncertainty = new double[]{double.NaN, double.NaN};
@@ -405,15 +470,23 @@ namespace KernelEP.Op{
 
 		public  Beta ProjToLogisticGaussianProposal(Beta logistic, Gaussian x){
 			// Get the projected message forming part of an outgoing message to logistic.
+			// weights for {base Gaussian proposal , incoming message x}
+			double[] mixtureWeights = new double[]{ 0.5, 0.5 };
+			Gaussian broadX = Gaussian.FromMeanAndVariance(x.GetMean(), x.GetVariance() + 10);
+			ImportanceProposal<double> proposal = useMixtureProposal ?
+				new Mixture2Proposal(gaussProposal,new GaussianProposal(broadX),mixtureWeights) 
+				:
+				gaussProposal;
 
+			// use just the static Gaussian proposal
 			double m1 = 0, m2 = 0;
 			double wsum = 0;
-			for(int i = 0; i < GaussianImportanceSampleSize; i++){
-				double xi = Proposal.Sample();
+			for(int i = 0; i < ImportanceSampleSize; i++){
+				double xi = proposal.Sample();
 				double yi = MMath.Logistic(xi);
 				double lbi = logistic.GetLogProb(yi);
 				double lgi = x.GetLogProb(xi);
-				double si = Proposal.GetLogProb(xi);
+				double si = proposal.GetLogProb(xi);
 				// importance weight
 				double wi = Math.Exp(lbi + lgi - si);
 				wsum += wi;
@@ -445,6 +518,8 @@ namespace KernelEP.Op{
 			}
 
 			return Beta.FromMeanAndVariance(projM, projV);
+
+
 		}
 
 
@@ -472,7 +547,7 @@ namespace KernelEP.Op{
 		}
 
 		public void XAverageConditionalSilent(Beta logistic, Gaussian x, 
-			out Gaussian toX, out Gaussian projToX){
+		                                      out Gaussian toX, out Gaussian projToX){
 
 			projToX = ProjToXGaussianProposal(logistic, x);
 			//			Gaussian projToX = ProjToXUniformProposal(logistic, x);
@@ -491,15 +566,22 @@ namespace KernelEP.Op{
 		}
 
 		public  Gaussian ProjToXGaussianProposal(Beta logistic, Gaussian x){
+			double[] mixtureWeights = new double[]{ 0.5, 0.5 };
+			Gaussian broadX = Gaussian.FromMeanAndVariance(x.GetMean(), x.GetVariance() + 10);
+			ImportanceProposal<double> proposal = useMixtureProposal ?
+				new Mixture2Proposal(gaussProposal,new GaussianProposal(broadX),mixtureWeights) 
+				:
+				gaussProposal;
+
 			// Get the projected message forming part of an outogoing message to X.
 			double m1 = 0, m2 = 0;
 			double wsum = 0;
-			for(int i = 0; i < GaussianImportanceSampleSize; i++){
-				double xi = Proposal.Sample();
+			for(int i = 0; i < ImportanceSampleSize; i++){
+				double xi = proposal.Sample();
 				double yi = MMath.Logistic(xi);
 				double lbi = logistic.GetLogProb(yi);
 				double lgi = x.GetLogProb(xi);
-				double si = Proposal.GetLogProb(xi);
+				double si = proposal.GetLogProb(xi);
 				// importance weight
 				double wi = Math.Exp(lbi + lgi - si);
 				wsum += wi;
@@ -578,7 +660,7 @@ namespace KernelEP.Op{
 		public Stopwatch watch;
 
 		public KEPOnlineISLogisticOpIns(LogisticOpRecords records = null, 
-			Stopwatch watch = null, double? initialThreshold = null){
+		                                Stopwatch watch = null, double? initialThreshold = null){
 			this.IsRecordMessages = records != null;
 			this.records = records;
 			this.watch = watch ?? new Stopwatch();
@@ -1427,6 +1509,8 @@ namespace KernelEP.Op{
 
 
 
+
+
 #pragma warning disable 162
 		#endif
 
@@ -1516,6 +1600,8 @@ namespace KernelEP.Op{
 
 
 		
+
+
 
 
 

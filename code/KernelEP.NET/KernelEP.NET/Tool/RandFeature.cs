@@ -9,6 +9,8 @@ using MicrosoftResearch.Infer.Distributions;
 using MicrosoftResearch.Infer.Maths;
 using MicrosoftResearch.Infer.Factors;
 using MicrosoftResearch.Infer.Utils;
+using MNMatrix = MathNet.Numerics.LinearAlgebra.Matrix<double>;
+using MNVector = MathNet.Numerics.LinearAlgebra.Vector<double>;
 
 namespace KernelEP.Tool{
 
@@ -30,7 +32,26 @@ namespace KernelEP.Tool{
 		*/
 		public abstract RandomFeatureMap Regenerate(int[] numFeatures);
 
+		/**Generate features in a primitive double array.*/
+		public abstract double[] GenFeatures(params IKEPDist[] msgs);
 
+		/**Generate a DxN MathNet matrix where D is the number of features*/
+		public virtual MNMatrix GenFeaturesMNMat(List<IKEPDist[]> msgs){
+			int n = msgs.Count;
+			int[] ds = GetNumFeatures();
+			int d = ds[ds.Length-1];
+			// http://numerics.mathdotnet.com/Matrix.html#Context-Linear-Algebra
+			var M = MNMatrix.Build;
+			// TODO: Can we directly bind to the array without copying ?
+			MNMatrix mat =  M.Dense(d, n);
+			for(int i=0; i<n; i++){
+				IKEPDist[] msg = msgs[i];
+				double[] fea = GenFeatures(msg);
+				mat.SetColumn(i, fea);
+			}
+			return mat;
+
+		}
 		/**
 		 * Generate a list of candidates of this type for parameter selection.
 		 * Each candidate uses the specified numFeatures.
@@ -96,6 +117,7 @@ namespace KernelEP.Tool{
 
 		private double[] flattenEmbedWidth2s;
 
+		
 		private RFGJointKGG(){}
 		/**
 		flattenEmbedWidth2s is a concatenation of embed width2 of the 
@@ -115,7 +137,10 @@ namespace KernelEP.Tool{
 			this.flattenEmbedWidth2s = flattenEmbedWidth2s;
 
 		}
-
+		public override string ToString(){
+			return string.Format("[RFGJointKGG: outnf={0}, innf={1}, eprodMap={2}]", 
+				numFeatures, innerNumFeatures, eprodMap);
+		}
 		public void InitMap(DVectorNormal joint){
 			// dynamically initialize the random feature map
 			if(Wout== null){
@@ -135,15 +160,22 @@ namespace KernelEP.Tool{
 		}
 
 		public override Vector MapToVector(params IKEPDist[] msgs){
+			double[] fea = GenFeatures(msgs);
+			return Vector.FromArray(fea);
+		}
+
+		public override double[] GenFeatures(params IKEPDist[] msgs){
 			DVectorNormal joint = ToJointGaussian(msgs);
 			InitMap(joint);
 			Vector innerFeature = eprodMap.MapToVector(joint);
 			Vector FWout = innerFeature * Wout;
-			var q = Enumerable.Range(0, numFeatures).Select(i => 
-				Math.Cos(FWout[i] + Bout[i]) * Math.Sqrt(2.0 / numFeatures)
-			        );
-			Vector outerFeature = Vector.FromArray(q.ToArray());
-			return outerFeature;
+			double[] fea = new double[this.numFeatures];
+			double scale = Math.Sqrt(2.0 / numFeatures);
+			for(int i=0; i<fea.Length; i++){
+				fea[i] = Math.Cos(FWout[i] + Bout[i]) * scale;
+			}
+			return fea;
+
 		}
 
 		public override int GetOutputDimension(){
@@ -284,6 +316,11 @@ namespace KernelEP.Tool{
 
 
 		}
+		public override string ToString(){
+			return string.Format("[RFGEProdMap: gwidth2={0}, nf={1}]",
+				StringUtils.ArrayToString(gwidth2), numFeatures);
+		}
+		
 
 		public void InitMap(IKEPDist dist){
 			// dynamically initialize the random feature map

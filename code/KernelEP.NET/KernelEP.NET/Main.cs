@@ -15,9 +15,10 @@ namespace KernelEP{
 	class MainClass{
 		public static void Main(string[] args){
 //			args = new string[]{"dnet"};
-//			RunInference(args);
+			RunInference(args); 
+//			TestMathNetMatrixConstruction();
 //			TestImproperGamma();
-			CollectOnlineCG.RunOnlineKEPDotNet();
+//			CollectOnlineCG.RunOnlineKEPDotNet();
 
 //			CompoundGamma.TestInference();
 //			CompoundGamma.TestInferenceCustomFactor();
@@ -56,6 +57,7 @@ namespace KernelEP{
 			 
 //			TestImproperMessages();
 //			TestWritingMat();
+//			TestDiscrete();
 		}
 
 		public static void RunInference(string[] args){
@@ -75,12 +77,37 @@ namespace KernelEP{
 				CollectOnlineLogistic.RunOnlineKEPSampling();
 			} else if(routine.Equals("log_dnet")){
 				CollectOnlineLogistic.RecordInferNETTime();
-			}else if(routine.Equals("cg_kep_dnet")){
+			} else if(routine.Equals("cg_kep_dnet")){
 				CollectOnlineCG.RunOnlineKEPDotNet();
 			} else{
 				string msg = string.Format("unknown routine: {0}", routine);
 				throw new ArgumentException(msg);
 			}
+		}
+
+		public static void TestDiscrete(){
+			Discrete dis = new Discrete(0.3, 0.6, 0.1);
+			for(int i=0; i<100; i++){
+				Console.Write("{0}, ", dis.Sample());
+			}
+
+		}
+
+		public static void TestMathNetMatrixConstruction(){
+			double[] col1 = new double[]{ 1, 2, 3 };
+			double[] col2 = new double[]{ 4, 5, 6 };
+			double[] col3 = new double[]{ 7, 8, 9 };
+			double[] col4 = new double[]{ 10, 11, 12 };
+			List<double[]> cols = new List<double[]>(
+				                      new double[][]{ col1, col2, col3, col4 }
+			                      );
+			var M = MNMatrix.Build;
+			MNMatrix mat = M.Dense(3, 4);
+			for(int i = 0; i < cols.Count; i++){
+				mat.SetColumn(i, cols[i]);
+			}
+			Console.WriteLine(mat);
+
 		}
 
 		public static void TestImproperGamma(){
