@@ -9,68 +9,50 @@ function [ g ] = funcs_cg_online( )
 end
 
 
-function plotPosteriorKL(kepCells, isCells)
+function plotPosteriorKL(st)
     % plot agreement of posteriors between KJIT+Infer.NET and Infer.NET.
 
-    kepPostMeans = [];
-    kepPostCovs = [];
-    isPostMeans = [];
-    isPostCovs =[];
+    trials = length(st.inShape);
+    cutoff = min(400, trials);
+    klDnetKep = zeros(1, cutoff);
+    klKepDnet = zeros(1, cutoff);
 
-    klIsKep = zeros(1, length(kepCells));
-    klDnetKep = zeros(1, length(kepCells));
-    klDnetIs = zeros(1, length(kepCells));
+    for i=1:cutoff
+        kepPost = DistGamma(st.postShapes(i), st.postRates(i));
+        dnetPost = DistGamma(st.oraPostShapes(i), st.oraPostRates(i));
 
-    for i=1:length(kepCells)
-        kep = kepCells{i};
-        km = kep.postMeans{1};
-        kc = kep.postCovs{1};
-        kepPostMeans = [kepPostMeans, km];
-        kepPostCovs = cat(3, kepPostCovs, kc );
-        kepPost = DistNormal(km, kc);
-
-        is = isCells{i};
-        ism = is.postMeans{1};
-        isc = is.postCovs{1};
-        isPostMeans = [isPostMeans, ism];
-        isPostCovs = cat(3, isPostCovs, isc);
-        isPost = DistNormal(ism, isc);
-
-        dm = kep.dnetPostMeans{1};
-        dc = kep.dnetPostCovs{1};
-        dnetPost = DistNormal(dm, dc);
-
-        klIsKep(i) = isPost.klDivergence(kepPost);
+        klKepDnet(i) = kepPost.klDivergence(dnetPost);
         klDnetKep(i) = dnetPost.klDivergence(kepPost);
-        klDnetIs(i) = dnetPost.klDivergence(isPost);
 
     end
-    %kepPost = DistNormal(kepPostMeans, kepPostCovs);
-    %isPost = DistNormal(isPostMeans, isPostCovs);
 
-    seeds = 1:length(kepCells);
+    timeSub = 1:cutoff;
     figure
     hold on 
-    plot(seeds, log(klIsKep), '-r', 'LineWidth', 2);
-    plot(seeds, log(klDnetKep), '-b', 'LineWidth', 2);
-    plot(seeds, log(klDnetIs), '-k', 'LineWidth', 2);
-    set(gca, 'FontSize', 18);
+    plot(timeSub, log(klDnetKep), '-b', 'LineWidth', 2);
+    % If KL=0, log(KL)=-inf.
+    I0 = klDnetKep==0;
+    plot(find(I0), -20*ones(1, sum(I0)), 'r*');
+    %plot(timeSub, log(klKepDnet), '-k', 'LineWidth', 2);
+    set(gca, 'FontSize', 16);
     xlabel('Problems seen');
     ylabel('Log KL divergence')
     title('KL divergence of the posteriors')
-    legend('KL(sampling, KJIT)', 'KL(Infer.NET, KJIT)', 'KL(Infer.NET, sampling)');
+    %legend('KL(Infer.NET || Infer.NET + KJIT)', 'KL(Infer.NET + KJIT || Infer.NET)');
+    legend('KL(Infer.NET || Infer.NET + KJIT)', 'KL = 0');
     grid on
     hold off
 
 
 end
 
+
 function [st]= getFileStructs()
     % Load all variables into one struct.
     
     % size of observed incoming messages over which an initial batch learning is 
     % triggered.
-    seed_to = 1000;
+    seed_to = 5000;
     initBatchTriggerSize = 20;
     epIter = 10;
 
@@ -108,7 +90,7 @@ function plotInferenceResults()
     seed_to = length(st.inShape);
 
     % plot inference time.
-    timeSub = 1:min(500, seed_to);
+    timeSub = 1:min(1000, seed_to);
     figure
     hold on 
     plot(timeSub, log(st.oraInferTimes(timeSub)), '-k', 'LineWidth', 2);
@@ -127,7 +109,7 @@ function plotInferenceResults()
     % 1 for predicing the mean of X
     window = 20;
     b = ones(1, window)/window;
-    unSub = 1:min(500, seed_to);
+    unSub = 1:min(1000, seed_to);
     % uncertainty for the first output which is log(shape)
     Un = max(st.uncertainty(1, :), st.uncertainty(2, :));
     unFil = filter(b, 1, Un);
@@ -145,6 +127,6 @@ function plotInferenceResults()
     grid on
     hold off
 
-    %plotPosteriorKL(kepCells, isCells);
+    plotPosteriorKL(st);
 
 end

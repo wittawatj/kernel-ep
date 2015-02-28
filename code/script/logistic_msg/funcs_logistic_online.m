@@ -5,6 +5,26 @@ function [ s] = funcs_logistic_online( )
     s = struct();
 
     s.plotInferenceResults = @plotInferenceResults;
+    s.plotIncomingMsgs = @plotIncomingMsgs;
+end
+
+function plotIncomingMsgs(st)
+    % st is a struct containing all loaded variables.
+    figure;
+    inMean = st.inXOutXMtp./st.inXOutXPrec;
+    inVariance = 1./st.inXOutXPrec;
+    plot(inMean, inVariance, 'o');
+    set(gca, 'FontSize', 14);
+    xlabel('incoming mean');
+    ylabel('incoming variance');
+    title('Sending to x');
+
+    figure;
+    hist(log(inVariance));
+    set(gca, 'FontSize', 14);
+    title('incoming log variance when sending to x');
+
+    
 end
 
 function kepInferTimes = getKepInferTimes(kepCells)
@@ -153,9 +173,9 @@ function plotPosteriorKL(kepCells, isCells)
     seeds = 1:length(kepCells);
     figure
     hold on 
-    plot(seeds, log(klIsKep), '-r', 'LineWidth', 2);
-    plot(seeds, log(klDnetKep), '-b', 'LineWidth', 2);
-    plot(seeds, log(klDnetIs), '-k', 'LineWidth', 2);
+    plot(seeds, log(klIsKep), '-*r', 'LineWidth', 2);
+    plot(seeds, log(klDnetKep), '-db', 'LineWidth', 2);
+    plot(seeds, log(klDnetIs), '-+k', 'LineWidth', 2);
     set(gca, 'FontSize', 18);
     xlabel('Problems seen');
     ylabel('Log KL divergence')
@@ -168,7 +188,7 @@ function plotPosteriorKL(kepCells, isCells)
 end
 
 function [kepCells, isCells, kepInferTimes, isInferTimes, ...
-        dnetInferTimes, xProblemInds, uncertaintyOutX]= getFileStructs(seed_to)
+        dnetInferTimes, xProblemInds, uncertaintyOutX]= getFileStructs()
     % get loaded file structs
     
     % plot inference time and other results of the online logistic factor problem.
@@ -186,10 +206,11 @@ function [kepCells, isCells, kepInferTimes, isInferTimes, ...
     %end
 
     % importance sampling size
-    isSize = 100000;
+    isSize = 50000;
     %isSize = 100000;
     epIter = 10;
-    n = 100;
+    n = 200;
+    seed_to = 3;
     seeds =  1:seed_to;
     scriptFol = Global.getScriptFolder();
     fullFileFunc = @(fn)fullfile(scriptFol, 'logistic_msg', ...
@@ -276,11 +297,11 @@ end
 
 function plotInferenceResults()
 
-    seed_to = 10;
-    seeds = 1:seed_to;
 
     [kepCells, isCells, kepInferTimes, isInferTimes, ...
-    dnetInferTimes, xProblemInds, uncertaintyOutX]= getFileStructs(seed_to);
+    dnetInferTimes, xProblemInds, uncertaintyOutX]= getFileStructs();
+    seed_to = length(kepCells);
+    seeds = 1:seed_to;
     % plot inference time.
     timeSub = 1:min(20, length(seeds));
     figure
