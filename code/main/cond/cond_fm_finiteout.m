@@ -114,7 +114,8 @@ for ri=1:length(reglist)
     % *** Should use conjugate gradient here ***
     % *** Improve later *** 
     T = linsolve(A', C', opts)'; % dz x D
-    clear A
+    %T = (A'\C')';
+    %clear A
     hdiag = dm.dmtim(lambda, PPt);
     % H tilde inverted
     HTI =  1./(1- hdiag); % 1xn

@@ -22,9 +22,9 @@ if portion <= 0 || portion >= 1
     error('%s: portion must be between 0 and 1 (exclusive)', mfilename);
 end
 
-oldRs = RandStream.getDefaultStream();
+oldRs = RandStream.getGlobalStream();
 rs = RandStream.create('mt19937ar','seed',seed);
-RandStream.setDefaultStream(rs);          
+RandStream.setGlobalStream(rs);
 
 
 I = false(1,n); % 1 byte per entry for logical matrix
@@ -43,7 +43,7 @@ for ui=1:length(UY)
     I(chosenI) = true;
     
 end
-RandStream.setDefaultStream(oldRs);
+RandStream.setGlobalStream(oldRs);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

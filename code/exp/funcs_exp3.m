@@ -83,7 +83,11 @@ function C=getImproperOutputCounts(S)
     % return a column Vector
     C=zeros(length(S), 1);
     for i=1:length(S)
-        C(i)=length(S(i).imp_out);
+        if isfield(S(i), 'imp_out')
+            C(i)=length(S(i).imp_out);
+        else 
+            C(i) = nan;
+        end
     end
 end
 

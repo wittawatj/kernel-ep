@@ -12,7 +12,7 @@ end
 
 % folders to be added by genpath
 gfolders = {'3rdparty/minFunc_2012/', 'script/logistic_msg/', '3rdparty/cvx/',...
-    '3rdparty/xunit', '3rdparty/multicore', 'main', 'exp'};
+    'script/compound_gam/', '3rdparty/xunit', '3rdparty/multicore', 'main', 'exp'};
 for i=1:length(gfolders)
     fol = gfolders{i};
     p = [base , fs, fol];

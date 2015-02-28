@@ -5,9 +5,9 @@ function [ ] = exp3_eprod_heuristic( )
 % parameter.
 %
 
-seed=121+1;
+seed=33;
 oldRng=rng();
-rng(seed);
+rng(seed, 'twister');
 % true to relearn everything 
 relearn=false;
 %relearn=true;
@@ -19,7 +19,8 @@ if sample_cond_msg
 else
     anno='proposal';
 end
-bunName=sprintf('sigmoid_bw_%s_25000', anno);
+%bunName=sprintf('sigmoid_bw_%s_25000', anno);
+bunName = 'binlogis_bw_proj_n400_iter5_sf1_st20';
 %bunName=sprintf('sigmoid_bw_%s_2000', anno);
 % Nicolas's data. Has almost 30000 pairs.
 %bunName=sprintf('nicolas_sigmoid_bw');
@@ -31,12 +32,8 @@ bunName=sprintf('sigmoid_bw_%s_25000', anno);
 %bunName='lds_d3_tox_3000';
 bundle=se.loadBundle(bunName);
 
-n=6250;
-%n=25000;
-smallBundle=bundle.subsample(n);
-n=min(n, smallBundle.count());
-% train 80%
-[trBundle, teBundle]=smallBundle.splitTrainTest(.8);
+
+[trBundle, teBundle] = bundle.partitionTrainTest(6000, 2000);
 trTensor=trBundle.getInputTensorInstances();
 
 %---------- options -----------

@@ -8,9 +8,9 @@ rng(seed, 'twister');
 
 se=BundleSerializer();
 %bunName = 'binlogis_fw_n400_iter5_sf1_st20';
-bunName = 'binlogis_bw_n400_iter5_sf1_st20';
+%bunName = 'binlogis_bw_n400_iter5_sf1_st20';
 
-%bunName = 'binlogis_bw_proj_n400_iter5_sf1_st20';
+bunName = 'binlogis_bw_proj_n400_iter5_sf1_st20';
 %bunName = 'binlogis_fw_proj_n400_iter5_sf1_st20';
 %
 %bunName = 'binlogis_bw_n400_iter20_s1';
