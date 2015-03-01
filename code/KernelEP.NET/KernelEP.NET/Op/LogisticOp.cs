@@ -648,7 +648,7 @@ namespace KernelEP.Op{
 		private readonly PrimalGPOnlineMapper<DNormal> toXMap;
 		private readonly PrimalGPOnlineMapper<DBeta> toLogisticMap;
 		private OpParams<DBeta, DNormal> opParams;
-		private ISGaussianLogisticOpIns isGaussianOp = new ISGaussianLogisticOpIns();
+		public ISGaussianLogisticOpIns isGaussianOp = new ISGaussianLogisticOpIns();
 		// true to compute and print the true outgoing message with importance sampler
 		// when the operator is certain..
 		public bool IsPrintTrueWhenCertain = true;

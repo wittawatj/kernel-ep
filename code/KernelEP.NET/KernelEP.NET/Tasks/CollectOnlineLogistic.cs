@@ -22,7 +22,7 @@ namespace KernelEP{
 		const int d = 20;
 		const int n = 300;
 		const int epIter = 10;
-		const int importanceSamplingSize = 50000;
+		const int importanceSamplingSize = 50001;
 		const int init_fixed_seed = 1;
 
 		/**for real data experiment*/
@@ -511,6 +511,8 @@ namespace KernelEP{
 			logisticOpIns.SetImportanceSamplingSize(importanceSamplingSize);
 			logisticOpIns.IsRecordMessages = true;
 			logisticOpIns.IsPrintTrueWhenCertain = false;
+			/** Use mixture or not ...*/
+			logisticOpIns.isGaussianOp.useMixtureProposal = true;
 			logisticOpIns.SetFeatures(new int[]{300, 500});
 
 			OpControl.Set(typeof(KEPOnlineLogisticOp), logisticOpIns);
