@@ -1,21 +1,21 @@
 # Fdb version 3
-["bibtex kernel_ep_uai2015"] 1425207444 "kernel_ep_uai2015.aux" "kernel_ep_uai2015.bbl" "kernel_ep_uai2015" 1425207448
+["bibtex kernel_ep_uai2015"] 1425210942 "kernel_ep_uai2015.aux" "kernel_ep_uai2015.bbl" "kernel_ep_uai2015" 1425211014
   "/usr/local/texlive/2014/texmf-dist/bibtex/bst/natbib/abbrvnat.bst" 1233624470 26532 66bed5cc59495faaa3f9ae9af9fa5e42 ""
-  "kernel_ep_uai2015.aux" 1425207446 19796 cd38a3f1ed1ec504eb752fd7a0c9ef65 ""
+  "kernel_ep_uai2015.aux" 1425211013 19951 40556b02b373b9f23bfa43dab374fc57 ""
   "kernel_ep_uai2015.bcf" 0 -1 0 ""
-  "ref.bib" 1425207400 42360 4cb37974574de1b19173b81240805733 ""
+  "ref.bib" 1425207704 42662 974d49245818d739081bf8666f505193 ""
   (generated)
   "kernel_ep_uai2015.blg"
   "kernel_ep_uai2015.bbl"
-["bibtex sup"] 1425207149 "sup.aux" "sup.bbl" "sup" 1425207448
+["bibtex sup"] 1425207149 "sup.aux" "sup.bbl" "sup" 1425211014
   "/usr/local/texlive/2014/texmf-dist/bibtex/bst/natbib/abbrvnat.bst" 1233624470 26532 66bed5cc59495faaa3f9ae9af9fa5e42 ""
   "refappendix.bib" 1424537740 28957 ac0d30194c0266c8b8ad3bbe4f46d3d0 ""
-  "sup.aux" 1425207446 453 8e51b8d00cb42ed7b50f114605874277 ""
+  "sup.aux" 1425211013 453 8e51b8d00cb42ed7b50f114605874277 ""
   "sup.bcf" 0 -1 0 ""
   (generated)
   "sup.bbl"
   "sup.blg"
-["pdflatex"] 1425207445 "kernel_ep_uai2015.tex" "kernel_ep_uai2015.pdf" "kernel_ep_uai2015" 1425207448
+["pdflatex"] 1425211011 "kernel_ep_uai2015.tex" "kernel_ep_uai2015.pdf" "kernel_ep_uai2015" 1425211014
   "/usr/local/texlive/2014/texmf-dist/tex/context/base/supp-pdf.mkii" 1337017135 71627 94eb9990bed73c364d7f53f960cc8c5b ""
   "/usr/local/texlive/2014/texmf-dist/tex/generic/babel-english/english.ldf" 1367878877 6963 2e0cb3d93aa64508bdb0db58ae900d97 ""
   "/usr/local/texlive/2014/texmf-dist/tex/generic/babel/babel.def" 1395780385 49536 e1475dd245ff2196764ba5b91ac63714 ""
@@ -161,16 +161,16 @@
   "img/uncertainty/ert-n_trees-100-crop.pdf" 1425135051 25077 ec672d1e5d656df2be0ce8d608a753b8 ""
   "img/uncertainty/logistic_uncertainty-crop.pdf" 1425135051 115712 44c2e15c80a3d2d284dca3fc97f1033a ""
   "img/uncertainty/rf-n_trees-100-crop.pdf" 1425135051 25840 14e097b9aa2c3fabc828acdfdd892079 ""
-  "kernel_ep_uai2015.aux" 1425207446 19796 cd38a3f1ed1ec504eb752fd7a0c9ef65 ""
-  "kernel_ep_uai2015.bbl" 1425207445 9599 37812e10c8b90c65f3ed76f34b5445ae "bibtex kernel_ep_uai2015"
-  "kernel_ep_uai2015.out" 1425207446 2397 ad68d47252c0e7479fcbcd00e95f9989 ""
-  "kernel_ep_uai2015.tex" 1425207430 77869 01cbd3080a50696011e3f93fd4caf828 ""
+  "kernel_ep_uai2015.aux" 1425211013 19951 40556b02b373b9f23bfa43dab374fc57 ""
+  "kernel_ep_uai2015.bbl" 1425210942 9898 301ce0affc8760e011a01c492a6d6708 "bibtex kernel_ep_uai2015"
+  "kernel_ep_uai2015.out" 1425211013 2397 ad68d47252c0e7479fcbcd00e95f9989 ""
+  "kernel_ep_uai2015.tex" 1425211011 79295 358bd475bf0596d6bff29992f43e1858 ""
   "proceed2e.sty" 1424537740 4910 cfe842ae77ff0559b46fc801ee87f54b ""
-  "sup.aux" 1425207446 453 8e51b8d00cb42ed7b50f114605874277 ""
+  "sup.aux" 1425211013 453 8e51b8d00cb42ed7b50f114605874277 ""
   "sup.bbl" 1425207150 779 c4fa6f17859c0535fdc59d483b3aec78 "bibtex sup"
   (generated)
-  "kernel_ep_uai2015.aux"
-  "kernel_ep_uai2015.out"
-  "sup.aux"
   "kernel_ep_uai2015.pdf"
+  "sup.aux"
+  "kernel_ep_uai2015.aux"
   "kernel_ep_uai2015.log"
+  "kernel_ep_uai2015.out"
