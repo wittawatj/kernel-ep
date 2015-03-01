@@ -15,6 +15,16 @@ classdef DistMapperLearner < handle & HasOptions
 
 
     end
+
+    methods 
+        function name = getLearnerName(this)
+            % return a name suitable to be used as a file name 
+            %
+            name = class(this);
+        end
+
+    end
+
     
 end
 

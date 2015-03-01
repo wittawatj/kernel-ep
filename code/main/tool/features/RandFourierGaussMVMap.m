@@ -217,8 +217,8 @@ classdef RandFourierGaussMVMap < FeatureMap & PrimitiveSerializable
                 M = Ms{i};
                 V = Vs{i};
 
-                mmeds(i) = meddistance(M(:, I))^2;
-                vmeds(i) = meddistance(V(:, I))^2;
+                mmeds(i) = meddistance(M(:, I))^2 + 1e-4;
+                vmeds(i) = meddistance(V(:, I))^2 + 1e-4;
             end
 
             % total number of candidats = len(medf). Quite cheap.

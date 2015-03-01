@@ -8,12 +8,45 @@ function [ g ] = funcs_cg_online( )
 
 end
 
+function plotPosteriorShapeRateScatter(st)
+    % plot agreement of posteriors between KJIT+Infer.NET and Infer.NET in a 
+    % scatter plot.
 
-function plotPosteriorKL(st)
-    % plot agreement of posteriors between KJIT+Infer.NET and Infer.NET.
+    cutoff = min(1000, length(st.inShape));
+    % only plot the correlation of the trials that the operator does not consult.
+    Ikeep = ~st.consultOracle ;
+    kepShape = st.postShapes(Ikeep);
+    kepRate = st.postRates(Ikeep);
+    dnetShape = st.oraPostShapes(Ikeep);
+    dnetRate = st.oraPostRates(Ikeep);
 
+    kepShape = kepShape(1:cutoff);
+    kepRate = kepRate(1:cutoff);
+    dnetShape = dnetShape(1:cutoff);
+    dnetRate = dnetRate(1:cutoff);
+
+    shapeCorr = corr2(log(kepShape), log(dnetShape));
+    rateCorr = corr2(log(kepRate), log(dnetRate));
+
+    figure
+    hold on 
+    %plot(dnetShape, dnetRate, '+k', 'LineWidth', 2);
+    %plot(kepShape, kepRate, '*r', 'LineWidth', 2);
+    plot(log(dnetShape), log(dnetRate), '+k', 'LineWidth', 2);
+    plot(log(kepShape), log(kepRate), '*r', 'LineWidth', 1);
+    set(gca, 'FontSize', 16);
+    xlabel('Log shape parameter');
+    ylabel('Log rate parameter')
+    title(sprintf('Gamma posteriors. Shape correlation: %.6g. Rate correlation: %.6g.',...
+        shapeCorr, rateCorr));
+    legend('Infer.NET', 'Infer.NET + KJIT');
+    grid on
+    hold off
+end
+
+function [klDnetKep, klKepDnet] = getPosteriorKLs(st, cutoff)
     trials = length(st.inShape);
-    cutoff = min(400, trials);
+    cutoff = min(cutoff, trials);
     klDnetKep = zeros(1, cutoff);
     klKepDnet = zeros(1, cutoff);
 
@@ -23,8 +56,15 @@ function plotPosteriorKL(st)
 
         klKepDnet(i) = kepPost.klDivergence(dnetPost);
         klDnetKep(i) = dnetPost.klDivergence(kepPost);
-
     end
+end
+
+function plotPosteriorKL(st)
+    % plot agreement of posteriors between KJIT+Infer.NET and Infer.NET.
+
+    trials = length(st.inShape);
+    cutoff = min(400, trials);
+    [klDnetKep, klKepDnet] = getPosteriorKLs(st, cutoff);
 
     timeSub = 1:cutoff;
     figure
@@ -90,7 +130,7 @@ function plotInferenceResults()
     seed_to = length(st.inShape);
 
     % plot inference time.
-    timeSub = 1:min(1000, seed_to);
+    timeSub = 1:min(1500, seed_to);
     figure
     hold on 
     plot(timeSub, log(st.oraInferTimes(timeSub)), '-k', 'LineWidth', 2);
@@ -107,7 +147,7 @@ function plotInferenceResults()
     figure
     hold on 
     % 1 for predicing the mean of X
-    window = 20;
+    window = 40;
     b = ones(1, window)/window;
     unSub = 1:min(1000, seed_to);
     % uncertainty for the first output which is log(shape)
@@ -127,6 +167,7 @@ function plotInferenceResults()
     grid on
     hold off
 
-    plotPosteriorKL(st);
+    %plotPosteriorKL(st);
 
+    plotPosteriorShapeRateScatter(st);
 end
