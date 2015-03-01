@@ -37,7 +37,7 @@ function plotPosteriorShapeRateScatter(st)
     set(gca, 'FontSize', 16);
     xlabel('Log shape parameter');
     ylabel('Log rate parameter')
-    title(sprintf('Gamma posteriors. Shape correlation: %.6g. Rate correlation: %.6g.',...
+    title(sprintf('Shape correlation: %.6g. Rate correlation: %.6g.',...
         shapeCorr, rateCorr));
     legend('Infer.NET', 'Infer.NET + KJIT');
     grid on
@@ -149,7 +149,7 @@ function plotInferenceResults()
     % 1 for predicing the mean of X
     window = 40;
     b = ones(1, window)/window;
-    unSub = 1:min(1000, seed_to);
+    unSub = 1:min(1500, seed_to);
     % uncertainty for the first output which is log(shape)
     Un = max(st.uncertainty(1, :), st.uncertainty(2, :));
     unFil = filter(b, 1, Un);
