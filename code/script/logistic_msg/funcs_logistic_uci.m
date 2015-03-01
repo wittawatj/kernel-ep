@@ -95,6 +95,18 @@ function plotPosteriorKL(kjit, is, dnet)
 
 end
 
+function loss=classWeighted01Loss(Y, Yhat)
+    % weight class 1 with (1- proportion of class 1) and vice versa
+    assert(length(Y) == length(Yhat));
+    prop0 = mean(Y==0);
+    prop1 = mean(Y==1);
+    I0 = Y==0;
+    I1 = ~I0;
+    z = 1.0/(1/prop0 + 1/prop1);
+    loss =  z* ( mean(Y(I0)~=Yhat(I0))./prop0 + mean(Y(I1)~=Yhat(I1))./prop1 );
+
+end
+
 function  plot01Loss(kjit, is, dnet)
     %. Plot 0-1 loss. Test on a separate test data.
 
@@ -114,17 +126,20 @@ function  plot01Loss(kjit, is, dnet)
         kjitMean = kjit.(dn).postMeans{1};
         kjitCov = kjit.(dn).postCovs{1};
         Pkjit = sigFunc(kjitMean(:)'*testDat.X);
-        kjitLoss(i) = mean(round(Pkjit) ~= testDat.Y);
+        %kjitLoss(i) = mean(round(Pkjit) ~= testDat.Y);
+        kjitLoss(i) = classWeighted01Loss(round(Pkjit), testDat.Y);
 
         isMean = is.(dn).postMeans{1};
         isCov = is.(dn).postCovs{1};
         Pis = sigFunc(isMean(:)'*testDat.X);
-        isLoss(i) = mean(round(Pis) ~= testDat.Y);
+        %isLoss(i) = mean(round(Pis) ~= testDat.Y);
+        isLoss(i) = classWeighted01Loss(round(Pis), testDat.Y);
 
         dnetMean = dnet.(dn).dnetPostMean;
         dnetCov = dnet.(dn).dnetPostCov;
         Pdnet = sigFunc(dnetMean(:)'*testDat.X);
-        dnetLoss(i) = mean(round(Pdnet) ~= testDat.Y);
+        %dnetLoss(i) = mean(round(Pdnet) ~= testDat.Y);
+        dnetLoss(i) = classWeighted01Loss(round(Pdnet), testDat.Y);
 
     end
     
@@ -136,7 +151,8 @@ function  plot01Loss(kjit, is, dnet)
     set(H(1), 'FaceColor', [0, 0, 0]);
     set(H(2), 'FaceColor', [0, 0, 0.8]);
     set(H(3), 'FaceColor', [0.8, 0, 0]);
-    set(gca, 'FontSize', 12);
+
+    set(gca, 'FontSize', 14);
     legend('Infer.NET', 'Sampling', 'Sampling + KJIT' );
     set(gca, 'XTick', 1:length(dataLabels));
     set(gca, 'XTickLabel', dataLabels);
@@ -163,13 +179,15 @@ function plotTemporalUncertainty(kjit)
     uncertaintyOutX = getAllUncertaintyOutX(kjit);
     % 1 for predicing the mean of X
     unSub = 1:min(7000, size(uncertaintyOutX, 2)); 
-    window = 80;
+    window = 100;
     b = ones(1, window)/window;
     unOutXFil = filter(b, 1, uncertaintyOutX(1, :));
     xlim([1, max(unSub)]);
-    ylim([-9.4, -7.8]);
+    ylim([-9.3, -8.3]);
     plot( uncertaintyOutX(1, unSub), '-b', 'LineWidth', 1);
     plot( unOutXFil(1, unSub), '-r', 'LineWidth', 2);
+    % threshold 
+    plot( unSub, -9*ones(1, length(unSub)), '-k', 'LineWidth', 1);
 
     % consultations 
     consultOracleOutX = getAllConsultations(kjit);
@@ -186,9 +204,9 @@ function plotTemporalUncertainty(kjit)
     end
     set(gca, 'FontSize', 12);
     ylabel('Log of predictive variance');
-    xlabel('Time for each input');
-    title('Predictive variance of incoming messages at each time point')
-    legend('Log predictive variance', sprintf('Moving average'));
+    xlabel('Factor invocations.');
+    title('Predictive variance of incoming messages')
+    legend('Log predictive variance', sprintf('Moving average'), 'Threshold');
     %legend('Log predictive variance', sprintf('Moving average'), 'Consult oracle');
     hold off
 
@@ -212,7 +230,7 @@ function [dataNames, dataLabels, testsetFNames] = getDataNames()
     % return the dataNames (file naming) and their dataLabels (for plotting).
 
     dataNames = {'banknote', 'blood', 'fertility', 'iono'};
-    dataLabels = {'Banknote', 'Blood Transfusion', 'Fertility', 'Ionosphere'};
+    dataLabels = {'Banknote', 'Blood', 'Fertility', 'Ionosphere'};
     testsetFNames = {'banknote_norm_te.mat', 'blood_transfusion_norm_te.mat', ...
         'fertility_norm_te.mat', 'ionosphere_norm_te.mat'};
 end
@@ -314,13 +332,14 @@ function plotInferenceTimes(kjit, is)
     H = bar(T, 1, 'grouped');
     set(H(1), 'FaceColor', [0, 0, .8]);
     set(H(2), 'FaceColor', [.8, 0, 0]);
-    set(gca, 'FontSize', 12);
+    set(gca, 'FontSize', 14);
     legend('Sampling', 'Sampling + KJIT' );
     title('Inference time on real datasets.')
     ylabel('Time in ms');
     set(gca, 'XTick', 1:length(dataLabels));
     set(gca, 'XTickLabel', dataLabels);
 
+    grid on
     hold off 
 
 
@@ -333,6 +352,6 @@ function [kjit, is] = plotInferenceResults()
     dnet = getInferNetStruct(kjit);
     plot01Loss(kjit, is, dnet);
 
-    plotPosteriorKL(kjit, is, dnet);
+    %plotPosteriorKL(kjit, is, dnet);
 end
 

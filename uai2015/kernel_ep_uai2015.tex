@@ -755,6 +755,7 @@ of incoming and outgoing messages.
 embeddings.\label{fig:Log-KL-divergence-on}}
 \end{figure}
 
+
 \paragraph{Compound Gamma}
 \wjnote{Hopefully I will have enough time to do this.}
 Andrew Gelman \citep{Gelman2006}: ``Gamma prior on precision
@@ -768,36 +769,6 @@ We compute the predictive variance using the same operator as used in the logist
 A plots of KL-divergence errors versus predictive variances for predicting the mean of $m_{f \rightarrow X}$ is shown in \figref{fig:logistic_predvar_g}
 % and the variance for predicting $\log(\alpha)$ of $m_{f \rightarrow Z}$ is shown in \figref{fig:logistic_predvar_b}. 
 
-% \begin{figure}[t]
-%   \centering
-% 
-%   %DNormalLogVarBuilder means regressing to Gaussian mean and $\log$ variance.
-%   \subfloat[Predicting the mean of $m_{f \rightarrow X}$ (normal distribution)
-%   \label{fig:logistic_predvar_g}]{
-%   \includegraphics[width=0.7\columnwidth]{img/pred_var/fm_kgg_joint_-bw-out1-crop}
-%   }
-%   %\includegraphicse[width=7cm]{img/pred_var/fm_kgg_joint_-bw-out2-crop}
-%   
-%   \subfloat[Predicting $\log(\alpha)$ of $m_{f \rightarrow Z} = \text{Beta}(z; \alpha, \beta)$
-%   \label{fig:logistic_predvar_b}]{
-%   \includegraphics[width=0.7\columnwidth]{img/pred_var/fm_kgg_joint_-fw-out1-crop}
-%   }
-%   %\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-fw-out2-crop} 	
-%   \caption{KL-divergence errors versus predictive variances in the logistic factor problem.}
-%   \label{fig:logistic_predvar}
-% \end{figure}
-  
-  
-\begin{figure}[t]
-  \centering
-
-  \includegraphics[width=0.7\columnwidth]{img/pred_var/fm_kgg_joint_-bw-out1-crop}
-  
-  \caption{KL-divergence errors versus predictive variances for predicting the 
-  mean of $m_{f \rightarrow X}$ (normal distribution) in the logistic factor problem. }
-  \label{fig:logistic_predvar_g}
-\end{figure}
-  
 
 
 \wjnote{Feel free to fill in more explanation.} 
@@ -884,6 +855,7 @@ from the true parameter vector. The loss of KJIT matches that of the importance
 samplier and Infer.NET. \figref{fig:logistic_inference_time} shows the inference 
 time spent by all methods in each problem.
 
+% logistic temporal uncertainty
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.95\textwidth]{img/online/logistic_temporal_uncertainty-crop}
@@ -893,6 +865,8 @@ in the binary logistic regression problem.
 }
 \end{figure*}
 
+% logistic classification error. 
+% Inference time
 \begin{figure}[t]
 	\centering
 	\subfloat[Binary classification error\label{fig:logistic_01_loss}]{
@@ -906,7 +880,7 @@ in the binary logistic regression problem.
 	\label{fig:logistic_performance}
 \end{figure}
 
-
+% compound gamma temporal uncertainty
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.95\textwidth]{img/online/cg_temporal_uncertainty-crop}
@@ -916,21 +890,59 @@ in the compound Gamma problem.
 }
 \end{figure*}
 
-
+% compound gamma inferred results and time.
 \begin{figure}[t]
 	\centering
-	\subfloat[Posteriors]{
-	\includegraphics[width=0.49\columnwidth]{img/online/cg_post_corr-crop}
+% 	\subfloat[Posteriors]{
+% 	\includegraphics[width=0.49\columnwidth]{img/online/cg_post_corr-crop}
+% 	%\missingfigure[figwidth=0.49\columnwidth]{}
+% 	}
+	%
+	\subfloat[Inferred shape]{
+	\includegraphics[width=0.31\columnwidth]{img/online/cg_post_shape-crop}
+	%\missingfigure[figwidth=0.49\columnwidth]{}
+	}
+	%
+	\subfloat[Inferred shape]{
+	\includegraphics[width=0.31\columnwidth]{img/online/cg_post_rate-crop}
 	%\missingfigure[figwidth=0.49\columnwidth]{}
 	}
 	%
 	\subfloat[Inference time\label{fig:cg_inference_time}]{
-	\includegraphics[width=0.49\columnwidth]{img/online/cg_inference_time-crop}
+	\includegraphics[width=0.34\columnwidth]{img/online/cg_inference_time-crop}
 	}
-	\caption{KL divergence of the posteriors and inference times in the compound 
-	Gamma problem.}
+	\caption{Shape (a) and rate (b) parameters of the inferred posteriors in 
+	the compound gamma problem. 
+	(c) KJIT is able to infer equally good posterior parameters compared to Infer.NET 
+	while requiring several orders of magnitude less runtime.}
 	\label{fig:cg_performance}
 \end{figure}
+
+% UCI datasets. temporal uncertainty.
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.95\textwidth]{img/online/uci_temporal_uncertainty-crop}
+\caption{Uncertainty estimate of KJIT for all incoming messages on the four UCI datasets.
+\label{fig:uci_temporal_uncertainty}
+}
+\end{figure*}
+
+
+% UCI data classification error
+% Inference time
+\begin{figure}[t]
+	\centering
+	\subfloat[Binary classification error\label{fig:uci_01_loss}]{
+	\includegraphics[width=0.52\columnwidth]{img/online/uci_classification-crop}
+	}
+	%
+	\subfloat[Inference time\label{fig:uci_inference_time}]{
+	\includegraphics[width=0.47\columnwidth]{img/online/uci_infer_time-crop}
+	}
+	\caption{Classification performance and inference times on the four UCI datasets. }
+	\label{fig:uci_performance}
+\end{figure}
+
 
 % \hrulefill{}
 % \hl{Experiments to have}
@@ -985,6 +997,38 @@ with a matrix given by the solution of the primal ridge regression.
 
 \todo[inline]{The following incoherent content needs to be rewritten. I just copied it from my notes. Some part will be moved to the main text.  }
 
+% \begin{figure}[t]
+%   \centering
+% 
+%   %DNormalLogVarBuilder means regressing to Gaussian mean and $\log$ variance.
+%   \subfloat[Predicting the mean of $m_{f \rightarrow X}$ (normal distribution)
+%   \label{fig:logistic_predvar_g}]{
+%   \includegraphics[width=0.7\columnwidth]{img/pred_var/fm_kgg_joint_-bw-out1-crop}
+%   }
+%   %\includegraphicse[width=7cm]{img/pred_var/fm_kgg_joint_-bw-out2-crop}
+%   
+%   \subfloat[Predicting $\log(\alpha)$ of $m_{f \rightarrow Z} = \text{Beta}(z; \alpha, \beta)$
+%   \label{fig:logistic_predvar_b}]{
+%   \includegraphics[width=0.7\columnwidth]{img/pred_var/fm_kgg_joint_-fw-out1-crop}
+%   }
+%   %\includegraphics[width=7cm]{img/pred_var/fm_kgg_joint_-fw-out2-crop} 	
+%   \caption{KL-divergence errors versus predictive variances in the logistic factor problem.}
+%   \label{fig:logistic_predvar}
+% \end{figure}
+  
+  
+\begin{figure}[t]
+  \centering
+
+  \includegraphics[width=5cm]{img/pred_var/fm_kgg_joint_-bw-out1-crop}
+  
+  \caption{KL-divergence errors versus predictive variances for predicting the 
+  mean of $m_{f \rightarrow X}$ (normal distribution) in the logistic factor problem. }
+  \label{fig:logistic_predvar_g}
+\end{figure}
+  
+
+  
 \section{Performance of Different Kernels}
 
 

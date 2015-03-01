@@ -206,11 +206,11 @@ function [kepCells, isCells, kepInferTimes, isInferTimes, ...
     %end
 
     % importance sampling size
-    isSize = 20000;
+    isSize = 50000;
     %isSize = 100000;
     epIter = 10;
     n = 300;
-    seed_to = 2;
+    seed_to = 20;
     seeds =  1:seed_to;
     scriptFol = Global.getScriptFolder();
     fullFileFunc = @(fn)fullfile(scriptFol, 'logistic_msg', ...
@@ -320,23 +320,27 @@ function plotInferenceResults()
     figure
     hold on 
     % 1 for predicing the mean of X
-    unSub = 1:min(2500, size(uncertaintyOutX, 2)); 
+    unSub = 1:min(7500, size(uncertaintyOutX, 2)); 
     window = 60;
     b = ones(1, window)/window;
     unOutXFil = filter(b, 1, uncertaintyOutX(1, :));
     plot( uncertaintyOutX(1, unSub), '-b', 'LineWidth', 1);
     plot( unOutXFil(1, unSub), '-r', 'LineWidth', 2);
+    % threshold 
+    plot( unSub, -8.5*ones(1, length(unSub)), '-k', 'LineWidth', 1);
+
+    ylim([-9.2, -8.2]);
     % draw vertical lines to indicate new problems
     vline(xProblemInds, '-.*k');
     xlim([1, max(unSub)]);
     set(gca, 'FontSize', 12);
     ylabel('Log of predictive variance');
-    xlabel('Time for each input');
-    title('Predictive variance of incoming messages at each time point')
-    legend('Log predictive variance', sprintf('Moving average'));
+    xlabel('Factor invocations');
+    title('Predictive variance of incoming messages');
+    legend('Log predictive variance', sprintf('Moving average'), 'Threshold');
     hold off
 
-    plotPosteriorKL(kepCells, isCells);
+    %plotPosteriorKL(kepCells, isCells);
 
     % load Infer.NET results
     dnet = loadDnetResults();

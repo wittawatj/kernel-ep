@@ -59,6 +59,52 @@ function [klDnetKep, klKepDnet] = getPosteriorKLs(st, cutoff)
     end
 end
 
+function plotShapeRateCorr(st)
+    cutoff = min(1000, length(st.inShape));
+    % only plot the correlation of the trials that the operator does not consult.
+    Ikeep = ~st.consultOracle ;
+    kepShape = st.postShapes(Ikeep);
+    kepRate = st.postRates(Ikeep);
+    dnetShape = st.oraPostShapes(Ikeep);
+    dnetRate = st.oraPostRates(Ikeep);
+
+    kepShape = kepShape(1:cutoff);
+    kepRate = kepRate(1:cutoff);
+    dnetShape = dnetShape(1:cutoff);
+    dnetRate = dnetRate(1:cutoff);
+
+    shapeCorr = corr2(log(kepShape), log(dnetShape));
+    rateCorr = corr2(log(kepRate), log(dnetRate));
+
+    %shape 
+    figure
+    hold on 
+    plot(log(dnetShape), log(kepShape), '+k', 'LineWidth', 2);
+
+    set(gca, 'FontSize', 16);
+    xlabel('Log shape inferred by Infer.NET + KJIT');
+    ylabel('Log shape inferred by Infer.NET');
+    title(sprintf('Correlation: %.6g', shapeCorr));
+    legend('Log shape');
+    grid on
+    axis square
+    hold off
+
+    % rate
+    figure 
+    hold off
+    plot(log(dnetRate), log(kepRate), '*r', 'LineWidth', 1);
+    set(gca, 'FontSize', 16);
+    xlabel('Log rate infered by Infer.NET + KJIT');
+    ylabel('Log rate inferred by Infer.NET');
+    title(sprintf('Correlation: %.6g',  rateCorr));
+    legend('Log rate');
+    grid on
+    axis square
+    hold off
+
+end
+
 function plotPosteriorKL(st)
     % plot agreement of posteriors between KJIT+Infer.NET and Infer.NET.
 
@@ -135,11 +181,12 @@ function plotInferenceResults()
     hold on 
     plot(timeSub, log(st.oraInferTimes(timeSub)), '-k', 'LineWidth', 2);
     plot(timeSub, log(st.inferTimes(timeSub)), '-r', 'LineWidth', 2);
-    set(gca, 'FontSize', 14);
+    set(gca, 'FontSize', 16);
     ylabel('Time in log(ms)')
     xlabel('Problems seen');
     title('Inference time')
     legend('Infer.NET', 'Sampling + KJIT');
+    axis square
     grid on
     hold off
 
@@ -158,16 +205,20 @@ function plotInferenceResults()
     % plot consultations
     consultTimesSub = find(st.consultOracle(unSub));
     plot( consultTimesSub, Un(1, consultTimesSub), '^k' );
+    thresh = -6;
+    plot(unSub, thresh*ones(1, length(unSub)), '-k');
     xlim([1, length(unSub)]);
     set(gca, 'FontSize', 10);
     ylabel('Log predictive variance');
-    xlabel('Time for each input');
-    title('Predictive variance of the incoming message at each time point')
-    legend('Log predictive variance', sprintf('Moving average'), 'Consult oracle');
+    xlabel('Factor invocations');
+    title('Predictive variance of the incoming message');
+    legend('Log predictive variance', sprintf('Moving average'), 'Consult oracle', ...
+        'Threshold');
     grid on
     hold off
 
     %plotPosteriorKL(st);
 
-    plotPosteriorShapeRateScatter(st);
+    %plotPosteriorShapeRateScatter(st);
+    plotShapeRateCorr(st);
 end
