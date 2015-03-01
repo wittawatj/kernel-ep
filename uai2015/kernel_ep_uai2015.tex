@@ -539,17 +539,32 @@ used to update $\Sigma_{w}$ and $\mu_{w}$ as described previously.
 \subsection{Computational Complexity}
 \wjnote{Compare ridge regression cost with Ali's forest here ?}
 
-Let $K$ be the number of trees in the random forest,
-$D$ be the dimensionality of message representation,
-and $N$ be the number of oracle consultations so far.
-Let $M$ be number of training points in each leaf.
-Assuming that the depth of trees is $O(\log(N))$, one prediction from a random forest costs $O(KD\log(N))$, and one update costs $O(KD^2 \log(N))$.
-This is because for each tree in forest $O(K)$, tree traversal takes $O(\log(N))$, 
-and one prediction costs $O(D)$. 
-One full training of a regression function costs $O(D^2 (D + M))$ which depends on $M$. 
-However typically $M$ is negligible at a lower depth, a full training costs $O(D^3)$.
-The total updating cost across all trees is $O(KD^3log(N))$.
+Let:
+\begin{itemize}
+\item $K$ be the number of trees in the random forest,
+\item $D_t$ be the dimensionality of incoming message group representation for tree traversal,
+\item $D_r$ be the dimensionality of incoming message group representation for regression,
+\item $N$ be the number of oracle consultations so far, and
+\item $M$ be number of training points in each leaf.
+\end{itemize}
 
+Assuming that the depth of trees is $O(\log(N))$, one prediction from a random forest costs $O(K D_r D_t \log(N))$, and one update costs $O(K D_r^3 D_t \log(N))$.
+
+This is because for each tree in forest $O(K)$, tree traversal involves $O(\log(N))$ steps where each costs $O(D_t)$ (splitting on an internal node involves a linear regression on the tree representation of the incoming message group), and one prediction costs $O(D_r)$. 
+
+One full training of a regression function at a leaf costs $O(D_r^2 (D_r + M))$. 
+However typically $M$ is negligible at a lower depth, therefore training at a leaf costs $O(D_r^3)$.
+Therefore the total updating cost across all trees is $O(K D_r^3 D_t log(N))$.
+
+Concrete numbers for forests:
+
+\begin{itemize}
+\item $K=64$ always.
+\item $D_r$ depends on the number of incoming messages to the factor. In most of my experiments $D=14$. Why? Gaussian, Beta and Gamma distributions are all parameterised by two numbers, most factors had two incoming messages and we used quadratic regressors, so the regression features were $a$, $b$ (parameters of first incoming message), $c$, $d$ (parameters of second incoming message), $a^2$, $b^2$, $c^2$, $d^2$, $ab$, $ac$, $ad$, $bc$, $bd$ and $cd$.
+\item $D_t$ also depends on the number of incoming messages to the factor. This was typically in the order of tens (10 to 20). For each incoming message there would be ~5 parameters (e.g. for a Gaussian there would be the mean, variance, mean $\times$ precision, precision and mode) and there would also be the factor evaluated at the mean and mode of the incoming messages (each a single number).
+\item $N$ in the order of thousands (1,000 to 5,000).
+\item $M$ roughly between 10 and 50 in each leaf.
+\end{itemize}
 
 \section{Kernels on Distributions}
 
