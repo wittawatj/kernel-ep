@@ -122,6 +122,8 @@ Messages}
   for learning a message operator in expectation propagation (EP),
   which takes as input the set of incoming messages to a factor node, and
   produces an outgoing message as output.
+  This learned operator replaces the multivariate integral required in classical EP,
+  which may not have an analytic expression.
   We use kernel-based regression, which is trained on
   a set of probability distributions
   representing the incoming messages, and the associated outgoing messages.
@@ -138,6 +140,9 @@ Messages}
 
 %% Intro paragraphs
 
+%\cite{Rezende2014,Kingma2013,Stuhlmuller2013,Ross2011}
+
+
 An increasing priority in Bayesian modelling is to make inference accessible and implementable for practitioners,
 without their requiring specialist expertise in Bayesian inference. This
 is a goal sought in probabistic programming languages \citep{WinGooStuSis11,GooManRoyBonTen08}, 
@@ -149,9 +154,9 @@ approximation, or distribution conjugacy.  In reality, however, model convenienc
 simplicity can  limit
 or undermine intended models, sometimes in ways the users
 might not expect. To take one example, the inverted Gamma prior, which is a convenient
-conjugate prior for standard deviation, has quite pathological behaviour  \citep{Gelman2006}.
+conjugate prior for the standard deviation, has quite pathological behaviour  \citep{Gelman2006}.
 In general, more expressive, freely chosen models are more likely
-to require expensive sampling or quadrature approaches in their implementation, which can make
+to require expensive sampling or quadrature approaches, which can make
 them challenging to implement or impractical to run.
 
 We address the particular setting of expectation propagation \citep{Minka2001}, a message
@@ -161,8 +166,8 @@ required output family, can be difficult, and in some cases not achieveable in c
 Thus, a number of approaches have been proposed to implement EP updates numerically, independent
 of the details of the factor potential being used.  One approach, due to
 \citet{Barthelme2011}, is to compute the message update via importance sampling.
-While this is exact for sufficient samples, this sampling procedure must be run at every iteration during inference,
-hence  --- while flexible --- it is not viable for large-scale problems.
+While these estimates converge to the desired integrals for sufficient samples, the sampling procedure must be run at every iteration during inference,
+hence  it is not viable for large-scale problems.
 
 An improvement on this approach is to use importance sampled instances of input/output
 message pairs to train a regression algorithm, which can then be used in place of the sampler.
@@ -171,7 +176,7 @@ to outgoing messages. The mappings learned performed well on a variety of practi
 however this approach comes with a disadvantage: it requires training data
 that cover the entire set of possible input messages for a given type of problem,
 and it has no way of assessing the uncertainty of its predictions (or of updating
-the model online in the event a prediction is uncertain). This can be a problem
+the model online in the event that a prediction is uncertain). This can be a problem
 if it is desired to learn a message operator for a broad class of problems:
 to illustrate, if the goal is to do logistic regression, we would need to see
 during training a set of representative messages for all classification problems
@@ -196,20 +201,23 @@ leaf-splitting approach of Elsami et al. can result in a decision tree which is 
 cost of prediction of $O(n)$ for training data of size $n$, vs the ideal of $O(\log(n))$
 for balanced trees.
 
+% AG: costs of GP are in paper ``Fast Gaussian Process Regression using KD-Trees'', which gives
+% yet another way to speed up GP prediction.
+
 We propose a novel, kernel-based approach to learning a message operator noparametrically
 for expectation propagation. The learning algorithm takes the form of a distribution regression
 problem, where the inputs are probabilty measures (represented as embeddings of the distributions to an RKHS), and the outputs are vectors of message
-parameters \cite{Szabo2014}.
+parameters \citep{Szabo2014}.
 A first advantage of this approach is that one does not need to pre-specify customized features
 of the distributions, as in \citep{Eslami2014,Heess2013}. Rather, 
 we use a general characteristic kernel on input distributions 
 \citep[eq. 9]{ChristmannSteinwart10}, which in our experiments gives better performance than customized features.
 A potential downside of the kernel approach is that it can be computationally
-costly, with training time of $O(n^3)$ and a cost of $O(n^2)$ to make a prediction. 
-One approach proposed to  address this problem is a random feature approach \citep{Rahimi2007,Le2013}, where
-random features of the inputs are computed, however this approach does not apply when
-the inputs are distributions. We introduce a novel two-level random feature approach for kernels
-on distributions, which gives us both fast prediction (linear in the number of
+costly, with training time of $O(n^3)$ and a cost of $O(n)$ to make a prediction. 
+We address this problem by regressing directly in the primal from random features of the data \citep{Rahimi2007,Le2013,YanSmoZonWil14}.
+We generalize this random feature representation to the case where the
+the inputs are distributions, via a novel two-level random feature approach.
+This gives us both fast prediction (linear in the number of
 random features), and fast online updates (square in the number of random features).
 
 A second advantage of our approach is that, being an instance of Gaussian process
@@ -230,15 +238,15 @@ and indicate how an importance sampling procedure can be used as an oracle to pr
 ``gold standard'' training data for the message operator (albeit at
 significant computational cost).
 We also give a brief overview of previous learning approaches to the problem, with a focus on
-that of \citet{Eslami2014}, with brief details on the random forest regression, the uncertainty computation
-procedure, and the overall  computational cost.
+that of \citet{Eslami2014}, with brief details on the random forest regression,  uncertainty computation
+procedure, and  overall  computational cost.
 Next, in Section \ref{sec:Online}, we describe our kernel regression approach, and
 the form of the kernel message operator mapping the input messages (probability distributions in an
 RKHS) to output messages (sets of parameters of the outgoing messages), along with their uncertainty estimates.
-For the purposes of fast and efficient representation, we provide a random feature-based implementation
-of the regression, which may be of independent interest.%: this has two layers, since features of the distribution
+For the purposes of fast and efficient representation, we provide a novel random feature-based implementation
+for regression with distribution-valued inputs, which may be of independent interest.%: this has two layers, since features of the distribution
 %embeddings are fed into features of the kernel on the embeddings.
-Finally, in Section \ref{sec:Experiments}, we provide experiments, which cover three topics. First, we show that our
+Finally, in Section \ref{sec:Experiments}, we describe our experiments, which cover three topics. First, we show that our
 uncertainty esimates are much more reliable than those obtained for random forests, hence more
 useful in determining when to request additional training message pairs from the oracle.
 Second, we demonstrate our method on artificial data with well-controlled statistical properties:

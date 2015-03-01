@@ -117,60 +117,156 @@ Messages}
 \author{}
 
 \maketitle
+
+
 \begin{abstract}
-We propose to learn a kernel-based message operator which takes as input all
-expectation propagation (EP) incoming messages to a factor node and
-produces an outgoing message. In ordinary EP, computing an outgoing
-message involves estimating a multivariate integral which may not
-have an analytic expression. Learning such an operator allows one
-to bypass the expensive computation of the integral during inference
-by directly mapping all incoming messages into an outgoing message.
-The operator can be learned online during inference (from examples of input
-and output messages) which allows automated inference to be made on
-any kind of factor that can be sampled.
-\aenote{AE: 1. State the problem. 2. Say why it's interesting. 
-3. Say what your solution achieves. 4. Say what follows from your solution. 
-Message-passing is useful. Message-passing in general is slow. 
-Our approach speeds it up. This allows us to use it on more 
-complicated / larger problems.}
-\end{abstract}
+  We propose an efficient nonparametric strategy
+  for learning a message operator in expectation propagation (EP),
+  which takes as input the set of incoming messages to a factor node, and
+  produces an outgoing message as output.
+  This learned operator replaces the multivariate integral required in classical EP,
+  which may not have an analytic expression.
+  We use kernel-based regression, which is trained on
+  a set of probability distributions
+  representing the incoming messages, and the associated outgoing messages.
+  The kernel approach has two main advantages: first, it is fast,
+  as it is implemented using a novel two-layer random feature representation of the input message distributions;
+  second, it has principled uncertainty estimates, and can be cheaply updated
+  online, meaning it can request and incorporate new training data when it encounters inputs on
+  which it is uncertain.  In experiments, our approach is able to solve learning problems
+  where a single message operator is required for multiple, substantially different data sets (logistic regression for a variety of classification problems), where the ability to accurately assess uncertainty and to efficiently and robustly update
+  the message operator are essential.
+  \end{abstract}
 
 \section{Introduction}
 
-\cite{Rezende2014,Kingma2013,Stuhlmuller2013,Wingate2011,Ross2011}
+%% Intro paragraphs
 
-Existing approaches to automated probabilistic inference can be broadly
-divided into two categories \citep{Heess2013}: uninformed and informed
-cases. In the uninformed case, the modeler has full freedom in expressing
-a probabilistic model without any constraint on the set of usable
-factors. This high flexibility comes at a price during inference as
-less factor-specific information is available to the inference engine.
-Often MCMC-based sampling techniques are employed by treating the
-factors as black boxes. In the informed case \citep{SDT2014,Minka2014},
-the modeler is required to build a model from constructs whose necessary
-computations are known to the inference engine. Although efficient
-during the inference, using an unsupported construct would require
-manual derivation and implementation of the relevant computations
-in the inference engine. 
+%\cite{Rezende2014,Kingma2013,Stuhlmuller2013,Ross2011}
 
-In this work, we focus on EP, a commonly used approximate inference
-method. Following \cite{Heess2013, Eslami2014}, we propose to learn a kernel-based
-message operator for EP to capture the relationship between incoming
-messagesj to a factor and outgoing messages. The operator bridges
-the gap between the uninformed and informed cases by automatically
-deriving the relevant computations for any custom factor that can
-be sampled. This hybrid approach gives the modeler as much flexibility
-as in the uninformed case while offering efficient message updates
-as in the informed case. This approach supports fast inference as
-no expensive KL divergence minimization needs to be done during inference
-as in ordinary EP. In addition, a learned operator for a factor is
-reusable in other models in which the factor appears. As will be seen,
-to send an outgoing message with the kernel-based operator, it is
-sufficient to generate a feature vector for incoming messages and
-multiply with a pre-learned matrix. Unlike \cite{Heess2013} which
-considers a neural network, the kernel-based message operator we propose
-can be easily extended to allow online updates of the operator during
-inference. 
+
+An increasing priority in Bayesian modelling is to make inference accessible and implementable for practitioners,
+without their requiring specialist expertise in Bayesian inference. This
+is a goal sought in probabistic programming languages \citep{WinGooStuSis11,GooManRoyBonTen08}, 
+as well as in more granular, component-based procedures \citep{DuvLloGroetal13,GroSalFreTen12} and
+systems \citep{SDT2014,Minka2014}. In all cases, the user
+should be able to freely specify what they wish their model to express,
+without having to deal with the complexities of sampling, variational
+approximation, or distribution conjugacy.  In reality, however, model convenience and
+simplicity can  limit
+or undermine intended models, sometimes in ways the users
+might not expect. To take one example, the inverted Gamma prior, which is a convenient
+conjugate prior for the standard deviation, has quite pathological behaviour  \citep{Gelman2006}.
+In general, more expressive, freely chosen models are more likely
+to require expensive sampling or quadrature approaches, which can make
+them challenging to implement or impractical to run.
+
+We address the particular setting of expectation propagation \citep{Minka2001}, a message
+passing algorithm wherein messages are confined to being members of a particular parametric
+family. The process of integrating incoming messages over a factor potential, and projecting the result onto the
+required output family, can be difficult, and in some cases not achieveable in closed form.
+Thus, a number of approaches have been proposed to implement EP updates numerically, independent
+of the details of the factor potential being used.  One approach, due to
+\citet{Barthelme2011}, is to compute the message update via importance sampling.
+While these estimates converge to the desired integrals for sufficient samples, the sampling procedure must be run at every iteration during inference,
+hence  it is not viable for large-scale problems.
+
+An improvement on this approach is to use importance sampled instances of input/output
+message pairs to train a regression algorithm, which can then be used in place of the sampler.
+The approach of \citet{Heess2013} uses neural networks to learn the mapping from incoming
+to outgoing messages. The mappings learned performed well on a variety of practical problems,
+however this approach comes with a disadvantage: it requires training data
+that cover the entire set of possible input messages for a given type of problem,
+and it has no way of assessing the uncertainty of its predictions (or of updating
+the model online in the event that a prediction is uncertain). This can be a problem
+if it is desired to learn a message operator for a broad class of problems:
+to illustrate, if the goal is to do logistic regression, we would need to see
+during training a set of representative messages for all classification problems
+the user proposes to solve.
+
+The disadvantages of the neural network approach were the basis for work by
+\cite{Eslami2014}, who replaced the neural networks with random forests.
+The random forests were updated online when messages were observed on which
+the predictor was uncertain, where uncertainty was estimated via
+the heuristic of looking at the variability of the forest predictions for each point \citep{CriSho13}.
+The online updates were made by splitting the trees at their
+leaves.
+Both of these aspects are problematic, however. First, the heuristic
+used in computing uncertainty has no guarantees: indeed, uncertainty estimation for
+random forests remains a challenging topic of current research \cite{Hutter2009}. This is not merely a theoretical
+consideration: in our experiments in Section \ref{sec:Experiments}, we demonstrate that such
+uncertainty estimates become unstable and inaccurate as we move away from the initial
+training data. Second, online updates of random forests may not work well
+when the newly observed data is from a very different distribution to the
+initial training sample \citep[e.g.][Fig. 3]{LakRoyTeh14}. Indeed, for large amounts of training set drift, the
+leaf-splitting approach of Elsami et al. can result in a decision tree which is a long chain, giving a worst case
+cost of prediction of $O(n)$ for training data of size $n$, vs the ideal of $O(\log(n))$
+for balanced trees.
+
+% AG: costs of GP are in paper ``Fast Gaussian Process Regression using KD-Trees'', which gives
+% yet another way to speed up GP prediction.
+
+We propose a novel, kernel-based approach to learning a message operator noparametrically
+for expectation propagation. The learning algorithm takes the form of a distribution regression
+problem, where the inputs are probabilty measures (represented as embeddings of the distributions to an RKHS), and the outputs are vectors of message
+parameters \citep{Szabo2014}.
+A first advantage of this approach is that one does not need to pre-specify customized features
+of the distributions, as in \citep{Eslami2014,Heess2013}. Rather, 
+we use a general characteristic kernel on input distributions 
+\citep[eq. 9]{ChristmannSteinwart10}, which in our experiments gives better performance than customized features.
+A potential downside of the kernel approach is that it can be computationally
+costly, with training time of $O(n^3)$ and a cost of $O(n)$ to make a prediction. 
+We address this problem by regressing directly in the primal from random features of the data \citep{Rahimi2007,Le2013,YanSmoZonWil14}.
+We generalize this random feature representation to the case where the
+the inputs are distributions, via a novel two-level random feature approach.
+This gives us both fast prediction (linear in the number of
+random features), and fast online updates (square in the number of random features).
+
+A second advantage of our approach is that, being an instance of Gaussian process
+regression, there are well established estimates of predictive uncertainty \citep[Ch. 2]{RasWil06}.
+We use these uncertainty estimates so as to determine when to query the importance sampler
+for additional input/output pairs. This is especially crucial if the message
+operator is being trained on multiple different datasets, where the typical input messages
+observed can be very different, and new training data are required.
+We demonstrate empirically that when the input messge distributions are significantly different from
+the initial training data, 
+the uncertainty estimates returned for the kernel regression remain robust and informative,
+whereas those for random forests are highly unstable.
+
+
+
+Our paper proceeds as follows. In Section \ref{sec:EP}, we introduce the notation for expectation propagation,
+and indicate how an importance sampling procedure can be used as an oracle to provide
+``gold standard'' training data for the message operator (albeit at
+significant computational cost).
+We also give a brief overview of previous learning approaches to the problem, with a focus on
+that of \citet{Eslami2014}, with brief details on the random forest regression,  uncertainty computation
+procedure, and  overall  computational cost.
+Next, in Section \ref{sec:Online}, we describe our kernel regression approach, and
+the form of the kernel message operator mapping the input messages (probability distributions in an
+RKHS) to output messages (sets of parameters of the outgoing messages), along with their uncertainty estimates.
+For the purposes of fast and efficient representation, we provide a novel random feature-based implementation
+for regression with distribution-valued inputs, which may be of independent interest.%: this has two layers, since features of the distribution
+%embeddings are fed into features of the kernel on the embeddings.
+Finally, in Section \ref{sec:Experiments}, we describe our experiments, which cover three topics. First, we show that our
+uncertainty esimates are much more reliable than those obtained for random forests, hence more
+useful in determining when to request additional training message pairs from the oracle.
+Second, we demonstrate our method on artificial data with well-controlled statistical properties:
+ we quickly learn the EP factor for logistic regression with high confidence,
+ at a cost far lower than the importance sampling; and for the compound Gamma prior, again much faster than the
+ quadrature implementation in Infer.net. Finally, we establish that our method
+ is genuinely adaptive:
+ we perform logistic regression on four different real-world datasets, updating our
+ message operator as new datasets are made available, and the uncertainty over the resulting
+  input
+ messages increases.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
 
 % \wjnote{add some text to link to ridge regression. Then...}
 % By virtue of the primal form, it is straightforward to derive an update
@@ -183,16 +279,6 @@ inference.
 % an appropriate distribution was one of the unsolved problems in \cite{Heess2013}. 
 
 
-Our paper is structured as follows: In section \ref{sec:EP} we briefly review 
-the notion of message passing for approximate inference and, in particular, 
-the expectation propagation (EP) algorithm which is the basis of our work. 
-We then describe how approximate EP can be performed using Monte Carlo 
-estimates of the message, in the case when message updates cannot be 
-computed analytically. In section \ref{sec:Online} we describe how this 
-approximation technique can be improved with an online learning framework 
-that effectively remembers previously computed approximate updates and we 
-propose a novel kernel-based regression technique for this approach.
-
 \section{Background}
 
 
@@ -202,11 +288,14 @@ As is common in the message passing community we assume that distributions (or d
 \begin{equation}
 p(\bx) = \frac{1}{Z} \prod_{j=1}^J \factor_j(\fx{\factor_j}).
 \end{equation}
-Here $\factor_j$, the "factors", are non-negative functions which are defined over subsets of the variables $\fx{\factor_j}$, i.e.\ the neighbors of the factor node $\factor_j$ in the factor graph (we use $\fis{\factor_j}$ to denote the set indices of the variables of factor $\factor_j$). $Z$ is the normalization constant. In this work we focus on \textit{directed} factors $\factor(\xout | \xin)$ which specify a conditional distribution over variables $\xout$ given $\xin$ (and $\fx{\factor} = (\xout, \xin))$.
+The factors $\factor_j$ are non-negative functions which are defined over subsets $\fx{\factor_j}$ of the full set of variables $\bx$. These variables form the neighbors of the factor node $\factor_j$ in the factor graph, and we use $\fis{\factor_j}$ to denote the corresponding set of indices. $Z$ is the normalization constant. 
+
+In this work we are specifically interested in dealing with models in which some of the factors have a non-standard form, or may not have a known analytic expression be known (i.e.\ "black box" factors). Although our approach applies to any such factor in principle, in this paper we focus on \textit{directed} factors $\factor(\xout | \xin)$ which specify a conditional distribution over variables $\xout$ given $\xin$ (and thus $\fx{\factor} = (\xout, \xin))$. The only assumption we make is that we are provided with a forward sampling function $f: \xin \mapsto \xout$, i.e. a function that maps (stochastically or deterministically) a setting of the input variables $\xin$ to a sample from the conditional distribution over $\xout \sim \factor(\cdot| \xin)$. One very natural way of specifying $f$ is a short piece of code in a probabilistic program.
 
 %--------------------------------------------------------------------
 
 \subsection{Message passing EP}
+\label{sec:EP:MP}
 
 The belief propagation - or sum-product algorithm - computes marginal distributions over subsets of variables by iteratively passing messages between variables and factors, ensuring consistency of the obtained marginals at convergence. Specifically, the messages sent from a factor $\factor$ to variable $x_i$ (where $i \in \fis{\factor}$) are computed as
 \begin{equation}
@@ -235,17 +324,35 @@ where $\projP{p} = \argmin{q \in \mathcal{Q}} \kld{p}{q}$, and $\mathcal{Q}$ is 
 %--------------------------------------------------------------------
 
 \subsection{Monte-Carlo message approximation}
-While EP introduces an approximation that allows message passing to proceed when the messages are not easily representable in closed form, computing \textit{the numerator} of (\ref{eq:msgPassing:EP}) is often a challenging problem in itself as it requires evaluating a high-dimensional integral as well as minimization of the Kullback-Leibler divergence to some non-standard distribution. For non-trivial factors this either requires a hand-crafted approximation (references!) or, for instance, the use of expensive numerical integration techniques, significantly limiting the ease with which EP can be applied and its scope in practice. 
+\label{sec:EP:MC}
 
-However, while deterministic approximations to (\ref{eq:msgPassing:EP}) may be hard to come by, \cite{Barthelme2011,Heess2013,Eslami2014} exploit an alternative, stochastic approximation. In general, the projection $\projP{\cdot}$ of $p$ onto some member of the exponential family corresponds to matching the relevant moments of $p$, e.g.\ its mean and variance, if $q$ is required to be a Gaussian distribution. Thus, projecting $p$ onto a general member of the exponential family, $q(x|\eta)=h(\theta)\exp\left(\eta^{\top}u(x)-A(\eta)\right)$ with a vector of sufficient statistics $u$ and natural parameters $\eta$ requires us to compute the expectation of $u(\cdot)$ under the numerator of \ref{eq:msgPassing:EP}).
+By projecting messages onto simple parametric forms, EP introduces an approximation that allows message passing to proceed when the true messages are not easily representable in closed form.
+Computing \textit{the numerator} of (\ref{eq:msgPassing:EP}) remains, however, a challenging problem in itself as it requires evaluating a high-dimensional integral as well as minimization of the Kullback-Leibler divergence to some non-standard distribution. For non-trivial factors with known analytic form this often requires hand-crafted approximations \cite{XYZ} or, for instance, the use of expensive numerical integration techniques; for "black-box" factors as described above (sec.\ \ref{sec:EP}) it is entirely unclear how to proceed. 
 
-A sample based approximation of this expectation can, in general, obtained via MCMC. One especially simple approach is importance sampling:
+%For such factors the only assumption we make is that we are provided with a forward sampling function $f: \xin \mapsto \xout$, i.e. a function that maps (stochastically or deterministically) a setting of the input variables $\xin$ to a sample from the conditional distribution over $\xout \sim \factor(\cdot| \xin)$. Such a function may, for instance, be
+
+This significantly limits the ease with which EP can be applied and its scope in practice. 
+%However, while deterministic approximations to (\ref{eq:msgPassing:EP}) may be hard to come by,
+Motivated by these shortcomings \cite{Barthelme2011,Heess2013,Eslami2014} exploit an alternative, stochastic approximation: In general, the projection $\projP{\cdot}$ of $p$ onto some member of the exponential family corresponds to matching the relevant moments of $p$, e.g.\ its mean and variance, if $q$ is required to be a Gaussian distribution. Thus, projecting $p$ onto a general member of the exponential family, $q(x|\eta)=h(\theta)\exp\left(\eta^{\top}u(x)-A(\eta)\right)$ with a vector of sufficient statistics $u$ and natural parameters $\eta$ requires us to compute the expectation of $u(\cdot)$ under the numerator of \ref{eq:msgPassing:EP}).
+
+A sample based approximation of this expectation can, in general, obtained via MCMC. Given a forward-sampling function $f$ as described above, one especially simple approach is importance sampling:
 \begin{align}
 \expectationE{u(x)}{\fx{\factor}\sim b }
 &\approx \frac{1}{N} \sum_{l=1}^N w(\fx{\factor}^l) u(x_i^l),~~~~\fx{\factor}^s \sim \tilde{b}
 \label{eq:msgIS}
 \end{align}
-where, on the left hand side, $b(\fx{\factor}) = \factor (\fx{\factor}) \prod_{i \in \fis{\factor}} \msg{i}{\factor}(x_{i})$. On the right hand side we draw samples $\fx{\factor}^l$ from some proposal distribution $\tilde{b}$ which we choose to be $\tilde{b}(\fx{\factor}) = r(\xin)\factor(\xout | \xin)$ for some $r$ with appropriate support, and compute importance weights $w(\fx{\factor}) = \frac{\prod_{i \in \fis{\factor}} \msg{i}{\factor}(x_{i})}{r(\xin)}$.
+where, on the left hand side, 
+\begin{equation}
+b(\fx{\factor}) = \factor (\fx{\factor}) \prod_{i \in \fis{\factor}} \msg{i}{\factor}(x_{i}). 
+\end{equation}
+On the right hand side we draw samples $\fx{\factor}^l$ from some proposal distribution $\tilde{b}$ which we choose to be 
+\begin{equation}
+\tilde{b}(\fx{\factor}) = r(\xin)\factor(\xout | \xin)
+\end{equation}
+for some $r$ with appropriate support, and compute importance weights 
+\begin{equation}
+w(\fx{\factor}) = \frac{\prod_{i \in \fis{\factor}} \msg{i}{\factor}(x_{i})}{r(\xin)}.
+\end{equation}
 
 The thus estimated expected sufficient statistics provide us with an estimate of the parameters $\eta$ of the result $q$ of the projection $\projP{p}$, from which the message is readily computed.
 
@@ -253,8 +360,9 @@ The thus estimated expected sufficient statistics provide us with an estimate of
 %--------------------------------------------------------------------
 
 \subsection{Just-in-time learning of messages}
+\label{sec:EP:JIT}
 
-Message approximations as in the previous section could be used directly when running the EP algorithm as in \cite{Barthelme2011}, but this approach can suffer from the unreliability of the importance sampling estimates when the number of samples $N$ is small. On the other hand, for large $N$ the computational cost of running EP with approximate messages can be very high, as the message approximations have to be re-computed in each iteration of EP. To obtain low-variance message approximations at lower computational cost \cite{Heess2013,Eslami2014} both amortize previously computed approximate messages by training a function approximator to directly map a tuple of incoming variable-to-factor messages $(\msg{i'}{\factor} )_{i' \in \fis{\factor}}$ to an approximate factor to variable message $\msg{\factor}{i}$, i.e.\ they learn a mapping
+Message approximations as in the previous section could be used directly when running the EP algorithm as in \cite{Barthelme2011}, but this approach can suffer from the unreliability of the importance sampling estimates when the number of samples $N$ is not very large. On the other hand, for large $N$ the computational cost of running EP with approximate messages can be very high, as the message approximations have to be re-computed in each iteration of EP. To obtain low-variance message approximations at lower computational cost \cite{Heess2013,Eslami2014} both amortize previously computed approximate messages by training a function approximator to directly map a tuple of incoming variable-to-factor messages $(\msg{i'}{\factor} )_{i' \in \fis{\factor}}$ to an approximate factor to variable message $\msg{\factor}{i}$, i.e.\ they learn a mapping
 \begin{equation}
 \approxMsg{\factor}{i}{\theta}: (\msg{i'}{\factor} )_{i' \in \fis{\factor}} \mapsto \msg{\factor}{i},
 \end{equation}
@@ -267,120 +375,115 @@ While \cite{Heess2013} use neural networks and a very large, fixed training set 
 where $u$ indicates the expected unreliability  of the predicted, approximate message $\msg{\factor}{i}$ returned by $\approxMsg{\factor}{i}{\theta}$. If $u = \uncertaintyMsg{\factor}{i}{\theta} \left( (\msg{i'}{\factor} )_{i' \in \fis{\factor}}\right)$ exceeds a pre-defined threshold, the required message is approximated via importance sampling (cf.\ eq.\ \ref{eq:msgIS}) and $\approxMsg{\factor}{i}{\theta}$ is re-trained on this new datapoint (leading to a new set of parameters  $\theta'$ with $\uncertaintyMsg{\factor}{i}{\theta'} \left( (\msg{i'}{\factor} )_{i' \in \fis{\factor}}\right)) < \uncertaintyMsg{\factor}{i}{\theta} \left( (\msg{i'}{\factor} )_{i' \in \fis{\factor}}\right)$.
 
 The just-in-time approach of \cite{Eslami2014} critically relies on two properties of the class of function approximators used to represent $\approxMsg{\factor}{i}{\theta}$: they need to provide  (un)reliability estimates $\uncertaintyMsg{\factor}{i}{\theta}$ over their domain, and they need to allow for online learning. \cite{Eslami2014} use decision trees. [ These do fulfill both criteria, however, only when resorting to unprincipled heuristics. In the next section we present a framework based on kernel mean embeddings which possesses the desired properties and achieves this in a principled manner. ]
+\nhnote{Ali: if you could fill in some sentences describing, at a high level, online learning and uncertainty estimates in trees to justify the claim that these are heuristics/can be improved upon, that would be great. Also, we may want to move the computational complexity of tree operations here.}
 
 
-%\begin{comment}
- 
-\section{Expectation Propagation (EP)\label{sec:Expectation-Propagation-(EP)}}
-\wjnote{The content in this section was largely described in the previous two.
-We may remove this section.}
 
-Expectation propagation \citep{Minka2001,Bishop2006} (EP) is a commonly
-used approximate inference method for inferring the posterior distribution
-of latent variables given observations. 
+%---------------------------------------------------------------------------
+% NH: commented out the text below because it's effectively contained in section 2
+
+%\section{Expectation Propagation (EP)\label{sec:Expectation-Propagation-(EP)}}
+%\wjnote{The content in this section was largely described in the previous two.
+%We may remove this section.}
 %
-\begin{comment}
-In a typical directed graphical
-model, the joint distribution of the data $X=\left\{ X_{1},\ldots,X_{n}\right\} $
-and latent variables $\theta=\left\{ \theta_{1},\ldots,\theta_{t}\right\} $
-takes the form of a product of factors, $p(X,\theta)=\prod_{i=1}^{m}f_{i}(X|\theta)$
-where each factor $f_{i}$ may depend on only a subset of $X$ and
-$\theta$. With $X$ observed, EP approximates the posterior with
-$q(\theta)\propto\prod_{i=1}^{m}m_{f_{i}\rightarrow\theta}(\theta)$
-where $m_{f_{i}\rightarrow\theta}$ is an approximate factor corresponding
-to $f_{i}$ with the constraint that it has a chosen parametric form
-(e.g., Gaussian) in the exponential family (ExpFam). EP takes into
-account the fact that the final quantity of interest is the posterior
-$q(\theta)$ which is given by the product of all approximate factors.
-In finding the $i^{th}$ approximate factor $m_{f_{i}\rightarrow\theta}$,
-EP uses other approximate factors $m_{\theta\rightarrow f_{i}}(\theta):=\prod_{j\neq i}m_{f_{j}\rightarrow\theta}(\theta)$
-as a context to determine the plausible range of $\theta$. EP iteratively
-refines $m_{f_{i}\rightarrow\theta}$ for each $i$ with \wjnote{No need to mention this special-case msg.}$m_{f_{i}\rightarrow\theta}(\theta)=\frac{\text{proj}\left[\int dX\, f(X|\theta)m_{X\rightarrow f_{i}}(X)m_{\theta\rightarrow f_{i}}(\theta)\right]}{m_{\theta\rightarrow f_{i}}(\theta)}$
-where $\text{proj}\left[r\right]=\arg\min_{q\in\text{ExpFam}}\text{KL}\left[r\,\|\, q\right]$
-and $m_{X\rightarrow f_{i}}(X):=\delta(X-X_{0})$ if $X$ is observed
-to be $X_{0}$. In the EP literature, $m_{\theta\rightarrow f_{i}}$
-is known as a cavity distribution. \aenote{AE: Too many inline equations.} 
-
-The projection can be carried out by the following moment matching
-procedure. Assume an ExpFam distribution $q(\theta|\eta)=h(\theta)\exp\left(\eta^{\top}u(\theta)-A(\eta)\right)$
-where $u(\theta)$ is the sufficient statistic\textbf{ }of $q$, $\eta$
-is the natural parameter and $A(\eta)=\log\int d\theta\, h(\theta)\exp\left(\eta^{\top}u(\theta)\right)$
-is the log-partition function. It can be shown that $q^{*}=\text{proj}\left[r\right]$
-satisfies $\mathbb{E}_{q^{*}(\theta)}\left[u(\theta)\right]=\mathbb{E}_{r(\theta)}\left[u(\theta)\right].$
-That is, the projection of $r$ onto ExpFam is given by $q^{*}\in\text{ExpFam}$
-that has the same moment parameters as the moments under $r$. 
-
-\wjnote{Should jump to this general msg from the beginning.}
-\end{comment}
-Under an approximation that each factor fully factorizes, an EP message
-from a factor $f$ to a variable $V$ takes the form 
-\begin{align}
-m_{f\rightarrow V}(v) & =\frac{\text{proj}\left[\int d\mathcal{V}\backslash\{v\}\, f(\mathcal{V})\prod_{V'\in\mathcal{V}}m_{V'\rightarrow f}(v')\right]}{m_{V\rightarrow f}(v)}\nonumber \\
- & :=\frac{\text{proj}\left[r_{f\rightarrow V}(v)\right]}{m_{V\rightarrow f}(v)}:=\frac{q_{f\rightarrow V}(v)}{m_{V\rightarrow f}(v)}\label{eq:general_ep_msg}
-\end{align}
-where $\mathcal{V}=\mathcal{V}(f)$ is the set of variables connected
-to $f$ in the factor graph. In the previous case of $m_{f_{i}\rightarrow\theta}$,
-we have $\mathcal{V}(f)=\left\{ X,\theta\right\} $ and $V$ in Eq.
-\ref{eq:general_ep_msg} corresponds to $\theta$. Typically, when
-the factor $f$ is complicated, the integral defining $r_{f\rightarrow V}$
-becomes intractable. Quadrature rules or other numerical integration
-techniques are often applied to approximate the integral \cite{Zoeter2005,Barthelme2011}. 
-
+%Expectation propagation \citep{Minka2001,Bishop2006} (EP) is a commonly
+%used approximate inference method for inferring the posterior distribution
+%of latent variables given observations. 
+%%
+%%\begin{comment}
+%%In a typical directed graphical
+%%model, the joint distribution of the data $X=\left\{ X_{1},\ldots,X_{n}\right\} $
+%%and latent variables $\theta=\left\{ \theta_{1},\ldots,\theta_{t}\right\} $
+%%takes the form of a product of factors, $p(X,\theta)=\prod_{i=1}^{m}f_{i}(X|\theta)$
+%%where each factor $f_{i}$ may depend on only a subset of $X$ and
+%%$\theta$. With $X$ observed, EP approximates the posterior with
+%%$q(\theta)\propto\prod_{i=1}^{m}m_{f_{i}\rightarrow\theta}(\theta)$
+%%where $m_{f_{i}\rightarrow\theta}$ is an approximate factor corresponding
+%%to $f_{i}$ with the constraint that it has a chosen parametric form
+%%(e.g., Gaussian) in the exponential family (ExpFam). EP takes into
+%%account the fact that the final quantity of interest is the posterior
+%%$q(\theta)$ which is given by the product of all approximate factors.
+%%In finding the $i^{th}$ approximate factor $m_{f_{i}\rightarrow\theta}$,
+%%EP uses other approximate factors $m_{\theta\rightarrow f_{i}}(\theta):=\prod_{j\neq i}m_{f_{j}\rightarrow\theta}(\theta)$
+%%as a context to determine the plausible range of $\theta$. EP iteratively
+%%refines $m_{f_{i}\rightarrow\theta}$ for each $i$ with \wjnote{No need to mention this special-case msg.}$m_{f_{i}\rightarrow\theta}(\theta)=\frac{\text{proj}\left[\int dX\, f(X|\theta)m_{X\rightarrow f_{i}}(X)m_{\theta\rightarrow f_{i}}(\theta)\right]}{m_{\theta\rightarrow f_{i}}(\theta)}$
+%%where $\text{proj}\left[r\right]=\arg\min_{q\in\text{ExpFam}}\text{KL}\left[r\,\|\, q\right]$
+%%and $m_{X\rightarrow f_{i}}(X):=\delta(X-X_{0})$ if $X$ is observed
+%%to be $X_{0}$. In the EP literature, $m_{\theta\rightarrow f_{i}}$
+%%is known as a cavity distribution. \aenote{AE: Too many inline equations.} 
+%%
+%%The projection can be carried out by the following moment matching
+%%procedure. Assume an ExpFam distribution $q(\theta|\eta)=h(\theta)\exp\left(\eta^{\top}u(\theta)-A(\eta)\right)$
+%%where $u(\theta)$ is the sufficient statistic\textbf{ }of $q$, $\eta$
+%%is the natural parameter and $A(\eta)=\log\int d\theta\, h(\theta)\exp\left(\eta^{\top}u(\theta)\right)$
+%%is the log-partition function. It can be shown that $q^{*}=\text{proj}\left[r\right]$
+%%satisfies $\mathbb{E}_{q^{*}(\theta)}\left[u(\theta)\right]=\mathbb{E}_{r(\theta)}\left[u(\theta)\right].$
+%%That is, the projection of $r$ onto ExpFam is given by $q^{*}\in\text{ExpFam}$
+%%that has the same moment parameters as the moments under $r$. 
+%%
+%%\wjnote{Should jump to this general msg from the beginning.}
+%%\end{comment}
+%
+%Under an approximation that each factor fully factorizes, an EP message
+%from a factor $f$ to a variable $V$ takes the form 
+%\begin{align}
+%m_{f\rightarrow V}(v) & =\frac{\text{proj}\left[\int d\mathcal{V}\backslash\{v\}\, f(\mathcal{V})\prod_{V'\in\mathcal{V}}m_{V'\rightarrow f}(v')\right]}{m_{V\rightarrow f}(v)}\nonumber \\
+% & :=\frac{\text{proj}\left[r_{f\rightarrow V}(v)\right]}{m_{V\rightarrow f}(v)}:=\frac{q_{f\rightarrow V}(v)}{m_{V\rightarrow f}(v)}\label{eq:general_ep_msg}
+%\end{align}
+%where $\mathcal{V}=\mathcal{V}(f)$ is the set of variables connected
+%to $f$ in the factor graph. In the previous case of $m_{f_{i}\rightarrow\theta}$,
+%we have $\mathcal{V}(f)=\left\{ X,\theta\right\} $ and $V$ in Eq.
+%\ref{eq:general_ep_msg} corresponds to $\theta$. Typically, when
+%the factor $f$ is complicated, the integral defining $r_{f\rightarrow V}$
+%becomes intractable. Quadrature rules or other numerical integration
+%techniques are often applied to approximate the integral. \aenote{AE: This is the main point we want to get accross. Either needs more emphasis or should be mentioned sooner.}
+%
+%
+%
+%\section{Learning to Pass EP Messages\label{sec:Learning-to-Pass}}
+%
+%Our goal is to learn a message operator $C_{f\rightarrow V'}$ with
+%signature $\left[m_{V\rightarrow f}\right]_{V\in\mathcal{V}(f)}\mapsto q_{f\rightarrow V'}$
+%which takes in all incoming messages $\left\{ m_{V\rightarrow f}\mid V\in\mathcal{V}(f)\right\} $
+%and outputs $q_{f\rightarrow V'}(v')$ i.e., the numerator of Eq.
+%\ref{eq:general_ep_msg}. For inference, we require one such operator
+%for each recipient variable $V'\in\mathcal{V}(f)$ i.e., in total
+%$|\mathcal{V}(f)|$ operators need to be learned for $f$. Operator
+%learning is cast as a distribution-to-distribution regression problem
+%where the training set $S_{V'}:=\{([m_{V\rightarrow f}^{n}]_{V\in\mathcal{V}(f)},q_{f\rightarrow V'}^{n})\}_{n=1}^{N}$containing
+%$N$ incoming-outgoing message pairs can be generated as in \cite{Heess2013,Eslami2014}
+%by importance sampling to compute the mean parameters $\mathbb{E}_{r_{f\rightarrow V'}(v')}\left[u(v')\right]$
+%for moment matching. In principle, the importance sampling itself
+%can be used in EP for computing outgoing messages \citep{Barthelme2011}.
+%The scheme is, however, expensive as we need to draw a large number
+%of samples for each outgoing message to be sent. In our case, the
+%importance sampling is used for data set generation which is done
+%offline before the actual inference.
+%
+%The assumptions needed for the generation of a training set are as
+%follows. First, we assume the factor $f$ takes the form of a
+%conditional distribution $f(v_{1}|v_{2},\ldots,v_{|\mathcal{V}(f)|})$.
+%Second, given $v_{2},\ldots,v_{|\mathcal{V}(f)|}$, $v_{1}$ can
+%be sampled from $f(\cdot|v_{2},\ldots,v_{|\mathcal{V}(f)|})$. 
+%The ability to evaluate $f$ is not assumed. 
+%In contrast to \cite{Heess2013}, we do not assume that a distribution on the natural parameters of all incoming messages is available. \wjnote{because we use onlne-active learning... More text here.}
+%
+%%Finally we assume that a distribution on the natural parameters of all incoming messages $\left\{ m_{V\rightarrow f}\right\} _{V\in\mathcal{V}(f)}$
+%%is available. The distribution is used solely to give a rough idea
+%%of incoming messages the learned operator will encounter during the
+%%actual EP inference. In practice, we only need to ensure that the
+%%distribution sufficiently covers the relevant region in the space
+%%of incoming messages. 
+%%\aenote{AE: This sentence needs reworking now that you only train on messages observed in the model.}
+%
+%
 %\end{comment}
-
-\section{Learning to Pass EP Messages\label{sec:Learning-to-Pass}}
-
-Our goal is to learn a message operator $C_{f\rightarrow V'}$ with
-signature $\left[m_{V\rightarrow f}\right]_{V\in\mathcal{V}(f)}\mapsto q_{f\rightarrow V'}$
-which takes in all incoming messages $\left\{ m_{V\rightarrow f}\mid V\in\mathcal{V}(f)\right\} $
-and outputs $q_{f\rightarrow V'}(v')$ i.e., the numerator of Eq.
-\ref{eq:general_ep_msg}. For inference, we require one such operator
-for each recipient variable $V'\in\mathcal{V}(f)$ i.e., in total
-$|\mathcal{V}(f)|$ operators need to be learned for $f$. Operator
-learning is cast as a distribution-to-distribution regression problem
-where the training set $S_{V'}:=\{([m_{V\rightarrow f}^{n}]_{V\in\mathcal{V}(f)},q_{f\rightarrow V'}^{n})\}_{n=1}^{N}$containing    
-$N$ incoming-outgoing message pairs can be generated as in \cite{Heess2013,Eslami2014}
-by importance sampling to compute the mean parameters $\mathbb{E}_{r_{f\rightarrow V'}(v')}\left[u(v')\right]$
-for moment matching. In principle, the importance sampling itself
-can be used in EP for computing outgoing messages \citep{Barthelme2011}.
-The scheme is, however, expensive as we need to draw a large number
-of samples for each outgoing message to be sent. In our case, the
-importance sampling is used for data set generation which is done
-offline before the actual inference.
-
-The assumptions needed for the generation of a training set are as
-follows. First, we assume the factor $f$ takes the form of a
-conditional distribution $f(v_{1}|v_{2},\ldots,v_{|\mathcal{V}(f)|})$.
-Second, given $v_{2},\ldots,v_{|\mathcal{V}(f)|}$, $v_{1}$ can
-be sampled from $f(\cdot|v_{2},\ldots,v_{|\mathcal{V}(f)|})$. 
-The ability to evaluate $f$ is not assumed. 
-In contrast to \cite{Heess2013}, we do not assume that a distribution on the natural parameters of all incoming messages is available. \wjnote{because we use onlne-active learning... More text here.}
-
-%Finally we assume that a distribution on the natural parameters of all incoming messages $\left\{ m_{V\rightarrow f}\right\} _{V\in\mathcal{V}(f)}$
-%is available. The distribution is used solely to give a rough idea
-%of incoming messages the learned operator will encounter during the
-%actual EP inference. In practice, we only need to ensure that the
-%distribution sufficiently covers the relevant region in the space
-%of incoming messages. 
-%\aenote{AE: This sentence needs reworking now that you only train on messages observed in the model.}
-
-In recent years, there have been a number of works on the regression
-task with distributional inputs, including \cite{Poczos2013,Szabo2014}
-which mainly focus on the non-parametric case and are operated under
-the assumption that the samples from the distributions are observed
-but not the distributions themselves. In our case, the distributions
-(messages) are directly observed. Moreover, since the distributions
-are in ExpFam, they can be characterized by a finite-dimensional natural
-parameter vector or expected sufficient statistic. Hence, we can simplify
-our task to distribution-to-vector regression where the output vector
-contains a finite number of moments sufficient to characterize $q_{f\rightarrow V'}$.
-As regression input distributions are in ExpFam, one can also treat
-the task as vector-to-vector regression. However, seeing the inputs
-as distributions allows one to use kernels on distributions which
-are invariant to parametrization.
+%---------------------------------------------------------------------------
 
 
-\section{Proposed Method}
+
+
+\section{Proposed Method}\label{sec:ADD}
 
 In principle, any distribution-to-vector regression function can be applied to learn a message operator $C_{f\rightarrow V'}$, once the training set $S_{V'}$ is obtained.
 Given incoming messages, the operator outputs $q_{f\rightarrow V'}$
