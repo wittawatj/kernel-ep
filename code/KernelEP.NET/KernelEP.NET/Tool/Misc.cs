@@ -59,9 +59,11 @@ namespace KernelEP{
 		public static List<double> ToDouble(List<long> list){
 			return list.Select(v => (double)v).ToList();
 		}
+
 		public static double[] ToDoubleArray(int[] arr){
 			return arr.Select(v => (double)v).ToArray();
 		}
+
 
 		public static bool IsAllPositive(double[] nums){
 			// True of if all elements are > 0
@@ -224,6 +226,16 @@ namespace KernelEP{
 			return mat;
 		}
 
+		public static Vector[] SplitColumns(Matrix mat){
+			int n = mat.Cols;
+			Vector[] cols = new Vector[n];
+			for(int i = 0; i < n; i++){
+				double[] colArr = mat.GetColumn(i);
+				cols[i] = Vector.FromArray(colArr);
+			}
+			return cols;
+		}
+
 		public static Matrix StackColumns(List<double[]> cols){
 			if(cols.Count == 0){
 				return new Matrix(0,0);
@@ -295,7 +307,7 @@ namespace KernelEP{
 			if(a.Length != b.Length){
 				throw new ArgumentException("a and b must have the same length.");
 			}
-			for(int i=0; i<a.Length; i++){
+			for(int i = 0; i < a.Length; i++){
 				if(a[i] < b[i]){
 					return false;
 				}
@@ -310,7 +322,7 @@ namespace KernelEP{
 			if(a.Length != b.Length){
 				throw new ArgumentException("a and b must have the same length.");
 			}
-			for(int i=0; i<a.Length; i++){
+			for(int i = 0; i < a.Length; i++){
 				if(a[i] >= b[i]){
 					return true;
 				}

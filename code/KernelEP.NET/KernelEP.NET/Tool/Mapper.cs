@@ -129,9 +129,9 @@ namespace KernelEP.Tool{
 		protected bool WillNeedInitialTrain = true;
 
 		/**Number of inner features to use for prediction*/
-		public int InnerFeatures = 300;
+		public int InnerFeatures = 400;
 		/**Number of outer features to use for prediction*/
-		public int OuterFeatures = 500;
+		public int OuterFeatures = 800;
 
 		/**Number of inner features to use for initial parameter selection.*/
 		public int MinibatchInnerFeatures = 300;
@@ -333,11 +333,12 @@ namespace KernelEP.Tool{
 
 			// TODO: full cross validation later.
 			// For now, we will use median heuristic to set the parameter.
-			int[] inOutNumFeatures = { this.MinibatchInnerFeatures, this.MinibatchOuterFeatures };
+//			int[] inOutNumFeatures = { this.MinibatchInnerFeatures, this.MinibatchOuterFeatures };
+			int[] inOutNumFeatures = { this.InnerFeatures, this.OuterFeatures };
 //			int[] inOutNumFeatures = { 200, 400 };
 //			int[] inOutNumFeatures = {400, 700};
 //			int[] inOutNumFeatures = {50, 50};
-			double[] medianFactors = { 0.5 };
+			double[] medianFactors = { 0.1};
 			Random rng = new Random(1);
 			List<IKEPDist[]> inputs = this.batchInputs;
 			List<RandomFeatureMap> candidates = featureMap.GenCandidates(

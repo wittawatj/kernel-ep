@@ -52,6 +52,20 @@ namespace KernelEP.Tool{
 			this.onlineBayes = onlineBayes;
 		}
 			
+		public void SetFeatures(int[] numFeatures){
+			for(int i=0; i<onlineBayes.Length; i++){
+				onlineBayes[i].InnerFeatures = numFeatures[0];
+				onlineBayes[i].OuterFeatures = numFeatures[1];
+			}
+
+		}
+		public void SetMinibatchFeatures(int[] numFeatures){
+			for(int i=0; i<onlineBayes.Length; i++){
+				onlineBayes[i].MinibatchInnerFeatures = numFeatures[0];
+				onlineBayes[i].MinibatchOuterFeatures = numFeatures[1];
+			}
+
+		}
 
 		public override Vector MapToVector(params IKEPDist[] msgs){
 			double[] outputs = new double[onlineBayes.Length];
@@ -90,6 +104,14 @@ namespace KernelEP.Tool{
 			}
 			return un;
 		}
+
+		public void SetOnlineBatchSizeTrigger(int size){
+
+			for(int i=0; i<onlineBayes.Length; i++){
+				onlineBayes[i].SetOnlineBatchSizeTrigger(size);
+			}
+		}
+
 
 		/**Generate random feature vectors for all outputs. */
 		public Vector[] GenAllRandomFeatures(params IKEPDist[] dists){
@@ -274,6 +296,18 @@ namespace KernelEP.Tool{
 			return bayesSuffMappers.EstimateUncertainty(msgs);
 		}
 
+		public void SetOnlineBatchSizeTrigger(int size){
+			bayesSuffMappers.SetOnlineBatchSizeTrigger(size);
+		}
+
+		public void SetFeatures(int[] numFeatures){
+			bayesSuffMappers.SetFeatures(numFeatures);
+
+		}
+		public void SetMinibatchFeatures(int[] numFeatures){
+			bayesSuffMappers.SetMinibatchFeatures(numFeatures);
+
+		}
 
 //		public override bool IsUncertain(params IKEPDist[] msgs){
 //			return bayesSuffMappers.IsUncertain(msgs);
