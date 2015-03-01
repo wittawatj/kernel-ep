@@ -1094,10 +1094,12 @@ with a matrix given by the solution of the primal ridge regression.
 \onecolumn
 \appendix
 
-\begin{center}
-\textbf{\textcolor{black}{\LARGE{}Supplementary Materials }}
-\par\end{center}{\LARGE \par}
-
+% \begin{center}
+% \textbf{\textcolor{black}{\LARGE{}Supplementary Materials }}
+% \par\end{center}{\LARGE \par}
+%=========================================
+\section*{Supplementary Materials}
+%=========================================
 \todo[inline]{The following incoherent content needs to be rewritten. I just copied it from my notes. Some part will be moved to the main text.  }
 
 % \begin{figure}[t]
@@ -1120,7 +1122,7 @@ with a matrix given by the solution of the primal ridge regression.
 % \end{figure}
   
   
-\begin{figure}[t]
+\begin{figure}[h]
   \centering
 
   \includegraphics[width=5cm]{img/pred_var/fm_kgg_joint_-bw-out1-crop}
@@ -1131,11 +1133,99 @@ with a matrix given by the solution of the primal ridge regression.
 \end{figure}
   
 
-  
+%=========================================  
 \section{Performance of Different Kernels}
+%=========================================
+
+There are a number of kernels on distributions we may use for just-in-time learning.
+To find the most suitable kernel, we compare the performance of each on a 
+collection of incoming and output
+messages at the logistic factor in the binary logistic regression 
+All messages are collected by running EP 20 times on generated toy data. 
+Only messages in the first five iterations are considered as messages passed in 
+the early phase of EP vary more than in a near-convergence phase.
+The output to the regression is the belief messages i.e., the numerator of \eqref{eq:msgPassing:EP}. 
+
+A training set of 5000 messages and a test set of 3000 messages are obtained by 
+subsampling all the collected messages. 
+Where random features (denoted by RF) are used, kernel widths 
+and regularization parameters are chosen by leave-one-out cross validation.
+To get a good sense of approximation error from the random features, we also 
+compare with incomplete Cholesky factorization (denoted by IChol), a widely used 
+gram matrix approximation technique. We use repeated hold-out for parameter selection 
+and kernel ridge regression in its dual form when the incomplete Cholesky 
+factorization is used. 
+
+Let $f$ be the logistic factor and $m_{f\rightarrow i}$ be an outgoing message. 
+Let $q_{f\rightarrow i}$ be the groundtruth belief message (numerator) associated with 
+$m_{f\rightarrow i}$. The error metric we use is 
+$KL[q_{f\rightarrow i}\,||\, \hat{q}_{f\rightarrow i}]$
+where  $\hat{q}_{f\rightarrow i}$ is the belief messages estimated by a learned 
+regression function. The following table reports the mean of the log KL-divergence 
+and standard deviations.
+
+\begin{tabular}{|l|l|l|}
+\hline
+& \textbf{mean log KL} & \textbf{s.d. of log KL}  \\\hline
+ RF + MV Kernel & -6.9554 & 1.6726 \\\hline
+ {RF + Expected product kernel on joint} & -2.7765 & 1.8261  \\\hline
+ {RF + Sum of expected product kernels} & -1.0518 & 1.9315  \\\hline
+ {RF + Product of expected product kernels} & -2.641 & 1.645  \\\hline
+ \textbf{RF + Gaussian kernel on joint embeddings} & -8.9591 & 1.6218  \\\hline
+ {IChol + sum of Gaussian kernel on embeddings} & -2.751 & 2.8382  \\\hline
+ \textbf{IChol + Gaussian kernel on joint embeddings} & -8.7144 & 1.6864  \\\hline
+\end{tabular}
+
+The MV kernel is defined in \secref{sec:mv_kernel}. 
+Here product (sum) of expected product kernels refers to a product (sum) of kernels, each 
+is an expected product kernel defined on one incoming message. Evidently, the Gaussian 
+kernel on joint mean embeddings performs significantly better than other kernels. 
 
 
+\begin{comment} 
+\textbf{Result paths:} 
+\begin{itemize}
+\item{ \small\verb|exp7/RFGMVMapperLearner_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
+\item{ \small\verb|exp7/RFGJointEProdLearner_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
+\item{ \small\verb|exp7/RFGSumEProdLearner_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
+\item{ \small\verb|exp7/RFGProductEProdLearner_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
+\item{ \small\verb|exp7/RFGJointKGGLearner_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
+\item{ \small\verb|exp7/ICholKProduct_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
+\item{ \small\verb|exp7/ICholKProduct_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
+\item{ \small\verb|exp7/ICholKSum_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
+\item{ \small\verb|exp7/ICholKGGaussianJoint_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
+\end{itemize}
+
+ 
+\textbf{Selected parameters:} 
+\begin{itemize}
+\item{ \footnotesize\verb|GenericMapper(CondFMFiniteOut(RandFourierGaussMVMap(mw2s=[1.11211      65.6983], vw2s=[0.001     0.52568])), DNormalLogVarBuilder)| } 
+\item{ \footnotesize\verb|GenericMapper(CondFMFiniteOut(RFGJointEProdMap(gw2s=[0.11111      4.2764])), DNormalLogVarBuilder)| } 
+\item{ \footnotesize\verb|GenericMapper(CondFMFiniteOut(RFGSumEProdMap(gw2s=[0.555556      21.3243])), DNormalLogVarBuilder)| } 
+\item{ \footnotesize\verb|GenericMapper(CondFMFiniteOut(RFGProductEProdMap(gw2s=[0.011111     0.44049])), DNormalLogVarBuilder)| } 
+\item{ \footnotesize\verb|GenericMapper(StackInstancesMapper(BayesLinRegFM(RFGJointKGG(embed_w2=[0.055556      2.1709], outer_w2=0.26)), BayesLinRegFM(RFGJointKGG(embed_w2=[0.055556      2.1709], outer_w2=0.10))), DNormalLogVarBuilder)| } 
+\item{ \footnotesize\verb|GenericMapper(StackInstancesMapper(CondCholFiniteOut(r=72), CondCholFiniteOut(r=34)), DNormalLogVarBuilder)| } 
+\item{ \footnotesize\verb|GenericMapper(StackInstancesMapper(CondCholFiniteOut(r=72), CondCholFiniteOut(r=34)), DNormalLogVarBuilder)| } 
+\item{ \footnotesize\verb|GenericMapper(StackInstancesMapper(CondCholFiniteOut(r=90), CondCholFiniteOut(r=119)), DNormalLogVarBuilder)| } 
+\item{ \footnotesize\verb|GenericMapper(StackInstancesMapper(CondCholFiniteOut(r=158), CondCholFiniteOut(r=225)), DNormalLogVarBuilder)| } 
+\end{itemize}
+
+ans =
+
+   -6.9554    1.6726       NaN
+   -2.7765    1.8261       NaN
+   -1.0518    1.9315       NaN
+   -2.6410    1.6450       NaN
+   -8.9591    1.6218       NaN
+   -3.2097    1.9868       NaN
+   -3.2097    1.9868       NaN
+   -2.7510    2.8382       NaN
+   -8.7144    1.6864       NaN
+\end{comment}
+
+%=========================================
 \section{Kernel Ridge Regression}
+%=========================================
 \subsection{Kernel Ridge Regression in Primal Form}
 
 In our work, we can apply random features to the kernel in the conditional
@@ -1238,8 +1328,9 @@ the computational complexity remains $O(dn^{2})$ which is still huge.
 The total cost for computing the operator is $O(d^{2}n+d^{3})$. Linear
 dependency on $n$ is unavoidable. 
 
-
+%=========================================
 \section{Kernels and Random Features}
+%=========================================
 
 This section reviews relevant kernels and their random feature representations.
 
@@ -1296,7 +1387,7 @@ Fourier features can be extended to product kernel by drawing $\omega$
 independently for each kernel. 
 
 
-\subsection{MV (Mean-Variance) Kernel}
+\subsection{MV (Mean-Variance) Kernel \label{sec:mv_kernel}}
 
 Assume there are $c$ incoming messages $\left(p^{(i)}\right)_{i=1}^{c}$
 . Assume that
