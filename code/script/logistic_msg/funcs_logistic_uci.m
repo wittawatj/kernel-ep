@@ -102,8 +102,11 @@ function loss=classWeighted01Loss(Y, Yhat)
     prop1 = mean(Y==1);
     I0 = Y==0;
     I1 = ~I0;
-    z = 1.0/(1/prop0 + 1/prop1);
-    loss =  z* ( mean(Y(I0)~=Yhat(I0))./prop0 + mean(Y(I1)~=Yhat(I1))./prop1 );
+    n = length(Y);
+    %z = 1.0/(1/prop0 + 1/prop1);
+    %loss =  z* ( mean(Y(I0)~=Yhat(I0))./prop0 + mean(Y(I1)~=Yhat(I1))./prop1 );
+    %loss =  ( sum(Y(I0)~=Yhat(I0))*0.5/prop0/n + sum(Y(I1)~=Yhat(I1))*0.5./prop1/n );
+    loss = mean(Y~=Yhat);
 
 end
 
