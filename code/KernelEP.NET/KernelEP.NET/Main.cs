@@ -14,7 +14,7 @@ using MNMatrix = MathNet.Numerics.LinearAlgebra.Matrix<double>;
 namespace KernelEP{
 	class MainClass{
 		public static void Main(string[] args){
-			args = new string[]{"uci_kep_is"};
+//			args = new string[]{"uci_kep_is"};
 			RunInference(args); 
 //			TestMathNetMatrixConstruction();
 //			TestImproperGamma();

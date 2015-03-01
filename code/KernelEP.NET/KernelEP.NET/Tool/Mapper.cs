@@ -338,7 +338,7 @@ namespace KernelEP.Tool{
 //			int[] inOutNumFeatures = { 200, 400 };
 //			int[] inOutNumFeatures = {400, 700};
 //			int[] inOutNumFeatures = {50, 50};
-			double[] medianFactors = { 0.1};
+			double[] medianFactors = { 0.5};
 			Random rng = new Random(1);
 			List<IKEPDist[]> inputs = this.batchInputs;
 			List<RandomFeatureMap> candidates = featureMap.GenCandidates(

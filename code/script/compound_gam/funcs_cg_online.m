@@ -35,8 +35,8 @@ function plotPosteriorShapeRateScatter(st)
     plot(log(dnetShape), log(dnetRate), '+k', 'LineWidth', 2);
     plot(log(kepShape), log(kepRate), '*r', 'LineWidth', 1);
     set(gca, 'FontSize', 16);
-    xlabel('Log shape parameter');
-    ylabel('Log rate parameter')
+    xlabel('Log shape');
+    ylabel('Log rate')
     title(sprintf('Shape correlation: %.6g. Rate correlation: %.6g.',...
         shapeCorr, rateCorr));
     legend('Infer.NET', 'Infer.NET + KJIT');

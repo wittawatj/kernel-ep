@@ -206,11 +206,11 @@ function [kepCells, isCells, kepInferTimes, isInferTimes, ...
     %end
 
     % importance sampling size
-    isSize = 50000;
+    isSize = 20000;
     %isSize = 100000;
     epIter = 10;
-    n = 200;
-    seed_to = 3;
+    n = 300;
+    seed_to = 2;
     seeds =  1:seed_to;
     scriptFol = Global.getScriptFolder();
     fullFileFunc = @(fn)fullfile(scriptFol, 'logistic_msg', ...
@@ -296,7 +296,6 @@ function dnet = loadDnetResults()
 end
 
 function plotInferenceResults()
-
 
     [kepCells, isCells, kepInferTimes, isInferTimes, ...
     dnetInferTimes, xProblemInds, uncertaintyOutX]= getFileStructs();

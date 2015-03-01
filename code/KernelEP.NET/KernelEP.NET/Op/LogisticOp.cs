@@ -416,7 +416,7 @@ namespace KernelEP.Op{
 		public LogisticOpRecords records;
 		public Stopwatch watch;
 		/**If true, Sample from a mixture of N(0, 200) and the incoming message.*/
-		public bool useMixtureProposal = true;
+		public bool useMixtureProposal = false;
 
 		public ISGaussianLogisticOpIns(int samplingSize = 100000, 
 		                               LogisticOpRecords records = null, Stopwatch watch = null){
