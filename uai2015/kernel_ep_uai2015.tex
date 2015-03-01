@@ -768,7 +768,8 @@ them. The coefficients are generated on the fly when needed \citep{Dai2014}.
 \label{algo:random_features_kgg}
 \begin{algorithmic}[1]
 \REQUIRE Input distribution $\mathsf{r}$, Fourier transform $\hat{k}$ of the embedding kernel $k$, number of inner features $D_{in}$, number of outer features $D_{out}$, outer Gaussian width $\gamma^2$.
-\ENSURE Random features $\hat{\psi}(\mathsf{r}) \in \mathbb{R}^{D_{out}}$.
+\ENSURE Random features $\hat{\psi}(\mathsf{r}) \in \mathbb{R}^{D_{out}}$. 
+\wjnote{$\psi$ is used by Nicolas for a factor.}
 
 %\STATE Compute the Fourier transform $\hat{k}$ of the kernel $k$.
 \STATE Sample  $\{ \omega_i \}_{i=1}^{D_{in}} \overset{i.i.d}{\sim} \hat{k}$.
@@ -1140,7 +1141,8 @@ with a matrix given by the solution of the primal ridge regression.
 There are a number of kernels on distributions we may use for just-in-time learning.
 To find the most suitable kernel, we compare the performance of each on a 
 collection of incoming and output
-messages at the logistic factor in the binary logistic regression 
+messages at the logistic factor in the binary logistic regression problem i.e., 
+same problem as in the main text.
 All messages are collected by running EP 20 times on generated toy data. 
 Only messages in the first five iterations are considered as messages passed in 
 the early phase of EP vary more than in a near-convergence phase.
@@ -1168,7 +1170,7 @@ and standard deviations.
 \hline
 & \textbf{mean log KL} & \textbf{s.d. of log KL}  \\\hline
  RF + MV Kernel & -6.9554 & 1.6726 \\\hline
- {RF + Expected product kernel on joint} & -2.7765 & 1.8261  \\\hline
+ {RF + Expected product kernel on joint embeddings} & -2.7765 & 1.8261  \\\hline
  {RF + Sum of expected product kernels} & -1.0518 & 1.9315  \\\hline
  {RF + Product of expected product kernels} & -2.641 & 1.645  \\\hline
  \textbf{RF + Gaussian kernel on joint embeddings} & -8.9591 & 1.6218  \\\hline
@@ -1486,7 +1488,7 @@ we have,
  & \overset{(c)}{=}\cos(w_{i}^{\top}m_{p}+b_{i})\exp\left(-\frac{1}{2}w_{i}^{\top}V_{p}w_{i}\right)
 \end{align*}
 where at $(a)$ we use $\cos(\alpha+\beta)=\cos(\alpha)\cos(\beta)-\sin(\alpha)\sin(\beta)$.
-We have $(b)$ because $\sin()$ is an odd function and $\mathbb{E}_{p(d_{i})}\sin(d_{i})=0$.
+We have $(b)$ because $\sin$ is an odd function and $\mathbb{E}_{p(d_{i})}\sin(d_{i})=0$.
 The last equality $(c)$ follows from Lemma \ref{lemma:e_cos}. It
 follows that the random features $\hat{\phi}(p)\in\mathbb{R}^{D}$
 are given by
@@ -1500,7 +1502,7 @@ are given by
 
 
 Notice that the translation invariant kernel $k$ (i.e., Laplacian)
-plays a role by providing $\hat{k}$ from which $\{w_{i}\}_{i}$ are
+plays the role of providing $\hat{k}$ from which $\{w_{i}\}_{i}$ are
 drawn. For different types of distributions $p,q$, we only need to
 be able to compute $\mathbb{E}_{p(x)}\cos\left(w_{i}^{\top}x+b_{i}\right)$.
 With $\hat{\phi}(p)$, we have $\kappa(p,q)\approx\hat{\phi}(p)^{\top}\hat{\phi}(q)$
@@ -1509,16 +1511,14 @@ with equality in expectation.
 
 \paragraph{Analytic expression for Gaussian case}
 
-For reference, if $p,q$ are Gaussians defined as before and $k$
-is also Gaussian kernel, an analytic expression is available. Assume
+For reference, if $p,q$ are normal distributions and $k$
+is a Gaussian kernel, an analytic expression is available. Assume
 $k(x-y)=\exp\left(-\frac{1}{2}\left(x-y\right)^{\top}\Sigma^{-1}\left(x-y\right)\right)$
 where $\Sigma$ is the kernel parameter.
 \begin{align*}
 \mathbb{E}_{p}\mathbb{E}_{q}k(x-y) & =\sqrt{\frac{\det(D_{pq})}{\det(\Sigma^{-1})}}\exp\left(-\frac{1}{2}\left(m_{p}-m_{q}\right)^{\top}D_{pq}\left(m_{p}-m_{q}\right)\right)\\
 D_{pq} & :=\left(V_{p}+V_{q}+\Sigma\right)^{-1}
 \end{align*}
-This is useful in checking the approximation accuracy of $\hat{\phi}$.
-
 
 \paragraph{Approximation Quality}
 
@@ -1526,17 +1526,18 @@ This is useful in checking the approximation accuracy of $\hat{\phi}$.
 See \verb|primalKEGauss.m|.
 \end{comment}
 {} The following result compares the randomly generated features to
-the true kernel matrix using various number of $D$. For each $D$,
-we repeat 10 times. Sample size is 1000. The derivation seems to be
-correct. Gaussian kernel width $\sigma^{2}:=3$. ``max entry diff''
-refers to the maximum entry-wise difference between the true kernel
-matrix and the approxmated kernel matrix. Messages are one-dimensional
-Gaussians with randomly drawn means and variances.
-
-~
+the true kernel matrix using various number of random features $D$. 
+For each $D$, we repeat 10 trials where the randomness in each trial 
+arises from the construction of the random features. 
+Samples are univariate normal distributions $\mathcal{N}(m, v)$ where 
+$m \sim \mathcal{N}(0, 9)$ and $v \sim \text{Gamma}(3, 1/4)$ (shape-rate 
+parameterization). The kernel parameter $\Sigma:=\sigma^2 I$ where $\sigma^2=3$.
 
 \includegraphics[width=10cm]{img/primal_egauss_sanity-crop}
 
+``max entry diff''
+refers to the maximum entry-wise difference between the true kernel
+matrix and the approximated kernel matrix.
 
 \subsection{Product Kernel on Mean Embeddings}
 
