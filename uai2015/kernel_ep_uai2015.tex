@@ -322,7 +322,7 @@ we have $\mathcal{V}(f)=\left\{ X,\theta\right\} $ and $V$ in Eq.
 \ref{eq:general_ep_msg} corresponds to $\theta$. Typically, when
 the factor $f$ is complicated, the integral defining $r_{f\rightarrow V}$
 becomes intractable. Quadrature rules or other numerical integration
-techniques are often applied to approximate the integral. \aenote{AE: This is the main point we want to get accross. Either needs more emphasis or should be mentioned sooner.}
+techniques are often applied to approximate the integral \cite{Zoeter2005,Barthelme2011}. 
 
 %\end{comment}
 
@@ -336,7 +336,7 @@ and outputs $q_{f\rightarrow V'}(v')$ i.e., the numerator of Eq.
 for each recipient variable $V'\in\mathcal{V}(f)$ i.e., in total
 $|\mathcal{V}(f)|$ operators need to be learned for $f$. Operator
 learning is cast as a distribution-to-distribution regression problem
-where the training set $S_{V'}:=\{([m_{V\rightarrow f}^{n}]_{V\in\mathcal{V}(f)},q_{f\rightarrow V'}^{n})\}_{n=1}^{N}$containing
+where the training set $S_{V'}:=\{([m_{V\rightarrow f}^{n}]_{V\in\mathcal{V}(f)},q_{f\rightarrow V'}^{n})\}_{n=1}^{N}$containing    
 $N$ incoming-outgoing message pairs can be generated as in \cite{Heess2013,Eslami2014}
 by importance sampling to compute the mean parameters $\mathbb{E}_{r_{f\rightarrow V'}(v')}\left[u(v')\right]$
 for moment matching. In principle, the importance sampling itself
