@@ -16,6 +16,19 @@ classdef ICholMapperLearner < DistMapperLearner
 
         end
 
+        function name = getLearnerName(this)
+            % return a name suitable to be used as a file name 
+            %
+
+            if this.isNoKeyOrEmpty('kernel_candidates')
+                name = 'IChol';
+            else 
+               kernel_candidates = this.opt('kernel_candidates');
+               name = sprintf('IChol%s', class(kernel_candidates{1}));
+
+            end
+        end
+
         % Return an instance of OptionsDescription describing possible options.
         function od=getOptionsDescription(this)
             % key-value pairs of open-description

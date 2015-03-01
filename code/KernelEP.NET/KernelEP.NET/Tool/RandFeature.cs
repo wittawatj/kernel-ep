@@ -83,6 +83,90 @@ namespace KernelEP.Tool{
 		}
 	}
 		
+	public class StackFeatureMap : RandomFeatureMap{
+		private readonly RandomFeatureMap[] maps;
+		private readonly int outputDim;
+
+		public StackFeatureMap(params RandomFeatureMap[] maps){
+			if(maps == null || maps.Length==0){
+				throw new ArgumentException("at least one map is required");
+			}
+			this.maps = maps;
+			int sum =0;
+			for(int i=0; i<maps.Length; i++){
+				sum += maps[i].GetOutputDimension();
+			}
+			outputDim = sum;
+		}
+
+		private StackFeatureMap(){}
+
+		public override Vector MapToVector(params IKEPDist[] msgs){
+			Vector[] features = new Vector[maps.Length];
+			for(int i=0; i<maps.Length; i++){
+				features[i] = maps[i].MapToVector(msgs);
+			}
+			Vector all = MatrixUtils.ConcatAll(features);
+			return all;
+		}
+
+		public override int GetOutputDimension(){
+
+			return outputDim;
+		}
+
+		public override int[] GetNumFeatures(){
+			// Assume homogeneous maps
+			int num = maps[0].GetNumFeatures().Length;
+			int[] sum = new int[num];
+			for(int i=0; i<maps.Length; i++){
+				int[] numFea = maps[i].GetNumFeatures();
+				for(int j=0; j<numFea.Length; j++){
+					sum[j] += numFea[j];
+				}
+			}
+			return sum;
+		}
+
+		public override RandomFeatureMap Regenerate(int[] numFeatures){
+			RandomFeatureMap[] newMaps = new RandomFeatureMap[maps.Length];
+			for(int i=0; i<maps.Length; i++){
+				newMaps[i] = maps[i].Regenerate(numFeatures);
+			}
+			return new StackFeatureMap(newMaps);
+		}
+
+		public override double[] GenFeatures(params IKEPDist[] msgs){
+			double[] allFea = new double[outputDim];
+			int start=0;
+			for(int i=0; i<maps.Length; i++){
+				double[] fea = maps[i].GenFeatures(msgs);
+				for(int j=0; j<fea.Length; j++){
+					allFea[start + j] = fea[j];
+				}
+				start += fea.Length;
+			}
+			return allFea;
+		}
+
+
+		public override List<RandomFeatureMap> GenCandidates(List<IKEPDist[]> msgs, 
+			int[] numFeatures, double[] medianFactors, Random rng){
+
+			// generate only one candidate for now
+			RFGJointKGG jointKgg = RFGJointKGG.EmptyMap();
+			List<RandomFeatureMap> canJointKgg = jointKgg.GenCandidates(msgs, numFeatures, medianFactors,
+				rng);
+			RandomFeatureMap[] maps = canJointKgg.ToArray();
+			List<RandomFeatureMap> canStack = new List<RandomFeatureMap>();
+			canStack.Add(new StackFeatureMap(maps));
+			return canStack;
+		}
+
+		public static StackFeatureMap EmptyMap(){
+			return new StackFeatureMap();
+		}
+	}
 
 	//	Random Fourier features for Gaussian on mean embeddings
 	//using Gaussian kernel (for mean embeddings) on joint distributions.

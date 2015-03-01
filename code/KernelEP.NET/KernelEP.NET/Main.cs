@@ -14,7 +14,7 @@ using MNMatrix = MathNet.Numerics.LinearAlgebra.Matrix<double>;
 namespace KernelEP{
 	class MainClass{
 		public static void Main(string[] args){
-//			args = new string[]{"dnet"};
+			args = new string[]{"uci_kep_is"};
 			RunInference(args); 
 //			TestMathNetMatrixConstruction();
 //			TestImproperGamma();
@@ -58,11 +58,12 @@ namespace KernelEP{
 //			TestImproperMessages();
 //			TestWritingMat();
 //			TestDiscrete();
+//			TestLoadingMatData();
 		}
 
 		public static void RunInference(string[] args){
 			if(args.Length == 0){
-				Console.WriteLine("usage: app.exe {log_is|log_kep_is|log_dnet|cg_kep_dnet}");
+				Console.WriteLine("usage: app.exe {log_is|log_kep_is|uci_kep_is||uci_is|log_dnet|cg_kep_dnet}");
 				Console.WriteLine(" - is for importance sampling.");
 				Console.WriteLine(" - kep_is for kernel-based EP with importance sampling oracle.");
 				Console.WriteLine(" - log_ = binary logistic regression problem");
@@ -71,12 +72,17 @@ namespace KernelEP{
 				return;
 			}
 			string routine = args[0];
+			CollectOnlineLogistic log = new CollectOnlineLogistic();
 			if(routine.Equals("log_is")){
-				CollectOnlineLogistic.RunOnlineImportanceSampling();
+				log.RunOnlineImportanceSampling();
 			} else if(routine.Equals("log_kep_is")){
-				CollectOnlineLogistic.RunOnlineKEPSampling();
+				log.RunOnlineKEPSampling();
+			}else if(routine.Equals("uci_kep_is")){
+				log.RunRealOnlineKEPSampling();
+			}else if(routine.Equals("uci_is")){
+				log.RunRealOnlineSampling();
 			} else if(routine.Equals("log_dnet")){
-				CollectOnlineLogistic.RecordInferNETTime();
+				log.RecordInferNETTime();
 			} else if(routine.Equals("cg_kep_dnet")){
 				CollectOnlineCG.RunOnlineKEPDotNet();
 			} else{
@@ -85,9 +91,19 @@ namespace KernelEP{
 			}
 		}
 
+		public  static void TestLoadingMatData(){
+			string path = Config.PathToSavedFile("data/banknote_norm.mat");
+			Dictionary<string, object> dict = MatlabReader.Read(path);
+			Matrix x = (Matrix)dict["X"];
+			Console.WriteLine(x);
+			Console.WriteLine();
+			Matrix y = (Matrix)dict["Y"];
+			Console.WriteLine(y);
+		}
+
 		public static void TestDiscrete(){
-			Discrete dis = new Discrete(0.3, 0.6, 0.1);
-			for(int i=0; i<100; i++){
+			Discrete dis = new Discrete(0.3,0.6,0.1);
+			for(int i = 0; i < 100; i++){
 				Console.Write("{0}, ", dis.Sample());
 			}
 

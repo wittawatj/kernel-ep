@@ -688,18 +688,7 @@ i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
 
 
 %%%%%%%%%%%%%%
-\section{Related Work}
 
-\hl{TODO/TO add:}
-\begin{itemize}
-\item To connect to Ali's work, can mention that online learning of random
-forests is difficult. Online learning is straightforward and exact
-for Bayesian linear regression. May ask Balaji more on relevant citations.
-\item It was argued in \cite{Hutter2009} (Section 11.2) that a random forest
-may have problems with exploring previously-unseen areas of the input
-domain.
-\end{itemize}
-\hrule{}
 
 \section{Experiments  \label{sec:Experiments}}
 
@@ -927,20 +916,6 @@ in the compound Gamma problem.
 }
 \end{figure*}
 
-\begin{figure}[t]
-	\centering
-	\subfloat[Binary classification error\label{fig:logistic_01_loss}]{
-	\includegraphics[width=0.49\columnwidth]{img/online/logistic_01_loss-crop}
-	}
-	%
-	\subfloat[Inference time\label{fig:logistic_inference_time}]{
-	\includegraphics[width=0.49\columnwidth]{img/online/logistic_inference_time-crop}
-	}
-	\caption{Classification performance and inference times in the logistic 
-	regression problem.}
-	\label{fig:logistic_performance}
-\end{figure}
-
 
 \begin{figure}[t]
 	\centering
@@ -954,29 +929,20 @@ in the compound Gamma problem.
 	}
 	\caption{KL divergence of the posteriors and inference times in the compound 
 	Gamma problem.}
-	\label{fig:logistic_performance}
+	\label{fig:cg_performance}
 \end{figure}
 
-\hrulefill{}
-
-\hl{Experiments to have}
-\begin{itemize}
+% \hrulefill{}
+% \hl{Experiments to have}
+% \begin{itemize}
 % \item For predictive variance on unseen region, we may need two plots where
 % in one case the training samples are concentrated in one part of the
 % space, and in the second case the training samples are concentrated
 % in another part. This is to ensure that the uncertainty estimate does
 % not depend on the absolute location.
 
-\item Use the operator for logistic in a binary logistic regression problem
-with a real dataset. 
-
-\item A table comparing performance of different kernels. Put in the main 
-text if there is enough space. If not, put it in the appendix. This 
-provides an explanation for why we chose the Gaussian kernel on joint 
-mean embeddgins.
-
-\item To determine thresholds, compute the median of log predictive variance 
-on the test set split from the initial minibatch. 
+% \item To determine thresholds, compute the median of log predictive variance 
+% on the test set split from the initial minibatch. 
 
 %\item Choose the number of particles in the oracle importance sampler so
 %that it takes roughly the same time as our operator. Compute the predictive
@@ -987,12 +953,10 @@ on the test set split from the initial minibatch.
 % in the message space in a useful way. \aenote{AE: This would be nice but 
 % is probably not critical. Could be one of the last experiments you run?}
 
-\end{itemize}
+% \end{itemize}
 
-\hrule 
 
 %\subsection*{Acknowledgement}
-%Thank Balaji for testing uncertainty estimates of random forests.
 %Gatsby Charitable Foundation for funding.
 
 \section{Conclusions and Future Work\label{sec:Conclusions-and-Future} }
@@ -1004,28 +968,27 @@ converted to a finite-dimensional vector. Computing an outgoing message
 amounts to computing the moment parameters by multiplying the vector
 with a matrix given by the solution of the primal ridge regression.
 
+% future work: a good way to choose kernel parameters
+
 \bibliographystyle{abbrvnat}
 \bibliography{ref}
 
 
+%%%%%%%%%%%%%%%%%%%% Appendix %%%%%%%%%%%%%%%%%%%
 \newpage
-
 \onecolumn
-
 \appendix
 
 \begin{center}
-\textbf{\textcolor{black}{\LARGE{}Supplementary Materials}}
+\textbf{\textcolor{black}{\LARGE{}Supplementary Materials }}
 \par\end{center}{\LARGE \par}
 
 \todo[inline]{The following incoherent content needs to be rewritten. I just copied it from my notes. Some part will be moved to the main text.  }
 
-
+\section{Performance of Different Kernels}
 
 
 \section{Kernel Ridge Regression}
-
-
 \subsection{Kernel Ridge Regression in Primal Form}
 
 In our work, we can apply random features to the kernel in the conditional

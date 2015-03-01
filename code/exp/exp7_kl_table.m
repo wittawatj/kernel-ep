@@ -18,7 +18,7 @@ bundle=se.loadBundle(bunName);
 
 %n=5000;
 %n=25000;
-[trBundle, teBundle] = bundle.partitionTrainTest(6000, 2000);
+[trBundle, teBundle] = bundle.partitionTrainTest(5000, 3000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(500, 500);
 %[trBundle, teBundle] = bundle.partitionTrainTest(3000, 1000);
 
@@ -82,7 +82,7 @@ icholProdKggLearner.opt('kernel_candidates', icholProdKggCandidates);
 icholSumKggLearner.opt('kernel_candidates', icholSumKggCandidates);
 icholJointKggLearner.opt('kernel_candidates', icholJointKggCandidates);
 
-learners={ mvLearner, jointLearner, sumLearner, prodLearner, ...
+learners={ mvLearner, jointLearner, sumLearner, prodLearner, jointKggLearner, ...
     icholProdKegLearner, icholProdKggLearner, icholSumKggLearner, icholJointKggLearner};
 %learners={mvLearner, jointLearner};
 %learners={ prodLearner};
@@ -170,7 +170,7 @@ function s=learnMap(learner, trBundle, teBundle, bunName)
     assert(isa(trBundle, 'MsgBundle'));
 
     ntr=length(trBundle);
-    iden=sprintf('%s_%s_ntr%d.mat', class(learner), bunName, ntr);
+    iden=sprintf('%s_%s_ntr%d.mat', learner.getLearnerName(), bunName, ntr);
     fpath=Expr.expSavedFile(7, iden);
     if exist(fpath, 'file')
         load(fpath);

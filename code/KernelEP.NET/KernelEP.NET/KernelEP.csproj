@@ -75,6 +75,7 @@
     <Compile Include="Tasks\CollectOnlineLogistic.cs" />
     <Compile Include="Op\CompoundGamma.cs" />
     <Compile Include="Tasks\CollectOnlineCG.cs" />
+    <Compile Include="Tasks\OnlineRealLogistic.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

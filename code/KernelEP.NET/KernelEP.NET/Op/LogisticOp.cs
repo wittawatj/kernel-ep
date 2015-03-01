@@ -471,8 +471,8 @@ namespace KernelEP.Op{
 		public  Beta ProjToLogisticGaussianProposal(Beta logistic, Gaussian x){
 			// Get the projected message forming part of an outgoing message to logistic.
 			// weights for {base Gaussian proposal , incoming message x}
-			double[] mixtureWeights = new double[]{ 0.5, 0.5 };
-			Gaussian broadX = Gaussian.FromMeanAndVariance(x.GetMean(), x.GetVariance() + 10);
+			double[] mixtureWeights = new double[]{ 0.8, 0.2 };
+			Gaussian broadX = Gaussian.FromMeanAndVariance(x.GetMean(), x.GetVariance()*2);
 			ImportanceProposal<double> proposal = useMixtureProposal ?
 				new Mixture2Proposal(gaussProposal,new GaussianProposal(broadX),mixtureWeights) 
 				:
@@ -566,8 +566,8 @@ namespace KernelEP.Op{
 		}
 
 		public  Gaussian ProjToXGaussianProposal(Beta logistic, Gaussian x){
-			double[] mixtureWeights = new double[]{ 0.5, 0.5 };
-			Gaussian broadX = Gaussian.FromMeanAndVariance(x.GetMean(), x.GetVariance() + 10);
+			double[] mixtureWeights = new double[]{ 0.8, 0.2 };
+			Gaussian broadX = Gaussian.FromMeanAndVariance(x.GetMean(), x.GetVariance()*2);
 			ImportanceProposal<double> proposal = useMixtureProposal ?
 				new Mixture2Proposal(gaussProposal,new GaussianProposal(broadX),mixtureWeights) 
 				:
@@ -666,14 +666,15 @@ namespace KernelEP.Op{
 			this.watch = watch ?? new Stopwatch();
 
 			LogisticOp2.IsPrintLog = false;
-
-			BayesLinRegFM toLogistic1 = new BayesLinRegFM(RFGJointKGG.EmptyMap());
-			BayesLinRegFM toLogistic2 = new BayesLinRegFM(RFGJointKGG.EmptyMap());
+//			RandomFeatureMap prototype = StackFeatureMap.EmptyMap();
+			RandomFeatureMap prototype = RFGJointKGG.EmptyMap();
+			BayesLinRegFM toLogistic1 = new BayesLinRegFM(prototype);
+			BayesLinRegFM toLogistic2 = new BayesLinRegFM(prototype);
 			OnlineStackBayesLinReg toLogisticSuffMap = 
 				new OnlineStackBayesLinReg(toLogistic1,toLogistic2);
 			// operator for sending to X. The first output.
-			BayesLinRegFM toX1 = new BayesLinRegFM(RFGJointKGG.EmptyMap());
-			BayesLinRegFM toX2 = new BayesLinRegFM(RFGJointKGG.EmptyMap());
+			BayesLinRegFM toX1 = new BayesLinRegFM(prototype);
+			BayesLinRegFM toX2 = new BayesLinRegFM(prototype);
 			OnlineStackBayesLinReg toXSuffMap = new OnlineStackBayesLinReg(toX1,toX2);
 
 			if(initialThreshold != null){
@@ -690,6 +691,22 @@ namespace KernelEP.Op{
 
 			opParams = new OpParams<DBeta, DNormal>(toLogisticMap,toXMap);
 		}
+
+		public void SetFeatures(int[] numFeatures){
+			toXMap.SetFeatures(numFeatures);
+			toLogisticMap.SetFeatures(numFeatures);
+		}
+		public void SetMinibatchFeatures(int[] numFeatures){
+			toXMap.SetMinibatchFeatures(numFeatures);
+			toLogisticMap.SetMinibatchFeatures(numFeatures);
+
+		}
+
+		public void SetOnlineBatchSizeTrigger(int size){
+			toXMap.SetOnlineBatchSizeTrigger(size);
+			toLogisticMap.SetOnlineBatchSizeTrigger(size);
+		}
+
 
 		public void SetImportanceSamplingSize(int samplingSize){
 			this.isGaussianOp = new ISGaussianLogisticOpIns(samplingSize);
@@ -1511,6 +1528,7 @@ namespace KernelEP.Op{
 
 
 
+
 #pragma warning disable 162
 		#endif
 
@@ -1600,6 +1618,7 @@ namespace KernelEP.Op{
 
 
 		
+
 
 
 
