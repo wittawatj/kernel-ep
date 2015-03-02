@@ -281,14 +281,14 @@ p(\bx) = \frac{1}{Z} \prod_{j=1}^J \factor_j(\fx{\factor_j}).
 \end{equation}
 The factors $\factor_j$ are non-negative functions which are defined over subsets $\fx{\factor_j}$ of the full set of variables $\bx$. These variables form the neighbors of the factor node $\factor_j$ in the factor graph, and we use $\fis{\factor_j}$ to denote the corresponding set of indices. $Z$ is the normalization constant. 
 
-In this work we are specifically interested in dealing with models in which some of the factors have a non-standard form, or may not have a known analytic expression be known (i.e.\ "black box" factors). Although our approach applies to any such factor in principle, in this paper we focus on \textit{directed} factors $\factor(\xout | \xin)$ which specify a conditional distribution over variables $\xout$ given $\xin$ (and thus $\fx{\factor} = (\xout, \xin))$. The only assumption we make is that we are provided with a forward sampling function $f: \xin \mapsto \xout$, i.e. a function that maps (stochastically or deterministically) a setting of the input variables $\xin$ to a sample from the conditional distribution over $\xout \sim \factor(\cdot| \xin)$. A natural way of specifying $f$ is a short piece of code in a probabilistic program.
+In this work we are specifically interested in dealing with models in which some of the factors have a non-standard form, or may not have a known analytic expression be known (i.e.\ ``black box'' factors). Although our approach applies to any such factor in principle, in this paper we focus on \textit{directed} factors $\factor(\xout | \xin)$ which specify a conditional distribution over variables $\xout$ given $\xin$ (and thus $\fx{\factor} = (\xout, \xin))$. The only assumption we make is that we are provided with a forward sampling function $f: \xin \mapsto \xout$, i.e. a function that maps (stochastically or deterministically) a setting of the input variables $\xin$ to a sample from the conditional distribution over $\xout \sim \factor(\cdot| \xin)$. A natural way of specifying $f$ is a short piece of code in a probabilistic program.
 
 %--------------------------------------------------------------------
 
 \subsection{Message passing EP}
 \label{sec:EP:MP}
 
-Belief propagation - or the sum-product algorithm - computes marginal distributions over subsets of variables by iteratively passing messages between variables and factors, ensuring consistency of the obtained marginals at convergence. Specifically, the messages sent from a factor $\factor$ to variable $x_i$ (where $i \in \fis{\factor}$) are computed as
+Belief propagation -- or the sum-product algorithm -- computes marginal distributions over subsets of variables by iteratively passing messages between variables and factors, ensuring consistency of the obtained marginals at convergence. Specifically, the messages sent from a factor $\factor$ to variable $x_i$ (where $i \in \fis{\factor}$) are computed as
 \begin{equation}
 \msg{ \factor }{i}(x_i) = 
 \int \factor (\fx{\factor}) \prod_{i' \in \fis{\factor} \textbackslash i} \msg{i'}{\factor}(x_{i'}) \diffd \bx_{\fis{\factor} \textbackslash i},
@@ -318,7 +318,7 @@ where $\projP{p} = \argmin{q \in \mathcal{Q}} \kld{p}{q}$, and $\mathcal{Q}$ is 
 \label{sec:EP:MC}
 
 By projecting messages onto simple parametric forms, EP introduces an approximation that allows message passing to proceed when the true messages are not easily representable in closed form.
-Computing \textit{the numerator} of (\ref{eq:msgPassing:EP}) remains a challenging problem in itself, however, as it requires evaluating a high-dimensional integral as well as minimization of the Kullback-Leibler divergence to some non-standard distribution. For non-trivial factors with known analytic form this often requires hand-crafted approximations, or the use of expensive numerical integration techniques; for "black-box" factors implemented as forward sampling functions (Sec.\ \ref{sec:EP}), fully nonparametric techniques are needed. 
+Computing \textit{the numerator} of (\ref{eq:msgPassing:EP}) remains a challenging problem in itself, however, as it requires evaluating a high-dimensional integral as well as minimization of the Kullback-Leibler divergence to some non-standard distribution. For non-trivial factors with known analytic form this often requires hand-crafted approximations, or the use of expensive numerical integration techniques; for ``black-bo'' factors implemented as forward sampling functions (Sec.\ \ref{sec:EP}), fully nonparametric techniques are needed. 
 
 %For such factors the only assumption we make is that we are provided with a forward sampling function $f: \xin \mapsto \xout$, i.e. a function that maps (stochastically or deterministically) a setting of the input variables $\xin$ to a sample from the conditional distribution over $\xout \sim \factor(\cdot| \xin)$. Such a function may, for instance, be
 
@@ -353,7 +353,7 @@ The thus estimated expected sufficient statistics provide us with an estimate of
 \subsection{Just-in-time learning of messages}
 \label{sec:EP:JIT}
 
-Message approximations as in the previous section could be used directly when running the EP algorithm as in \cite{Barthelme2011}, but this approach can suffer from the unreliability of the importance sampling estimates when the number of samples $N$ is not very large. On the other hand, for large $N$ the computational cost of running EP with approximate messages can be very high, as the message approximations have to be re-computed in each iteration of EP. To obtain low-variance message approximations at lower computational cost \cite{Heess2013,Eslami2014} both amortize previously computed approximate messages by training a function approximator to directly map a tuple of incoming variable-to-factor messages $(\msg{i'}{\factor} )_{i' \in \fis{\factor}}$ to an approximate factor to variable message $\msg{\factor}{i}$, i.e.\ they learn a mapping
+Message approximations as in the previous section could be used directly when running the EP algorithm as in \cite{Barthelme2011}, but this approach can suffer from the unreliability of the importance sampling estimates when the number of samples $N$ is not very large. On the other hand, for large $N$ the computational cost of running EP with approximate messages can be very high, as the message approximations have to be re-computed in each iteration of EP. To obtain low-variance message approximations at lower computational cost \cite{Heess2013} and \cite{Eslami2014} both amortize previously computed approximate messages by training a function approximator to directly map a tuple of incoming variable-to-factor messages $(\msg{i'}{\factor} )_{i' \in \fis{\factor}}$ to an approximate factor to variable message $\msg{\factor}{i}$, i.e.\ they learn a mapping
 \begin{equation}
 \approxMsg{\factor}{i}{\theta}: (\msg{i'}{\factor} )_{i' \in \fis{\factor}} \mapsto \msg{\factor}{i},
 \end{equation}
@@ -380,10 +380,10 @@ uncertainty estimates become unstable and inaccurate as we move away from the in
 training data. Second, online updates of random forests may not work well
 when the newly observed data is from a very different distribution to the
 initial training sample \citep[e.g.][Fig. 3]{LakRoyTeh14}. Indeed, for large amounts of training set drift, the
-leaf-splitting approach of Elsami et al. can result in a decision tree which is a long chain, giving a worst case
+leaf-splitting approach of Eslami et al. can result in a decision tree which is a long chain, giving a worst case
 cost of prediction (computational and storage) of $O(N)$ for training data of size $N$, vs the ideal of $O(\log(N))$
 for balanced trees.
-Finally, note that the approach of Ali et al. uses certain bespoke features of the factors when
+Finally, note that the approach of \citeauthor{Eslami2014} uses certain bespoke features of the factors when
 specifying tree traversal in the random forests,
 notably the value of the factor potentials at the mean and mode of the incoming messages,
 and binary features indicating whether the inputs were proper, uniform, or point masses.
@@ -393,7 +393,7 @@ work does not employ such features.
 
 
 
-{\bf Computational Complexity of random forest approach:}
+{\bf Computational complexity of the random forest approach:}
 We now provide a cost breakdown of the random forest approach.
 Let
 $K$ be the number of trees in the random forest, $D_t$
@@ -406,13 +406,11 @@ The leaf predictions are made using polynomial regression of degree two, which m
 be re-trained from scratch for each new point. Retraining at a leaf costs $O(D_r^2 (D_r + M))$, however $M$ is  typically negligible at a lower depth, therefore cost is $O(D_r^3)$.
 Therefore the total updating cost across all trees is $O(K D_r^3 D_t log(N))$.
 
-It is instructive to consider some representative numbers used by Ali et al. 
+It is instructive to consider some representative numbers used by \citeauthor{Eslami2014}
 The number of trees in the forest was  $K=64$,
 the number of features at a leaf was in general $D_r=14$ (since Gaussian, Beta and Gamma distributions are all parameterised by two numbers, most factors had two incoming messages, and  quadratic regressors were used). $D_t$ was typically of the order of 10 to 20, depending on the number of incoming factor messages: for each incoming message there would be around parameters (e.g. for a Gaussian there would be the mean, variance, mean $\times$ precision, precision and mode), the values of the factor at the mean and mode of the incoming messages, and the binary features characterizing the message.
 Training set size $N$ was in the order of thousands (1,000 to 5,000),
 and the number of samples   $M$ per leaf was between 10 and 50.
-
-\nhnote{Ali: if you could fill in some sentences describing, at a high level, online learning and uncertainty estimates in trees to justify the claim that these are heuristics/can be improved upon, that would be great. Also, we may want to move the computational complexity of tree operations here.}
 
 
 %---------------------------------------------------------------------------
