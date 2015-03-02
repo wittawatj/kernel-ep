@@ -7,6 +7,7 @@ function [ g] = funcs_logistic_uci( )
     g.getFileStructs = @getFileStructs;
     g.plotTemporalUncertainty = @plotTemporalUncertainty;
     g.plotInferenceResults = @plotInferenceResults;
+    g.plotIncomingMessages = @plotIncomingMessages;
 end
 
 function xProblemInds= getProblemIndices(kjit)
@@ -304,6 +305,31 @@ function [kjit, is] = getFileStructs()
         %           postMeans: {4x1 cell}
         %            postCovs: {4x1 cell}
     end
+
+end
+
+function plotIncomingMessages(is)
+    % plot incoming messages from the Gaussian variable in all problems.
+    if nargin < 1
+        [kjit, is] = getFileStructs();
+    end
+    [dataNames, dataLabels, testsetFNames] = getDataNames();
+    figure 
+    hold all
+    styles = {'mh', 'k.', 'ro', 'bx'};
+    for i=1:length(dataNames)
+        dn = dataNames{i};
+        mtp = is.(dn).inXOutXMtp;
+        prec = is.(dn).inXOutXPrec;
+        Means = mtp./prec;
+
+        plot(Means, log(prec), styles{i});
+    end
+    set(gca, 'FontSize', 16);
+    legend(dataLabels);
+    ylabel('Log precision');
+    xlabel('Mean');
+    hold off
 
 end
 

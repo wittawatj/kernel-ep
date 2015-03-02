@@ -61,6 +61,8 @@
 \usepackage{soul}
 \usepackage{subfig}
 \usepackage{tikz}
+\usetikzlibrary{bayesnet}
+
 \usepackage[textsize=small]{todonotes}
 
 \usepackage{url}
@@ -535,8 +537,18 @@ and the number of samples   $L$ per leaf was between 10 and 50.
 
 
 
-
+%=============================================
 \section{Kernel learning of message operator}\label{sec:Online}
+%=============================================
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\columnwidth]{img/online/uci_in_msgs-crop}
+\caption{Incoming messages $\msg{z_i}{\psi}$ in the online learning on the four
+UCI datasets.
+\label{fig:uci_in_msgs}
+}
+\end{figure}
 
 \agnote{In the following paragraph, none of the variables have been defined. In addition, the variables are not consistent with the previous section. Please reconcile the different variable definitions, so that the previous section introduces the variables used in the current section. Both sets of definitions are fine, so just use whichever takes the least effort to update.}
 
@@ -555,7 +567,10 @@ Moreover, Song et al. did not employ the distribution regression of \cite{Szabo2
 to outgoing messages, as this  would not have been natural or easy to achieve in their setting
 (and indeed, was not an option available  at the time of this earlier work).
 
+%------------------------------------
 \subsection{Ridge Regression for operator prediction}
+%------------------------------------
+
 \wjnote{We need to unify Kernel ridge regression and Bayesian linear regression sections. 
 Posterior mean estimate of the Bayesian regression is the same as the solution to primal kernel ridge regression.
 Bayesian regression assumes a Gaussian noise output allowing us to compute predictive variance.}
@@ -683,7 +698,9 @@ costing $O(D)$ per update.
 
 \wjnote{Mention initial minibatch training here.}
 
+%------------------------------------
 \subsection{Online-Active Learning}
+%------------------------------------
 
 %If the predictive variance of the current incoming messages $x^{*}$
 %is high, the operator queries the correct outgoing message from the importance sampler
@@ -705,8 +722,9 @@ used to update $\Sigma_{w}$ and $\mu_{w}$ as described previously.
 
 
 %AG: made this a subsection
-
+%------------------------------------
 \subsection{Kernels on Distributions}
+%------------------------------------
 
 A number of kernels on distributions have been studied in the literature
 \citep{Jebara2003,Jebara2004}. Relevant to us are kernels whose random
@@ -733,8 +751,9 @@ The final feature map is $\hat{\phi}(\mathsf{x})=\hat{\phi}^{(1)}(r^{(1)})\circl
 $\circledast$ denotes a Kronecker product and we assume that $\hat{\phi}^{(l)}\in\mathbb{R}^{d}$
 for $l\in\{1,\ldots,c\}$.
 
-
+%------------------------------------
 \subsection{Expected Product Kernel on Joint Embeddings }
+%------------------------------------
 
 Another way to define a kernel on $\mathsf{x},\mathsf{y}$ is to consider
 joint distributions $\mathsf{r}=\prod_{i=1}^{c}r^{(i)}$ and
@@ -749,13 +768,18 @@ One can consider the expected product kernel on the joint distributions as
 where $\mathcal{G}$ is an RKHS consisting of functions $g:\mathcal{X}^{(1)}\times\cdots\times\mathcal{X}^{(c)}\rightarrow\mathbb{R}$
 and $\mathcal{X}^{(l)}$ denotes the domain of $r^{(l)}$ and $s^{(l)}$.
 
+%------------------------------------
 \subsection{Gaussian Kernel on Joint Embeddings }
+%------------------------------------
 
 Given two distributions $\mathsf{r}$ and $\mathsf{s}$, a Gaussian kernel on mean embeddings
 \cite{Christmann2010} is defined as 
-\[
+%
+\begin{equation}
 \kappa_{\text{gauss}}(\mathsf{r}, \mathsf{s}) = \exp\left(-\frac{\|\mu_{\mathsf{r}}-\mu_{\mathsf{s}}\|_{\mathcal{H}}^{2}}{2\gamma^{2}}\right).
-\]
+\label{eq:gauss_joint_emb}
+\end{equation}
+%
 This kernel has two parameters, one for $k$ in $\mu_{\mathsf{r}} = \mathbb{E}_{\mathsf{r}}k(x,\cdot)$
 and $\gamma^{2}$. Empirically, this kernel performs significantly
 better than other kernels on predicting outgoing messages from incoming messages.
@@ -830,94 +854,139 @@ i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
 
 %%%%%%%%%%%%%%
 
-
+%=============================================
 \section{Experiments  \label{sec:Experiments}}
+%=============================================
 
-To ensure that the operator is capable of learning the relationship 
+To ensure that the proposed message operator is capable of learning the relationship 
 of incoming and outgoing messages, we first consider a batch learning setting.
 
 \begin{figure}
 \centering
 %\missingfigure{Factor graph for binary logistic regression. Just imagine by yourself for now.}
 %\includegraphics[scale=0.8,page=2,clip,trim=8cm 18.5cm 8cm 1cm]{img/heess_passing_ep_supp.pdf}
-\includegraphics[scale=0.8,page=1,clip,trim=6.5cm 7.5cm 7cm 17.8cm]{img/eslami_jit_supp.pdf}
+%\includegraphics[scale=0.8,page=1,clip,trim=6.5cm 7.5cm 7cm 17.8cm]{img/eslami_jit_supp.pdf}
+\begin{tikzpicture}
+ \node[obs] (x) {$x_i$};
+ \bayesfactor[right= of x] {dot} {below:dot} {} {};
+ \node[latent, above = 5mm of dot] (w) {$\boldsymbol{w}$};
+ \node[latent, right = 6mm of dot] (z) {$z_i$};
+ \bayesfactor[right= 6mm of z, color=red] {logistic} {below:logistic} {} {};
+ \node[latent, right = 6mm of logistic] (p) {$p_i$};
+ \bayesfactor[right = 6mm of p] {bern} {below:Bernoulli} {} {};
+ \node[obs, right = 6mm of bern]  (y)   {$y_i$}; %
+ 
+ \edge[-] {dot} {x} ;
+ \edge[-] {w} {dot};
+ \edge[-] {dot} {z} ;
+ \edge[-] {z} {logistic} ;
+ \edge[-] {logistic} {p};
+ \edge[-] {p} {y} ;
+ 
+  \plate {sample} { %
+    (x)  (z) (p) (y)
+  } {$i=1, \ldots, N$} ;
+  
+\end{tikzpicture}
+
 \caption{Factor graph for binary logistic regression. 
-%The logistic factor is highlighted in red. 
-%We set $\boldsymbol{\mu}:=\boldsymbol{0}$ and $\boldsymbol{\Lambda}:=I$. 
-%\wjnote{This figure will be updated later.}
+The kernel-based message operator learns to approximate the logistic factor 
+highlighted in red. The two incoming messages are 
+$\msg{z_i}{\psi} = \mathcal{N}(z_i; \mu, \sigma^2)$ and 
+$\msg{p_i}{\psi} = \text{Beta}(p_i; \alpha, \beta) $.
 }
 \label{fig:factor_graph_binlog}
 \end{figure}
 
-\subsection{Predictive Power}
+%------------------------------------
+\subsection{Logistic factor} 
+%------------------------------------
 
-\paragraph{Logistic} 
-As in \cite{Heess2013, Eslami2014}, we consider the logistic factor 
-\wjnote{This x is not x in the factor graph. Fix this.}
+As in \cite{Heess2013} and \cite{Eslami2014}, we study the logistic factor defined as
 %
 \begin{equation*}
-f(z|x)=\delta\left(z-\frac{1}{1+\exp(-x)}\right)
+\psi(p|z)=\delta\left(p-\frac{1}{1+\exp(-z)}\right)
 \end{equation*}
 %
 where $\delta$ is the Dirac delta function, in the context of 
 a binary logistic regression model as shown in \figref{fig:factor_graph_binlog}.
-%The factor is deterministic when conditioning on $x$. 
-The two incoming messages are $m_{X\rightarrow f}(x)=\mathcal{N}(x;\mu,\sigma^{2})$
-and $m_{Z\rightarrow f}(z)=\text{Beta}(z;\alpha,\beta)$. 
-%\aenote{AE: I think at this point you need to properly define the logistic regression model otherwise incoming messages will be incomprehensible.} 
-Following \cite{Eslami2014}, we draw $x, w \sim \mathcal{N}(0, I_{20})$, and set the number of observations to 400.
-We repeat the experiment 20 times where in each trial a new $w$ and a new set of observations are generated.
-In each trial we collect messages in only the first five iterations of EP from Infer.NET's default implementation of the logistic factor.
-All collected messages are randomly partitioned into 5000 training messages and 2000 testing messages.
-We learn a message operator using a Gaussian kernel on joint embeddings as described in Eq. .... for sending $m_{f\rightarrow X}$.
+The factor is deterministic when conditioning on $z$. 
+There are two incoming messages to the factor: 
+$\msg{p_i}{\psi} = \text{Beta}(p_i; \alpha, \beta) $ and 
+$\msg{z_i}{\psi} = \mathcal{N}(z_i; \mu, \sigma^2)$ 
+where $z_i = \boldsymbol{w}^\top x_i$ represents the dot product between an observation 
+$x_i \in \mathbb{R}^d$ and the coefficient vector $\boldsymbol{w}$ whose posterior is 
+to be inferred.
+
+\paragraph{Batch learning} 
+Our goal is to learn a kernel-based message operators to send an outgoing message to $z_i$.
+Following \cite{Eslami2014}, we set $d$ to 20, sample 
+$\{x_i\}_{i=1}^n, \boldsymbol{w} \sim \mathcal{N}(0, I)$, and set the number 
+of observations $n$ to 300.
+We run EP for 20 trials where in each trial a new true parameter $\boldsymbol{w}$ is 
+redrawn along with the observations $\{(x_i, y_i)\}_{i=1}^n$.
+The number of EP iterations is set to 10.
+We use Infer.NET framework \citep{Minka2014} in for running EP.
+Unless stated otherwise, all configurations follow the default settings of Infer.NET.
+In each of the 20 trials, we collect incoming-outgoing message pairs in 
+the first five iterations of EP from Infer.NET's default implementation of the 
+logistic factor.
+All collected messages are randomly partitioned into 5000 training messages and 
+3000 testing messages.
+We learn a message operator using a Gaussian kernel on joint embeddings as 
+described in \eqref{eq:gauss_joint_emb} for sending $m_{f\rightarrow X}$.
 Regularization and kernel parameters are chosen by leave-one-out cross validation. 
-The number of features are set to $D_{in}=500$ and $D_{out}=1000$. \aenote{AE: Why 1000?}. 
-We report $\log KL[q\|\hat{q}]$ where $q=q_{f\rightarrow X}$
-is the ground truth output message obtained from Infer.NET's 
-and $\hat{q}$ is the message output from the operator. 
-For better numerical scaling, regression outputs are set to $(\mathbb{E}_{q}\left[x\right],\log\mathbb{V}_{q}\left[x\right])$ instead of the expectations of the first two moments. 
-\aenote{AE: No need to mention log-scaling?} 
-The histogram of log KL errors is shown on the left of \figref{fig:Log-KL-divergence-on}.
-The right figure shows sample output messages at different log KL errors. 
-It can be seen that the operator is able to capture the relationship
-of incoming and outgoing messages. 
-\wjnote{some more explanation here.}
+The number of random features are set to $D_{in}=500$ and $D_{out}=1000$.
+Empirically, we observe no significant improvements beyond 1000 random features.
+Since in general an EP outgoing message can be improper e.g., a normal distribution with 
+negative variance, the regression target is set to be the belief message 
+$q_{\psi \rightarrow z_i}$
+(i.e., the numerator of \eqref{eq:msgPassing:EP}) rather than 
+the outgoing message $\msg{\psi}{z_i}$ to sidestep the issue. 
+An outgoing message can be constructed straightforwardly with
+$\msg{\psi}{z_i} = q_{\psi \rightarrow z_i} / \msg{z_i}{\psi} $.
 
-\begin{figure}
-\begin{centering}
-\includegraphics[width=6cm]{img/kl_ntr5000_iter5_sf1_st20_fm_joint-crop}
-\par\end{centering}
 
-\begin{centering}
-\includegraphics[width=6cm]{img/4plots_ntr5000_iter5_sf1_st20_fm_joint-crop.pdf}
-\par\end{centering}
+We report 
+$\log KL[q_{\psi \rightarrow z_i} \| \hat{q}_{\psi \rightarrow z_i}]$ 
+where $q_{\psi \rightarrow z_i}$ is the ground truth projected belief and 
+$\hat{q}_{\psi \rightarrow z_i}$ is the predicted.
+% For better numerical scaling, regression outputs are set to $(\mathbb{E}_{q}\left[x\right],
+% \log\mathbb{V}_{q}\left[x\right])$ instead of the expectations of the first two moments. 
+% \aenote{AE: No need to mention log-scaling?} 
+The histogram of the log KL errors is shown in \figref{fig:kl_div_hist} 
+accompanied by \figref{fig:kl_div_4plots} showing examples of predicted messages 
+at different log KL errors. 
+It is evident that the kernel-based operator is able to capture well the relationship
+of incoming and outgoing messages. The discrepancy to the ground truth is barely 
+visible even at the 99th percentile.
 
-\protect\caption{KL-divergence on a logistic factor test set using kernel on joint
-embeddings.\label{fig:Log-KL-divergence-on}}
+\begin{figure}[t]
+  \centering
+
+  \subfloat[KL Errors \label{fig:kl_div_hist}]{
+  \includegraphics[width=0.49\columnwidth]{img/kl_ntr5000_iter5_sf1_st20_fm_joint-crop}
+  }
+  %
+  \subfloat[Predictions at different KL errors\label{fig:kl_div_4plots}]{
+  \includegraphics[width=0.49\columnwidth]{img/4plots_ntr5000_iter5_sf1_st20_fm_joint-crop}
+  }
+  \caption{Prediction errors of backward outgoing messages from the logistic 
+  factor and examples of predicted messages at different error levels.}
+  % reference: exp7/RFGJointKGGLearner_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat
+  \label{fig:kl_div}
 \end{figure}
 
+\wjnote{To be continued..}
 
-\paragraph{Compound Gamma}
-\wjnote{Hopefully I will have enough time to do this.}
-Andrew Gelman \citep{Gelman2006}: ``Gamma prior on precision
-is not good''.
-
-\subsection{Uncertainty Estimate}
+\paragraph{Uncertainty Estimate}
 In this experiment, we aim to verify that the predictive variance of the 
-kernel-based message operator is a reliable quantity to be used as a criterion
+kernel-based message operator is a robust criterion
 for deciding whether or not to query the oracle.
-We compute the predictive variance using the same operator as used in the logistic factor experiment on the training and test sets.
+We compute the predictive variance using the same operator as used in the 
+logistic factor experiment on the training and test sets.
 A plots of KL-divergence errors versus predictive variances for predicting the mean of $m_{f \rightarrow X}$ is shown in \figref{fig:logistic_predvar_g}
 % and the variance for predicting $\log(\alpha)$ of $m_{f \rightarrow Z}$ is shown in \figref{fig:logistic_predvar_b}. 
-
-
-
-\wjnote{Feel free to fill in more explanation.} 
-The uncertainty estimates show a positive correlation with the KL-divergence errors. 
-No points lie at the bottom right i.e., high confidence when it makes a big error.
-No points lie at the top left i.e., not confident when it should not be.
-The fact that the errors on the training set are roughly the same as the errors on the test set
-indicates that the operator does not overfit.
 
 \paragraph{Unexplored Region}
 One of the most important tasks in JIT learning is to correctly estimate 
@@ -981,7 +1050,19 @@ estimates of the proposed method on the two uncertainty test sets.}
 %\label{fig:tree_uncertainty_unexplored}
 %\end{figure}
 
+
 \subsection{Online Learning}
+Our goal is to learn two kernel-based message operators, one for each outgoing direction. 
+Following \cite{Eslami2014}, we set $d$ to 20, sample 
+${x_i}_{i=1}^n, \boldsymbol{w} \sim \mathcal{N}(0, I)$, and set the number 
+of observations $n$ to 300.
+We repeat the experiment 50 times where in each trial a new 
+set of observations $\{(x_i, y_i)\}_{i=1}^n$. are generated while keeping 
+$\boldsymbol{w}$ fixed.
+The scenario is common in practice where one is given several sets of observations 
+which share the same model parameter \citep{Eslami2014}.
+
+
 \figref{fig:logistic_temporal_uncertainty} shows predictive variance of KJIT 
 on predicting the mean of each $m_{f \rightarrow X}$. The black dotted lines
 mark the start of a new inference problem. We set the number of observations 
@@ -1021,6 +1102,16 @@ in the binary logistic regression problem.
 	\label{fig:logistic_performance}
 \end{figure}
 
+
+
+%------------------------------------
+\subsection{Compound gamma factor}
+%------------------------------------
+\wjnote{Hopefully I will have enough time to do this.}
+Andrew Gelman \citep{Gelman2006}: ``Gamma prior on precision
+is not good''.
+
+
 % compound gamma temporal uncertainty
 \begin{figure*}[t]
 \centering
@@ -1033,30 +1124,30 @@ in the compound Gamma problem.
 
 % compound gamma inferred results and time.
 \begin{figure}[t]
-	\centering
+  \centering
 % 	\subfloat[Posteriors]{
 % 	\includegraphics[width=0.49\columnwidth]{img/online/cg_post_corr-crop}
 % 	%\missingfigure[figwidth=0.49\columnwidth]{}
 % 	}
-	%
-	\subfloat[Inferred shape]{
-	\includegraphics[width=0.31\columnwidth]{img/online/cg_post_shape-crop}
-	%\missingfigure[figwidth=0.49\columnwidth]{}
-	}
-	%
-	\subfloat[Inferred shape]{
-	\includegraphics[width=0.31\columnwidth]{img/online/cg_post_rate-crop}
-	%\missingfigure[figwidth=0.49\columnwidth]{}
-	}
-	%
-	\subfloat[Inference time\label{fig:cg_inference_time}]{
-	\includegraphics[width=0.34\columnwidth]{img/online/cg_inference_time-crop}
-	}
-	\caption{Shape (a) and rate (b) parameters of the inferred posteriors in 
-	the compound gamma problem. 
-	(c) KJIT is able to infer equally good posterior parameters compared to Infer.NET 
-	while requiring several orders of magnitude less runtime.}
-	\label{fig:cg_performance}
+  %
+  \subfloat[Inferred shape]{
+  \includegraphics[width=0.31\columnwidth]{img/online/cg_post_shape-crop}
+  %\missingfigure[figwidth=0.49\columnwidth]{}
+  }
+  %
+  \subfloat[Inferred shape]{
+  \includegraphics[width=0.31\columnwidth]{img/online/cg_post_rate-crop}
+  %\missingfigure[figwidth=0.49\columnwidth]{}
+  }
+  %
+  \subfloat[Inference time\label{fig:cg_inference_time}]{
+  \includegraphics[width=0.34\columnwidth]{img/online/cg_inference_time-crop}
+  }
+  \caption{Shape (a) and rate (b) parameters of the inferred posteriors in 
+  the compound gamma problem. 
+  (c) KJIT is able to infer equally good posterior parameters compared to Infer.NET 
+  while requiring several orders of magnitude less runtime.}
+  \label{fig:cg_performance}
 \end{figure}
 
 % UCI datasets. temporal uncertainty.
@@ -1068,6 +1159,9 @@ in the compound Gamma problem.
 }
 \end{figure*}
 
+%------------------------------------
+\subsection{Real data}
+%------------------------------------
 
 % UCI data classification error
 % Inference time
@@ -1101,18 +1195,15 @@ in the compound Gamma problem.
 %that it takes roughly the same time as our operator. Compute the predictive
 %quality of the two. 
 
-% \item As in Fig 3.c of Ali's paper, show that the inference error of sampling
-% + JIT is better than sampling alone. This asserts that JIT interpolates
-% in the message space in a useful way. \aenote{AE: This would be nice but 
-% is probably not critical. Could be one of the last experiments you run?}
-
 % \end{itemize}
 
 
 %\subsection*{Acknowledgement}
 %Gatsby Charitable Foundation for funding.
 
+%=============================================
 \section{Conclusions and Future Work\label{sec:Conclusions-and-Future} }
+%=============================================
 
 We propose to learn to send EP messages with kernel ridge regression
 by casting the KL minimization problem as a supervised learning problem.
@@ -1160,19 +1251,29 @@ with a matrix given by the solution of the primal ridge regression.
 % \end{figure}
   
   
-\begin{figure}[h]
-  \centering
+% \begin{figure}[h]
+%   \centering
+% 
+%   \includegraphics[width=5cm]{img/pred_var/fm_kgg_joint_-bw-out1-crop}
+%   
+%   \caption{KL-divergence errors versus predictive variances for predicting the 
+%   mean of $m_{f \rightarrow X}$ (normal distribution) in the logistic factor problem. }
+%   \label{fig:logistic_predvar_g}
+% \end{figure}
 
-  \includegraphics[width=5cm]{img/pred_var/fm_kgg_joint_-bw-out1-crop}
-  
-  \caption{KL-divergence errors versus predictive variances for predicting the 
-  mean of $m_{f \rightarrow X}$ (normal distribution) in the logistic factor problem. }
-  \label{fig:logistic_predvar_g}
-\end{figure}
+
+% The uncertainty estimates show a positive correlation with the KL-divergence errors. 
+% No points lie at the bottom right i.e., high confidence when it makes a big error.
+% No points lie at the top left i.e., not confident when it should not be.
+% The fact that the errors on the training set are roughly the same as the errors on the test set
+% indicates that the operator does not overfit.
+
   
 
 %=========================================  
-\section{Performance of Different Kernels}
+\section{Performance of Different Kernels
+\label{sec:kernel_compare}
+}
 %=========================================
 
 There are a number of kernels on distributions we may use for just-in-time learning.
@@ -1210,7 +1311,7 @@ and standard deviations.
  {RF + Expected product kernel on joint embeddings} & -2.7765 & 1.8261  \\\hline
  {RF + Sum of expected product kernels} & -1.0518 & 1.9315  \\\hline
  {RF + Product of expected product kernels} & -2.641 & 1.645  \\\hline
- \textbf{RF + Gaussian kernel on joint embeddings} & -8.9591 & 1.6218  \\\hline
+ \textbf{RF + Gaussian kernel on joint embeddings} & -8.9740 & 1.5731  \\\hline
  {IChol + sum of Gaussian kernel on embeddings} & -2.751 & 2.8382  \\\hline
  \textbf{IChol + Gaussian kernel on joint embeddings} & -8.7144 & 1.6864  \\\hline
 \end{tabular}
@@ -1265,26 +1366,11 @@ ans =
 %=========================================
 \section{Kernel Ridge Regression}
 %=========================================
-\subsection{Kernel Ridge Regression in Primal Form}
-
-In our work, we can apply random features to the kernel in the conditional
-mean embedding operator. With $\hat{\phi}$, an estimate of an operator
-in primal solution is
-\begin{align*}
-\hat{C}_{x'|w} & =X'W^{\top}\left(WW^{\top}+\lambda I\right)^{-1}\\
- & \approx\underbrace{X'}_{d_{x}\times N}\underbrace{\hat{\Phi}^{\top}}_{N\times D}\underbrace{\left(\hat{\Phi}\hat{\Phi}^{\top}+\lambda I\right)^{-1}}_{D\times D}
-\end{align*}
-where $\hat{\Phi}=\left(\hat{\phi}(w_{1})|\cdots|\hat{\phi}(w_{N})\right)\in\mathbb{R}^{D\times N}$
-and $W=X\otimes Y$ . So an estimated operator can be represented
-with a $d_{x}\times D$ matrix where $d_{x}$ is the dimension of
-the target sufficient statistic. Applying the operator to a test message
-$m_{w\rightarrow f}^{*}$ with random features given by $\phi^{*}\in\mathbb{R}^{D}$
-requires just a matrix vector multiplication whose complexity does
-not depend on $N$ (unlike in the dual form).
 
 
+%------------------------------------
 \subsection{Leave-One-Out Cross Validation with Random Features\label{sub:LOOCV-for-Operator}}
-
+%------------------------------------
 The solution of the kernel ridge regression is given by
 \[
 \hat{C}_{Y|X}=YX^{\top}\left(XX^{\top}+\lambda I\right)^{-1}
@@ -1373,8 +1459,9 @@ dependency on $n$ is unavoidable.
 
 This section reviews relevant kernels and their random feature representations.
 
-
+%------------------------------------
 \subsection{Random Features}
+%------------------------------------
 
 This section contains a summary of \citesup{Rahimi2007}'s random
 Fourier features for a translation invariant kernel. 
@@ -1425,8 +1512,9 @@ Theorem \ref{thm:Separation-of-variables.} suggests that the random
 Fourier features can be extended to product kernel by drawing $\omega$
 independently for each kernel. 
 
-
+%------------------------------------
 \subsection{MV (Mean-Variance) Kernel \label{sec:mv_kernel}}
+%------------------------------------
 
 Assume there are $c$ incoming messages $\left(p^{(i)}\right)_{i=1}^{c}$
 . Assume that
@@ -1453,8 +1541,9 @@ This treatment reduces the problem of having distributions as inputs
 to the familiar problem of having input points from a Euclidean space.
 The random features of \cite{Rahimi2007} can be applied straightforwardly. 
 
-
+%------------------------------------
 \subsection{Expected Product Kernel\label{sub:Expected-Product-Kernel}}
+%------------------------------------
 
 Let $\mu_{r^{(l)}}:=\mathbb{E}_{r^{(l)}(a)}k(\cdot,a)$ be the mean
 embedding \citepsup{Smola2007} of the distribution $r^{(l)}$ into
@@ -1576,7 +1665,9 @@ parameterization). The kernel parameter $\Sigma:=\sigma^2 I$ where $\sigma^2=3$.
 refers to the maximum entry-wise difference between the true kernel
 matrix and the approximated kernel matrix.
 
+%------------------------------------
 \subsection{Product Kernel on Mean Embeddings}
+%------------------------------------
 
 The kernel $\kappa$ is defined as a product of kernels on mean embeddings.
 For each incoming message $l$, we need one set of random weights
@@ -1595,8 +1686,9 @@ solver which can take advantage of the Kronecker product in $\hat{\varphi}$,
 this random feature map might be impractical due to large memory requirement
 unless $D$ is very small. 
 
-
+%------------------------------------
 \subsection{Sum Kernel on Mean Embeddings}
+%------------------------------------
 
 If we instead define $\kappa$ as the sum of $c$ kernels, we have
 \begin{align*}
@@ -1609,8 +1701,9 @@ whose memory requirement is much lower.
 
 
 
-
-\subsubsection{Kernel on tuples of messages}
+%------------------------------------
+\subsection{Kernel on tuples of messages}
+%------------------------------------
 
 As our prediction is from $M_{j}=[m_{V_{i}\rightarrow f}^{j}(v_{i})]_{i=1}^{c}$
 ($c$ is the number of variables connected to the factor $f$) to
