@@ -60,9 +60,8 @@
 %\usepackage{microtype}
 \usepackage{soul}
 \usepackage{subfig}
-
-% \usepackage{tikz}
-% \usetikzlibrary{bayesnet}
+\usepackage{tikz}
+\usetikzlibrary{bayesnet}
 
 \usepackage[textsize=small]{todonotes}
 
@@ -115,7 +114,7 @@
 
 \begin{document}
 
-\title{Kernel-Based Just-In-Time Learning for \\Passing Expectation Propagation
+\title{Kernel-Based Just-In-Time Learning for Passing Expectation Propagation
 Messages}
 \author{}
 \maketitle
@@ -876,28 +875,29 @@ of incoming and outgoing messages, we first consider a batch learning setting.
 %\missingfigure{Factor graph for binary logistic regression. Just imagine by yourself for now.}
 %\includegraphics[scale=0.8,page=2,clip,trim=8cm 18.5cm 8cm 1cm]{img/heess_passing_ep_supp.pdf}
 %\includegraphics[scale=0.8,page=1,clip,trim=6.5cm 7.5cm 7cm 17.8cm]{img/eslami_jit_supp.pdf}
-\includegraphics[width=0.9\columnwidth]{img/binary_logistic_regression-crop}
-% \begin{tikzpicture}
-%  \node[obs] (x) {$x_i$};
-%  \bayesfactor[right= of x] {dot} {below:dot} {} {};
-%  \node[latent, above = 5mm of dot] (w) {$\boldsymbol{w}$};
-%  \node[latent, right = 6mm of dot] (z) {$z_i$};
-%  \bayesfactor[right= 6mm of z, color=red] {logistic} {below:logistic} {} {};
-%  \node[latent, right = 6mm of logistic] (p) {$p_i$};
-%  \bayesfactor[right = 6mm of p] {bern} {below:Bernoulli} {} {};
-%  \node[obs, right = 6mm of bern]  (y)   {$y_i$}; %
-%  
-%  \edge[-] {dot} {x} ;
-%  \edge[-] {w} {dot};
-%  \edge[-] {dot} {z} ;
-%  \edge[-] {z} {logistic} ;
-%  \edge[-] {logistic} {p};
-%  \edge[-] {p} {y} ;
-%  
-%   \plate {sample} { %
-%     (x)  (z) (p) (y)
-%   } {$i=1, \ldots, N$} ;  
-% \end{tikzpicture}
+\begin{tikzpicture}
+ \node[obs] (x) {$x_i$};
+ \bayesfactor[right= of x] {dot} {below:dot} {} {};
+ \node[latent, above = 5mm of dot] (w) {$\boldsymbol{w}$};
+ \node[latent, right = 6mm of dot] (z) {$z_i$};
+ \bayesfactor[right= 6mm of z, color=red] {logistic} {below:logistic} {} {};
+ \node[latent, right = 6mm of logistic] (p) {$p_i$};
+ \bayesfactor[right = 6mm of p] {bern} {below:Bernoulli} {} {};
+ \node[obs, right = 6mm of bern]  (y)   {$y_i$}; %
+ 
+ \edge[-] {dot} {x} ;
+ \edge[-] {w} {dot};
+ \edge[-] {dot} {z} ;
+ \edge[-] {z} {logistic} ;
+ \edge[-] {logistic} {p};
+ \edge[-] {p} {y} ;
+ 
+  \plate {sample} { %
+    (x)  (z) (p) (y)
+  } {$i=1, \ldots, N$} ;
+  
+\end{tikzpicture}
+
 \caption{Factor graph for binary logistic regression. 
 The kernel-based message operator learns to approximate the logistic factor 
 highlighted in red. The two incoming messages are 
@@ -1098,9 +1098,8 @@ distribution is fixed to $\mathcal{z; 0, 200}$ with 50000 particles.
 \figref{fig:logistic_temporal_uncertainty} shows a trace of predictive variance 
 of KJIT in predicting the mean of each $\msg{\psi}{z_i}$ on each factor invocation. 
 The black dotted lines
-mark the start of a new inference problem. The first 300 factor invocations 
-correspond to the initial minibatch training; hence
-It can be seen that the uncertainty
+mark the start of a new inference problem. We set the number of observations 
+in the logistic regression problem to 300. There is an It can be seen that the uncertainty
 estimate exhibits a periodic structure, repeating itself for every 300 time 
 steps. The predictive variance levels off after the operator sees roughly 1000
 incoming messages (roughly one-third of the total messages in the first problem).
