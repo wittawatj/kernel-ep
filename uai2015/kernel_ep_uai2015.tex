@@ -82,8 +82,8 @@
 \newcommand{\xin}{\mathbf{x}_{ \mathrm{in} }} 			% parents of directed factor
 \newcommand{\xout}{\mathbf{x}_{ \mathrm{out} }}			% child of directed factor
 \newcommand{\msg}[2]{m_{#1 \rightarrow #2}}			% message from arg1 to arg2
-\newcommand{\approxMsg}[3]{\hat{m}_{#1 \rightarrow #2}^{#3}}			% message from arg1 to arg2
-\newcommand{\uncertaintyMsg}[3]{\hat{u}_{#1 \rightarrow #2}^{#3}}			% message from arg1 to arg2
+\newcommand{\approxMsg}[3]{M_{#1 \rightarrow #2}^{#3}}			% message from arg1 to arg2
+\newcommand{\uncertaintyMsg}[3]{V_{#1 \rightarrow #2}^{#3}}			% message from arg1 to arg2
 \newcommand{\diffd}{\mathrm{d}}
 \newcommand{\proj}{\mathrm{proj}}
 \newcommand{\projP}[1]{\mathrm{proj} \left [ #1 \right]}
@@ -281,7 +281,7 @@ p(\bx) = \frac{1}{Z} \prod_{j=1}^J \factor_j(\fx{\factor_j}).
 \end{equation}
 The factors $\factor_j$ are non-negative functions which are defined over subsets $\fx{\factor_j}$ of the full set of variables $\bx$. These variables form the neighbors of the factor node $\factor_j$ in the factor graph, and we use $\fis{\factor_j}$ to denote the corresponding set of indices. $Z$ is the normalization constant. 
 
-In this work we are specifically interested in dealing with models in which some of the factors have a non-standard form, or may not have a known analytic expression be known (i.e.\ ``black box'' factors). Although our approach applies to any such factor in principle, in this paper we focus on \textit{directed} factors $\factor(\xout | \xin)$ which specify a conditional distribution over variables $\xout$ given $\xin$ (and thus $\fx{\factor} = (\xout, \xin))$. The only assumption we make is that we are provided with a forward sampling function $f: \xin \mapsto \xout$, i.e. a function that maps (stochastically or deterministically) a setting of the input variables $\xin$ to a sample from the conditional distribution over $\xout \sim \factor(\cdot| \xin)$. A natural way of specifying $f$ is a short piece of code in a probabilistic program.
+In this work we are specifically interested in dealing with models in which some of the factors have a non-standard form, or may not have a known analytic expression (i.e.\ ``black box'' factors). Although our approach applies to any such factor in principle, in this paper we focus on \textit{directed} factors $\factor(\xout | \xin)$ which specify a conditional distribution over variables $\xout$ given $\xin$ (and thus $\fx{\factor} = (\xout, \xin))$. The only assumption we make is that we are provided with a forward sampling function $f: \xin \mapsto \xout$, i.e. a function that maps (stochastically or deterministically) a setting of the input variables $\xin$ to a sample from the conditional distribution over $\xout \sim \factor(\cdot| \xin)$. A natural way of specifying $f$ is a short piece of code in a probabilistic program.
 
 %--------------------------------------------------------------------
 
@@ -294,9 +294,9 @@ Belief propagation -- or the sum-product algorithm -- computes marginal distribu
 \int \factor (\fx{\factor}) \prod_{i' \in \fis{\factor} \textbackslash i} \msg{i'}{\factor}(x_{i'}) \diffd \bx_{\fis{\factor} \textbackslash i},
 \label{eq:msgPassing:BP}
 \end{equation}
-where $\msg{i'}{\factor}(\cdot)$ are the messages sent to factor $\psi$ from its neighboring variables $x_{i'}$ other than $x_i$.
+where $\msg{i'}{\factor}$ are the messages sent to factor $\psi$ from its neighboring variables $x_{i'}$ other than $x_i$.
 
-EP introduces an approximation in the case when the message $\msg{ \factor }{i}(\cdot)$ 
+EP introduces an approximation in the case when the message $\msg{ \factor }{i}$ 
 does not have a simple parametric form, by projecting the exact 
 marginal $\msg{ i }{\factor}(x_i)\msg{ \factor }{i}(x_i)$ onto a member of 
 some class of known parametric distributions. 
@@ -318,13 +318,13 @@ where $\projP{p} = \argmin{q \in \mathcal{Q}} \kld{p}{q}$, and $\mathcal{Q}$ is 
 \label{sec:EP:MC}
 
 By projecting messages onto simple parametric forms, EP introduces an approximation that allows message passing to proceed when the true messages are not easily representable in closed form.
-Computing \textit{the numerator} of (\ref{eq:msgPassing:EP}) remains a challenging problem in itself, however, as it requires evaluating a high-dimensional integral as well as minimization of the Kullback-Leibler divergence to some non-standard distribution. For non-trivial factors with known analytic form this often requires hand-crafted approximations, or the use of expensive numerical integration techniques; for ``black-bo'' factors implemented as forward sampling functions (Sec.\ \ref{sec:EP}), fully nonparametric techniques are needed. 
+Computing \textit{the numerator} of (\ref{eq:msgPassing:EP}) remains a challenging problem, however, as it requires evaluating a high-dimensional integral as well as minimization of the Kullback-Leibler divergence to some non-standard distribution. For non-trivial factors with known analytic form this often requires hand-crafted approximations, or the use of expensive numerical integration techniques; for ``black-box'' factors implemented as forward sampling functions (Sec.\ \ref{sec:EP}), fully nonparametric techniques are needed. 
 
 %For such factors the only assumption we make is that we are provided with a forward sampling function $f: \xin \mapsto \xout$, i.e. a function that maps (stochastically or deterministically) a setting of the input variables $\xin$ to a sample from the conditional distribution over $\xout \sim \factor(\cdot| \xin)$. Such a function may, for instance, be
 
 This significantly limits the ease with which EP can be applied and its scope in practice. 
 %However, while deterministic approximations to (\ref{eq:msgPassing:EP}) may be hard to come by,
-Motivated by these shortcomings \cite{Barthelme2011,Heess2013,Eslami2014} exploit an alternative, stochastic approximation: In general, the projection $\projP{\cdot}$ of $p$ onto some member of the exponential family corresponds to matching the relevant moments of $p$, e.g.\ its mean and variance, if $q$ is required to be a Gaussian distribution. Thus, projecting $p$ onto a general member of the exponential family, $q(x|\eta)=h(\theta)\exp\left(\eta^{\top}u(x)-A(\eta)\right)$ with a vector of sufficient statistics $u$ and natural parameters $\eta$ requires us to compute the expectation of $u(\cdot)$ under the numerator of \ref{eq:msgPassing:EP}).
+Motivated by these shortcomings \cite{Barthelme2011,Heess2013,Eslami2014} exploit an alternative, stochastic approximation: In general, the projection $\projP{\cdot}$ of $p$ onto some member of the exponential family corresponds to matching the relevant moments of $p$, e.g.\ its mean and variance, if $q$ is required to be a Gaussian distribution. Thus, projecting $p$ onto a general member of the exponential family, $q(x|\eta)=h(\theta)\exp\left(\eta^{\top}u(x)-A(\eta)\right)$ with a vector of sufficient statistics $u$ and natural parameters $\eta$ requires us to compute the expectation of $u(\cdot)$ under the numerator of (\ref{eq:msgPassing:EP}).
 
 A sample based approximation of this expectation can, in general, obtained via MCMC. Given a forward-sampling function $f$ as described above, one especially simple approach is importance sampling,
 \begin{align}
@@ -362,9 +362,9 @@ where $\theta$ are the parameters of the function approximator. Note that for ex
 While \cite{Heess2013} use neural networks and a very large, fixed training set to learn their approximate message operator prior to running EP with the intractable factor, \cite{Eslami2014}
 employ random forests as their class of learning functions, and update their approximate message operator on the fly during inference, depending on the predictive uncertainty of the current message operator. Specifically, they endow their function approximator with an uncertainty estimate
 \begin{equation}
-\uncertaintyMsg{\factor}{i}{\theta}: (\msg{i'}{\factor} )_{i' \in \fis{\factor}} \mapsto u,
+\uncertaintyMsg{\factor}{i}{\theta}: (\msg{i'}{\factor} )_{i' \in \fis{\factor}} \mapsto v,
 \end{equation}
-where $u$ indicates the expected unreliability  of the predicted, approximate message $\msg{\factor}{i}$ returned by $\approxMsg{\factor}{i}{\theta}$. If $u = \uncertaintyMsg{\factor}{i}{\theta} \left( (\msg{i'}{\factor} )_{i' \in \fis{\factor}}\right)$ exceeds a pre-defined threshold, the required message is approximated via importance sampling (cf.\ eq.\ \ref{eq:msgIS}) and $\approxMsg{\factor}{i}{\theta}$ is re-trained on this new datapoint (leading to a new set of parameters  $\theta'$ with $\uncertaintyMsg{\factor}{i}{\theta'} \left( (\msg{i'}{\factor} )_{i' \in \fis{\factor}}\right)) < \uncertaintyMsg{\factor}{i}{\theta} \left( (\msg{i'}{\factor} )_{i' \in \fis{\factor}}\right)$.
+where $v$ indicates the expected unreliability  of the predicted, approximate message $\msg{\factor}{i}$ returned by $\approxMsg{\factor}{i}{\theta}$. If $v = \uncertaintyMsg{\factor}{i}{\theta} \left( (\msg{i'}{\factor} )_{i' \in \fis{\factor}}\right)$ exceeds a pre-defined threshold, the required message is approximated via importance sampling (cf.\ eq.\ \ref{eq:msgIS}) and $\approxMsg{\factor}{i}{\theta}$ is re-trained on this new datapoint (leading to a new set of parameters  $\theta'$ with $\uncertaintyMsg{\factor}{i}{\theta'} \left( (\msg{i'}{\factor} )_{i' \in \fis{\factor}}\right)) < \uncertaintyMsg{\factor}{i}{\theta} \left( (\msg{i'}{\factor} )_{i' \in \fis{\factor}}\right)$.
 
 The  performance of random forests in online learning relies crucially on having a reliable uncertainty estimate,
 and being able to robustly update the trees online without an explosion in computational cost and memory.
