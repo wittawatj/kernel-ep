@@ -87,12 +87,13 @@ function plotUncertaintyAlongSlices(s, trBundle, teBundle, subsample)
     %[betaMsgs, str2NormalMsgs] = genMsgBundleFromMeanLogPrec(testMeans, str2LogPrecs, betaMsg);
     %U_str2 = s.dist_mapper.estimateUDistArrays(betaMsgs, str2NormalMsgs);
 
-    xlabel_text ='Mean of incoming Gaussian messages'; 
+    %xlabel_text ='Mean of incoming Gaussian messages'; 
+    xlabel_text ='Mean'; 
     %
     % plot  data points
     fontsize = 15;
     figure 
-    subplot(1, 2, 1);
+    %subplot(1, 2, 1);
     hold on 
     %plot(teX_mean_fil, -log(teX_var_fil), 'xr', 'LineWidth', 1);
     plot(trX_mean_fil, -log(trX_var_fil), '*k', 'LineWidth', 1, 'MarkerSize', 4 );
@@ -107,11 +108,12 @@ function plotUncertaintyAlongSlices(s, trBundle, teBundle, subsample)
     xlabel(xlabel_text);
     ylabel('Log precision');
     xlim([min(testMeans)-1, max(testMeans)+1]);
+    axis square
     hold off 
 
     % plot uncertainty 
-    %figure 
-    subplot(1, 2, 2);
+    figure 
+    %subplot(1, 2, 2);
     hold on 
     plot(testMeans, log(U_straight(1, :)), '-b', 'LineWidth', 2);
     %plot(testMeans, log(U_straight(2, :)), '--b', 'LineWidth', 2);
@@ -122,12 +124,14 @@ function plotUncertaintyAlongSlices(s, trBundle, teBundle, subsample)
     set(gca, 'FontSize', fontsize);
     %superTitle=sprintf('%s', ['Log predictive variance on the uncertainty test sets. ' , ...
     %'Fix m_{z\rightarrow f}=Beta(1, 2) in the test sets.']);
-    superTitle=sprintf('%s', 'Log predictive variance on the uncertainty test sets.');
-    annotation('textbox', [0 0.9 1 0.1], ...
-        'String', superTitle, ...
-        'EdgeColor', 'none', ...
-        'HorizontalAlignment', 'center', ...
-        'FontSize', 18, 'interpreter', 'tex')
+    %
+    %superTitle=sprintf('%s', 'Log predictive variance on the uncertainty test sets.');
+    %annotation('textbox', [0 0.9 1 0.1], ...
+    %    'String', superTitle, ...
+    %    'EdgeColor', 'none', ...
+    %    'HorizontalAlignment', 'center', ...
+    %    'FontSize', 18, 'interpreter', 'tex')
+    %
     %legend('#1: Predict mean', '#1: Predict log variance', ...
     %    '#2: Predict mean', '#2: Predict log variance', ...
     %    '#3: Predict mean', '#3: Predict log variance' ...
@@ -138,6 +142,8 @@ function plotUncertaintyAlongSlices(s, trBundle, teBundle, subsample)
     xlabel(xlabel_text);
     ylabel('Log of predictive variance')
     xlim([min(testMeans)-1, max(testMeans)+1]);
+    axis square;
+    grid on;
     hold off 
 
     rng(oldRng);

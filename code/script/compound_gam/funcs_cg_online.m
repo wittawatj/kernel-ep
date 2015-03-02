@@ -185,7 +185,7 @@ function plotInferenceResults()
     ylabel('Time in log(ms)')
     xlabel('Problems seen');
     title('Inference time')
-    legend('Infer.NET', 'Sampling + KJIT');
+    legend('Infer.NET', 'Infer.NET + KJIT');
     axis square
     grid on
     hold off

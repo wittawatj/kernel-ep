@@ -206,11 +206,11 @@ function [kepCells, isCells, kepInferTimes, isInferTimes, ...
     %end
 
     % importance sampling size
-    isSize = 50000;
+    isSize = 500000;
     %isSize = 100000;
     epIter = 10;
     n = 300;
-    seed_to = 20;
+    seed_to = 5;
     seeds =  1:seed_to;
     scriptFol = Global.getScriptFolder();
     fullFileFunc = @(fn)fullfile(scriptFol, 'logistic_msg', ...
