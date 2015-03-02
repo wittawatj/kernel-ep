@@ -512,7 +512,7 @@ namespace KernelEP{
 			logisticOpIns.IsRecordMessages = true;
 			logisticOpIns.IsPrintTrueWhenCertain = false;
 			/** Use mixture or not ...*/
-			logisticOpIns.isGaussianOp.useMixtureProposal = true;
+			logisticOpIns.isGaussianOp.useMixtureProposal = false;
 			logisticOpIns.SetFeatures(new int[]{300, 500});
 
 			OpControl.Set(typeof(KEPOnlineLogisticOp), logisticOpIns);
