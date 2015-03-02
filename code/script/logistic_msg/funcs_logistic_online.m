@@ -340,7 +340,7 @@ function plotInferenceResults()
     legend('Log predictive variance', sprintf('Moving average'), 'Threshold');
     hold off
 
-    %plotPosteriorKL(kepCells, isCells);
+    plotPosteriorKL(kepCells, isCells);
 
     % load Infer.NET results
     dnet = loadDnetResults();

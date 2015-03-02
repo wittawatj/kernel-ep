@@ -92,7 +92,7 @@
 \newcommand{\expectationE}[2]{ \mathbb{E}_{#2}  \left[ #1 \right] }
 
 
-\newcommand{\wjnote}[1]{\textbf{\color{blue!80!black}{WJ: #1}} }
+\newcommand{\wjnote}[1]{\textbf{\color{blue!90!black}{WJ: #1}}  }
 \newcommand{\aenote}[1]{\textbf{\color{red!50!black}{#1}} }
 \newcommand{\nhnote}[1]{\textbf{\color{magenta!90!black}{#1}} }
 \newcommand{\agnote}[1]{\textbf{\color{green!50!black}{#1}} }
@@ -154,7 +154,10 @@ approximation, or distribution conjugacy.  In reality, however, model convenienc
 simplicity can  limit
 or undermine intended models, sometimes in ways the users
 might not expect. To take one example, the inverted Gamma prior, which is a convenient
-conjugate prior for the standard deviation, has quite pathological behaviour \citep{Gelman2006}. \todo{AE: suggestion: `the inverted Gamma prior, which is widely used due to being a convenient conjugate prior' or something similar}
+conjugate prior for the standard deviation, has quite pathological behaviour \citep{Gelman2006}.
+\wjnote{Is it SD or variance ?}
+\todo{AE: suggestion: `the inverted Gamma prior, which is widely used due to being a convenient 
+conjugate prior' or something similar}
 In general, more expressive, freely chosen models are more likely
 to require expensive sampling or quadrature approaches, which can make
 them challenging to implement or impractical to run.
@@ -200,11 +203,12 @@ can result in unbalanced trees cost of prediction of $O(N)$ for training data of
 We propose a novel, kernel-based approach to learning a message operator nonparametrically
 for expectation propagation. The learning algorithm takes the form of a distribution regression
 problem, where the inputs are probabilty measures (represented as embeddings of the distributions to an RKHS), and the outputs are vectors of message
-parameters \citep{Szabo2014}.
+parameters \citep{Szabo2014}. 
 A first advantage of this approach is that one does not need to pre-specify customized features
 of the distributions, as in \citep{Eslami2014,Heess2013}. Rather, 
 we use a general characteristic kernel on input distributions 
-\citep[eq. 9]{ChristmannSteinwart10}, which in our experiments gives better performance than customized features.
+\citep[eq. 9]{ChristmannSteinwart10}, which in our experiments gives better performance than customized features. 
+\wjnote{We do not have such an experiment comparing the two.}
 A potential downside of the kernel approach is that it can be computationally
 costly, with training time of $O(N^3)$ and a cost of $O(N)$ to make a prediction. 
 We address this problem by regressing directly in the primal from random features of the data \citep{Rahimi2007,Le2013,YanSmoZonWil14}.
@@ -219,9 +223,11 @@ We use these uncertainty estimates so as to determine when to query the importan
 for additional input/output pairs. \todo{AE: use the word `just-in-time' in this sentence?} This is especially crucial if the message
 operator is being trained on multiple different datasets, where the typical input messages
 observed can be very different, and new training data are required.
-We demonstrate empirically that when the input messge distributions are significantly different from
+We demonstrate empirically that when the input message distributions are significantly different from
 the initial training data, 
-the uncertainty estimates returned for the kernel regression remain robust and informative,
+the uncertainty estimates returned for the kernel regression 
+\wjnote{Should we say Bayesian regression instead of kernel regression ?} 
+remain robust and informative,
 whereas those for random forests are highly unstable.
 
 
@@ -256,26 +262,12 @@ Second, we demonstrate our method on artificial data with well-controlled statis
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-
-
-
-% \wjnote{add some text to link to ridge regression. Then...}
-% By virtue of the primal form, it is straightforward to derive an update
-% equation for an online-active learning during EP inference: if the
-% predictive variance  on the current incoming messages is high, then we query the outgoing message from
-% the importance sampler (oracle) and update the operator. Otherwise,
-% the outgoing message is efficiently computed by the operator. Online
-% learning of the operator lessens the need of the distribution on natural
-% parameters of incoming messages used in training set generation. Determining
-% an appropriate distribution was one of the unsolved problems in \cite{Heess2013}. 
-
-
 \section{EP and nonparametric implementations}
 
 
 \label{sec:EP}
 
-As is common in the message passing community we assume that distributions (or densities) over a set of variables $\bx = (x_1, \dots x_D)$ of interest can be represented as factor graphs, i.e.\
+As is common in the message passing community we assume that distributions (or densities) over a set of variables $\bx = (x_1, \dots x_d)$ of interest can be represented as factor graphs, i.e.\
 \begin{equation}
 p(\bx) = \frac{1}{Z} \prod_{j=1}^J \factor_j(\fx{\factor_j}).
 \end{equation}
@@ -324,9 +316,12 @@ Computing \textit{the numerator} of (\ref{eq:msgPassing:EP}) remains a challengi
 
 This significantly limits the ease with which EP can be applied and its scope in practice. 
 %However, while deterministic approximations to (\ref{eq:msgPassing:EP}) may be hard to come by,
-Motivated by these shortcomings \cite{Barthelme2011,Heess2013,Eslami2014} exploit an alternative, stochastic approximation: In general, the projection $\projP{\cdot}$ of $p$ onto some member of the exponential family corresponds to matching the relevant moments of $p$, e.g.\ its mean and variance, if $q$ is required to be a Gaussian distribution. Thus, projecting $p$ onto a general member of the exponential family, $q(x|\eta)=h(\theta)\exp\left(\eta^{\top}u(x)-A(\eta)\right)$ with a vector of sufficient statistics $u$ and natural parameters $\eta$ requires us to compute the expectation of $u(\cdot)$ under the numerator of (\ref{eq:msgPassing:EP}).
+Motivated by these shortcomings \cite{Barthelme2011,Heess2013,Eslami2014} exploit an alternative, stochastic approximation: In general, the projection $\projP{\cdot}$ of $p$ onto some member of the exponential family corresponds to matching the relevant moments of $p$, e.g.\ its mean and variance, if $q$ is required to be a Gaussian distribution. Thus, projecting $p$ onto a general member of the exponential family, 
+$q(x|\eta)=h(x)\exp\left(\eta^{\top}u(x)-A(\eta)\right)$ with a vector of sufficient statistics $u$ and natural parameters $\eta$ requires us to compute the expectation of $u(\cdot)$ under the numerator of (\ref{eq:msgPassing:EP}). \wjnote{Under the exact marginal $\msg{ i }{\factor}(x_i)\msg{ \factor }{i}(x_i)$  ?}
 
-A sample based approximation of this expectation can, in general, obtained via MCMC. Given a forward-sampling function $f$ as described above, one especially simple approach is importance sampling,
+A sample based approximation of this expectation can, in general, be obtained via MCMC. 
+Given a forward-sampling function $f$ as described above, one especially simple approach is importance sampling, 
+\wjnote{$N$ is used for training size. Use $M$ here instead ?}
 \begin{align}
 \expectationE{u(x)}{\fx{\factor}\sim b }
 &\approx \frac{1}{N} \sum_{l=1}^N w(\fx{\factor}^l) u(x_i^l),~~~~\fx{\factor}^s \sim \tilde{b}
@@ -353,18 +348,24 @@ The thus estimated expected sufficient statistics provide us with an estimate of
 \subsection{Just-in-time learning of messages}
 \label{sec:EP:JIT}
 
-Message approximations as in the previous section could be used directly when running the EP algorithm as in \cite{Barthelme2011}, but this approach can suffer from the unreliability of the importance sampling estimates when the number of samples $N$ is not very large. On the other hand, for large $N$ the computational cost of running EP with approximate messages can be very high, as the message approximations have to be re-computed in each iteration of EP. To obtain low-variance message approximations at lower computational cost \cite{Heess2013} and \cite{Eslami2014} both amortize previously computed approximate messages by training a function approximator to directly map a tuple of incoming variable-to-factor messages $(\msg{i'}{\factor} )_{i' \in \fis{\factor}}$ to an approximate factor to variable message $\msg{\factor}{i}$, i.e.\ they learn a mapping
+Message approximations as in the previous section could be used directly when running the EP algorithm as in \cite{Barthelme2011}, but this approach can suffer from the unreliability of the importance sampling estimates when the number of samples $N$ is not very large. 
+\wjnote{Use $M$ ?}
+On the other hand, for large $N$ the computational cost of running EP with approximate messages can be very high, as the message approximations have to be re-computed in each iteration of EP. To obtain low-variance message approximations at lower computational cost \cite{Heess2013} and \cite{Eslami2014} both amortize previously computed approximate messages by training a function approximator to directly map a tuple of incoming variable-to-factor messages $(\msg{i'}{\factor} )_{i' \in \fis{\factor}}$ to an approximate factor to variable message $\msg{\factor}{i}$, i.e.\ they learn a mapping
 \begin{equation}
 \approxMsg{\factor}{i}{\theta}: (\msg{i'}{\factor} )_{i' \in \fis{\factor}} \mapsto \msg{\factor}{i},
 \end{equation}
 where $\theta$ are the parameters of the function approximator. Note that for exponential family distribution this effectively reduces to a multi-variate regression problem as each message can be represented by a finite-dimensional parameter vector, and the message update (\ref{eq:msgPassing:EP}) can thus be understood as a vector valued function.
+\wjnote{Why do we need to mention ``can be understood as a vector valued function'' ?}
 
 While \cite{Heess2013} use neural networks and a very large, fixed training set to learn their approximate message operator prior to running EP with the intractable factor, \cite{Eslami2014}
 employ random forests as their class of learning functions, and update their approximate message operator on the fly during inference, depending on the predictive uncertainty of the current message operator. Specifically, they endow their function approximator with an uncertainty estimate
 \begin{equation}
 \uncertaintyMsg{\factor}{i}{\theta}: (\msg{i'}{\factor} )_{i' \in \fis{\factor}} \mapsto v,
 \end{equation}
-where $v$ indicates the expected unreliability  of the predicted, approximate message $\msg{\factor}{i}$ returned by $\approxMsg{\factor}{i}{\theta}$. If $v = \uncertaintyMsg{\factor}{i}{\theta} \left( (\msg{i'}{\factor} )_{i' \in \fis{\factor}}\right)$ exceeds a pre-defined threshold, the required message is approximated via importance sampling (cf.\ eq.\ \ref{eq:msgIS}) and $\approxMsg{\factor}{i}{\theta}$ is re-trained on this new datapoint (leading to a new set of parameters  $\theta'$ with $\uncertaintyMsg{\factor}{i}{\theta'} \left( (\msg{i'}{\factor} )_{i' \in \fis{\factor}}\right)) < \uncertaintyMsg{\factor}{i}{\theta} \left( (\msg{i'}{\factor} )_{i' \in \fis{\factor}}\right)$.
+where $v$ indicates the expected unreliability  of the predicted, approximate message $\msg{\factor}{i}$ returned by $\approxMsg{\factor}{i}{\theta}$. If $v = \uncertaintyMsg{\factor}{i}{\theta} \left( (\msg{i'}{\factor} )_{i' \in \fis{\factor}}\right)$ 
+exceeds a pre-defined threshold, the required message is approximated via importance sampling (cf.\ eq.\ \ref{eq:msgIS}) and $\approxMsg{\factor}{i}{\theta}$ is re-trained 
+\wjnote{Just updated not retrained ?}
+on this new datapoint (leading to a new set of parameters  $\theta'$ with $\uncertaintyMsg{\factor}{i}{\theta'} \left( (\msg{i'}{\factor} )_{i' \in \fis{\factor}}\right)) < \uncertaintyMsg{\factor}{i}{\theta} \left( (\msg{i'}{\factor} )_{i' \in \fis{\factor}}\right)$.
 
 The  performance of random forests in online learning relies crucially on having a reliable uncertainty estimate,
 and being able to robustly update the trees online without an explosion in computational cost and memory.
@@ -379,14 +380,16 @@ consideration: in our experiments in Section \ref{sec:Experiments}, we demonstra
 uncertainty estimates become unstable and inaccurate as we move away from the initial
 training data. Second, online updates of random forests may not work well
 when the newly observed data is from a very different distribution to the
-initial training sample \citep[e.g.][Fig. 3]{LakRoyTeh14}. Indeed, for large amounts of training set drift, the
-leaf-splitting approach of Eslami et al. can result in a decision tree which is a long chain, giving a worst case
+initial training sample \citep[e.g.][Fig. 3]{LakRoyTeh14}. 
+Indeed, for large amounts of training set drift, the
+leaf-splitting approach of \citeauthor{Eslami2014} can result in a decision tree which is a long chain, giving a worst case
 cost of prediction (computational and storage) of $O(N)$ for training data of size $N$, vs the ideal of $O(\log(N))$
 for balanced trees.
 Finally, note that the approach of \citeauthor{Eslami2014} uses certain bespoke features of the factors when
 specifying tree traversal in the random forests,
 notably the value of the factor potentials at the mean and mode of the incoming messages,
 and binary features indicating whether the inputs were proper, uniform, or point masses.
+\wjnote{The binary features are still accessible in the forward sampling setting.}
 While these features improved performance, they required expert knowledge of the model on the part
 of the practitioner, and would not be accessible in the ``forward sampling'' setting. The present
 work does not employ such features.
@@ -398,19 +401,19 @@ We now provide a cost breakdown of the random forest approach.
 Let
 $K$ be the number of trees in the random forest, $D_t$
 be the number of features used in tree traversal, $D_r$ be the number of features used in making predictions
-at the leaves, $N$ be the number of points provided by the importance sampling oracle, and $M$ be the
+at the leaves, $N$ be the number of training points provided by the importance sampling oracle, and $L$ be the
 number of training points per leaf.
 %
 Assuming that the depth of trees is $O(\log(N))$, one prediction from a random forest costs $O(K D_r D_t \log(N))$, and one update costs $O(K D_r^3 D_t \log(N))$. This is because for each of $K$ trees in the forest, tree traversal involves $O(\log(N))$ steps which each costs $O(D_t)$ (splitting on an internal node involves a linear regression using the tree traversal features), and one prediction costs $O(D_r)$. 
 The leaf predictions are made using polynomial regression of degree two, which must
-be re-trained from scratch for each new point. Retraining at a leaf costs $O(D_r^2 (D_r + M))$, however $M$ is  typically negligible at a lower depth, therefore cost is $O(D_r^3)$.
-Therefore the total updating cost across all trees is $O(K D_r^3 D_t log(N))$.
+be re-trained from scratch for each new point. Retraining at a leaf costs $O(D_r^2 (D_r + L))$, however $L$ is  typically negligible at a lower depth, therefore cost is $O(D_r^3)$.
+Therefore the total updating cost across all trees is $O(K D_r^3 D_t \log(N))$.
 
 It is instructive to consider some representative numbers used by \citeauthor{Eslami2014}
 The number of trees in the forest was  $K=64$,
 the number of features at a leaf was in general $D_r=14$ (since Gaussian, Beta and Gamma distributions are all parameterised by two numbers, most factors had two incoming messages, and  quadratic regressors were used). $D_t$ was typically of the order of 10 to 20, depending on the number of incoming factor messages: for each incoming message there would be around parameters (e.g. for a Gaussian there would be the mean, variance, mean $\times$ precision, precision and mode), the values of the factor at the mean and mode of the incoming messages, and the binary features characterizing the message.
 Training set size $N$ was in the order of thousands (1,000 to 5,000),
-and the number of samples   $M$ per leaf was between 10 and 50.
+and the number of samples   $L$ per leaf was between 10 and 50.
 
 
 %---------------------------------------------------------------------------
