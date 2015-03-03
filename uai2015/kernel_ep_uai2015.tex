@@ -348,7 +348,7 @@ Computing the numerator of (\ref{eq:msgPassing:EP}) can be challenging, as it re
 %However, while deterministic approximations to (\ref{eq:msgPassing:EP}) may be hard to come by,
 \cite{Barthelme2011,Heess2013,Eslami2014} propose an alternative, stochastic approach to the integration and projection step.
 When the projection $\proj$ is to a member $q(x|\eta)=h(x)\exp\left(\eta^{\top}u(x)-A(\eta)\right)$ of an exponential family, one simply computes the expectation of the sufficient statistic $u(\cdot)$ under the numerator of (\ref{eq:msgPassing:EP}). \wjnote{Under the exact marginal $\msg{ \outV }{\factor}(x_{\outV})\msg{ \factor }{\outV}(x_{\outV})$  ?}
-A sample based approximation of this expectation can be obtained via MCMC. 
+A sample based approximation of this expectation can be obtained via Markov chain Monte Carlo (MCMC). 
 Given a forward-sampling function $f$ as described above, one especially simple approach is importance sampling, 
 %\wjnote{$N$ is used for training size. Use $M$ here instead ?}
 %AG: fixed
@@ -370,7 +370,7 @@ for some distribution $r$ with appropriate support, and compute importance weigh
 w(\fx{\factor}) = \frac{\prod_{W \in \fis{\factor}} \msg{W}{\factor}(x_{W})}{r(\xin)}.
 \end{equation}
 
-The thus estimated expected sufficient statistics provide us with an estimate of the parameters $\eta$ of the result $q$ of the projection $\projP{p}$, from which the message is readily computed.\dsnote{isn't $\eta$ the actual message?}
+Thus the estimated expected sufficient statistics provide us with an estimate of the parameters $\eta$ of the result $q$ of the projection $\projP{p}$, from which the message is readily computed.\dsnote{isn't $\eta$ the actual message?}
 
 
 %--------------------------------------------------------------------
@@ -420,7 +420,7 @@ Indeed, for large amounts of training set drift, the
 leaf-splitting approach of \citeauthor{Eslami2014} can result in a decision tree which is a long chain, giving a worst case
 cost of prediction (computational and storage) of $O(N)$ for training data of size $N$, vs the ideal of $O(\log(N))$
 for balanced trees.
-Finally, note that the approach of \citeauthor{Eslami2014} uses certain bespoke features of the factors when
+Finally, note that the approach of \citeauthor{Eslami2014}~uses certain bespoke features of the factors when
 specifying tree traversal in the random forests,
 notably the value of the factor potentials at the mean and mode of the incoming messages.
 These features 
@@ -616,7 +616,7 @@ In Section \ref{sec:kernelsOnDistributions}, we define our kernel on tuples of d
 
 In the following, we consider only a single factor, and therefore drop the factor identity from our notation. We write the set of $c$ incoming messages to a factor node as a tuple of
 probability distributions %$\mathsf{x}_r:=$
-$R:=(r^{(l)})_{l=1}^c$, each defined on its domain $\mathcal{X}^{(l)}$.
+$R:=(r^{(l)})_{l=1}^c$ of random variables $X^{(l)}$ on respective  domains $\mathcal{X}^{(l)}$.
 Our goal is to define a kernel between one such tuple, and a second one,
 which we will write %$\mathsf{x}_s:=$
 $S:=(s^{(l)})_{l=1}^c$.
@@ -636,10 +636,9 @@ The {\em mean embedding} of $r^{(l)}$ is written
 \begin{equation}
 \mu_{r^{(l)}}(\cdot):=\int k^{(l)}(x^{(l)},\cdot) dr^{(l)} (x^{(l)}),
 \end{equation}
-and has the property
-$\langle f,\mu_{r^{(l)}} \rangle_{\mathcal{H}^{(l)}} = \mathbb{E}_{r^{(l)}}(f(X^{(l)}))$
-for all $f\in \mathcal{H}^{(l)}$.
-
+such that
+$\langle f,\mu_{r^{(l)}} \rangle_{\mathcal{H}^{(l)}} = \mathbb{E}_{r^{(l)}}(f(X^{(l)})),\quad\forall f\in \mathcal{H}^{(l)}$.
+%
 Similarly, a mean embedding may be defined on the product of  messages in a tuple
 $\mathsf{r}=\prod_{l=1}^{c}r^{(l)}$ as
 \begin{equation}
@@ -835,7 +834,7 @@ a two-stage set of random Fourier features for \eqref{eq:gauss_joint_emb}.
 %via a two-stage 
 %approximations.
 
-We start by expanding the square in the exponent 
+We start by expanding the  exponent 
 of \eqref{eq:gauss_joint_emb} as
 %
 \begin{align*}
