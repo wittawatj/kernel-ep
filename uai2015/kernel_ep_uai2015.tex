@@ -1362,14 +1362,15 @@ visible even at the 99th percentile.
 \end{figure}
 
 
-One of the most important tasks in JIT learning is to correctly estimate 
-the predictive uncertainty in unexplored regions in the space of incoming messages. 
-We compute the predictive variance using the same learned operator as used in 
+For the approximate message operator to perform well in a JIT learning setting it is crucial to have reliable estimates 
+of operator's predictive uncertainty in different parts of the space of incoming messages.
+%in unexplored regions in the space of incoming messages. 
+To assess this property of we compute the predictive variance using the same learned operator as used in 
 \figref{fig:kl_div}. The forward incoming messages $\msg{z_i}{\factor}$ in the previously 
 used training set are shown in \figref{fig:logistic_uncertainty_test}. 
 The backward incoming messages $\msg{p_i}{\factor}$ are not displayed.
 Shown in the same plot are two curves (a blue line, and a pink parabola) representing two ``uncertainty test sets'':
-these are sets of parameter pairs on which we wish to evaluate
+these are the sets of parameter pairs on which we evaluate
 the uncertainty of the predictor, and contain regions
 with both high and low densities of training samples.
 %
@@ -1385,13 +1386,12 @@ $\msg{p_i}{\factor} := \text{Beta}(p_i; 1, 2)$ for testing.
 The implementation of the random forests closely
 follows that of \cite{Eslami2014}. 
 
-From the figure, as the mean of the testing message moves away from the dense 
-training region, the predictive variance reported by the kernel method increases
+From the figure, as the mean of the test message moves away from the region densely sampled by the training data, the predictive variance reported by the kernel method increases
 much more smoothly than that of the random forests. Further, our method
 clearly exhibits a higher uncertainty on the test set \#1 than on the test set \#2.
 This behaviour is desirable, as most of the points in the test set \#1 are either 
-in a low density region or an unexplored region. These results ensure that the 
-predictive variance is a robust thresholding criterion for querying the importance sampling oracle.
+in a low density region or an unexplored region. These results suggest that the 
+predictive variance is a robust criterion for querying the importance sampling oracle.
 One key observation is that the uncertainty estimates of the random 
 forests are highly non-smooth i.e., uncertainty on nearby points may vary wildly.
 As a result, a random forest-based JIT learner may still query the importance 
