@@ -149,22 +149,9 @@ Messages}
 \begin{abstract}
 
   We propose an efficient nonparametric strategy
-  for learning a message operator in expectation propagation (EP),
-  which takes as input the set of incoming messages to a factor node, and
-  produces an outgoing message as output.
-  This learned operator replaces the multivariate integral required in classical EP,
-  which may not have an analytic expression.
-  We use kernel-based regression, which is trained on
-  a set of probability distributions
-  representing the incoming messages, and the associated outgoing messages.
-  The kernel approach has two main advantages: first, it is fast,
-  as it is implemented using a novel two-layer random feature representation of the input message distributions;
-  second, it has principled uncertainty estimates, and can be cheaply updated
-  online, meaning it can request and incorporate new training data when it encounters inputs on
-  which it is uncertain.  In experiments, our approach is able to solve learning problems
-  where a single message operator is required for multiple, substantially different data sets (logistic regression for a variety of classification problems), where the ability to accurately assess uncertainty and to efficiently and robustly update
-  the message operator are essential.
-  \end{abstract}
+  for learning a message operator in expectation propagation (EP), which takes as input the set of incoming messages to a factor node, and produces an outgoing message as output. This learned operator replaces the multivariate integral required in classical EP, which may not have an analytic expression. We use kernel-based regression, which is trained on a set of probability distributions representing the incoming messages, and the associated outgoing messages. The kernel approach has two main advantages: first, it is fast, as it is implemented using a novel two-layer random feature representation of the input message distributions; second, it has principled uncertainty estimates, and can be cheaply updated online, meaning it can request and incorporate new training data when it encounters inputs on which it is uncertain.  In experiments, our approach is able to solve learning problems where a single message operator is required for multiple, substantially different data sets (logistic regression for a variety of classification problems), where the ability to accurately assess uncertainty and to efficiently and robustly update the message operator are essential.
+
+\end{abstract}
 
 \section{Introduction}
 
@@ -401,7 +388,7 @@ On the other hand, for large $M$ the computational cost of running EP with appro
 \begin{equation}
 \approxMsg{\factor}{\outV}{\theta}: (\msg{\outV'}{\factor} )_{\outV' \in \fis{\factor}} \mapsto \msg{\factor}{\outV},
 \end{equation}
-where $\theta$ are the parameters of the function approximator.
+where $\theta$ are the parameters of the approximator.
 
 %AG: shortened.
 %Note that for exponential family distribution this effectively reduces to a multi-variate regression problem as each message can be represented by a finite-dimensional parameter vector, and the message update (\ref{eq:msgPassing:EP}) can thus be understood as a vector valued function.
@@ -1250,8 +1237,8 @@ Unless stated otherwise, all configurations followed the default settings of Inf
 In each of the 20 trials, we collected incoming-outgoing message pairs in 
 the first five iterations of EP from Infer.NET's default implementation of the 
 logistic factor.
-All collected messages were randomly partitioned into 5000 training messages and 
-3000 testing messages.
+All collected messages were randomly partitioned into 5,000 training messages and 
+3,000 testing messages.
 We learned a message operator to predict $m_{f\rightarrow X}$
 using a Gaussian kernel on joint embeddings, as 
 described in \eqref{eq:gauss_joint_emb}.
@@ -1259,8 +1246,8 @@ Regularization and kernel parameters were chosen by leave-one-out cross validati
 (note that cross-validation can be performed 
 faster using a reduced  number of random features, albeit
 with some increase in noise).
-The number of random features was set to $D_{in}=500$ and $D_{out}=1000$.
-Empirically, we observed no significant improvements beyond 1000 random features.
+The number of random features was set to $D_{in}=500$ and $D_{out}=1,000$.
+Empirically, we observed no significant improvements beyond 1,000 random features.
 Since an EP outgoing message can be improper e.g., a normal distribution with 
 negative variance, the regression target was set to be the belief message 
 $q_{\factor \rightarrow z_i}$
@@ -1272,7 +1259,7 @@ $\msg{\factor}{z_i} = q_{\factor \rightarrow z_i} / \msg{z_i}{\factor} $.
 \begin{figure}[ht]
   \centering
 
-  \subfloat[KL Errors \label{fig:kl_div_hist}]{
+  \subfloat[KL errors \label{fig:kl_div_hist}]{
   \includegraphics[width=0.46\columnwidth]{img/kl_ntr5000_iter5_sf1_st20_fm_joint-crop}
   }
   %
@@ -1330,9 +1317,7 @@ visible even at the 99th percentile.
 %   \includegraphics[width=0.3\textwidth]{img/uncertainty/uncertainty-data-10dim-method-ali_rf-n_candidates-100-regressor-quadratic-n_trees-64-crop}
 %   }
   \caption{ (a) Incoming messages from $z$ to $\factor$ from 20 EP runs of binary 
-  logistic regression, as shown in \figref{fig:factor_graph_binlog}.  
-  %
-  (b) Uncertainty estimates of the proposed kernel-based method and 
+  logistic regression, as shown in \figref{fig:factor_graph_binlog}. (b) Uncertainty estimates of the proposed kernel-based method and 
   \citeauthor{Eslami2014}'s random forests on the two 
   uncertainty test sets shown. For testing, we fix the other incoming message 
   $\msg{p_i}{\factor}$ to $\text{Beta}(p_i; 1, 2)$.
@@ -1436,8 +1421,8 @@ The black dashed lines indicate the start of a new inference problem.
 Since the first 300 factor invocations are for the initial training, 
 no uncertainty estimate is shown. From the trace, we observe that the uncertainty 
 rapidly drops down to a stable point at roughly -8.8 and levels 
-off after the operator sees about 1000 incoming-outgoing message pairs, 
-which is relatively low compared to approximately 3000 message passings 
+off after the operator sees about 1,000 incoming-outgoing message pairs, 
+which is relatively low compared to approximately 3,000 message passings 
 (i.e., 10 iterations $\times$ 300 observations) required for one problem. 
 The uncertainty trace displays a periodic structure, repeating itself in 
 every 300 factor invocations, corresponding to a full sweep over all 300 
@@ -1529,7 +1514,7 @@ than the importance sampler.
   %\missingfigure[figwidth=0.49\columnwidth]{}
   }
   %
-  \subfloat[Inferred shape \label{fig:cg_infer_rate}]{
+  \subfloat[Inferred rate \label{fig:cg_infer_rate}]{
   \includegraphics[width=0.31\columnwidth ]{img/online/cg_post_rate-crop}
   %\missingfigure[figwidth=0.49\columnwidth]{}
   }
