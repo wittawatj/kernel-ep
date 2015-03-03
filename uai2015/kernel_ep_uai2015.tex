@@ -1409,8 +1409,8 @@ thereby wasting computation.
 %\end{figure}
 
 \paragraph{Experiment 3: Just-in-time learning}
-Next we consider a kernel just-in-time (KJIT) learning setting on the same task with toy data. 
-Our goal is to learn two kernel-based message operators, one for each outgoing 
+In this experiment we test the approximate operator in the logistic regression model as part of the full EP inference loop in a just-in-time learning setting (KJIT) . % on the same task with toy data. 
+We now learn two kernel-based message operators, one for each outgoing 
 direction from the logistic factor. 
 The data generation is the same as in the batch learning experiment.
 We sequentially presented the operator with 30 related problems, where a new 
@@ -1598,7 +1598,7 @@ KJIT with Infer.NET as the oracle. \figref{fig:cg_infer_time} shows the inferenc
 time of both methods. The plots collectively show that KJIT can deliver posteriors 
 in good agreement with those obtained from Infer.NET, at a much lower cost. 
 Note that in this task only one message is passed to the factor in each problem.
-\figref{fig:cg_infer_time} indicates that KJIT requires fewer oracle 
+\figref{fig:cg_infer_time} also indicates that KJIT requires fewer oracle 
 consultations as more problems are seen.
 
 %------------------------------------
