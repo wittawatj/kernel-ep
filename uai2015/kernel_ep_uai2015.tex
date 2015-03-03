@@ -178,7 +178,7 @@ An increasing priority in Bayesian modelling is to make inference accessible and
 without their requiring specialist knowledge.
 % in Bayesian inference.
 This
-is a goal sought in probabistic programming languages \citep{WinGooStuSis11,GooManRoyBonTen08}, 
+is a goal sought in probabilistic programming languages \citep{WinGooStuSis11,GooManRoyBonTen08}, 
 as well as in more granular, component-based
 %AG: at Ali's suggestion, removed these two references
 %procedures \citep{DuvLloGroetal13,GroSalFreTen12} and
@@ -203,7 +203,7 @@ them challenging to implement or impractical to run.
 We address the particular setting of expectation propagation \citep{Minka2001}, a message
 passing algorithm wherein messages are confined to being members of a particular parametric
 family. The process of integrating incoming messages over a factor potential, and projecting the result onto the
-required output family, can be difficult, and in some cases not achieveable in closed form.
+required output family, can be difficult, and in some cases not achievable in closed form.
 Thus, a number of approaches have been proposed to implement EP updates numerically, independent
 of the details of the factor potential being used.  One approach, due to
 \citet{Barthelme2011}, is to compute the message update via importance sampling.
@@ -284,7 +284,7 @@ Next, in Section \ref{sec:Online}, we describe our kernel regression approach, a
 the form of an efficient kernel message operator mapping the input messages (distributions embedded in an
 RKHS) to output messages (sets of parameters of the outgoing messages).
 Finally, in Section \ref{sec:Experiments}, we describe our experiments, which cover three topics:
-a benchmark of our uncertainty estimates, a demonstraction of factor learning
+a benchmark of our uncertainty estimates, a demonstration of factor learning
 on artificial data with well-controlled statistical properties,
 and a logistic regression experiment on four different real-world datasets,
 demonstrating our just-in-time learner can correctly evaluate its uncertainty
@@ -1947,7 +1947,7 @@ back to the desired value during testing.
 
 \paragraph{Operator representation}
 
-Once the best parameter combination is choosen, we increase $d$ to
+Once the best parameter combination is chosen, we increase $d$ to
 the desired value and precompute $\hat{C}_{Y|X}\approx\underbrace{Y}_{d_{y}\times n}\underbrace{\hat{\Phi}^{\top}}_{n\times d}\underbrace{\left(\hat{\Phi}\hat{\Phi}^{\top}+\lambda I\right)^{-1}}_{d\times d}$
 for test time. One obvious improvement is to avoid forming $\hat{\Phi}$
 explicitly since the memory cost will be $O(dn)$ which can already
@@ -2031,7 +2031,7 @@ Assume there are $c$ incoming messages $\left(p^{(i)}\right)_{i=1}^{c}$
 \mathbb{E}_{q^{(l)}}\left[y\right] & =\mu_{l}\\
 \mathbb{V}_{q^{(l)}}\left[y\right] & =\sigma_{l}^{2}.
 \end{align*}
-We use $p^{(l)}(x)$ and $m_{x_{i}\rightarrow f}(x)$ interchageably.
+We use $p^{(l)}(x)$ and $m_{x_{i}\rightarrow f}(x)$ interchangeably.
 Incoming messages are not necessarily Gaussian. They do have to be
 in the exponential family. MV (mean-variance) kernel is a a product
 kernel on means and variances. 
@@ -2039,7 +2039,7 @@ kernel on means and variances.
 \kappa\left(\left(p^{(i)}\right)_{i=1}^{c},\left(q^{(i)}\right)_{i=1}^{c}\right) & =\prod_{i=1}^{c}\kappa^{(i)}\left(p^{(i)},q^{(i)}\right)\\
  & =\prod_{i=1}^{c}k\left(\left(m_{i}-\mu_{i}\right)/w_{i}^{m}\right)\prod_{i=1}^{c}k\left(\left(v_{i}-\sigma_{i}^{2}\right)/w_{i}^{v}\right)
 \end{align*}
-where $k$ is a Gassian kernel with unit width. The kernel $\kappa$
+where $k$ is a Gaussian kernel with unit width. The kernel $\kappa$
 has $P:=\left(w_{1}^{m},\ldots,w_{c}^{m},w_{1}^{v},\ldots,w_{c}^{v}\right)$
 as its parameters. With this kernel, we treat messages as finite dimensional
 vector. All incoming messages $(q^{(i)})_{i=1}^{c}$ are essentially
