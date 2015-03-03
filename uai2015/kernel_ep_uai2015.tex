@@ -593,8 +593,8 @@ and the number of samples   $L$ per leaf was between 10 and 50.
 
 
 We now propose a kernel regression method for jointly learning the message operator $\approxMsg{\factor}{\outV}{\theta}$ and
-uncertainty estimate $\uncertaintyMsg{\factor}{\outV}{\theta}$. We will regress from the tuple of input messages, which
-are probability distributions, to a set of output parameters. To this end we extend a kernel over distributions from \citep{ChristmannSteinwart10} to the case where the input consists of more than one distribution.
+uncertainty estimate $\uncertaintyMsg{\factor}{\outV}{\theta}$. We will regress from the tuple of incoming messages, which
+are probability distributions, to the parameters of the outgoing message. To this end we extend a kernel over distributions from \citep{ChristmannSteinwart10} to the case where the input consists of more than one distribution.
 
 We note that \citet{SonGreGue10,SonGreBicLowGue11} propose a related regression approach for predicting outgoing
 messages from incoming messages, for the purpose of Belief Propagation. Their setup is entirely different from ours, however, as their messages are smoothed conditional density functions rather than parametric distributions of known form.
