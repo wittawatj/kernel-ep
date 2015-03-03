@@ -166,7 +166,7 @@ function  plot01Loss(kjit, is, dnet)
     %title(sprintf('Classification error on held-out test sets'));
     %legend('KJIT', 'Sampling', 'Infer.NET');
     legend('Infer.NET', 'Sampling', 'Sampling + KJIT');
-    pbaspect([4 3 1]);
+    pbaspect([6 3 1]);
     grid on
     hold off
 
@@ -210,7 +210,7 @@ function plotTemporalUncertainty(kjit)
     set(gca, 'FontSize', 11);
     ylabel('Log predictive variance');
     xlabel('Factor invocations.');
-    title('Predictive variance of the outgoing message')
+    %title('Predictive variance of the outgoing message')
     legend('Predictive variance', sprintf('Moving average'), 'Threshold');
     pbaspect([40, 5, 1]);
     %legend('Log predictive variance', sprintf('Moving average'), 'Consult oracle');
@@ -318,7 +318,7 @@ function plotIncomingMessages(is)
     [dataNames, dataLabels, testsetFNames] = getDataNames();
     figure 
     hold all
-    styles = {'mh', 'k.', 'ro', 'bx'};
+    styles = {'m^', 'bx', 'ro', 'k.'};
     for i=1:length(dataNames)
         dn = dataNames{i};
         mtp = is.(dn).inXOutXMtp;
@@ -370,7 +370,7 @@ function plotInferenceTimes(kjit, is)
     ylabel('Time in ms');
     set(gca, 'XTick', 1:length(dataLabels));
     set(gca, 'XTickLabel', dataLabels);
-    pbaspect([4 3 1]);
+    pbaspect([6 3 1]);
 
     grid on
     hold off 

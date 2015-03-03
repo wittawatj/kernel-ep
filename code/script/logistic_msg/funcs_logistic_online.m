@@ -211,7 +211,7 @@ function [kepCells, isCells, kepInferTimes, isInferTimes, ...
     %isSize = 100000;
     epIter = 10;
     n = 300;
-    seed_to = 20;
+    seed_to = 30;
     seeds =  1:seed_to;
     scriptFol = Global.getScriptFolder();
     fullFileFunc = @(fn)fullfile(scriptFol, 'logistic_msg', ...
@@ -303,7 +303,7 @@ function plotInferenceResults()
     seed_to = length(kepCells);
     seeds = 1:seed_to;
     % plot inference time.
-    timeSub = 1:min(20, length(seeds));
+    timeSub = 1:min(30, length(seeds));
     figure
     hold on 
     plot(timeSub, log(dnetInferTimes(timeSub)), '+-k', 'LineWidth', 2);
@@ -338,7 +338,7 @@ function plotInferenceResults()
     set(gca, 'FontSize', 11);
     ylabel('Log predictive variance');
     xlabel('Factor invocations');
-    title('Predictive variance of the outgoing message');
+    %title('Predictive variance of the outgoing message');
     legend('Predictive variance', sprintf('Moving average'), 'Threshold');
     pbaspect([40, 5, 1]);
     %daspect([10, 2, 1]);

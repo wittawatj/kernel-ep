@@ -118,16 +118,32 @@
   \providecommand{\lemmaname}{Lemma}
 \providecommand{\theoremname}{Theorem}
 
+
+% WJ's space hacks. Is it okay to do this ?
+\setlength{\intextsep}{3mm}
+\setlength{\dbltextfloatsep }{4mm}
+%\setlength{\dblfloatsep}{4mm}
+%\setlength{\belowcaptionskip}{1mm}
+
+% \floatsep: space left between floats.
+% \textfloatsep: space between last top float or first bottom float and the text.
+% \intextsep : space left on top and bottom of an in-text float.
+% \dbltextfloatsep is \textfloatsep for 2 column output.
+% \dblfloatsep is \floatsep for 2 column output.
+% \abovecaptionskip: space above caption
+% \belowcaptionskip: space below caption
+
 \begin{document}
-
-
 \title{Kernel-Based Just-In-Time Learning for \\Passing Expectation Propagation
 Messages}
 \author{}
 \maketitle
+
+
 \begin{abstract}
 
   \agnote{can we get rid of the massive space below the title?}
+  \wjnote{Tried vspace -3cm but did not work. The space is for author list ?}
   We propose an efficient nonparametric strategy
   for learning a message operator in expectation propagation (EP),
   which takes as input the set of incoming messages to a factor node, and
@@ -298,7 +314,7 @@ We deal with models in which some of the factors have a non-standard form, or ma
 %\int \factor (\fx{\factor}) \prod_{i' \in \fis{\factor} \textbackslash i} \msg{i'}{\factor}(x_{i'}) \diffd \bx_{\fis{\factor} \textbackslash i},
 %\label{eq:msgPassing:BP}
 %\end{equation}
-%where $\msg{i'}{\factor}$ are the messages sent to factor $\psi$ from its neighboring variables $x_{i'}$ other than $x_i$.
+%where $\msg{i'}{\factor}$ are the messages sent to factor $\factor$ from its neighboring variables $x_{i'}$ other than $x_i$.
 
 Expectation Propagation (EP) is an approximate iterative procedure for computing marginal beliefs of variables
 by iteratively passing messages between variables and factors until convergence \citep{Minka2001}.
@@ -560,8 +576,9 @@ and the number of samples   $L$ per leaf was between 10 and 50.
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.9\columnwidth]{img/online/uci_in_msgs-crop}
-\caption{Incoming messages $\msg{z_i}{\psi}$ in the online learning on the four
+\caption{Incoming messages $\msg{z_i}{\factor}$ in the online learning on the four
 UCI datasets. 
+\wjnote{Refer to this figure in the intro. }
 %\aenote{Figure fonts too large.}
 \label{fig:uci_in_msgs}
 }
@@ -952,7 +969,6 @@ $XY^{\top}\in\mathbb{R}^{D}$ and update it with
 costing $O(D)$ per update. 
 %In the first iteration when no data are observed, $\Sigma_{w}^{(1)}=\sigma_{0}^{2}I$.
 
-\wjnote{Mention initial minibatch training here.}
 
 %------------------------------------
 %\subsection{Online-Active Learning}
@@ -968,7 +984,7 @@ for each tuple of incoming messages $x^{*}$, there are $D_{y}$
 predictive variances, $v_{1}^{*},\ldots,v_{D_{y}}^{*}$, one for each
 output. 
 Let $\{\tau_{i}\}_{i=1}^{D_{y}}$ be pre-specified predictive variance thresholds.
-\wjnote{How should we choose these thresholds ?}
+%\wjnote{How should we choose these thresholds ?}
 Given a new input $x^{*}$, if $v_{1}^{*}>\tau_{1}$ or $\cdots$
 or $v_{D_{y}}^{*}>\tau_{D_{y}}$ i.e., the operator is uncertain, 
 a query is made to the oracle to obtain a ground truth $y^{*}$. 
@@ -988,7 +1004,7 @@ To ensure that the proposed message operator is capable of learning the relation
 of incoming and outgoing messages, we first consider a batch learning setting.
 
 %------------------------------------
-\subsection{Logistic factor} 
+\subsection{Logistic factor \label{sec:logistic_factor} } 
 %------------------------------------
 
 
@@ -1022,25 +1038,26 @@ of incoming and outgoing messages, we first consider a batch learning setting.
 \caption{Factor graph for binary logistic regression. 
 The kernel-based message operator learns to approximate the logistic factor 
 highlighted in red. The two incoming messages are 
-$\msg{z_i}{\psi} = \mathcal{N}(z_i; \mu, \sigma^2)$ and 
-$\msg{p_i}{\psi} = \text{Beta}(p_i; \alpha, \beta) $. 
+$\msg{z_i}{\factor} = \mathcal{N}(z_i; \mu, \sigma^2)$ and 
+$\msg{p_i}{\factor} = \text{Beta}(p_i; \alpha, \beta) $. 
 }
 \label{fig:factor_graph_binlog}
 \end{figure}
 
 
-As in \cite{Heess2013} and \cite{Eslami2014}, we study the logistic factor defined as
+As in \cite{Heess2013} and \cite{Eslami2014}, we study the logistic factor 
+$\factor(p|z)=\delta\left(p-\frac{1}{1+\exp(-z)}\right)$ 
 %
-\begin{equation*}
-\psi(p|z)=\delta\left(p-\frac{1}{1+\exp(-z)}\right)
-\end{equation*}
+% \begin{equation*}
+% \factor(p|z)=\delta\left(p-\frac{1}{1+\exp(-z)}\right)
+% \end{equation*}
 %
 where $\delta$ is the Dirac delta function, in the context of 
 a binary logistic regression model as shown in \figref{fig:factor_graph_binlog}.
 The factor is deterministic when conditioning on $z$. 
 There are two incoming messages to the factor: 
-$\msg{p_i}{\psi} = \text{Beta}(p_i; \alpha, \beta) $ and 
-$\msg{z_i}{\psi} = \mathcal{N}(z_i; \mu, \sigma^2)$ 
+$\msg{p_i}{\factor} = \text{Beta}(p_i; \alpha, \beta) $ and 
+$\msg{z_i}{\factor} = \mathcal{N}(z_i; \mu, \sigma^2)$ 
 where $z_i = \boldsymbol{w}^\top x_i$ represents the dot product between an observation 
 $x_i \in \mathbb{R}^d$ and the coefficient vector $\boldsymbol{w}$ whose posterior is 
 to be inferred.
@@ -1067,11 +1084,11 @@ The number of random features are set to $D_{in}=500$ and $D_{out}=1000$.
 Empirically, we observe no significant improvements beyond 1000 random features.
 Since in general an EP outgoing message can be improper e.g., a normal distribution with 
 negative variance, the regression target is set to be the belief message 
-$q_{\psi \rightarrow z_i}$
+$q_{\factor \rightarrow z_i}$
 (i.e., the numerator of \eqref{eq:msgPassing:EP}) rather than 
-the outgoing message $\msg{\psi}{z_i}$ to sidestep the issue. 
+the outgoing message $\msg{\factor}{z_i}$ to sidestep the issue. 
 An outgoing message can be constructed straightforwardly with
-$\msg{\psi}{z_i} = q_{\psi \rightarrow z_i} / \msg{z_i}{\psi} $.
+$\msg{\factor}{z_i} = q_{\factor \rightarrow z_i} / \msg{z_i}{\factor} $.
 
 \begin{figure}[ht]
   \centering
@@ -1092,9 +1109,9 @@ $\msg{\psi}{z_i} = q_{\psi \rightarrow z_i} / \msg{z_i}{\psi} $.
 
 
 We report 
-$\log KL[q_{\psi \rightarrow z_i} \| \hat{q}_{\psi \rightarrow z_i}]$ 
-where $q_{\psi \rightarrow z_i}$ is the ground truth projected belief and 
-$\hat{q}_{\psi \rightarrow z_i}$ is the predicted.
+$\log KL[q_{\factor \rightarrow z_i} \| \hat{q}_{\factor \rightarrow z_i}]$ 
+where $q_{\factor \rightarrow z_i}$ is the ground truth projected belief and 
+$\hat{q}_{\factor \rightarrow z_i}$ is the predicted.
 % For better numerical scaling, regression outputs are set to $(\mathbb{E}_{q}\left[x\right],
 % \log\mathbb{V}_{q}\left[x\right])$ instead of the expectations of the first two moments. 
 % \aenote{AE: No need to mention log-scaling?} 
@@ -1110,7 +1127,7 @@ visible even at the 99th percentile.
 
 \begin{figure*}[t]
 \centering
-  \subfloat[Parameters of $\msg{z_i}{\psi}$ \label{fig:logistic_uncertainty_test}]{
+  \subfloat[Parameters of $\msg{z_i}{\factor}$ \label{fig:logistic_uncertainty_test}]{
   \includegraphics[width=0.49\columnwidth]{img/uncertainty/logistic_uncertainty_test-crop}
   }
   %
@@ -1123,13 +1140,14 @@ visible even at the 99th percentile.
   \subfloat[Extremely randomized trees\label{fig:ert_uncertainty}]{
   \includegraphics[width=0.49\columnwidth]{img/uncertainty/ert-n_trees-100-crop}
   }
-  \caption{(a) Incoming messages from $z$ to $\psi$ from 20 EP runs in the binary 
+  \caption{(a) Incoming messages from $z$ to $\factor$ from 20 EP runs in the binary 
   logistic regression as shown in \figref{fig:factor_graph_binlog}.  
   (b) Predictive variances of the proposed method on the two 
   uncertainty test sets shown. For testing, we fix the other incoming message 
-  $\msg{p_i}{\psi}$ to $\text{Beta}(p_i; 1, 2)$.
+  $\msg{p_i}{\factor}$ to $\text{Beta}(p_i; 1, 2)$.
   (c,d) The uncertainty estimates on the same test sets of Breiman's random 
   forests and extremely randomized trees. 
+  \wjnote{Incorporate Balaji's latest figure. There is only one ?}
   }
   \label{fig:logistic_uncertainty}
 %   \caption{Uncertainty estimates of random forests on two uncertainty test sets 
@@ -1140,9 +1158,9 @@ visible even at the 99th percentile.
 One of the most important tasks in JIT learning is to correctly estimate 
 the predictive uncertainty in unexplored regions in the space of incoming messages. 
 We compute the predictive variance using the same learned operator as used in 
-\figref{fig:kl_div}. The forward incoming messages $\msg{z_i}{\psi}$ in the previously 
+\figref{fig:kl_div}. The forward incoming messages $\msg{z_i}{\factor}$ in the previously 
 used training set are shown in \figref{fig:logistic_uncertainty_test}. 
-The backward incoming messages $\msg{p_i}{\psi}$ are not shown.
+The backward incoming messages $\msg{p_i}{\factor}$ are not shown.
 Shown in the same plot are two curves representing two uncertainty test sets
 in which each point corresponds to an incoming message. 
 The test sets contain a mix of messages in the dense region of 
@@ -1152,7 +1170,7 @@ the training set and messages in unexplored regions.
 \figref{fig:ert_uncertainty} show uncertainty estimates of each point in 
 the two test sets by our kernel-based operator, Breiman's random forests 
 and extremely randomized trees, where we fix 
-$\msg{p_i}{\psi} := \text{Beta}(p_i; 1, 2)$ for testing. 
+$\msg{p_i}{\factor} := \text{Beta}(p_i; 1, 2)$ for testing. 
 The implementation of the random forests closely
 follows the description detailed in \cite{Eslami2014}. 
 
@@ -1184,7 +1202,7 @@ Next we consider a just-in-time learning setting on the same task with toy data.
 Our goal is to learn two kernel-based message operators, one for each outgoing 
 direction from the logistic factor. 
 The data generation is the same as in the batch learning experiment.
-We sequentially present the operator with 50 related problems where a new 
+We sequentially present the operator with 30 related problems where a new 
 set of observations $\{(x_i, y_i)\}_{i=1}^n$ are generated at the beginning of 
 each problem from the model, while keeping $\boldsymbol{w}$ fixed.
 This scenario is common in practice because one is often given several sets of 
@@ -1196,8 +1214,9 @@ We set the maximum number of EP iterations to 10 in each problem.
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.95\textwidth]{img/online/logistic_temporal_uncertainty-crop}
-\caption{Uncertainty estimate of KJIT for all incoming messages at each time point 
-in the binary logistic regression problem. \aenote{Mention in caption what the stars and dashed lines represent.}
+\caption{Uncertainty estimate of KJIT of outgoing messages at each factor invocation
+in the binary logistic regression problem. The black dashed lines indicate the start 
+of a new inference problem.
 \label{fig:logistic_temporal_uncertainty}
 }
 \end{figure*}
@@ -1217,11 +1236,12 @@ of random features are $D_{in} = 300$ and $D_{out} = 500$. The output noise vari
 $\sigma^2_y$ is fixed to $10^{-4}$ and the uncertainty threshold on the log 
 predictive variance is set to -8.5. To simulate a black-box setup, we use 
 an importance sampler as the oracle rather than Infer.NET's factor implementation, 
-where the proposal distribution is fixed to $\mathcal{z; 0, 200}$ with 500000 particles.
+where the proposal distribution is fixed to $\mathcal{N}(z; 0, 200)$ with 
+$5 \times 10^5$ particles.
 
 \figref{fig:logistic_temporal_uncertainty} shows a trace of predictive variance 
-of KJIT in predicting the mean of each $\msg{\psi}{z_i}$ upon each factor invocation. 
-The black dotted lines indicate the start of a new inference problem. 
+of KJIT in predicting the mean of each $\msg{\factor}{z_i}$ upon each factor invocation. 
+The black dashed lines indicate the start of a new inference problem. 
 Since the first 300 factor invocations are for the initial training, 
 no uncertainty estimate is shown. From the trace, we observe that the uncertainty 
 rapidly drops down to a stable point at roughly -8.8 and levels 
@@ -1230,10 +1250,10 @@ which is relatively low compared to approximately 3000 message passings
 (i.e., 10 iterations $\times$ 300 observations) required for one problem. 
 The uncertainty trace displays a periodic structure, repeating itself in 
 every 300 factor invocations, corresponding to a full sweep over all 300 
-observations to collect incoming messages $\msg{z_i}{\psi}$. 
+observations to collect incoming messages $\msg{z_i}{\factor}$. 
 The abrupt drop of uncertainty in the first EP iteration of each new problem is 
 due to the fact that Infer.NET's inference engine initializes the message from 
-$\boldsymbol{w}$ to have zero mean, leading to $\msg{z_i}{\psi}$ also having a 
+$\boldsymbol{w}$ to have zero mean, leading to $\msg{z_i}{\factor}$ also having a 
 zero mean. Repeated encounters of such a zero mean incoming message reinforce the 
 operator's confidence; hence the drop of uncertainty. 
 
@@ -1247,7 +1267,8 @@ operator's confidence; hence the drop of uncertainty.
   \subfloat[Inference time\label{fig:logistic_inference_time}]{
   \includegraphics[width=0.47\columnwidth]{img/online/logistic_inference_time-crop}
   }
-  \caption{Classification performance and inference times of all methods. 
+  \caption{Classification performance and inference times of all methods in the 
+  binary logistic regression problem. 
   }
   \label{fig:logistic_performance}
 \end{figure}
@@ -1313,7 +1334,7 @@ than the importance sampler.
 % 	}
   %
   \subfloat[Inferred shape \label{fig:cg_infer_shape}]{
-  \includegraphics[width=0.31\columnwidth]{img/online/cg_post_shape-crop}
+  \includegraphics[width=0.33\columnwidth]{img/online/cg_post_shape-crop}
   %\missingfigure[figwidth=0.49\columnwidth]{}
   }
   %
@@ -1323,14 +1344,25 @@ than the importance sampler.
   }
   %
   \subfloat[Inference time\label{fig:cg_infer_time}]{
-  \includegraphics[width=0.34\columnwidth]{img/online/cg_inference_time-crop}
+  \includegraphics[width=0.33\columnwidth]{img/online/cg_inference_time-crop}
   }
   \caption{Shape (a) and rate (b) parameters of the inferred posteriors in 
   the compound gamma problem. 
   (c) KJIT is able to infer equally good posterior parameters compared to Infer.NET 
-  while requiring several orders of magnitude less runtime. \aenote{Figure fonts too small.}}
+  while requiring several orders of magnitude less runtime. }
   \label{fig:cg_performance}
 \end{figure}
+
+
+% UCI datasets. temporal uncertainty.
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.95\textwidth]{img/online/uci_temporal_uncertainty-crop}
+\caption{
+Uncertainty estimate of KJIT of outgoing messages on the four UCI datasets.
+\label{fig:uci_temporal_uncertainty}
+}
+\end{figure*}
 
 
 We next explore the compound gamma factor, an alternative to a gamma distribution 
@@ -1343,8 +1375,8 @@ distributed variable $x \sim \mathcal{N}(x; 0, \tau)$ given realizations
 $\{x_i\}_{i=1}^n$. We consider the setting $(s_1, r_1, s_2) = (1, 1, 1)$ which was 
 used in \cite{Heess2013}. Infer.NET's implementation requires two gamma factors
 to specify the compound gamma. Here, we collapse them into one factor 
-and let the operator JIT learn to directly send an outgoing message $\msg{\psi}{\tau}$ 
-given $\msg{\tau}{\psi}$ using Infer.NET as the oracle. 
+and let the operator JIT learn to directly send an outgoing message $\msg{\factor}{\tau}$ 
+given $\msg{\tau}{\factor}$ using Infer.NET as the oracle. 
 The Infer.NET's default implementation in this case relies on a quadrature method.
 As in \cite{Eslami2014}, we sequentially present to the operator a number of 
 problems where at the beginning of each problem, a random number of observations 
@@ -1362,17 +1394,21 @@ consultations as more problems are seen.
 %------------------------------------
 \subsection{Real data}
 %------------------------------------
-standardize the data. Use data in the same sequence as in the plot. 
 
-% UCI datasets. temporal uncertainty.
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.95\textwidth]{img/online/uci_temporal_uncertainty-crop}
-\caption{Uncertainty estimate of KJIT for all incoming messages on the four UCI datasets.
-\label{fig:uci_temporal_uncertainty}
-}
-\end{figure*}
-
+In the final experiment, we demonstrate the high flexibility of the operator 
+under a change of the distribution of incoming messages. We consider four real 
+binary classification datasets from the UCI repository 
+\citep{Lichm2013}: banknote authentication, blood transfusion, fertility 
+and ionosphere, in the same binary logistic regression setting as 
+before. As a stress test, we let the operator JIT learn to send outgoing messages 
+$\msg{\factor}{z_i}$ and $\msg{\factor}{p_i}$ on the four problems presented 
+sequentially. The training observations consist of 200 data points subsampled
+from each dataset by stratified sampling. 
+For the fertility dataset which contains only 
+100 data points, we subsample half of them. The rest of the data is used as 
+classification test sets. The uncertainty threshold is set to -9 and the minibatch 
+size is 500. All other parameters are the same as in the JIT learning experiment in
+\secref{sec:logistic_factor}.
 
 % UCI data classification error
 % Inference time
@@ -1382,13 +1418,27 @@ standardize the data. Use data in the same sequence as in the plot.
   \includegraphics[width=0.49\columnwidth]{img/online/uci_classification-crop}
   }
   %
-  \subfloat[Inference time\label{fig:uci_inference_time}]{
+  \subfloat[Inference time\label{fig:uci_infer_time}]{
   \includegraphics[width=0.49\columnwidth]{img/online/uci_infer_time-crop}
   }
   \caption{Classification performance and inference times on the four UCI datasets. 
    }
   \label{fig:uci_performance}
 \end{figure}
+
+
+Classification errors on the test sets and inference times are shown in 
+\figref{fig:uci_01_loss} and \figref{fig:uci_infer_time}, respectively.
+The results positively suggest that KJIT improves the inference time on all the 
+problems without sacrificing inference accuracy. The trace of the predictive 
+variance of each outgoing message is shown in 
+\figref{fig:uci_temporal_uncertainty}. An essential feature to notice is the 
+rapid increase of the uncertainty after the first EP iteration of each problem. 
+As shown in \figref{fig:uci_in_msgs}, the distributions of incoming messages 
+of the four problems are diverse. 
+The sharp rise followed by a steady decrease of the uncertainty is a good indicator 
+that the operator is able to promptly detect a change of input distribution
+and robustly adapt to the new input distributions by querying the oracle.
 
 
 % \hrulefill{}
@@ -1426,10 +1476,13 @@ with a matrix given by the solution of the primal ridge regression.
 
 % future work: a good way to choose kernel parameters
 
+{\small 
 \bibliographystyle{abbrvnat}
 \bibliography{ref}
+}
 
-
+% Place all figures before moving further
+\clearpage
 %%%%%%%%%%%%%%%%%%%% Appendix %%%%%%%%%%%%%%%%%%%
 \newpage
 \onecolumn
@@ -1508,11 +1561,11 @@ gram matrix approximation technique. We use repeated hold-out for parameter sele
 and kernel ridge regression in its dual form when the incomplete Cholesky 
 factorization is used. 
 
-Let $\psi$ be the logistic factor and $m_{\psi \rightarrow i}$ be an outgoing message. 
-Let $q_{\psi \rightarrow i}$ be the ground truth belief message (numerator) associated with 
-$m_{\psi\rightarrow i}$. The error metric we use is 
-$KL[q_{\psi \rightarrow i}\,||\, \hat{q}_{\psi \rightarrow i}]$
-where  $\hat{q}_{\psi \rightarrow i}$ is the belief messages estimated by a learned 
+Let $\factor$ be the logistic factor and $m_{\factor \rightarrow i}$ be an outgoing message. 
+Let $q_{\factor \rightarrow i}$ be the ground truth belief message (numerator) associated with 
+$m_{\factor\rightarrow i}$. The error metric we use is 
+$KL[q_{\factor \rightarrow i}\,||\, \hat{q}_{\factor \rightarrow i}]$
+where  $\hat{q}_{\factor \rightarrow i}$ is the belief messages estimated by a learned 
 regression function. The following table reports the mean of the log KL-divergence 
 and standard deviations.
 
@@ -1580,8 +1633,10 @@ ans =
 \label{sec:median_heuristic}
 }
 
+\hl{need details}
 %=========================================
 
+\begin{comment}
 %=========================================
 \section{Kernel Ridge Regression}
 %=========================================
@@ -1673,6 +1728,8 @@ can be made lower than $O(dn)$ by computing incrementally even though
 the computational complexity remains $O(dn^{2})$ which is still huge.
 The total cost for computing the operator is $O(d^{2}n+d^{3})$. Linear
 dependency on $n$ is unavoidable. 
+
+\end{comment}
 
 %=========================================
 \section{Kernels and Random Features}

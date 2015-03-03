@@ -84,9 +84,9 @@ function plotShapeRateCorr(st)
 
     plot(logKepS, logDnetS, '+k', 'LineWidth', 2);
 
-    set(gca, 'FontSize', 16);
-    xlabel('Log shape inferred by Infer.NET + KJIT');
-    ylabel('Log shape inferred by Infer.NET');
+    set(gca, 'FontSize', 20);
+    xlabel('Inferred by Infer.NET + KJIT');
+    ylabel('Inferred by Infer.NET');
     title(sprintf('Correlation: %.6g', shapeCorr));
     legend('Log shape');
     grid on
@@ -101,9 +101,9 @@ function plotShapeRateCorr(st)
     logKepR = log(kepRate);
     logDnetR = log(dnetRate);
     plot(logKepR, logDnetR, '*r', 'LineWidth', 1);
-    set(gca, 'FontSize', 16);
-    xlabel('Log rate infered by Infer.NET + KJIT');
-    ylabel('Log rate inferred by Infer.NET');
+    set(gca, 'FontSize', 20);
+    xlabel('Infered by Infer.NET + KJIT');
+    ylabel('Inferred by Infer.NET');
     title(sprintf('Correlation: %.6g',  rateCorr));
     legend('Log rate');
     grid on
@@ -129,7 +129,7 @@ function plotPosteriorKL(st)
     I0 = klDnetKep==0;
     plot(find(I0), -20*ones(1, sum(I0)), 'r*');
     %plot(timeSub, log(klKepDnet), '-k', 'LineWidth', 2);
-    set(gca, 'FontSize', 16);
+    set(gca, 'FontSize', 18);
     xlabel('Problems seen');
     ylabel('Log KL divergence')
     title('KL divergence of the posteriors')
