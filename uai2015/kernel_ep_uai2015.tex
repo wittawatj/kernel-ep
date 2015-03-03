@@ -99,6 +99,11 @@
 \newcommand{\kld}[2]{\mathrm{KL} \left [ #1 || #2 \right ]}
 \newcommand{\expectationE}[2]{ \mathbb{E}_{#2}  \left[ #1 \right] }
 
+% random features stuff
+\newcommand{\feax}{\mathsf{x}}
+\newcommand{\feaX}{\mathsf{X}}
+\newcommand{\feay}{\mathsf{y}}
+\newcommand{\feaY}{\mathsf{Y}}
 
 \newcommand{\wjnote}[1]{\textbf{\color{blue!90!black}{WJ: #1}}  }
 \newcommand{\aenote}[1]{\textbf{\color{red!50!black}{#1}} }
@@ -602,7 +607,7 @@ We note that \citet{SonGreGue10,SonGreBicLowGue11} propose a related regression 
 messages from incoming messages, for the purpose of Belief Propagation. The resulting learning problem
 is dissimlar to ours, however: the incoming messages in the earlier work are smoothed
 conditional density functions, rather than RKHS distribution embeddings, and the output messages are likewise
-smoothed conditional density estimates, rather than normalized projections onto a parametric family.
+
 
 
 An important issue is computational cost, as EP is an iterative algorithm and many predictions must be made.
@@ -739,114 +744,103 @@ supplementary material.
 %% better than other kernels on predicting outgoing messages from incoming messages.
 
 
-
+%------------------------------------
 \subsection{Random feature approximations}
-
-\agnote{here is where you define the rahimi recht basic features, and then derive the two-stage kernel representation. Note
- I did not update anything below, so it contains now some redundant kernel definitions repeated from the last section.}
-
-%%%%%%%%
-
-
-An expected product kernel is also known as a set kernel. 
-Let $\mu_{r^{(l)}}:=\mathbb{E}_{r^{(l)}(a)}k(\cdot,a)$ be the mean
-embedding \citep{Smola2007} of the distribution $r^{(l)}$ into RKHS
-$\mathcal{H}^{(l)}$ induced by the kernel $k$. Assume $k=k_{\text{gauss}}$
-(Gaussian kernel) and assume there are $c$ incoming messages $\mathsf{x}:=(r^{(i)}(a^{(i)}))_{i=1}^{c}$
-and $\mathsf{y}:=(s^{(i)}(b^{(i)}))_{i=1}^{c}$. The expected product
-kernel $\kappa_{\text{pro}}$ is defined as 
-\begin{align*}
-\kappa_{\text{pro}}\left(\mathsf{x},\mathsf{y}\right) & :=\left\langle \bigotimes_{l=1}^{c}\mu_{r^{(l)}},\bigotimes_{l=1}^{c}\mu_{s^{(l)}}\right\rangle _{\otimes_{l}\mathcal{H}^{(l)}}\\
- & =\prod_{l=1}^{c}\mathbb{E}_{r^{(l)}(a)}\mathbb{E}_{s^{(l)}(b)}k_{\text{gauss}}^{(l)}\left(a,b\right)\approx\hat{\phi}(\mathsf{x})^{\top}\hat{\phi}(\mathsf{y})
-\end{align*}
-where $\hat{\phi}(\mathsf{x})^{\top}\hat{\phi}(\mathsf{y})=\prod_{l=1}^{c}\hat{\phi}^{(l)}(r^{(l)})^{\top}\hat{\phi}^{(l)}(s^{(l)})$.
-The feature map $\hat{\phi}^{(l)}(r^{(l)})$ can be estimated by applying
-the random Fourier features to $k_{\text{gauss }}^{(l)}$and taking
-the expectations $\mathbb{E}_{r^{(l)}(a)}\mathbb{E}_{s^{(l)}(b)}$.
-The final feature map is $\hat{\phi}(\mathsf{x})=\hat{\phi}^{(1)}(r^{(1)})\circledast\hat{\phi}^{(2)}(r^{(2)})\circledast\cdots\circledast\hat{\phi}^{(c)}(r^{(c)})\in\mathbb{R}^{d^{c}}$where
-$\circledast$ denotes a Kronecker product and we assume that $\hat{\phi}^{(l)}\in\mathbb{R}^{d}$
-for $l\in\{1,\ldots,c\}$.
-
-%------------------------------------
-%\subsection{Expected Product Kernel on Joint Embeddings }
 %------------------------------------
 
-Another way to define a kernel on $\mathsf{x},\mathsf{y}$ is to consider
-joint distributions $\mathsf{r}=\prod_{i=1}^{c}r^{(i)}$ and
-$\mathsf{s}=\prod_{i=1}^{c}s^{(i)}$ given by the product of all incoming messages, and 
-define a kernel on the joint distributions.
-One can consider the expected product kernel on the joint distributions as 
-%
-\begin{equation*}
-\kappa_{\text{joint}}(\mathsf{x},\mathsf{y}):=\left\langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}\right\rangle _{\mathcal{G}} = \mathbb{E}_{\mathsf{r}(x)} \mathbb{E}_{\mathsf{s}(y)} k(x, y)
-\end{equation*}
-%
-where $\mathcal{G}$ is an RKHS consisting of functions $g:\mathcal{X}^{(1)}\times\cdots\times\mathcal{X}^{(c)}\rightarrow\mathbb{R}$
-and $\mathcal{X}^{(l)}$ denotes the domain of $r^{(l)}$ and $s^{(l)}$.
+Our message operator $\approxMsg{\factor}{\outV}{\theta}$ is based on kernel ridge 
+regression using the kernel defined in \eqref{eq:gauss_joint_emb}. 
+However, kernel ridge regression in its dual form is not suitable for JIT learning 
+as its solution is expressed in terms of inner products between the messages in 
+the training set. This is problematic for our JIT learning 
+purpose because the training size grows as new examples 
+(incoming-outgoing message pairs) arrive. 
+One possible solution to this is to approximate  the kernel with 
+a finite-dimensional random feature map $\hat{\phi} \in \mathbb{R}^{D_{out}}$ such that 
+$\kappa(\mathsf{r}, \mathsf{s}) \approx \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s})$, 
+which will then allow us 
+to do kernel ridge regression in its primal form: equivalently this is just the 
+standard linear regression with the basis expansion function $\hat{\psi}$. 
 
-%------------------------------------
-%\subsection{Gaussian Kernel on Joint Embeddings }
-%------------------------------------
+% The kernel $\kappa_{\text{gauss}}(\mathsf{r}, \mathsf{s})$ defines an inner product 
+% $\kappa(\mathsf{r}, \mathsf{s}) = \langle 
+% \phi(\mathsf{r}), \phi(\mathsf{s}) \rangle_\mathcal{H}$ between two 
+% elements $\phi(\mathsf{r})$ and $\phi(\mathsf{s})$ in a Hilbert space $\mathcal{H}$.
+% When $\mathcal{H}$ is infinite-dimensional (as is the case for the space induced by 
+% kernel in \eqref{eq:gauss_joint_emb}), an explicit feature map $\phi$ 
+% cannot be computed.
 
-Given two distributions $\mathsf{r}$ and $\mathsf{s}$, a Gaussian kernel on mean embeddings
-\cite{Christmann2010} is defined as 
-%
-\begin{equation}
-\kappa_{\text{gauss}}(\mathsf{r}, \mathsf{s}) = \exp\left(-\frac{\|\mu_{\mathsf{r}}-\mu_{\mathsf{s}}\|_{\mathcal{H}}^{2}}{2\gamma^{2}}\right).
-\label{eq:gauss_joint_emb}
-\end{equation}
-%
-This kernel has two parameters, one for $k$ in $\mu_{\mathsf{r}} = \mathbb{E}_{\mathsf{r}}k(x,\cdot)$
-and $\gamma^{2}$. Empirically, this kernel performs significantly
-better than other kernels on predicting outgoing messages from incoming messages.
+In \cite{Rahimi2007}, methods based on Fourier transforms for computing a vector
+of random features $\hat{\varphi}$ for the standard Gaussian kernel 
+$g(x, y) = \exp\left(-\frac{\| x-y\|^2}{2\beta^2} \right) $ were 
+proposed such that $g(x, y) \approx \hat{\varphi}(x)^\top \hat{\varphi}(y)$
+where $x,y \in \mathbb{R}^d$ and $\hat{\varphi} \in \mathbb{R}^{D_{in}}$.  
+Here we will follow a similar approach and derive 
+a set of random Fourier features for \eqref{eq:gauss_joint_emb} via a two-stage 
+approximations.
 
-\wjnote{Since the norm squared inside exp is nothing but MMD$^2$ in a unit-ball RKHS (Gaussian kernel),
-Arthur may have some good intuition why it works well in practice ? 
-Would be nice to have a paragraph on theoretical explanation if any.}
-
-\paragraph{Random features on mean embeddings}
-\todo{WJ: Change p, q to $\mathsf{r}, \mathsf{s}$}
-One way to get random features for the kernel is given
-by a two-staged approximation procedure as follows.
-By expanding the square in $\kappa_{\text{gauss}}$, we have
+We start by expanding the square in the exponent 
+of \eqref{eq:gauss_joint_emb} yielding 
 %
 \begin{align*}
  %& \kappa_{\text{gauss}}(p,q) \\
-  \exp\left(-\frac{1}{2\gamma^{2}}\left\langle \mu_{p},\mu_{p}\right\rangle +\frac{1}{\gamma^{2}}\left\langle \mu_{p},\mu_{q}\right\rangle -\frac{1}{2\gamma^{2}}\left\langle \mu_{q},\mu_{q}\right\rangle \right).
+  \exp\left(-\frac{1}{2\gamma^{2}}\left\langle \mu_{\mathsf{r}},\mu_{\mathsf{r}}\right\rangle +\frac{1}{\gamma^{2}}\left\langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}\right\rangle -\frac{1}{2\gamma^{2}}\left\langle \mu_{\mathsf{s}},\mu_{\mathsf{s}}\right\rangle \right).
 \end{align*}
 %
-Assume $k$ is translation invariant. The inner product of the mean
-embeddings $\left\langle \mu_{p},\mu_{q}\right\rangle =\mathbb{E}_{p(x)}\mathbb{E}_{q(y)}k(x-y)\approx\hat{\phi}(p)^{\top}\hat{\phi}(q)$
-can be approximated as in Sec. \ref{sub:Expected-Product-Kernel}.
-Assume $\hat{\phi}(p),\hat{\phi}(q)\in\mathbb{R}^{D_{in}}$. With
-the approximation of $\left\langle \mu_{p},\mu_{q}\right\rangle $,
+Assume that the embedding kernel $g$ used to define the embeddings $\mu_\mathsf{r}$ 
+and $\mu_\mathsf{s}$ is translation invariant. Since 
+$\langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}  \rangle
+= \mathbb{E}_{\mathsf{r}(x)} \mathbb{E}_{\mathsf{s}(y)} g(x-y)$, one can use 
+the result of \cite{Rahimi2007} to have 
+%
+\begin{align*}
+ \langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}  \rangle
+ & \approx \mathbb{E}_{\mathsf{r}(x)} \mathbb{E}_{\mathsf{s}(y)} 
+   \hat{\varphi}(x)^\top \hat{\varphi}(y) \\
+ & = \mathbb{E}_{\mathsf{r}(x)} 
+   \hat{\varphi}(x)^\top \mathbb{E}_{\mathsf{s}(y)}  \hat{\varphi}(y) 
+ := \hat{\phi}(\mathsf{r})^\top \hat{\phi}(\mathsf{s})
+\end{align*}
+
+
+With the approximation of $\langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}  \rangle$,
 we have
 \[
-\kappa_{\text{gauss}}(p,q)\approx\exp\left(-\frac{\|\hat{\phi}(p)-\hat{\phi}(q)\|_{D_{in}}^{2}}{2\gamma^{2}}\right)
+\kappa_{\text{gauss}}(\mathsf{r}, \mathsf{s})\approx\exp\left(-\frac{\|\hat{\phi}(\mathsf{r})-\hat{\phi}(\mathsf{r})\|_{D_{in}}^{2}}{2\gamma^{2}}\right)
 %
 %:=k_{\text{gauss}}\left(\hat{\phi}(p)-\hat{\phi}(q);\gamma^{2}\right)
 \]
 which can be thought of as a standard Gaussian kernel on $\mathbb{R}^{D_{in}}$.
-We can thus further approximate the Gaussian kernel with
+We can thus further approximate this Gaussian kernel 
 %
-$ k_{\text{gauss}}\left(\hat{\phi}(p), \hat{\phi}(q);\gamma^{2}\right)\approx\hat{\psi}(p)^{\top}\hat{\psi}(q)$
+% $ k_{\text{gauss}}\left(\hat{\phi}(p), \hat{\phi}(q);\gamma^{2}\right)\approx\hat{\psi}(p)^{\top}\hat{\psi}(q)$
 %
-by standard random Fourier features \citep{Rahimi2007} where $\hat{\psi}(p)\in\mathbb{R}^{D_{out}}$. 
-A pseudocode for generating the random features is summarized in Algorithm~\ref{algo:random_features_kgg}.
-We need to pre-compute $\left\{ \omega_{i}\right\} _{i=1}^{D_{in}},\left\{ b_{i}\right\} _{i=1}^{D_{in}},\left\{ \nu_{i}\right\} _{i=1}^{D_{out}}$
+by random Fourier features of \citeauthor{Rahimi2007} to obtain a vector 
+of random features $\hat{\psi}$ such that 
+$\kappa_{\text{gauss}}(\mathsf{r}, \mathsf{s}) \approx \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s})$
+where $\hat{\psi} \in \mathbb{R}^{D_{out}}$. 
+
+
+
+A pseudocode for generating the random features $\hat{\psi}$ is summarized in Algorithm~\ref{algo:random_features_kgg}. For a more detailed derivation, 
+please refer to the supplementary materials.
+For the random features, we need to pre-compute $\left\{ \omega_{i}\right\} _{i=1}^{D_{in}},\left\{ b_{i}\right\} _{i=1}^{D_{in}},\left\{ \nu_{i}\right\} _{i=1}^{D_{out}}$
 and $\left\{ c_{i}\right\} _{i=1}^{D_{out}}$ where $D_{in}$ and
 $D_{out}$ are the number of random features to be specified. 
 A more efficient way to support a large number of random features 
 is to store only the random seed used to generate 
 them. The coefficients are generated on the fly when needed \citep{Dai2014}. 
 
+
+%%%
+
+
 \begin{algorithm}[t]
-\caption{Construction of two-staged random features for a Gaussian kernel on mean embeddings}
+\caption{Construction of two-staged random features for $\kappa_{\text{gauss}}$}
 \label{algo:random_features_kgg}
 \begin{algorithmic}[1]
 \REQUIRE Input distribution $\mathsf{r}$, Fourier transform $\hat{k}$ of the embedding kernel $k$, number of inner features $D_{in}$, number of outer features $D_{out}$, outer Gaussian width $\gamma^2$.
 \ENSURE Random features $\hat{\psi}(\mathsf{r}) \in \mathbb{R}^{D_{out}}$. 
-\wjnote{$\psi$ is used by Nicolas for a factor.}
 
 %\STATE Compute the Fourier transform $\hat{k}$ of the kernel $k$.
 \STATE Sample  $\{ \omega_i \}_{i=1}^{D_{in}} \overset{i.i.d}{\sim} \hat{k}$.
@@ -873,19 +867,71 @@ i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
 
 
 
+%%%%%%%%
+
+
+% An expected product kernel is also known as a set kernel. 
+% Let $\mu_{r^{(l)}}:=\mathbb{E}_{r^{(l)}(a)}k(\cdot,a)$ be the mean
+% embedding \citep{Smola2007} of the distribution $r^{(l)}$ into RKHS
+% $\mathcal{H}^{(l)}$ induced by the kernel $k$. Assume $k=k_{\text{gauss}}$
+% (Gaussian kernel) and assume there are $c$ incoming messages $\mathsf{x}:=(r^{(i)}(a^{(i)}))_{i=1}^{c}$
+% and $\mathsf{y}:=(s^{(i)}(b^{(i)}))_{i=1}^{c}$. The expected product
+% kernel $\kappa_{\text{pro}}$ is defined as 
+% \begin{align*}
+% \kappa_{\text{pro}}\left(\mathsf{x},\mathsf{y}\right) & :=\left\langle \bigotimes_{l=1}^{c}\mu_{r^{(l)}},\bigotimes_{l=1}^{c}\mu_{s^{(l)}}\right\rangle _{\otimes_{l}\mathcal{H}^{(l)}}\\
+%  & =\prod_{l=1}^{c}\mathbb{E}_{r^{(l)}(a)}\mathbb{E}_{s^{(l)}(b)}k_{\text{gauss}}^{(l)}\left(a,b\right)\approx\hat{\phi}(\mathsf{x})^{\top}\hat{\phi}(\mathsf{y})
+% \end{align*}
+% where $\hat{\phi}(\mathsf{x})^{\top}\hat{\phi}(\mathsf{y})=\prod_{l=1}^{c}\hat{\phi}^{(l)}(r^{(l)})^{\top}\hat{\phi}^{(l)}(s^{(l)})$.
+% The feature map $\hat{\phi}^{(l)}(r^{(l)})$ can be estimated by applying
+% the random Fourier features to $k_{\text{gauss }}^{(l)}$and taking
+% the expectations $\mathbb{E}_{r^{(l)}(a)}\mathbb{E}_{s^{(l)}(b)}$.
+% The final feature map is $\hat{\phi}(\mathsf{x})=\hat{\phi}^{(1)}(r^{(1)})\circledast\hat{\phi}^{(2)}(r^{(2)})\circledast\cdots\circledast\hat{\phi}^{(c)}(r^{(c)})\in\mathbb{R}^{d^{c}}$where
+% $\circledast$ denotes a Kronecker product and we assume that $\hat{\phi}^{(l)}\in\mathbb{R}^{d}$
+% for $l\in\{1,\ldots,c\}$.
+
+%------------------------------------
+%\subsection{Expected Product Kernel on Joint Embeddings }
+%------------------------------------
+
+% Another way to define a kernel on $\mathsf{x},\mathsf{y}$ is to consider
+% joint distributions $\mathsf{r}=\prod_{i=1}^{c}r^{(i)}$ and
+% $\mathsf{s}=\prod_{i=1}^{c}s^{(i)}$ given by the product of all incoming messages, and 
+% define a kernel on the joint distributions.
+% One can consider the expected product kernel on the joint distributions as 
+% %
+% \begin{equation*}
+% \kappa_{\text{joint}}(\mathsf{x},\mathsf{y}):=\left\langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}\right\rangle _{\mathcal{G}} = \mathbb{E}_{\mathsf{r}(x)} \mathbb{E}_{\mathsf{s}(y)} k(x, y)
+% \end{equation*}
+% %
+% where $\mathcal{G}$ is an RKHS consisting of functions $g:\mathcal{X}^{(1)}\times\cdots\times\mathcal{X}^{(c)}\rightarrow\mathbb{R}$
+% and $\mathcal{X}^{(l)}$ denotes the domain of $r^{(l)}$ and $s^{(l)}$.
+
+%------------------------------------
+%\subsection{Gaussian Kernel on Joint Embeddings }
+%------------------------------------
+
+% Given two distributions $\mathsf{r}$ and $\mathsf{s}$, a Gaussian kernel on mean embeddings
+% \cite{Christmann2010} is defined as 
+% %
+% \begin{equation}
+% \kappa_{\text{gauss}}(\mathsf{r}, \mathsf{s}) = \exp\left(-\frac{\|\mu_{\mathsf{r}}-\mu_{\mathsf{s}}\|_{\mathcal{H}}^{2}}{2\gamma^{2}}\right).
+% \end{equation}
+% %
+% This kernel has two parameters, one for $k$ in $\mu_{\mathsf{r}} = \mathbb{E}_{\mathsf{r}}k(x,\cdot)$
+% and $\gamma^{2}$. Empirically, this kernel performs significantly
+% better than other kernels on predicting outgoing messages from incoming messages.
+% 
+
 
 %------------------------------------
 \subsection{Regression for operator prediction}\label{sec:ridgeRegression}
 %------------------------------------
-
-\agnote{this is all standard so can be made even shorter}
 
 %AG: easiest to just describe regression on the features we learned earlier.
 
 %\wjnote{We need to unify Kernel ridge regression and Bayesian linear regression sections. 
 %Posterior mean estimate of the Bayesian regression is the same as the solution to primal kernel ridge regression.
 %Bayesian regression assumes a Gaussian noise output allowing us to compute predictive variance.}
-
 
 %Don't really need the below
 
@@ -897,14 +943,7 @@ i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
 %can be interpreted as computing the conditional expectation of the
 %output features given the inputs \citep{Gruenewaelder2012}.
 
-Let $\mathsf{X}=\left(\mathsf{x}_{1}|\cdots|\mathsf{x}_{N}\right)$
-be the training regression inputs, and $\mathsf{Y}=\left(\mathbb{E}_{q_{\factor\rightarrow \outV}^{1}}u(x_{\outV})|\cdots|\mathbb{E}_{q_{f\rightarrow \outV}^{N}}u(x_{\outV})\right)\in\mathbb{R}^{D_{y}\times N}$
-be the regression outputs.
-In our application, $\mathsf{x}_{n}$ will denote a random feature
-vector representing $[m_{V\rightarrow f}^{n}]_{V\in\mathcal{V}(f)}$,
-as defined in the previous section. Thus, the dimensionality
-of  $\mathsf{X}$ is $D_x\times N$, where $D_x$ is the size of the random
-feature representation of the entire message tuple.
+
 
 %AG: to make this short: just define Bayesian linear regression on the random features
 %from the previous section, rather than going in and out of ridge regression.
@@ -954,29 +993,49 @@ feature representation of the entire message tuple.
 %vector for $[m_{V\rightarrow f}^{n}]_{V\in\mathcal{V}(f)}$. Assume
 %
 
-\agnote{Add the sans serif notation below.}
-We now review Bayesian linear regression on the random features. We are given the priors
+Let $\mathsf{X}=\left(\mathsf{x}_{1}|\cdots|\mathsf{x}_{N}\right)$
+be the training regression inputs, and $\mathsf{Y}=\left(\mathbb{E}_{q_{\factor\rightarrow \outV}^{1}}u(x_{\outV})|\cdots|\mathbb{E}_{q_{f\rightarrow \outV}^{N}}u(x_{\outV})\right)\in\mathbb{R}^{D_{y}\times N}$
+be the regression outputs where $q^i_{\factor \rightarrow \outV}$ is the numerator 
+of \eqref{eq:msgPassing:EP}.
+In our application, $\mathsf{x}_{i}$ denotes a random feature
+vector representing the $i^{th}$ tuple of incoming messages. 
+%Thus, the dimensionality of  $\mathsf{X}$ is $D_{out} \times N$.
+
+
+%\agnote{Add the sans serif notation below.}
+As mentioned, kernel ridge regression in the primal form is equivalent to  
+standard ridge regression, which is equivalent to Bayesian linear regression 
+by interpreting the regularization parameter as the output noise variance.
+A probabilistic interpretation is useful as we seek an uncertainty estimate 
+on test points. The uncertainty estimate in this case will be the predictive 
+variance.
+Here we give a brief review of Bayesian linear regression on the random features. 
+We are given the priors
+
 \begin{align*}
-w & \sim\mathcal{N}\left(w;0,I_{D}\sigma_{0}^{2}\right)\\
-Y\mid X,w & \sim\mathcal{N}\left(Y;w^{\top}X,\sigma_{y}^{2}I_{N}\right),
+w & \sim\mathcal{N}\left(w;0,I_{D_{out}}\sigma_{0}^{2}\right)\\
+\mathsf{Y} \mid \mathsf{X},w & \sim\mathcal{N}\left(\mathsf{Y};w^{\top} \mathsf{X},\sigma_{y}^{2}I_{N}\right),
 \end{align*}
 %
 where the output noise variance $\sigma_{y}^{2}$ captures the intrinsic
-stochasticity of the importance sampler used to generate $Y$. It
+stochasticity of the importance sampler used to generate $\mathsf{Y}$. It
 follows that the posterior of $w$ is given by \citep{Bishop2006}
+%
 \begin{align*}
-p(w\mid Y) & =\mathcal{N}(w;\mu_{w},\Sigma_{w})\\
-\Sigma_{w} & = \left( XX^{\top}\sigma_{y}^{-2}+\sigma_{0}^{-2}I \right)^{-1} \\
-\mu_{w} & =\Sigma_{w}XY^{\top}\sigma_{y}^{-2}.
+p(w | \mathsf{Y}) & =\mathcal{N}(w;\mu_{w},\Sigma_{w})\\
+\Sigma_{w} & = \left( \mathsf{X} \mathsf{X}^{\top}\sigma_{y}^{-2}+\sigma_{0}^{-2}I \right)^{-1} \\
+\mu_{w} & =\Sigma_{w} \mathsf{X} \mathsf{Y}^{\top}\sigma_{y}^{-2}.
 %=\left(XX^{\top}+\frac{\sigma_{y}^{2}}{\sigma_{0}^{2}}I\right)^{-1}XY^{\top}.
 \end{align*}
 %The noise variance $\sigma_{y}^{2}$ is proportional to the regularization
 %parameter in linear regression. 
-The predictive distribution on the output $y^{*}$ given an observation $x^{*}$ is
+The predictive distribution on the output $\mathsf{y}^{*}$ given an 
+observation $\mathsf{x}^{*}$ is
 %
 \begin{align*}
-p(y^{*}|x^{*},Y) & =\int dw\, p(y^{*}|w,x^{*},Y)p(w|Y)\\
- & =\mathcal{N}\left(y^{*};x^{*\top}\mu_{w},x^{*\top}\Sigma_{w}x^{*}+\sigma_{y}^{2}\right)
+p(\mathsf{y}^{*}| \mathsf{x}^{*}, \mathsf{Y}) & =\int  
+ p(\mathsf{y}^{*}|w, \mathsf{x}^{*}, \mathsf{Y}) p(w|\mathsf{Y}) \, dw\\
+ & =\mathcal{N}\left(\mathsf{y}^{*}; \mathsf{x}^{*\top}\mu_{w}, \mathsf{x}^{*\top}\Sigma_{w} \mathsf{x}^{*}+\sigma_{y}^{2}\right)
 % & =\mathcal{N}(y^{*};m^{*},v^{*}).
 \end{align*}
 
@@ -996,14 +1055,16 @@ Treating all outputs jointly can be achieved with a multi-output kernel \citep{A
 %AG: don't need a subsection
 %\subsection{Online Update \label{sec:kernel_ep_online}}
  
-{\bf Online Update:}  we consider an online update for $\Sigma_{w}$ and
-$\mu_{w}$ when observations $X$ comes in stream. We will use $\cdot^{(N)}$
-to denote a quantity constructed from $N$ samples. Recall that $\Sigma_{w}^{-1(N)}=XX^{\top}\sigma_{y}^{-2}+\sigma_{0}^{-2}I$.
+\paragraph{Online Update}
+We consider an online update for $\Sigma_{w}$ and
+$\mu_{w}$ when observations (i.e., random features representing incoming 
+messages) $\mathsf{X}$ comes in stream. We will use $\cdot^{(N)}$
+to denote a quantity constructed from $N$ samples. Recall that $\Sigma_{w}^{-1(N)}= \mathsf{X} \mathsf{X}^{\top}\sigma_{y}^{-2}+\sigma_{0}^{-2}I$.
 The posterior covariance matrix at time $N+1$ is
 \[
 \Sigma_{w}^{(N+1)} 
  =
-\Sigma_{w}^{(N)}-\frac{\Sigma_{w}^{(N)}x_{N+1}x_{N+1}^{\top}\Sigma_{w}^{(N)}\sigma_{y}^{-2}}{1+x_{N+1}^{\top}\Sigma_{w}^{(N)}x_{N+1}\sigma_{y}^{-2}}
+\Sigma_{w}^{(N)}-\frac{\Sigma_{w}^{(N)} \mathsf{x}_{N+1} \mathsf{x}_{N+1}^{\top} \Sigma_{w}^{(N)}\sigma_{y}^{-2}}{1+ \mathsf{x}_{N+1}^{\top}\Sigma_{w}^{(N)} \mathsf{x}_{N+1}\sigma_{y}^{-2}}
  \]
 %AG: don't need this proof
 
@@ -1020,19 +1081,16 @@ the covariance at time $N$.
 %\left(A+uv^{\top}\right)^{-1}=A^{-1}-\frac{A^{-1}uv^{\top}A^{-1}}{1+v^{\top}A^{-1}u}
 %\]
 %with $A=\Sigma_{w}^{-1(N)}$. 
-Updating $\Sigma_{w}$ costs $O(D^{2})$ per one new observation. 
-For $\mu_{w}=\Sigma_{w}XY^{\top}\sigma_{y}^{-2}$, we maintain
-$XY^{\top}\in\mathbb{R}^{D}$ and update it with
+Updating $\Sigma_{w}$ costs $O(D_{out}^{2})$ per one new observation. 
+For $\mu_{w}= \Sigma_{w} \mathsf{X} \mathsf{Y}^{\top}\sigma_{y}^{-2}$, we maintain
+$ \mathsf{X} \mathsf{Y}^{\top}\in\mathbb{R}^{D}$ and update it with
 \[
-\left(XY^{\top}\right)^{(N+1)}=\left(XY^{\top}+x_{N+1}y_{N+1}\right), 
+\left( \feaX \feaY^{\top}\right)^{(N+1)}=\left( \feaX \feaY^{\top}+x_{N+1}y_{N+1}\right), 
 \]
-costing $O(D)$ per update. 
+costing $O(D_{out})$ per update. 
 %In the first iteration when no data are observed, $\Sigma_{w}^{(1)}=\sigma_{0}^{2}I$.
 
 
-%------------------------------------
-%\subsection{Online-Active Learning}
-%------------------------------------
 
 %If the predictive variance of the current incoming messages $x^{*}$
 %is high, the operator queries the correct outgoing message from the importance sampler
@@ -1040,19 +1098,17 @@ costing $O(D)$ per update.
 %Otherwise, the outgoing message is efficiently computed by the operator. 
 
 Since we have $D_{y}$ regression functions, 
-for each tuple of incoming messages $x^{*}$, there are $D_{y}$
+for each tuple of incoming messages $\feax^{*}$, there are $D_{y}$
 predictive variances, $v_{1}^{*},\ldots,v_{D_{y}}^{*}$, one for each
 output. 
 Let $\{\tau_{i}\}_{i=1}^{D_{y}}$ be pre-specified predictive variance thresholds.
 %\wjnote{How should we choose these thresholds ?}
-Given a new input $x^{*}$, if $v_{1}^{*}>\tau_{1}$ or $\cdots$
+Given a new input $\feax^{*}$, if $v_{1}^{*}>\tau_{1}$ or $\cdots$
 or $v_{D_{y}}^{*}>\tau_{D_{y}}$ i.e., the operator is uncertain, 
-a query is made to the oracle to obtain a ground truth $y^{*}$. 
-The pair $(x^{*},y^{*})$ is then
+a query is made to the oracle to obtain a ground truth $\feay^{*}$. 
+The pair $(\feax^{*}, \feay^{*})$ is then
 used to update $\Sigma_{w}$ and $\mu_{w}$ as described previously. 
 %Querying the oracle incurs a high computational cost.
-
-
 
 %%%%%%%%%%%%%%
 
