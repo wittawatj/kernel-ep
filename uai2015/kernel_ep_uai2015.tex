@@ -271,7 +271,7 @@ and update the regression function, as the incoming messages change.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\section{EP and nonparametric implementations}
+\section{Background}
 
 
 \label{sec:EP}
@@ -286,7 +286,7 @@ We deal with models in which some of the factors have a non-standard form, or ma
 
 %--------------------------------------------------------------------
 
-\subsection{Message passing EP}
+\subsection{Expectation Propagation}
 \label{sec:EP:MP}
 
 %AG: I like this explanation,but we are short of space, so I am commenting it out.
@@ -313,6 +313,7 @@ The message $\msg{ \factor }{i}(x_i)$  from factor $\factor$ to variable $\outV$
 \label{eq:msgPassing:EP}
 \end{equation}
 %
+\aenote{Make equation and number fit on one line}
 where $\msg{\outV'}{\factor}$ are the messages sent to factor $\factor$ from its neighboring variables $x_{\outV'}$ other than $x_{\outV}$,  $\projP{p} = \argmin{q \in \mathcal{Q}} \kld{p}{q}$, and $\mathcal{Q}$ is typically in the exponential family, e.g.\ the set of Gaussian or Beta distributions.
 
 %--------------------------------------------------------------------
@@ -340,6 +341,7 @@ Given a forward-sampling function $f$ as described above, one especially simple 
 &\approx \frac{1}{M} \sum_{l=1}^M w(\fx{\factor}^l) u(x_{\outV}^l),~~~~\fx{\factor}^s \sim \tilde{b}
 \label{eq:msgIS}
 \end{align}
+\aenote{Make equation and number fit on one line}
 where, on the left hand side, 
 \begin{equation}
 b(\fx{\factor}) = \factor (\fx{\factor}) \prod_{W \in \fis{\factor}} \msg{W}{\factor}(x_{W}). 
@@ -551,14 +553,14 @@ and the number of samples   $L$ per leaf was between 10 and 50.
 
 
 %=============================================
-\section{Kernel learning of message operator}\label{sec:Online}
+\section{Kernel learning of message operators}\label{sec:Online}
 %=============================================
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.95\columnwidth]{img/online/uci_in_msgs-crop}
 \caption{Incoming messages $\msg{z_i}{\psi}$ in the online learning on the four
-UCI datasets.
+UCI datasets. \aenote{Figure fonts too large.}
 \label{fig:uci_in_msgs}
 }
 \end{figure}
@@ -591,7 +593,7 @@ random features, as well as our strategy for uncertainty evaluation and online u
 
 %AG: made this a subsection
 %------------------------------------
-\subsection{Kernels on Tuples of Distributions}\label{sec:kernelsOnDistributions}
+\subsection{Kernels on tuples of distributions}\label{sec:kernelsOnDistributions}
 %------------------------------------
 
  We confine ourselves to a single factor and its incoming messages,
@@ -659,7 +661,7 @@ This kernel has two parameters, one for $k$ in $\mu_{\mathsf{r}} = \mathbb{E}_{\
 and $\gamma^{2}$. Empirically, this kernel performs significantly
 better than other kernels on predicting outgoing messages from incoming messages.
 
-\subsection{Random feature approximation to the kernels}
+\subsection{Random feature approximations}
 
 \agnote{here is where you define the rahimi recht basic features, and then derive the two-stage kernel representation. Note
  I did not update anything below, so it contains now some redundant kernel definitions repeated from the last section.}
@@ -723,7 +725,7 @@ better than other kernels on predicting outgoing messages from incoming messages
 Arthur may have some good intuition why it works well in practice ? 
 Would be nice to have a paragraph on theoretical explanation if any.}
 
-\paragraph{Random features for Gaussian kernel on mean embeddings}
+\paragraph{Random features on mean embeddings}
 \todo{WJ: Change p, q to $\mathsf{r}, \mathsf{s}$}
 One way to get random features for the kernel is given
 by a two-staged approximation procedure as follows.
@@ -1019,7 +1021,7 @@ of incoming and outgoing messages, we first consider a batch learning setting.
 The kernel-based message operator learns to approximate the logistic factor 
 highlighted in red. The two incoming messages are 
 $\msg{z_i}{\psi} = \mathcal{N}(z_i; \mu, \sigma^2)$ and 
-$\msg{p_i}{\psi} = \text{Beta}(p_i; \alpha, \beta) $.
+$\msg{p_i}{\psi} = \text{Beta}(p_i; \alpha, \beta) $. \aenote{Would be nice to have directions on arrows.}
 }
 \label{fig:factor_graph_binlog}
 \end{figure}
@@ -1076,11 +1078,11 @@ $\msg{\psi}{z_i} = q_{\psi \rightarrow z_i} / \msg{z_i}{\psi} $.
   \includegraphics[width=0.49\columnwidth]{img/kl_ntr5000_iter5_sf1_st20_fm_joint-crop}
   }
   %
-  \subfloat[Predictions at different KL errors\label{fig:kl_div_4plots}]{
+  \subfloat[Examples of errors\label{fig:kl_div_4plots}]{
   \includegraphics[width=0.49\columnwidth]{img/4plots_ntr5000_iter5_sf1_st20_fm_joint-crop}
   }
   \caption{Prediction errors of backward outgoing messages from the logistic 
-  factor and examples of predicted messages at different error levels.}
+  factor and examples of predicted messages at different error levels. \aenote{Subfigure heights should match.}}
   % reference: exp7/RFGJointKGGLearner_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat
   \label{fig:kl_div}
 \end{figure}
@@ -1101,7 +1103,7 @@ of incoming and outgoing messages. The discrepancy to the ground truth is barely
 visible even at the 99th percentile.
 
 
-\paragraph{Uncertainty Estimate}
+\paragraph{Uncertainty estimates}
 
 \begin{figure*}[t]
 \centering
@@ -1123,8 +1125,8 @@ visible even at the 99th percentile.
   (b) Predictive variances of the proposed method on the two 
   uncertainty test sets shown. For testing, we fix the other incoming message 
   $\msg{p_i}{\psi}$ to $\text{Beta}(p_i; 1, 2)$.
-  (c), (d) The uncertainty estimates on the same test sets of Breiman's random 
-  forests and extremely randomized trees.}
+  (c,d) The uncertainty estimates on the same test sets of Breiman's random 
+  forests and extremely randomized trees. \aenote{Subfigure heights should match.}}
   \label{fig:logistic_uncertainty}
 %   \caption{Uncertainty estimates of random forests on two uncertainty test sets 
 %   shown in \figref{fig:logistic_predvar_unexplored}. } 
@@ -1191,7 +1193,7 @@ We set the maximum number of EP iterations to 10 in each problem.
 \centering
 \includegraphics[width=0.95\textwidth]{img/online/logistic_temporal_uncertainty-crop}
 \caption{Uncertainty estimate of KJIT for all incoming messages at each time point 
-in the binary logistic regression problem.
+in the binary logistic regression problem. \aenote{Mention in caption what the stars and dashed lines represent.}
 \label{fig:logistic_temporal_uncertainty}
 }
 \end{figure*}
@@ -1241,7 +1243,7 @@ operator's confidence; hence the drop of uncertainty.
   \subfloat[Inference time\label{fig:logistic_inference_time}]{
   \includegraphics[width=0.49\columnwidth]{img/online/logistic_inference_time-crop}
   }
-  \caption{Classification performance and inference times of all methods. 
+  \caption{Classification performance and inference times of all methods. \aenote{Extra full stop in the title of first subfigure.}
   }
   \label{fig:logistic_performance}
 \end{figure}
@@ -1291,7 +1293,7 @@ than the importance sampler.
 \centering
 \includegraphics[width=0.95\textwidth]{img/online/cg_temporal_uncertainty-crop}
 \caption{Uncertainty estimate of KJIT for all incoming messages at each time point 
-in the compound Gamma problem.
+in the compound Gamma problem. \aenote{Top of legend missing. Legend items could be `Predictive variance', `Moving average', `Oracle consultation', `Threshold'. Title should be predictive variance of the \textit{outgoing} message.}
 \label{fig:cg_temporal_uncertainty}
 }
 \end{figure*}
@@ -1321,7 +1323,7 @@ in the compound Gamma problem.
   \caption{Shape (a) and rate (b) parameters of the inferred posteriors in 
   the compound gamma problem. 
   (c) KJIT is able to infer equally good posterior parameters compared to Infer.NET 
-  while requiring several orders of magnitude less runtime.}
+  while requiring several orders of magnitude less runtime. \aenote{Figure fonts too small.}}
   \label{fig:cg_performance}
 \end{figure}
 
@@ -1378,7 +1380,7 @@ standardize the data. Use data in the same sequence as in the plot.
   \subfloat[Inference time\label{fig:uci_inference_time}]{
   \includegraphics[width=0.47\columnwidth]{img/online/uci_infer_time-crop}
   }
-  \caption{Classification performance and inference times on the four UCI datasets. }
+  \caption{Classification performance and inference times on the four UCI datasets. \aenote{Figure fonts too small. Extraneous full stops in figure titles.}}
   \label{fig:uci_performance}
 \end{figure}
 
