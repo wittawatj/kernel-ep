@@ -1605,21 +1605,38 @@ and robustly adapt to this new distribution by querying the oracle.
 %=============================================
 \section{Conclusions and Future Work\label{sec:Conclusions-and-Future} }
 %=============================================
-In this work, we made one step forward toward the goal of having a fully 
-automatic and fast inference engine. 
-We demonstrated that inference with EP can be sped up without 
-losing inference accuracy by embedding an uncertainty aware distribution-to-distribution 
-regressor at a factor node for sending outgoing EP messages given incoming messages.
-The regressor essentially acts as a cache for message computation, offering 
-the factor an outgoing message when it is certain about an input. 
-The proposed use kernel ridge regression 
-in the primal form with random feature representation of incoming messages 
-leads to a number of desirable properties for JIT learning: powerful 
-representation of incoming messages, ease of online update and efficient outgoing 
-message computation. 
-Nonetheless, the random feature map itself depends on 
-hyperparameters which may need to be adapted during inference.
-Our future works will address this issue. 
+
+
+We have proposed a method for learning the mapping between incoming and outgoing
+messages to a factor in Expectation Propagation, which can be used
+in place of computationally demanding Monte Carlo estimates of these updates.
+Our operator has two main advantages: it can reliably evaluate the uncertainty of its prediction,
+so that it only consults a more expensive oracle when it is uncertain,
+and it can efficiently update its mapping online, so that it learns
+from these additional consultations. Once trained, the learned mapping
+performs as well as the oracle mapping, but at a far lower computational cost.
+This is in large part due to a novel two-stage random feature representation of the input
+messages. One topic of current research is hyperparameter selection:
+at present, these are learned on an initial mini-batch of data, however
+a better option would be to adapt them online as more data are seen.
+
+
+
+%% In this work, we made one step forward toward the goal of having a fully 
+%% automatic and fast inference engine. 
+%% We demonstrated that inference with EP can be sped up without 
+%% losing inference accuracy by embedding an uncertainty aware distribution-to-distribution 
+%% regressor at a factor node for sending outgoing EP messages given incoming messages.
+%% The regressor essentially acts as a cache for message computation, offering 
+%% the factor an outgoing message when it is certain about an input. 
+%% The proposed use kernel ridge regression 
+%% in the primal form with random feature representation of incoming messages 
+%% leads to a number of desirable properties for JIT learning: powerful 
+%% representation of incoming messages, ease of online update and efficient outgoing 
+%% message computation. 
+%% Nonetheless, the random feature map itself depends on 
+%% hyperparameters which may need to be adapted during inference.
+%% Our future works will address this issue. 
 
 %In effect, computing an outgoing message
 %amounts to computing the moment parameters by multiplying the ramdom feature vector
