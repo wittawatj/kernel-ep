@@ -1094,15 +1094,15 @@ $\msg{\factor}{z_i} = q_{\factor \rightarrow z_i} / \msg{z_i}{\factor} $.
   \centering
 
   \subfloat[KL Errors \label{fig:kl_div_hist}]{
-  \includegraphics[width=0.49\columnwidth]{img/kl_ntr5000_iter5_sf1_st20_fm_joint-crop}
+  \includegraphics[width=0.46\columnwidth]{img/kl_ntr5000_iter5_sf1_st20_fm_joint-crop}
   }
   %
   \subfloat[Examples of errors\label{fig:kl_div_4plots}]{
-  \includegraphics[width=0.49\columnwidth]{img/4plots_ntr5000_iter5_sf1_st20_fm_joint-crop}
+  \includegraphics[width=0.47\columnwidth]{img/4plots_ntr5000_iter5_sf1_st20_fm_joint-crop}
   }
   \caption{Prediction errors of backward outgoing messages from the logistic 
   factor and examples of predicted messages at different error levels. 
-\aenote{Subfigure heights should match.}}
+  }
   % reference: exp7/RFGJointKGGLearner_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat
   \label{fig:kl_div}
 \end{figure}
@@ -1128,26 +1128,32 @@ visible even at the 99th percentile.
 \begin{figure*}[t]
 \centering
   \subfloat[Parameters of $\msg{z_i}{\factor}$ \label{fig:logistic_uncertainty_test}]{
-  \includegraphics[width=0.49\columnwidth]{img/uncertainty/logistic_uncertainty_test-crop}
+  \includegraphics[width=0.3\textwidth]{img/uncertainty/logistic_uncertainty_test-crop}
   }
   %
   \subfloat[Kernel-based operator \label{fig:logistic_predvar}]{
-  \includegraphics[width=0.49\columnwidth]{img/uncertainty/logistic_predvar-crop}
+  \includegraphics[width=0.3\textwidth]{img/uncertainty/logistic_predvar-crop}
   }
-  \subfloat[Breiman's random forests\label{fig:breiman_uncertainty}]{
-  \includegraphics[width=0.49\columnwidth]{img/uncertainty/rf-n_trees-100-crop}
-  }
-  \subfloat[Extremely randomized trees\label{fig:ert_uncertainty}]{
-  \includegraphics[width=0.49\columnwidth]{img/uncertainty/ert-n_trees-100-crop}
+  %
+%   \subfloat[Breiman's random forests\label{fig:breiman_uncertainty}]{
+%   \includegraphics[width=0.49\columnwidth]{img/uncertainty/rf-n_trees-100-crop}
+%   }
+%   %
+%   \subfloat[Extremely randomized trees\label{fig:ert_uncertainty}]{
+%   \includegraphics[width=0.49\columnwidth]{img/uncertainty/ert-n_trees-100-crop}
+% % (c,d) The uncertainty estimates on the same test sets of Breiman's random 
+% %   forests and extremely randomized trees. 
+%   }
+  \subfloat[\citeauthor{Eslami2014}'s random forests \label{fig:eslami_uncertainty}]{
+  \includegraphics[width=0.3\textwidth]{img/uncertainty/uncertainty-data-10dim-method-ali_rf-n_candidates-100-regressor-quadratic-n_trees-64-crop}
   }
   \caption{(a) Incoming messages from $z$ to $\factor$ from 20 EP runs in the binary 
   logistic regression as shown in \figref{fig:factor_graph_binlog}.  
   (b) Predictive variances of the proposed method on the two 
   uncertainty test sets shown. For testing, we fix the other incoming message 
   $\msg{p_i}{\factor}$ to $\text{Beta}(p_i; 1, 2)$.
-  (c,d) The uncertainty estimates on the same test sets of Breiman's random 
-  forests and extremely randomized trees. 
-  \wjnote{Incorporate Balaji's latest figure. There is only one ?}
+  (c) The uncertainty estimates on the same test sets by \citeauthor{Eslami2014}'s 
+  random forests.
   }
   \label{fig:logistic_uncertainty}
 %   \caption{Uncertainty estimates of random forests on two uncertainty test sets 
@@ -1166,10 +1172,11 @@ in which each point corresponds to an incoming message.
 The test sets contain a mix of messages in the dense region of 
 the training set and messages in unexplored regions.
 
-\figref{fig:logistic_predvar}, \figref{fig:breiman_uncertainty}, and 
-\figref{fig:ert_uncertainty} show uncertainty estimates of each point in 
-the two test sets by our kernel-based operator, Breiman's random forests 
-and extremely randomized trees, where we fix 
+\figref{fig:logistic_predvar}
+% \figref{fig:breiman_uncertainty}, and \figref{fig:ert_uncertainty} 
+and \figref{fig:eslami_uncertainty} show uncertainty estimates of each point in 
+the two test sets by our kernel-based operator and \citeauthor{Eslami2014}'s 
+random forests where we fix 
 $\msg{p_i}{\factor} := \text{Beta}(p_i; 1, 2)$ for testing. 
 The implementation of the random forests closely
 follows the description detailed in \cite{Eslami2014}. 

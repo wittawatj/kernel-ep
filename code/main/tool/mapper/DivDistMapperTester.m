@@ -138,8 +138,8 @@ classdef DivDistMapperTester < DistMapperTester
             soOutDa=outDa.instances(I);
 
             hist(soLogDivs, 20);
-            set(gca, 'fontsize', 20);
-            xlabel(sprintf('Log divergence of %s', class(outDa.get(1)) ));
+            set(gca, 'fontsize', 16);
+            %xlabel(sprintf('Log divergence of %s', class(outDa.get(1)) ));
             %xlabel(sprintf('Log divergences on Gaussian output messages' ));
             ylabel('Frequency');
             title(sprintf('%d/%d improper messages. Mean: %.3f, SD: %.3f',...
@@ -147,12 +147,14 @@ classdef DivDistMapperTester < DistMapperTester
             title(sprintf('Log KL divergence. Mean: %.3f, SD: %.3f',...
                 mean(soLogDivs), std(soLogDivs)));
             grid on;
+            pbaspect([4 3 1]);
             hold off
 
             nte=soOutDa.count();
             % Take the best, 2 median, and worst
             % green=predicted, red=ground truth
             figure
+            pbaspect([4 3 1]);
             %superTitle=sprintf('%s. Outputs %s', this.distMapper.shortSummary(), ...
             %   class(outDa.get(1)));
             %   annotation('textbox', [0 0.9 1 0.1], ...
@@ -164,19 +166,19 @@ classdef DivDistMapperTester < DistMapperTester
             % best
             subplot(2, 2, 1);
             this.plotOutputPairs(soOutDa.get(1), soTrueOutDa.get(1), ...
-                sprintf('Best prediction. Log div: %.3f', soLogDivs(1)));
+                sprintf('Best log div: %.3f', soLogDivs(1)));
 
             % median 1
             subplot(2, 2, 2);
             m1=floor(nte/2);
             this.plotOutputPairs(soOutDa.get(m1), soTrueOutDa.get(m1), ...
-                sprintf('Median prediction 1. Log div: %.3f', soLogDivs(m1)));
+                sprintf('Median log div (1): %.3f', soLogDivs(m1)));
 
             % median 2
             subplot(2, 2, 3);
             m2=m1+1;
             this.plotOutputPairs(soOutDa.get(m2), soTrueOutDa.get(m2), ...
-                sprintf('Median prediction 2. Log div: %.3f', soLogDivs(m2)));
+                sprintf('Median log div (2): %.3f', soLogDivs(m2)));
 
             % 75th percentile
             %p75 = floor(nte*0.75);
@@ -187,7 +189,7 @@ classdef DivDistMapperTester < DistMapperTester
             p99 = floor(nte*0.99);
             subplot(2, 2, 4);
             this.plotOutputPairs(soOutDa.get(p99), soTrueOutDa.get(p99), ...
-               sprintf('99th percentile. Log div: %.3f', soLogDivs(p99)));
+               sprintf('99th percentile: %.3f', soLogDivs(p99)));
 
             % worst 
             %this.plotOutputPairs(soOutDa.get(nte), soTrueOutDa.get(nte), ...
