@@ -588,7 +588,7 @@ and the number of samples   $L$ per leaf was between 10 and 50.
 
 
 %=============================================
-\section{Kernel learning of message operators}\label{sec:Online}
+\section{Kernel learning of operators}\label{sec:Online}
 %=============================================
 
 
@@ -1117,7 +1117,7 @@ Treating all outputs jointly can be achieved with a multi-output kernel \citep{A
 %AG: don't need a subsection
 %\subsection{Online Update \label{sec:kernel_ep_online}}
  
-\paragraph{Online Update}
+\paragraph{Online update}
 We consider an online update for $\Sigma_{w}$ and
 $\mu_{w}$ when observations (i.e., random features representing incoming 
 messages) $\mathsf{X}$ comes in stream. We will use $\cdot^{(N)}$
@@ -1560,7 +1560,7 @@ Uncertainty estimate of KJIT for outgoing messages on the four UCI datasets.
 \end{figure*}
 
 
-{\bf Compound gamma factor:} We next simulate the compound gamma factor, % an alternative to a gamma distribution as
+\paragraph{Compound gamma factor} We next simulate the compound gamma factor, % an alternative to a gamma distribution as
  a heavy-tailed prior distribution on the precision of a Gaussian random variable.
 A variable $\tau$ is said to follow the compound gamma distribution 
 if $\tau \sim \text{Gamma}(\tau; s_2, r_2)$ (shape-rate parameterization) and 
@@ -1590,7 +1590,7 @@ consultations as more problems are seen.
 %\subsection{Real data}
 %------------------------------------
 
-{\bf Classification benchmarks:} In the final experiment, we demonstrate
+\paragraph{Classification benchmarks} In the final experiment, we demonstrate
 that our method for learning the message operator is able to detect changes
 in the distribution of incoming messages via its uncertainty estimate,
 and to subsequently update its prediction through additional oracle queries.
