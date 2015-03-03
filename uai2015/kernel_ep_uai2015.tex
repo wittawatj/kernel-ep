@@ -584,30 +584,41 @@ UCI datasets.
 }
 \end{figure}
 
-
-We now propose a kernel method for learning the message operator $\approxMsg{\factor}{\outV}{\theta}$ and
-uncertainty estimator $\uncertaintyMsg{\factor}{\outV}{\theta}$
-described in the previous section. We will regress from the tuple of input messages, which
-are probability distributions, to a set of output parameters. Kernel regression
-from a single distribution to a vector output is  straightfoward \citep{Szabo2014}, and we
-are able to use any of the kernels on distributions from this work and from \citep{ChristmannSteinwart10}.
-We will extend these ideas  to the case where more than one distribution is input.
+We now propose a kernel regression method for jointly learning the message operator $\approxMsg{\factor}{\outV}{\theta}$ and
+uncertainty estimate $\uncertaintyMsg{\factor}{\outV}{\theta}$. We will regress from the tuple of input messages, which
+are probability distributions, to a set of output parameters. To this end we extend a kernel over distributions from \citep{ChristmannSteinwart10} to the case where the input consists of more than one distribution.
 
 We note that \citet{SonGreGue10,SonGreBicLowGue11} propose a related regression approach for predicting outgoing
-messages from incoming messages, for the purpose of Belief Propagation. The resulting learning problem
-is dissimlar to ours, however: the incoming messages in the earlier work are smoothed
-conditional density functions, rather than RKHS distribution embeddings, and the output messages are likewise
-smoothed conditional density estimates, rather than normalized projections onto a parametric family.
+messages from incoming messages, for the purpose of Belief Propagation. Their setup is entirely different from ours, however, as their messages are smoothed conditional density functions rather than parametric distributions of known form.
+
+To achieve fast predictions and factor updates, we follow \citep{Rahimi2007,Le2013,YanSmoZonWil14}, and express the kernel regression in terms of random features whose expected inner product
+is equal to the kernel function; i.e.\, we perform regression directly in the primal on these random features.
+In Section \ref{sec:kernelsOnDistributions}, we define our kernel on tuples of distributions, and then derive the corresponding random feature representation in Section \ref{sec:randomFeatureApproximations}. Section \ref{sec:ridgeRegression} describes the regression algorithm, as well as our strategy for uncertainty evaluation and online updates.
 
 
-An important issue is computational cost, as EP is an iterative algorithm and many predictions must be made.
-Therefore, following \citep{Rahimi2007,Le2013,YanSmoZonWil14},
-we do not express our solution in terms of kernels, but in terms of random features whose expected inner product
-is equal to the kernel function. We then perform regression directly in the primal on these random features.
-Thus, our first task, in Section \ref{sec:kernelsOnDistributions}, is to define kernels on tuples of distributions, and to
-derive the related random feature representations.  We follow this task in Section
-\ref{sec:ridgeRegression} with a description  of the regression algorithm which predicts the output message parameters from these
-random features, as well as our strategy for uncertainty evaluation and online updates.
+%We now propose a kernel method for learning the message operator $\approxMsg{\factor}{\outV}{\theta}$ and
+%uncertainty estimator $\uncertaintyMsg{\factor}{\outV}{\theta}$
+%described in the previous section. We will regress from the tuple of input messages, which
+%are probability distributions, to a set of output parameters. Kernel regression
+%from a single distribution to a vector output is  straightfoward \citep{Szabo2014}, and we
+%are able to use any of the kernels on distributions from this work and from \citep{ChristmannSteinwart10}.
+%We will extend these ideas  to the case where more than one distribution is input.
+%
+%We note that \citet{SonGreGue10,SonGreBicLowGue11} propose a related regression approach for predicting outgoing
+%messages from incoming messages, for the purpose of Belief Propagation. The resulting learning problem
+%is dissimlar to ours, however: the incoming messages in the earlier work are smoothed
+%conditional density functions, rather than RKHS distribution embeddings, and the output messages are likewise
+%smoothed conditional density estimates, rather than normalized projections onto a parametric family.
+%
+%
+%An important issue is computational cost, as EP is an iterative algorithm and many predictions must be made.
+%Therefore, following \citep{Rahimi2007,Le2013,YanSmoZonWil14},
+%we do not express our solution in terms of kernels, but in terms of random features whose expected inner product
+%is equal to the kernel function. We then perform regression directly in the primal on these random features.
+%Thus, our first task, in Section \ref{sec:kernelsOnDistributions}, is to define kernels on tuples of distributions, and to
+%derive the related random feature representations.  We follow this task in Section
+%\ref{sec:ridgeRegression} with a description  of the regression algorithm which predicts the output message parameters from these
+%random features, as well as our strategy for uncertainty evaluation and online updates.
 
 
 %AG: made this a subsection
@@ -615,11 +626,9 @@ random features, as well as our strategy for uncertainty evaluation and online u
 \subsection{Kernels on tuples of distributions}\label{sec:kernelsOnDistributions}
 %------------------------------------
 
- We confine ourselves to a single factor and its incoming messages,
-hence we will not need to include the factor identity in our notation.
-Assuming $c$ incoming messages, we write the set of incoming messages to a factor node as a tuple of
+In the following, we consider only a single factor, and therefore drop the factor identity from our notation. We write the set of $c$ incoming messages to a factor node as a tuple of
 probability distributions %$\mathsf{x}_r:=$
-$R:=(r^{(l)})_{l=1}^c$, each defined on a respective domain $\mathcal{X}^{(l)}$.
+$R:=(r^{(l)})_{l=1}^c$, each defined on its domain $\mathcal{X}^{(l)}$.
 Our goal is to define a kernel between one such tuple, and a second one,
 which we will write %$\mathsf{x}_s:=$
 $S:=(s^{(l)})_{l=1}^c$.
@@ -631,11 +640,8 @@ $S:=(s^{(l)})_{l=1}^c$.
 %between the message tuples is a product of kernels $\kappa^{(l)}(r^{(l)},s^{(l)})$ between each pair of distributions,
 %where the $\kappa^{(l)}$ are themselves products of a Gaussian kernels between the means, and a Gaussian kernel between the variances. We call this the {\em mean-variance kernel}.
 
-
-A more sophisticated  kernel on tuples of distributions
-involves embedding the tuple to an RKHS.  We first look at the embedding of a single distribution
-in the tuple. 
-Let us define a reproducing kernel Hilbert space
+We define our kernel in terms of embeddings of the tuples $R,S$ into a reproducing kernel Hilbert space (RKHS). We first consider the embedding of a single distribution
+in the tuple: Let us define a RKHS
 $\mathcal{H}^{(l)}$ on each domain, with respective kernels $k^{(l)}(x^{(l)}_1,x^{(l)}_2)$.
 We may embed individual probability distributions to these RKHSs, following \citep{Smola2007}.
 The {\em mean embedding} of $r^{(l)}$ is written
@@ -645,7 +651,7 @@ and has the property
 $\langle f,\mu_{r^{(l)}} \rangle_{\mathcal{H}^{(l)}} = \mathbb{E}_{r^{(l)}}(f(X^{(l)}))$
 for all $f\in \mathcal{H}^{(l)}$.
 
-On the same basis, a mean embedding may be defined on the product of incoming messages in a tuple,
+On the same basis, a mean embedding may be defined on the product of  messages in a tuple,
 $\mathsf{r}=\prod_{l=1}^{c}r^{(l)}$, as
 \begin{equation}
 \mu_{\mathsf{r}}
@@ -653,22 +659,78 @@ $\mathsf{r}=\prod_{l=1}^{c}r^{(l)}$, as
 \int k([x^{(1)} \hdots x^{(c)}],\cdot) \prod_{l=1}^{c}dr^{(l)}(x^{(l)}),
 \label{eq:featureOfTuple}
 \end{equation}
-where we have defined the joint kernel $k$ on the concatenation of the features
+where we have defined the joint kernel $k$ on the product space
+%concatenation of the features
 $\mathcal{X}^{(1)}\times\cdots\times\mathcal{X}^{(c)}$.
-Finally,  a kernel on two such  feature representations of $\mathsf{r}$,
-as proposed by
-\citet{Christmann2010}, is
+Finally,  a kernel on two such embeddings $\mu_{\mathsf{r}},\mu_{\mathsf{s}}$ of tuples $\mathsf{r},\mathsf{s}$ can be obtained as in \citet[eq. 9]{Christmann2010}:
 %
 \begin{equation}
 \kappa_{\text{gauss}}(\mathsf{r}, \mathsf{s}) = \exp\left(-\frac{\|\mu_{\mathsf{r}}-\mu_{\mathsf{s}}\|_{\mathcal{H}}^{2}}{2\gamma^{2}}\right).
 \label{eq:gauss_joint_emb}
 \end{equation}
 %
-This kernel has two parameters: $\gamma^{2}$, and the width parameter of the kernel $k$ defining $\mu_{\mathsf{r}} = \mathbb{E}_{\mathsf{r}}k(x,\cdot)$.
-Note that we have considered many additional possible kernels on tuples of messages, including kernels on
-the message parameters, kernels on a tensor feature space of the distribution embeddings
-in the tuple, and dot products of the features  (\ref{eq:featureOfTuple}). These alternatives all have worse empirical performance than the approach we propose - we give details of these experiments in the
+This kernel has two parameters: $\gamma^{2}$, and the width parameter $k$ defining $\mu_{\mathsf{r}} = \mathbb{E}_{\mathsf{r}}k(x,\cdot)$.
+
+We have considered several alternative kernels on tuples of messages, including kernels on the message parameters, kernels on a tensor feature space of the distribution embeddings in the tuple, and dot products of the features (\ref{eq:featureOfTuple}). We have found these alternatives to have worse empirical performance than the approach described above. We give details of these experiments in the
 supplementary material.
+
+%---------
+% We confine ourselves to a single factor and its incoming messages,
+%hence we will not need to include the factor identity in our notation.
+%Assuming $c$ incoming messages, we write the set of incoming messages to a factor node as a tuple of
+%probability distributions %$\mathsf{x}_r:=$
+%$R:=(r^{(l)})_{l=1}^c$, each defined on a respective domain $\mathcal{X}^{(l)}$.
+%Our goal is to define a kernel between one such tuple, and a second one,
+%which we will write %$\mathsf{x}_s:=$
+%$S:=(s^{(l)})_{l=1}^c$.
+%
+%%AG: I have now simplified down to just the kernel we use.
+%
+%%The simplest kernel between distributions is simply a standard kernel (e.g., a Gaussian kernel) on a parametric representation of the inputs.
+%%Thus,  if each input distribution $r^{(l)}$ is represented by a mean-variance pair $(\eta_{r^{(l)}},\sigma^2_{r^{(l)}})$, then a kernel
+%%between the message tuples is a product of kernels $\kappa^{(l)}(r^{(l)},s^{(l)})$ between each pair of distributions,
+%%where the $\kappa^{(l)}$ are themselves products of a Gaussian kernels between the means, and a Gaussian kernel between the variances. We call this the {\em mean-variance kernel}.
+%
+%
+%A more sophisticated  kernel on tuples of distributions
+%involves embedding the tuple to an RKHS.  We first look at the embedding of a single distribution
+%in the tuple. 
+%Let us define a reproducing kernel Hilbert space
+%$\mathcal{H}^{(l)}$ on each domain, with respective kernels $k^{(l)}(x^{(l)}_1,x^{(l)}_2)$.
+%We may embed individual probability distributions to these RKHSs, following \citep{Smola2007}.
+%The {\em mean embedding} of $r^{(l)}$ is written
+%\[\mu_{r^{(l)}}(\cdot):=\int k^{(l)}(x^{(l)},\cdot) dr^{(l)} (x^{(l)}),
+%\]
+%and has the property
+%$\langle f,\mu_{r^{(l)}} \rangle_{\mathcal{H}^{(l)}} = \mathbb{E}_{r^{(l)}}(f(X^{(l)}))$
+%for all $f\in \mathcal{H}^{(l)}$.
+%
+%On the same basis, a mean embedding may be defined on the product of incoming messages in a tuple,
+%$\mathsf{r}=\prod_{l=1}^{c}r^{(l)}$, as
+%\begin{equation}
+%\mu_{\mathsf{r}}
+%:=
+%\int k([x^{(1)} \hdots x^{(c)}],\cdot) \prod_{l=1}^{c}dr^{(l)}(x^{(l)}),
+%\label{eq:featureOfTuple}
+%\end{equation}
+%where we have defined the joint kernel $k$ on the concatenation of the features
+%$\mathcal{X}^{(1)}\times\cdots\times\mathcal{X}^{(c)}$.
+%Finally,  a kernel on two such  feature representations of $\mathsf{r}$,
+%as proposed by
+%\citet{Christmann2010}, is
+%%
+%\begin{equation}
+%\kappa_{\text{gauss}}(\mathsf{r}, \mathsf{s}) = \exp\left(-\frac{\|\mu_{\mathsf{r}}-\mu_{\mathsf{s}}\|_{\mathcal{H}}^{2}}{2\gamma^{2}}\right).
+%\label{eq:gauss_joint_emb}
+%\end{equation}
+%%
+%This kernel has two parameters: $\gamma^{2}$, and the width parameter of the kernel $k$ defining $\mu_{\mathsf{r}} = \mathbb{E}_{\mathsf{r}}k(x,\cdot)$.
+%Note that we have considered many additional possible kernels on tuples of messages, including kernels on
+%the message parameters, kernels on a tensor feature space of the distribution embeddings
+%in the tuple, and dot products of the features  (\ref{eq:featureOfTuple}). These alternatives all have worse empirical performance than the approach we propose - we give details of these experiments in the
+%supplementary material.
+%------
+
 
 
 %% One can consider the expected product kernel on the joint distributions as 
@@ -736,6 +798,7 @@ supplementary material.
 
 
 \subsection{Random feature approximations}
+\label{sec:randomFeatureApproximations}
 
 \agnote{here is where you define the rahimi recht basic features, and then derive the two-stage kernel representation. Note
  I did not update anything below, so it contains now some redundant kernel definitions repeated from the last section.}
