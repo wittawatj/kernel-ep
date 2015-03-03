@@ -7,7 +7,123 @@ function [ funcs] = funcs_logistic_uncertainty( )
     s.plotUncertaintyAlongSlices = @plotUncertaintyAlongSlices;
     s.gen2DUncertaintyCheckData = @gen2DUncertaintyCheckData;
     s.gen2DUncertaintyCheckData2 = @gen2DUncertaintyCheckData2;
+    s.plotUncertaintyAlongSlicesSuperImposed = @plotUncertaintyAlongSlicesSuperImposed;
     funcs = s;
+end
+
+function plotUncertaintyAlongSlicesSuperImposed(s, trBundle, teBundle, Un )
+    % Same as the other function with similar name but superimpose other method's
+    % Uncertainty on top.
+
+    oldRng = rng();
+    rng(1);
+
+    subsample = 2000;
+    assert(isa(s.dist_mapper, 'UAwareDistMapper'), 's.dist_mapper must be UAwareDistMapper');
+    trIns = trBundle.getInputBundles();
+    trLogistic = trIns{1};
+    trX = trIns{2};
+    trX_mean = [trX.mean];
+    trX_var = [trX.variance];
+
+    teIns = teBundle.getInputBundles();
+    teLogistic = teIns{1};
+    teX = teIns{2};
+    teX_mean = [teX.mean];
+    teX_var = [teX.variance];
+
+    % remove messages possibly resulted from Infer.NET's 
+    % truncation i.e., SetToRatio(..) with force proper.
+    Itr =  ~(abs(trX_mean) <= 1e-3 & log(trX_var)>0 );
+    Ite =  ~(abs(teX_mean) <= 1e-3 & log(teX_var)>0 );
+    trX_mean_fil = trX_mean(Itr);
+    teX_mean_fil = teX_mean(Ite);
+    trX_var_fil = trX_var(Itr);
+    teX_var_fil = teX_var(Ite);
+
+    % subsampling for plotting purpose 
+    ntr = length(trX_mean_fil);
+    nte = length(teX_mean_fil);
+    subTr = randperm(ntr, min(subsample, ntr));
+    subTe = randperm(nte, min(subsample, nte));
+    trX_mean_fil = trX_mean_fil(subTr);
+    teX_mean_fil = teX_mean_fil(subTe);
+    trX_var_fil = trX_var_fil(subTr);
+    teX_var_fil = teX_var_fil(subTe);
+    
+    % line passing through the cloud
+    % A function mapping means to log(precision)
+    testMeans = linspace(-13, 13, 500);
+    strLine = @(m)2e-2*m + 2.6;
+    paraLine = @(m)-2e-2*m.^2 + 1.6;
+    str2Line = @(m)-12e-2*m + 1.5;
+
+    strLogPrecs = strLine(testMeans);
+    paraLogPrecs = paraLine(testMeans);
+    str2LogPrecs = str2Line(testMeans);
+
+    betaMsg = DistBeta(1, 2);
+    [betaMsgs, strNormalMsgs] = genMsgBundleFromMeanLogPrec(testMeans, strLogPrecs, betaMsg);
+    U_straight = s.dist_mapper.estimateUDistArrays(betaMsgs, strNormalMsgs );
+
+    [betaMsgs, paraNormalMsgs] = genMsgBundleFromMeanLogPrec(testMeans, paraLogPrecs, betaMsg);
+    U_para = s.dist_mapper.estimateUDistArrays(betaMsgs, paraNormalMsgs);
+
+    %[betaMsgs, str2NormalMsgs] = genMsgBundleFromMeanLogPrec(testMeans, str2LogPrecs, betaMsg);
+    %U_str2 = s.dist_mapper.estimateUDistArrays(betaMsgs, str2NormalMsgs);
+
+    %xlabel_text ='Mean of incoming Gaussian messages'; 
+    xlabel_text ='Mean'; 
+    %
+    % plot  data points
+    fontsize = 16;
+    figure 
+    %subplot(1, 2, 1);
+    hold on 
+    %plot(teX_mean_fil, -log(teX_var_fil), 'xr', 'LineWidth', 1);
+    plot(trX_mean_fil, -log(trX_var_fil), '*k', 'LineWidth', 1, 'MarkerSize', 4 );
+    plot(testMeans, strLogPrecs, '-b', 'LineWidth', 2)
+    plot(testMeans, paraLogPrecs, '-m', 'LineWidth', 2)
+    %plot(testMeans, str2LogPrecs, '-r', 'LineWidth', 2)
+    set(gca, 'FontSize', fontsize);
+    %legend('Test set', 'Training set');
+    %legend('Training set', 'Uncertainty test #1', 'Uncertainty test #2', ...
+    %    'Uncertainty test #3');
+    legend('Training set', 'Uncertainty test #1', 'Uncertainty test #2');
+    xlabel(xlabel_text);
+    ylabel('Log precision');
+    xlim([min(testMeans)-1, max(testMeans)+1]);
+    pbaspect([4 3 1]);
+    hold off 
+
+    % plot uncertainty 
+    figure 
+    %subplot(1, 2, 2);
+    hold on 
+
+    % other methods
+    plot(testMeans, Un(1, :), '--b');
+    plot(testMeans, Un(2, :), '--m');
+
+    % out kernel-based method
+    plot(testMeans, log(U_straight(1, :)), '-b', 'LineWidth', 2);
+    %plot(testMeans, log(U_straight(2, :)), '--b', 'LineWidth', 2);
+    plot(testMeans, log(U_para(1, :)), '-m', 'LineWidth', 2);
+    %plot(testMeans, log(U_para(2, :)), '--m', 'LineWidth', 2);
+    %plot(testMeans, log(U_str2(1, :)), '-r', 'LineWidth', 2);
+    %plot(testMeans, log(U_str2(2, :)), '--r', 'LineWidth', 2);
+    set(gca, 'FontSize', fontsize);
+    %legend('Uncertainty test #1', 'Uncertainty test #2');
+    legend('Random forests: #1', 'Random forests: #2', ...
+        'Kernel: #1', 'Kernel: #2');
+    xlabel(xlabel_text);
+    ylabel('Log predictive variance')
+    xlim([min(testMeans)-1, max(testMeans)+1]);
+    pbaspect([4 3 1]);
+    grid on;
+    hold off 
+
+    rng(oldRng);
 end
 
 
