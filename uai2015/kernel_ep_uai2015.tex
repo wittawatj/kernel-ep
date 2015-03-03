@@ -916,7 +916,7 @@ of incoming and outgoing messages, we first consider a batch learning setting.
 %\missingfigure{Factor graph for binary logistic regression. Just imagine by yourself for now.}
 %\includegraphics[scale=0.8,page=2,clip,trim=8cm 18.5cm 8cm 1cm]{img/heess_passing_ep_supp.pdf}
 %\includegraphics[scale=0.8,page=1,clip,trim=6.5cm 7.5cm 7cm 17.8cm]{img/eslami_jit_supp.pdf}
-\includegraphics[width=0.9\columnwidth]{img/binary_logistic_regression-crop}
+\includegraphics[width=0.8\columnwidth]{img/binary_logistic_regression-crop}
 % \begin{tikzpicture}
 %  \node[obs] (x) {$x_i$};
 %  \bayesfactor[right= of x] {dot} {below:dot} {} {};
@@ -1101,12 +1101,13 @@ Next we consider a just-in-time learning setting on the same task with toy data.
 Our goal is to learn two kernel-based message operators, one for each outgoing 
 direction from the logistic factor. 
 The data generation is the same as in the batch learning experiment.
-We present the operator with 50 problems where a new 
-set of observations $\{(x_i, y_i)\}_{i=1}^n$ are generated in each problem 
-from the model while keeping $\boldsymbol{w}$ fixed.
+We sequentially present the operator with 50 related problems where a new 
+set of observations $\{(x_i, y_i)\}_{i=1}^n$ are generated at the beginning of 
+each problem from the model, while keeping $\boldsymbol{w}$ fixed.
 This scenario is common in practice because one is often given several sets of 
-observations which share the same model parameter \citep{Eslami2014}.
-
+observations which share the same model parameter \citep{Eslami2014}. 
+As before, the inference target is the $p(\boldsymbol{w}|\{(x_i, y_i)\}_{i=1}^n)$.
+We set the maximum number of EP iterations to 10 in each problem.
 
 % logistic temporal uncertainty
 \begin{figure*}[t]
@@ -1129,32 +1130,31 @@ parameters with the median heuristic \citep{Scholkopf2002}
 Cross validation can be performed 
 quickly by reducing the number of random features and setting it back to the 
 desired number once the best parameter combination is chosen. The numbers 
-of random features are $D_{in} = 300$ and $D_{out} = 500$. The noise variance 
+of random features are $D_{in} = 300$ and $D_{out} = 500$. The output noise variance 
 $\sigma^2_y$ is fixed to $10^{-4}$ and the uncertainty threshold on the log 
-predictive variance is fixed to -8.5. To simulate a black
-box setup, we use an importance sampler as the oracle where the proposal 
-distribution is fixed to $\mathcal{z; 0, 200}$ with 50000 particles.
+predictive variance is set to -8.5. To simulate a black-box setup, we use 
+an importance sampler as the oracle rather than Infer.NET's factor implementation, 
+where the proposal distribution is fixed to $\mathcal{z; 0, 200}$ with 50000 particles.
 
 \figref{fig:logistic_temporal_uncertainty} shows a trace of predictive variance 
-of KJIT in predicting the mean of each $\msg{\psi}{z_i}$ on each factor invocation. 
-The black dotted lines
-mark the start of a new inference problem. The first 300 factor invocations 
-correspond to the initial minibatch training; hence
-It can be seen that the uncertainty
-estimate exhibits a periodic structure, repeating itself for every 300 time 
-steps. The predictive variance levels off after the operator sees roughly 1000
-incoming messages (roughly one-third of the total messages in the first problem).
+of KJIT in predicting the mean of each $\msg{\psi}{z_i}$ upon each factor invocation. 
+The black dotted lines indicate the start of a new inference problem. 
+Since the first 300 factor invocations are for the initial training, 
+no uncertainty estimate is shown. From the trace, we observe that the uncertainty 
+rapidly drops down to a stable point at roughly -8.8 and levels 
+off after the operator sees about 1000 incoming-outgoing message pairs, 
+which is relatively low compared to approximately 3000 message passings 
+(i.e., 10 iterations $\times$ 300 observations) required for one problem. 
+The uncertainty trace displays a periodic structure, repeating itself in 
+every 300 factor invocations, corresponding to a full sweep over all 300 
+observations to collect incoming messages $\msg{z_i}{\psi}$. 
+The abrupt drop of uncertainty in the first EP iteration of each new problem is 
+due to the fact that Infer.NET's inference engine initializes the message from 
+$\boldsymbol{w}$ to have zero mean, leading to $\msg{z_i}{\psi}$ also having a 
+zero mean. Repeated encounters of such a zero mean incoming message reinforce the 
+operator's confidence; hence the drop of uncertainty. 
 
-\figref{fig:logistic_01_loss} shows binary classification errors obtained by 
-using the inferred posterior mean parameter on a test set of size 10000 generated 
-from the true parameter vector. The loss of KJIT matches that of the importance 
-samplier and Infer.NET. \figref{fig:logistic_inference_time} shows the inference 
-time spent by all methods in each problem.
-
-
-
-% logistic classification error. 
-% Inference time
+% logistic classification error. Inference time
 \begin{figure}[t]
   \centering
   \subfloat[Binary classification error\label{fig:logistic_01_loss}]{
@@ -1164,27 +1164,57 @@ time spent by all methods in each problem.
   \subfloat[Inference time\label{fig:logistic_inference_time}]{
   \includegraphics[width=0.49\columnwidth]{img/online/logistic_inference_time-crop}
   }
-  \caption{Classification performance and inference times of all methods. }
+  \caption{Classification performance and inference times of all methods. 
+  }
   \label{fig:logistic_performance}
 \end{figure}
+
+
+\figref{fig:logistic_01_loss} shows binary classification errors obtained by 
+using the inferred posterior mean of $\boldsymbol{w}$ on a test set of size 
+10000 generated from the true underlying parameter. 
+Included in the plot are the errors obtained by using only the importance 
+sampler for inference (denoted by ``Sampling''), and using the Infer.NET's 
+hand-crafted logistic factor. The loss of KJIT matches well with that of 
+the importance sampler and Infer.NET, suggesting that the inference accuracy
+is as good as importance sampler and Infer.NET. \figref{fig:logistic_inference_time} 
+shows the inference time spent by all methods in each problem. 
+While the inference quality is equally good, KJIT is orders of magnitude faster 
+than the importance sampler. 
+\wjnote{The figure will be updated to reflect this. Experiments running.}
+
+
+\begin{comment}
+%I referred to the generated C# code to see how the inference engine initialized.
+% Check out ArrayHelper.MakeUniform(..)
+
+  private void Changed_dataCount_Init_numberOfIterationsDecreased_X_Y(bool initialise)
+  {
+    if ((this.Changed_dataCount_Init_numberOfIterationsDecreased_X_Y_iterationsDone==1)&&((!initialise)||this.Changed_dataCount_Init_numberOfIterationsDecreased_X_Y_isInitialised)) {
+	    return ;
+    }
+    for(int n = 0; n<this.DataCount; n++) {
+	    this.W_rep_B[n] = ArrayHelper.MakeUniform<VectorGaussian>(VectorGaussian.Uniform(this.vVector0.Count));
+    }
+    this.Changed_dataCount_Init_numberOfIterationsDecreased_X_Y_iterationsDone = 1;
+    this.Changed_dataCount_Init_numberOfIterationsDecreased_X_Y_isInitialised = true;
+    this.Changed_numberOfIterationsDecreased_dataCount_X_Y_iterationsDone = 0;
+  }
+
+\end{comment}
 
 
 
 %------------------------------------
 \subsection{Compound gamma factor}
 %------------------------------------
-\wjnote{Hopefully I will have enough time to do this.}
-Andrew Gelman \citep{Gelman2006}: ``Gamma prior on precision
-is not good''.
-
 
 % compound gamma temporal uncertainty
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.95\textwidth]{img/online/cg_temporal_uncertainty-crop}
 \caption{Uncertainty estimate of KJIT for all incoming messages at each time point 
-in the compound Gamma problem. \hl{WJ: Due to the space constraint, we may have to 
-remove this figure.}
+in the compound Gamma problem.
 \label{fig:cg_temporal_uncertainty}
 }
 \end{figure*}
@@ -1198,17 +1228,17 @@ remove this figure.}
 % 	%\missingfigure[figwidth=0.49\columnwidth]{}
 % 	}
   %
-  \subfloat[Inferred shape]{
+  \subfloat[Inferred shape \label{fig:cg_infer_shape}]{
   \includegraphics[width=0.31\columnwidth]{img/online/cg_post_shape-crop}
   %\missingfigure[figwidth=0.49\columnwidth]{}
   }
   %
-  \subfloat[Inferred shape]{
-  \includegraphics[width=0.31\columnwidth]{img/online/cg_post_rate-crop}
+  \subfloat[Inferred shape \label{fig:cg_infer_rate}]{
+  \includegraphics[width=0.31\columnwidth ]{img/online/cg_post_rate-crop}
   %\missingfigure[figwidth=0.49\columnwidth]{}
   }
   %
-  \subfloat[Inference time\label{fig:cg_inference_time}]{
+  \subfloat[Inference time\label{fig:cg_infer_time}]{
   \includegraphics[width=0.34\columnwidth]{img/online/cg_inference_time-crop}
   }
   \caption{Shape (a) and rate (b) parameters of the inferred posteriors in 
@@ -1218,6 +1248,32 @@ remove this figure.}
   \label{fig:cg_performance}
 \end{figure}
 
+
+We next explore the compound gamma factor, an alternative to a gamma distribution 
+as a heavy-tailed prior distribution on the precision of a normal random variable
+A variable $\tau$ is said to follow the compound gamma distribution 
+if $\tau \sim \text{Gamma}(\tau; s_2, r_2)$ (shape-rate parameterization) and 
+$r_2 \sim \text{Gamma}(r_2; s_1, r_1)$ where $(s_1, r_1, s_2)$ are parameters. 
+The task we consider is to infer the posterior of the precision $tau$ of a normally 
+distributed variable $x \sim \mathcal{N}(x; 0, \tau)$ given realizations 
+$\{x_i\}_{i=1}^n$. We consider the setting $(s_1, r_1, s_2) = (1, 1, 1)$ which was 
+used in \cite{Heess2013}. Infer.NET's implementation requires two gamma factors
+to specify the compound gamma. Here, we collapse them into one factor 
+and let the operator JIT learn to directly send an outgoing message $\msg{\psi}{\tau}$ 
+given $\msg{\tau}{\psi}$ using Infer.NET as the oracle. 
+The Infer.NET's default implementation in this case relies on a quadrature method.
+As in \cite{Eslami2014}, we sequentially present to the operator a number of 
+problems where at the beginning of each problem, a random number of observations 
+from 10 to 100 and $\tau$ are redrawn from the model.
+
+\figref{fig:cg_infer_shape} and \figref{fig:cg_infer_rate} summarize the inferred 
+posterior parameters obtained from running only Infer.NET and Infer.NET + KJIT i.e., 
+the KJIT with Infer.NET as the oracle. \figref{fig:cg_infer_time} shows the inference 
+time of both methods. The plots collectively imply that KJIT can deliver posteriors 
+highly agreeing with those obtained from Infer.NET at a much lower cost. 
+Note that in this task only one message is passed to the factor in each problem
+Thus, \figref{fig:cg_infer_time} indicates that KJIT requires less oracle 
+consultations as more problems are seen.
 
 %------------------------------------
 \subsection{Real data}

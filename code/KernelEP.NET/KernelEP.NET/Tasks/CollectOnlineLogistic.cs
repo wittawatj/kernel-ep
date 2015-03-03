@@ -22,7 +22,7 @@ namespace KernelEP{
 		const int d = 20;
 		const int n = 300;
 		const int epIter = 10;
-		const int importanceSamplingSize = 50001;
+		const int importanceSamplingSize = 500000;
 		const int init_fixed_seed = 1;
 
 		/**for real data experiment*/

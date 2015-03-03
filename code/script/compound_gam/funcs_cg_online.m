@@ -79,7 +79,10 @@ function plotShapeRateCorr(st)
     %shape 
     figure
     hold on 
-    plot(log(dnetShape), log(kepShape), '+k', 'LineWidth', 2);
+    logKepS = log(kepShape);
+    logDnetS = log(dnetShape);
+
+    plot(logKepS, logDnetS, '+k', 'LineWidth', 2);
 
     set(gca, 'FontSize', 16);
     xlabel('Log shape inferred by Infer.NET + KJIT');
@@ -87,19 +90,25 @@ function plotShapeRateCorr(st)
     title(sprintf('Correlation: %.6g', shapeCorr));
     legend('Log shape');
     grid on
+    xlim([min(logKepS), max(logKepS)]);
+    ylim([min(logKepS), max(logKepS)]);
     axis square
     hold off
 
     % rate
     figure 
     hold off
-    plot(log(dnetRate), log(kepRate), '*r', 'LineWidth', 1);
+    logKepR = log(kepRate);
+    logDnetR = log(dnetRate);
+    plot(logKepR, logDnetR, '*r', 'LineWidth', 1);
     set(gca, 'FontSize', 16);
     xlabel('Log rate infered by Infer.NET + KJIT');
     ylabel('Log rate inferred by Infer.NET');
     title(sprintf('Correlation: %.6g',  rateCorr));
     legend('Log rate');
     grid on
+    xlim([min(logKepR), max(logKepR)]);
+    ylim([min(logKepR), max(logKepR)]);
     axis square
     hold off
 
@@ -185,7 +194,7 @@ function plotInferenceResults()
     ylabel('Time in log(ms)')
     xlabel('Problems seen');
     title('Inference time')
-    legend('Infer.NET', 'Sampling + KJIT');
+    legend('Infer.NET', 'Infer.NET + KJIT');
     axis square
     grid on
     hold off
