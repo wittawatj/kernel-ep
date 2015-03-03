@@ -797,7 +797,7 @@ This approach is not suited to just-in-time (JIT) learning, however,
 as both prediction and storage cost grow with the size of the training set:
 thus, inference on even moderately sized datasets rapidly becomes computationally prohibitive.
 Instead, we define 
-a finite-dimensional random feature map $\hat{\phi} \in \mathbb{R}^{D_\mathrm{out}}$ such that 
+a finite-dimensional random feature map $\hat{\psi} \in \mathbb{R}^{D_\mathrm{out}}$ such that 
 $\kappa(\mathsf{r}, \mathsf{s}) \approx \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s})$, 
 and regress directly on these feature maps, in the primal (see next section): storage and computation 
 are then a function of the dimension of the feature map $D_\mathrm{out}$, yet performance is close to that
