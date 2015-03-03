@@ -858,7 +858,7 @@ the result of \cite{Rahimi2007} to write
  := \hat{\phi}(\mathsf{r})^\top \hat{\phi}(\mathsf{s}),
 \end{align*}
 where the mappings $\hat{\phi}$ are $D_\mathrm{in}$ standard Rahimi-Recht random features
-for the Gaussian kernel, shown in Steps 1-3 of Algorithm~\ref{algo:random_features_kgg}).
+for the Gaussian kernel, shown in Steps 1-3 of Algorithm~\ref{algo:random_features_kgg}.
 
 With the approximation of $\langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}  \rangle$,
 we have
@@ -1143,7 +1143,7 @@ the covariance at time $N$.
 %\left(A+uv^{\top}\right)^{-1}=A^{-1}-\frac{A^{-1}uv^{\top}A^{-1}}{1+v^{\top}A^{-1}u}
 %\]
 %with $A=\Sigma_{w}^{-1(N)}$. 
-Updating $\Sigma_{w}$ costs $O(D_\mathrm{out}^{2})$ per one new observation. 
+Updating $\Sigma_{w}$ for all the $D_y$ outputs costs $O(D_\mathrm{out}^{2} \times D_y)$ per one new observation. 
 For $\mu_{w}= \Sigma_{w} \mathsf{X} \mathsf{Y}^{\top}\sigma_{y}^{-2}$, we maintain
 $ \mathsf{X} \mathsf{Y}^{\top}\in\mathbb{R}^{D_{\mathrm{in}}\times D_{\mathrm{out}}}$ and update it
 at cost $O(D_\mathrm{in}\times D_\mathrm{out})$ as
@@ -1176,11 +1176,11 @@ used to update $\Sigma_{w}$ and $\mu_{w}$.% as described previously.
 \section{Experiments  \label{sec:Experiments}}
 %=============================================
 
-Below we evaluate our learned message operator using two different factors, the logistic factor, and the compound Gamma factor. In the first and second experiment we demonstrate that proposed operator is generally capable of learning high-quality mappings from incoming to outgoing messages, and that the associated uncertainty estimates are very reliable. The third and fourth experiments assess the performance of the operator as part of the full EP inference loop in two different models, approximating the logistic and the compound gamma factor. Our final experiment highlights the learned operators ability to reliably and quickly adapt to large shifts in the message distribution encountered during inference in a sequence of several real-world regression problems. 
+Below we evaluate our learned message operator using two different factors: the logistic factor, and the compound Gamma factor. In the first and second experiment we demonstrate that the proposed operator is capable of learning high-quality mappings from incoming to outgoing messages, and that the associated uncertainty estimates are  reliable. The third and fourth experiments assess the performance of the operator as part of the full EP inference loop in two different models: approximating the logistic, and the compound gamma factor. Our final experiment demonstrates the  ability of our learning process to reliably and quickly adapt to large shifts in the message distribution, as encountered during inference in a sequence of several real-world regression problems. 
 
 
 For all experiments we used Infer.NET \citep{Minka2014} with its extensible factor interface for our own operator. 
-We use the default settings of Infer.NET unless stated otherwise. In all our experiments the regression target is the marginal belief (numerator of eq.\ \ref{eq:msgPassing:EP}),  from which the outgoing message can be calculated straightforwardly.
+We use the default settings of Infer.NET unless stated otherwise. The regression target is always the marginal belief (numerator of eq.\ \ref{eq:msgPassing:EP}),  from which the outgoing message can be calculated straightforwardly.
 % as
 %$\msg{\factor}{x} = q_{\factor \rightarrow x} / \msg{x}{\factor} $.
 %$q_{\factor \rightarrow z_i}$
@@ -1232,30 +1232,30 @@ $\msg{p_i}{\factor} = \text{Beta}(p_i; \alpha, \beta) $.
 
 
 \paragraph{Experiment 1: Batch learning} 
-As in \cite{Heess2013} and \cite{Eslami2014}, we study the logistic factor 
-$\factor(p|z)=\delta\left(p-\frac{1}{1+\exp(-z)}\right)$ 
+As in \citep{Heess2013} and \citep{Eslami2014}, we study the logistic factor 
+$\factor(p|z)=\delta\left(p-\frac{1}{1+\exp(-z)}\right),$ 
 %
 % \begin{equation*}
 % \factor(p|z)=\delta\left(p-\frac{1}{1+\exp(-z)}\right)
 % \end{equation*}
 %
 where $\delta$ is the Dirac delta function, in the context of 
- binary logistic regression model as shown in \figref{fig:factor_graph_binlog}.
-The factor is deterministic and there are two incoming messages to the factor: 
+a binary logistic regression model  (\figref{fig:factor_graph_binlog}).
+The factor is deterministic and there are two incoming messages: 
 $\msg{p_i}{\factor} = \text{Beta}(p_i; \alpha, \beta) $ and 
 $\msg{z_i}{\factor} = \mathcal{N}(z_i; \mu, \sigma^2)$, 
 where $z_i = \boldsymbol{w}^\top x_i$ represents the dot product between an observation 
 $x_i \in \mathbb{R}^d$ and the coefficient vector $\boldsymbol{w}$ whose posterior is 
 to be inferred.
 
-In this first experiment we only learn a kernel-based operator to send message $\msg{\factor}{z_i}$.
-Following \cite{Eslami2014}, we set $d$ to 20, and generate 20 different datasets, sampling 
+In this first experiment we simply learn a kernel-based operator to send the message $\msg{\factor}{z_i}$.
+Following \cite{Eslami2014}, we set $d$ to 20, and generated 20 different datasets, sampling 
 a different $\boldsymbol{w} \sim \mathcal{N}(0, I)$ and then a set of $\{(x_i, y_i)\}_{i=1}^n$ ($n=300$) observations according to the model.
-For each dataset we ran EP for 10 iterations and collected incoming-outgoing message pairs in 
+For each dataset we ran EP for 10 iterations, and collected incoming-outgoing message pairs in 
 the first five iterations of EP from Infer.NET's implementation of the 
 logistic factor.
 We partitioned the messages randomly into 5,000 training and 
-3,000 test messages and learned a message operator to predict $m_{f\rightarrow z_i}$
+3,000 test messages, and learned a message operator to predict $m_{f\rightarrow z_i}$
 as described in section \ref{sec:Online}. 
 Regularization and kernel parameters were chosen by leave-one-out cross validation.
 %(note that cross-validation can be performed 
@@ -1318,8 +1318,8 @@ $\hat{q}_{\factor \rightarrow z_i}$ is the prediction.
 % \aenote{AE: No need to mention log-scaling?} 
 The histogram of the log KL errors is shown in \figref{fig:kl_div_hist}; \figref{fig:kl_div_4plots} shows examples of predicted messages 
 for different log KL errors. 
-It is evident that the kernel-based operator captures the relationship
-between incoming and outgoing messages well. The discrepancy with respect to the ground truth is barely 
+It is evident that the kernel-based operator does well in capturing the relationship
+between incoming and outgoing messages. The discrepancy with respect to the ground truth is barely 
 visible even at the 99th percentile.
 
 
@@ -1370,8 +1370,8 @@ To assess this property of we compute the predictive variance using the same lea
 used training set are shown in \figref{fig:logistic_uncertainty_test}. 
 The backward incoming messages $\msg{p_i}{\factor}$ are not displayed.
 Shown in the same plot are two curves (a blue line, and a pink parabola) representing two ``uncertainty test sets'':
-these are the sets of parameter pairs on which we evaluate
-the uncertainty of the predictor, and contain regions
+these are the sets of parameter pairs on which we wish to evaluate
+the uncertainty of the predictor, and pass through regions
 with both high and low densities of training samples.
 %
 \figref{fig:logistic_uncertainty_all}
@@ -1393,7 +1393,7 @@ This behaviour is desirable, as most of the points in the test set \#1 are eithe
 in a low density region or an unexplored region. These results suggest that the 
 predictive variance is a robust criterion for querying the importance sampling oracle.
 One key observation is that the uncertainty estimates of the random 
-forests are highly non-smooth i.e., uncertainty on nearby points may vary wildly.
+forests are highly non-smooth; i.e., uncertainty on nearby points may vary wildly.
 As a result, a random forest-based JIT learner may still query the importance 
 sampler oracle when 
 presented with incoming messages similar to those in the training set, 
