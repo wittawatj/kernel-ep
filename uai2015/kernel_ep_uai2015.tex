@@ -800,7 +800,7 @@ This approach is not suited to just-in-time (JIT) learning, however,
 as both prediction and storage cost grow with the size of the training set:
 thus, inference on even moderately sized datasets rapidly becomes computationally prohibitive.
 Instead, we define 
-a finite-dimensional random feature map $\hat{\phi} \in \mathbb{R}^{D_{out}}$ such that 
+a finite-dimensional random feature map $\hat{\psi} \in \mathbb{R}^{D_{out}}$ such that 
 $\kappa(\mathsf{r}, \mathsf{s}) \approx \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s})$, 
 and regress directly on these feature maps, in the primal (see next section): storage and computation 
 are then a function of the dimension of the feature map $D_{out}$, yet performance is close to that
@@ -904,11 +904,11 @@ the features, and to generate the coefficients  on-the-fly as needed \citep{Dai2
 \STATE $\hat{\phi}(\mathsf{r}) = \sqrt{\frac{2}{D_{in}}} \left( \mathbb{E}_{\mathsf{r(x)}} 
 \cos(\omega_{i}^{\top}x+b_{i} ) \right)_{i=1}^{D_{in}} \in \mathbb{R}^{D_{in}}$ \\
 %\STATE  $\hat{\phi}(p)=\mathbb{E}_{p(x)}\sqrt{\frac{2}{D_{in}}}\left(\cos\left(\omega_{1}^{\top}x+b_{1}\right),\ldots,\cos\left(\omega_{D_{in}}^{\top}x+b_{D_{in}}\right)\right)^{\top}$.
-If $\mathsf{r}(x)=\mathcal{N}(x;m, V )$, 
+If $\mathsf{r}(x)=\mathcal{N}(x;m, \Sigma )$, 
 \small
 \begin{equation*}
 \hat{\phi}( \mathsf{r}) = \sqrt{\frac{2}{D_{in}}} \left( \cos(\omega_{i}^{\top}m +b_{i}) \exp 
-\left(-\frac{1}{2}\omega_{i}^{\top}V \omega_{i} \right) \right)_{i=1}^{D_{in}}.
+\left(-\frac{1}{2}\omega_{i}^{\top}\Sigma \omega_{i} \right) \right)_{i=1}^{D_{in}}.
 \end{equation*}
 %Even if $p$ is not a normal distribution, we may still use it as an approximation.
 %
