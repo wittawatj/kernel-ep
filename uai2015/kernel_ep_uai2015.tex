@@ -1178,8 +1178,7 @@ used to update $\Sigma_{w}$ and $\mu_{w}$ as described previously.
 \section{Experiments  \label{sec:Experiments}}
 %=============================================
 
-To ensure that the proposed message operator is capable of learning the relationship 
-of incoming and outgoing messages, we first consider a batch learning setting.
+Below we evaluate our learned message operator using two different factors, the logistic factor, and the compound Gamma factor. In our first experiment, for the sigmoid factor, we demonstrate that proposed operator is generally capable of learning high-quality mappings from incoming to outgoing messages in a batch setting. The second experiment shows that the uncertainty estimates of the learned operator are very reliable and it provides a comparison to random forests in this regard. The third and fourth experiments assess the performance of the operator as part of the full EP inference loop in two different models, approximating the logistic and the compound gamma factor. Our final experiment highlights the learned operators ability to reliably and quickly adapt to large shifts in the message distribution encountered during inference in a sequence of several real-world regression problems. 
 
 %------------------------------------
 %\subsection{Logistic factor \label{sec:logistic_factor} } 
@@ -1223,6 +1222,7 @@ $\msg{p_i}{\factor} = \text{Beta}(p_i; \alpha, \beta) $.
 \end{figure}
 
 
+\paragraph{Experiment 1: Batch learning} 
 As in \cite{Heess2013} and \cite{Eslami2014}, we study the logistic factor 
 $\factor(p|z)=\delta\left(p-\frac{1}{1+\exp(-z)}\right)$ 
 %
@@ -1232,16 +1232,14 @@ $\factor(p|z)=\delta\left(p-\frac{1}{1+\exp(-z)}\right)$
 %
 where $\delta$ is the Dirac delta function, in the context of 
  binary logistic regression model as shown in \figref{fig:factor_graph_binlog}.
-The factor is deterministic when conditioning on $z$. 
-There are two incoming messages to the factor: 
+The factor is deterministic and there are two incoming messages to the factor: 
 $\msg{p_i}{\factor} = \text{Beta}(p_i; \alpha, \beta) $ and 
 $\msg{z_i}{\factor} = \mathcal{N}(z_i; \mu, \sigma^2)$, 
 where $z_i = \boldsymbol{w}^\top x_i$ represents the dot product between an observation 
 $x_i \in \mathbb{R}^d$ and the coefficient vector $\boldsymbol{w}$ whose posterior is 
 to be inferred.
 
-\paragraph{Batch learning} 
-Our goal is to learn a kernel-based message operators to send an outgoing message to $z_i$.
+In this first experiment we only learn a kernel-based operator to send message %$\msg{\factor}{z_i}$.
 Following \cite{Eslami2014}, we set $d$ to 20, sample 
 $\{x_i\}_{i=1}^n, \boldsymbol{w} \sim \mathcal{N}(0, I)$, and set the number 
 of observations $n$ to 300.
@@ -1306,7 +1304,7 @@ between incoming and outgoing messages. The discrepancy with respect to the grou
 visible even at the 99th percentile.
 
 
-\paragraph{Uncertainty estimates}
+\paragraph{Experiment 2: Uncertainty estimates}
 
 \begin{figure}[t]
 \centering
