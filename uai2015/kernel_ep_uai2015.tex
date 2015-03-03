@@ -148,8 +148,7 @@ Messages}
 
 \begin{abstract}
 
-  We propose an efficient nonparametric strategy
-  for learning a message operator in expectation propagation (EP), which takes as input the set of incoming messages to a factor node, and produces an outgoing message as output. This learned operator replaces the multivariate integral required in classical EP, which may not have an analytic expression. We use kernel-based regression, which is trained on a set of probability distributions representing the incoming messages, and the associated outgoing messages. The kernel approach has two main advantages: first, it is fast, as it is implemented using a novel two-layer random feature representation of the input message distributions; second, it has principled uncertainty estimates, and can be cheaply updated online, meaning it can request and incorporate new training data when it encounters inputs on which it is uncertain.  In experiments, our approach is able to solve learning problems where a single message operator is required for multiple, substantially different data sets (logistic regression for a variety of classification problems), where the ability to accurately assess uncertainty and to efficiently and robustly update the message operator are essential.
+We propose an efficient nonparametric strategy for learning a message operator in expectation propagation (EP), which takes as input the set of incoming messages to a factor node, and produces an outgoing message as output. This learned operator replaces the multivariate integral required in classical EP, which may not have an analytic expression. We use kernel-based regression, which is trained on a set of probability distributions representing the incoming messages, and the associated outgoing messages. The kernel approach has two main advantages: first, it is fast, as it is implemented using a novel two-layer random feature representation of the input message distributions; second, it has principled uncertainty estimates, and can be cheaply updated online, meaning it can request and incorporate new training data when it encounters inputs on which it is uncertain.  In experiments, our approach is able to solve learning problems where a single message operator is required for multiple, substantially different data sets (logistic regression for a variety of classification problems), where the ability to accurately assess uncertainty and to efficiently and robustly update the message operator are essential.
 
 \end{abstract}
 
@@ -1142,7 +1141,7 @@ Updating $\Sigma_{w}$ costs $O(D_{out}^{2})$ per one new observation.
 For $\mu_{w}= \Sigma_{w} \mathsf{X} \mathsf{Y}^{\top}\sigma_{y}^{-2}$, we maintain
 $ \mathsf{X} \mathsf{Y}^{\top}\in\mathbb{R}^{D}$ and update it with
 \begin{equation}
-\left( \feaX \feaY^{\top}\right)^{(N+1)}=\left( \feaX \feaY^{\top}+x_{N+1}y_{N+1}\right), 
+\left( \feaX \feaY^{\top}\right)^{(N+1)}=\left( \feaX \feaY^{\top}+ \feax_{N+1} \feay_{N+1}\right), 
 \end{equation}
 costing $O(D_{out})$ per update. 
 %In the first iteration when no data are observed, $\Sigma_{w}^{(1)}=\sigma_{0}^{2}I$.
