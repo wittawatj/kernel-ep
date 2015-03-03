@@ -594,7 +594,7 @@ will be able to use kernels from both this work and from \citep{ChristmannSteinw
 We will extend these ideas  to the case where more than one distribution is input.
 
 We note that \citet{SonGreGue10,SonGreBicLowGue11} propose a related regression approach for predicting outgoing
-messages form incoming messages, for the purpose of Belief Propagation. The resulting learning problem
+messages from incoming messages, for the purpose of Belief Propagation. The resulting learning problem
 is quite dissimlar to ours, however: the incoming messages in the earlier work are smoothed
 conditional density functions, rather than RKHS distribution embeddings; the output messages are likewise
 smoothed conditional density estimates, rather than normalized projections onto a parametric family.
@@ -604,7 +604,7 @@ An important issue is computational cost, as EP is an iterative algorithm and ma
 Therefore, following \citep{Rahimi2007,Le2013,YanSmoZonWil14},
 we do not express our solution in terms of kernels, but in terms of random features whose expected inner products
 are equal to the kernel function. We then perform regression directly in the primal on these random features.
-Thus, our first task, in Section \ref{sec:kernelsOnDistributions}, is to define kernels on tupples of distributions, and to
+Thus, our first task, in Section \ref{sec:kernelsOnDistributions}, is to define kernels on tuples of distributions, and to
 derive the related random feature representations.  We follow this task in Section
 \ref{sec:ridgeRegression} with a description  of the regression algorithm which predicts the output message parameters from these
 random features, as well as our strategy for uncertainty evaluation and online updates.
@@ -617,9 +617,9 @@ random features, as well as our strategy for uncertainty evaluation and online u
 
  We confine ourselves to a single factor and its incoming messages,
 hence we will not need to include the factor identity in our notation.
-Assuming $c$ incoming messages, we write the set of incoming messages to a node as a tuple of
+Assuming $c$ incoming messages, we write the set of incoming messages to a factor node as a tuple of
 probability distributions $\mathsf{x}_r:=(r^{(l)})_{l=1}^c$, each defined on a respective domain $\mathcal{X}^{(l)}$.
-Our goal is to define a kerne between one such tuple, and a second one,
+Our goal is to define a kernel between one such tuple, and a second one,
 which we will write $\mathsf{x}_s:=(s^{(l)})_{l=1}^c$.
 
 %AG: I have now simplified down to just the kernel we use.
