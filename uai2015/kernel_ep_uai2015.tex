@@ -343,12 +343,11 @@ The message $\msg{ \factor }{\outV}(x_{\outV})$  from factor $\factor$ to variab
 \begin{equation}
 \small
 \frac{\projP{ \msg{\outV}{\factor}(x_{\outV})
-\int \factor (\fx{\factor}) \prod_{\outV' \in \fis{\factor} \textbackslash \outV} \msg{\outV'}{\factor}(x_{\outV'}) \diffd \bx_{\fis{\factor} \textbackslash \outV}}}
+\int \factor (\fx{\factor}) \prod_{\outV'} \msg{\outV'}{\factor}(x_{\outV'}) \diffd \bx_{\fis{\factor} \textbackslash \outV}}}
 {\msg{\outV}{\factor}(x_{\outV})}
 \label{eq:msgPassing:EP}
 \end{equation}
 %
-\aenote{Make equation and number fit on one line}
 where $\msg{\outV'}{\factor}$ are the messages sent to factor $\factor$ from its neighboring variables $x_{\outV'}$ other than $x_{\outV}$,  $\projP{p} = \argmin{q \in \mathcal{Q}} \kld{p}{q}$, and $\mathcal{Q}$ is typically in the exponential family, e.g.\ the set of Gaussian or Beta distributions.
 
 %--------------------------------------------------------------------
@@ -650,14 +649,15 @@ in the tuple: Let us define a RKHS
 $\mathcal{H}^{(l)}$ on each domain, with respective kernels $k^{(l)}(x^{(l)}_1,x^{(l)}_2)$.
 We may embed individual probability distributions to these RKHSs, following \citep{Smola2007}.
 The {\em mean embedding} of $r^{(l)}$ is written
-\[\mu_{r^{(l)}}(\cdot):=\int k^{(l)}(x^{(l)},\cdot) dr^{(l)} (x^{(l)}),
-\]
+\begin{equation}
+\mu_{r^{(l)}}(\cdot):=\int k^{(l)}(x^{(l)},\cdot) dr^{(l)} (x^{(l)}),
+\end{equation}
 and has the property
 $\langle f,\mu_{r^{(l)}} \rangle_{\mathcal{H}^{(l)}} = \mathbb{E}_{r^{(l)}}(f(X^{(l)}))$
 for all $f\in \mathcal{H}^{(l)}$.
 
-On the same basis, a mean embedding may be defined on the product of  messages in a tuple,
-$\mathsf{r}=\prod_{l=1}^{c}r^{(l)}$, as
+Similarly, a mean embedding may be defined on the product of  messages in a tuple
+$\mathsf{r}=\prod_{l=1}^{c}r^{(l)}$ as
 \begin{equation}
 \mu_{\mathsf{r}}
 :=
@@ -852,23 +852,23 @@ $\langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}  \rangle
 = \mathbb{E}_{\mathsf{r}(x)} \mathbb{E}_{\mathsf{s}(y)} g(x-y)$, one can use 
 the result of \cite{Rahimi2007} to have 
 %
-\begin{align*}
+\begin{align}
  \langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}  \rangle
  & \approx \mathbb{E}_{\mathsf{r}(x)} \mathbb{E}_{\mathsf{s}(y)} 
-   \hat{\varphi}(x)^\top \hat{\varphi}(y) \\
+   \hat{\varphi}(x)^\top \hat{\varphi}(y) \nonumber \\ 
  & = \mathbb{E}_{\mathsf{r}(x)} 
    \hat{\varphi}(x)^\top \mathbb{E}_{\mathsf{s}(y)}  \hat{\varphi}(y) 
- := \hat{\phi}(\mathsf{r})^\top \hat{\phi}(\mathsf{s})
-\end{align*}
+ := \hat{\phi}(\mathsf{r})^\top \hat{\phi}(\mathsf{s}).
+\end{align}
 
 
 With the approximation of $\langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}  \rangle$,
 we have
-\[
-\kappa_{\text{gauss}}(\mathsf{r}, \mathsf{s})\approx\exp\left(-\frac{\|\hat{\phi}(\mathsf{r})-\hat{\phi}(\mathsf{r})\|_{D_{in}}^{2}}{2\gamma^{2}}\right)
+\begin{equation}
+\kappa_{\text{gauss}}(\mathsf{r}, \mathsf{s})\approx\exp\left(-\frac{\|\hat{\phi}(\mathsf{r})-\hat{\phi}(\mathsf{r})\|_{D_{in}}^{2}}{2\gamma^{2}}\right),
 %
 %:=k_{\text{gauss}}\left(\hat{\phi}(p)-\hat{\phi}(q);\gamma^{2}\right)
-\]
+\end{equation}
 which can be thought of as a standard Gaussian kernel on $\mathbb{R}^{D_{in}}$.
 We can thus further approximate this Gaussian kernel 
 %
@@ -1070,34 +1070,33 @@ on test points. The uncertainty estimate in this case will be the predictive
 variance.
 Here we give a brief review of Bayesian linear regression on the random features. 
 We are given the priors
-
-\begin{align*}
-w & \sim\mathcal{N}\left(w;0,I_{D_{out}}\sigma_{0}^{2}\right)\\
+\begin{align}
+w & \sim\mathcal{N}\left(w;0,I_{D_{out}}\sigma_{0}^{2}\right), \\
 \mathsf{Y} \mid \mathsf{X},w & \sim\mathcal{N}\left(\mathsf{Y};w^{\top} \mathsf{X},\sigma_{y}^{2}I_{N}\right),
-\end{align*}
+\end{align}
 %
 where the output noise variance $\sigma_{y}^{2}$ captures the intrinsic
 stochasticity of the importance sampler used to generate $\mathsf{Y}$. It
 follows that the posterior of $w$ is given by \citep{Bishop2006}
 %
-\begin{align*}
-p(w | \mathsf{Y}) & =\mathcal{N}(w;\mu_{w},\Sigma_{w})\\
-\Sigma_{w} & = \left( \mathsf{X} \mathsf{X}^{\top}\sigma_{y}^{-2}+\sigma_{0}^{-2}I \right)^{-1} \\
+\begin{align}
+p(w | \mathsf{Y}) & =\mathcal{N}(w;\mu_{w},\Sigma_{w}), \\
+\Sigma_{w} & = \left( \mathsf{X} \mathsf{X}^{\top}\sigma_{y}^{-2}+\sigma_{0}^{-2}I \right)^{-1}, \\
 \mu_{w} & =\Sigma_{w} \mathsf{X} \mathsf{Y}^{\top}\sigma_{y}^{-2}.
 %=\left(XX^{\top}+\frac{\sigma_{y}^{2}}{\sigma_{0}^{2}}I\right)^{-1}XY^{\top}.
-\end{align*}
+\end{align}
 %The noise variance $\sigma_{y}^{2}$ is proportional to the regularization
 %parameter in linear regression. 
 The predictive distribution on the output $\mathsf{y}^{*}$ given an 
 observation $\mathsf{x}^{*}$ is
 %
-\begin{align*}
+\begin{align}
 p(\mathsf{y}^{*}| \mathsf{x}^{*}, \mathsf{Y}) & =\int  
  p(\mathsf{y}^{*}|w, \mathsf{x}^{*}, \mathsf{Y}) p(w|\mathsf{Y}) \, dw\\
- & =\mathcal{N}\left(\mathsf{y}^{*}; \mathsf{x}^{*\top}\mu_{w}, \mathsf{x}^{*\top}\Sigma_{w} \mathsf{x}^{*}+\sigma_{y}^{2}\right)
+ & =\mathcal{N}\left(\mathsf{y}^{*}; \mathsf{x}^{*\top}\mu_{w}, \mathsf{x}^{*\top}\Sigma_{w} \mathsf{x}^{*}+\sigma_{y}^{2}\right).
 % & =\mathcal{N}(y^{*};m^{*},v^{*}).
-\end{align*}
-
+\end{align}
+%
 % The marginal likelihood is given by
 %\begin{align*}
 %p(Y|X) & =\int dw\, p(Y|X,w)p(w)\\
@@ -1107,7 +1106,7 @@ p(\mathsf{y}^{*}| \mathsf{x}^{*}, \mathsf{Y}) & =\int
 %where $K=X^{\top}X$ is a gram matrix of $X$. 
 %One can do gradient ascent on $\log p(Y|X)$
 %to optimize $\sigma_{0}^{2},\sigma_{y}^{2}$ and kernel parameters.
-
+%
 For simplicity, we treat each output (expected sufficient statistic) as a separate regression problem. 
 Treating all outputs jointly can be achieved with a multi-output kernel \citep{Alvarez2011}.
 
@@ -1120,11 +1119,11 @@ $\mu_{w}$ when observations (i.e., random features representing incoming
 messages) $\mathsf{X}$ comes in stream. We will use $\cdot^{(N)}$
 to denote a quantity constructed from $N$ samples. Recall that $\Sigma_{w}^{-1(N)}= \mathsf{X} \mathsf{X}^{\top}\sigma_{y}^{-2}+\sigma_{0}^{-2}I$.
 The posterior covariance matrix at time $N+1$ is
-\[
+\begin{equation}
 \Sigma_{w}^{(N+1)} 
  =
-\Sigma_{w}^{(N)}-\frac{\Sigma_{w}^{(N)} \mathsf{x}_{N+1} \mathsf{x}_{N+1}^{\top} \Sigma_{w}^{(N)}\sigma_{y}^{-2}}{1+ \mathsf{x}_{N+1}^{\top}\Sigma_{w}^{(N)} \mathsf{x}_{N+1}\sigma_{y}^{-2}}
- \]
+\Sigma_{w}^{(N)}-\frac{\Sigma_{w}^{(N)} \mathsf{x}_{N+1} \mathsf{x}_{N+1}^{\top} \Sigma_{w}^{(N)}\sigma_{y}^{-2}}{1+ \mathsf{x}_{N+1}^{\top}\Sigma_{w}^{(N)} \mathsf{x}_{N+1}\sigma_{y}^{-2}}.
+\end{equation}
 %AG: don't need this proof
 
 %\begin{align*}
@@ -1143,9 +1142,9 @@ the covariance at time $N$.
 Updating $\Sigma_{w}$ costs $O(D_{out}^{2})$ per one new observation. 
 For $\mu_{w}= \Sigma_{w} \mathsf{X} \mathsf{Y}^{\top}\sigma_{y}^{-2}$, we maintain
 $ \mathsf{X} \mathsf{Y}^{\top}\in\mathbb{R}^{D}$ and update it with
-\[
+\begin{equation}
 \left( \feaX \feaY^{\top}\right)^{(N+1)}=\left( \feaX \feaY^{\top}+x_{N+1}y_{N+1}\right), 
-\]
+\end{equation}
 costing $O(D_{out})$ per update. 
 %In the first iteration when no data are observed, $\Sigma_{w}^{(1)}=\sigma_{0}^{2}I$.
 
