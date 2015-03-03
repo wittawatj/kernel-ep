@@ -416,7 +416,7 @@ employ random forests as their class of learning functions, and update their app
 \begin{equation}
 \uncertaintyMsg{\factor}{\outV}{\theta}: (\msg{\outV'}{\factor} )_{\outV' \in \fis{\factor}} \mapsto \uncert,
 \end{equation}
-where $\uncert$ indicates the expected unreliability  of the predicted, approximate message $\msg{\factor}{\outV}$ returned by $\approxMsg{\factor}{\outV}{\theta}$. If $v = \uncertaintyMsg{\factor}{\outV}{\theta} \left( (\msg{\outV'}{\factor} )_{\outV' \in \fis{\factor}}\right)$ 
+where $\uncert$ indicates the expected unreliability  of the predicted, approximate message $\msg{\factor}{\outV}$ returned by $\approxMsg{\factor}{\outV}{\theta}$. If $\uncert = \uncertaintyMsg{\factor}{\outV}{\theta} \left( (\msg{\outV'}{\factor} )_{\outV' \in \fis{\factor}}\right)$ 
 exceeds a pre-defined threshold, the required message is approximated via importance sampling (cf.\ eq.\ \ref{eq:msgIS}) and $\approxMsg{\factor}{\outV}{\theta}$ is updated
 %AG: fixed
 %\wjnote{Just updated not retrained ?}
