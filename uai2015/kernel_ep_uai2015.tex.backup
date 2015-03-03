@@ -594,7 +594,7 @@ will be able to use kernels from both this work and from \citep{ChristmannSteinw
 We will extend these ideas  to the case where more than one distribution is input.
 
 We note that \citet{SonGreGue10,SonGreBicLowGue11} propose a related regression approach for predicting outgoing
-messages form incoming messages, for the purpose of Belief Propagation. The resulting learning problem
+messages from incoming messages, for the purpose of Belief Propagation. The resulting learning problem
 is quite dissimlar to ours, however: the incoming messages in the earlier work are smoothed
 conditional density functions, rather than RKHS distribution embeddings; the output messages are likewise
 smoothed conditional density estimates, rather than normalized projections onto a parametric family.
@@ -604,7 +604,7 @@ An important issue is computational cost, as EP is an iterative algorithm and ma
 Therefore, following \citep{Rahimi2007,Le2013,YanSmoZonWil14},
 we do not express our solution in terms of kernels, but in terms of random features whose expected inner products
 are equal to the kernel function. We then perform regression directly in the primal on these random features.
-Thus, our first task, in Section \ref{sec:kernelsOnDistributions}, is to define kernels on tupples of distributions, and to
+Thus, our first task, in Section \ref{sec:kernelsOnDistributions}, is to define kernels on tuples of distributions, and to
 derive the related random feature representations.  We follow this task in Section
 \ref{sec:ridgeRegression} with a description  of the regression algorithm which predicts the output message parameters from these
 random features, as well as our strategy for uncertainty evaluation and online updates.
@@ -617,19 +617,30 @@ random features, as well as our strategy for uncertainty evaluation and online u
 
  We confine ourselves to a single factor and its incoming messages,
 hence we will not need to include the factor identity in our notation.
-Assuming $c$ incoming messages, we write the set of incoming messages to a node as a tuple of
+Assuming $c$ incoming messages, we write the set of incoming messages to a factor node as a tuple of
 probability distributions $\mathsf{x}_r:=(r^{(l)})_{l=1}^c$, each defined on a respective domain $\mathcal{X}^{(l)}$.
-Our goal is to define a kerne between one such tuple, and a second one,
+Our goal is to define a kernel between one such tuple, and a second one,
 which we will write $\mathsf{x}_s:=(s^{(l)})_{l=1}^c$.
 
-\agnote{Looking at the amount of content: I suspect we will only have space in the main section to present
-the kernel we actually use. But in any case, for now, I have included multiple kernels with consistent notation. I  put the definitions of the kernels first, and then left the random features to be defined in the next subsection. Otherwise
-there is too much to understand in one equation.}
+%AG: I have now simplified down to just the kernel we use.
 
-The simplest kernel between distributions is simply a standard kernel (e.g., a Gaussian kernel) on a parametric representation of the inputs.
-Thus,  if each input distribution $r^{(l)}$ is represented by a mean-variance pair $(\eta_{r^{(l)}},\sigma^2_{r^{(l)}})$, then a kernel
-between the message tuples is a product of kernels $\kappa^{(l)}(r^{(l)},s^{(l)})$ between each pair of distributions,
-where the $\kappa^{(l)}$ are themselves products of a Gaussian kernels between the means, and a Gaussian kernel between the variances. We call this the {\em mean-variance kernel}.
+%The simplest kernel between distributions is simply a standard kernel (e.g., a Gaussian kernel) on a parametric representation of the inputs.
+%Thus,  if each input distribution $r^{(l)}$ is represented by a mean-variance pair $(\eta_{r^{(l)}},\sigma^2_{r^{(l)}})$, then a kernel
+%between the message tuples is a product of kernels $\kappa^{(l)}(r^{(l)},s^{(l)})$ between each pair of distributions,
+%where the $\kappa^{(l)}$ are themselves products of a Gaussian kernels between the means, and a Gaussian kernel between the variances. We call this the {\em mean-variance kernel}.
+
+
+A more sophisticated  kernel on tuples of distributions
+involves embedding the tuple to an RKHS.  We first look at the embedding of a single distribution
+in the tuple. 
+Let us define a reproducing kernel Hilbert space
+$\mathcal{H}^{(l)}$ on each domain, with respective kernels $k^{(l)}(x^{(l)}_1,x^{(l)}_2)$.
+We may embed individual probability distributions to these RKHSs, following \citep{Smola2007}.
+The {\em mean embedding} of $r^{(l)}$ is written $\mu_{r^{(l)}}$, and has the property
+$\langle f,\mu_{r^{(l)}} \rangle_{\mathcal{H}^{(l)}} = \mathbb{E}_{r^{(l)}}(f(X^{(l)}))$
+for all $f\in \mathcal{H}^{(l)}$.
+
+ADD
 
 
 A more sophisticated  kernel on tuples of distributions
@@ -1094,15 +1105,15 @@ $\msg{\factor}{z_i} = q_{\factor \rightarrow z_i} / \msg{z_i}{\factor} $.
   \centering
 
   \subfloat[KL Errors \label{fig:kl_div_hist}]{
-  \includegraphics[width=0.49\columnwidth]{img/kl_ntr5000_iter5_sf1_st20_fm_joint-crop}
+  \includegraphics[width=0.46\columnwidth]{img/kl_ntr5000_iter5_sf1_st20_fm_joint-crop}
   }
   %
-  \subfloat[Examples of errors\label{fig:kl_div_4plots}]{
-  \includegraphics[width=0.49\columnwidth]{img/4plots_ntr5000_iter5_sf1_st20_fm_joint-crop}
+  \subfloat[Examples of predictions\label{fig:kl_div_4plots}]{
+  \includegraphics[width=0.47\columnwidth]{img/4plots_ntr5000_iter5_sf1_st20_fm_joint-crop}
   }
   \caption{Prediction errors of backward outgoing messages from the logistic 
   factor and examples of predicted messages at different error levels. 
-\aenote{Subfigure heights should match.}}
+  }
   % reference: exp7/RFGJointKGGLearner_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat
   \label{fig:kl_div}
 \end{figure}
@@ -1125,34 +1136,43 @@ visible even at the 99th percentile.
 
 \paragraph{Uncertainty estimates}
 
-\begin{figure*}[t]
+\begin{figure}[t]
 \centering
   \subfloat[Parameters of $\msg{z_i}{\factor}$ \label{fig:logistic_uncertainty_test}]{
   \includegraphics[width=0.49\columnwidth]{img/uncertainty/logistic_uncertainty_test-crop}
   }
   %
-  \subfloat[Kernel-based operator \label{fig:logistic_predvar}]{
-  \includegraphics[width=0.49\columnwidth]{img/uncertainty/logistic_predvar-crop}
+%   \subfloat[Kernel-based operator \label{fig:logistic_predvar}]{
+%   \includegraphics[width=0.3\textwidth]{img/uncertainty/logistic_predvar-crop}
+%   }
+  \subfloat[Uncertainty estimates \label{fig:logistic_uncertainty_all}]{
+  \includegraphics[width=0.49 \columnwidth]{img/uncertainty/logistic_uncertainty_all-crop}
   }
-  \subfloat[Breiman's random forests\label{fig:breiman_uncertainty}]{
-  \includegraphics[width=0.49\columnwidth]{img/uncertainty/rf-n_trees-100-crop}
-  }
-  \subfloat[Extremely randomized trees\label{fig:ert_uncertainty}]{
-  \includegraphics[width=0.49\columnwidth]{img/uncertainty/ert-n_trees-100-crop}
-  }
-  \caption{(a) Incoming messages from $z$ to $\factor$ from 20 EP runs in the binary 
+  %
+%   \subfloat[Breiman's random forests\label{fig:breiman_uncertainty}]{
+%   \includegraphics[width=0.49\columnwidth]{img/uncertainty/rf-n_trees-100-crop}
+%   }
+%   %
+%   \subfloat[Extremely randomized trees\label{fig:ert_uncertainty}]{
+%   \includegraphics[width=0.49\columnwidth]{img/uncertainty/ert-n_trees-100-crop}
+% % (c,d) The uncertainty estimates on the same test sets of Breiman's random 
+% %   forests and extremely randomized trees. 
+%   }
+%   \subfloat[\citeauthor{Eslami2014}'s random forests \label{fig:eslami_uncertainty}]{
+%   \includegraphics[width=0.3\textwidth]{img/uncertainty/uncertainty-data-10dim-method-ali_rf-n_candidates-100-regressor-quadratic-n_trees-64-crop}
+%   }
+  \caption{ (a) Incoming messages from $z$ to $\factor$ from 20 EP runs in the binary 
   logistic regression as shown in \figref{fig:factor_graph_binlog}.  
-  (b) Predictive variances of the proposed method on the two 
+  %
+  (b) Uncertainty estimates of the proposed kernel-based method and 
+  \citeauthor{Eslami2014}'s random forests on the two 
   uncertainty test sets shown. For testing, we fix the other incoming message 
   $\msg{p_i}{\factor}$ to $\text{Beta}(p_i; 1, 2)$.
-  (c,d) The uncertainty estimates on the same test sets of Breiman's random 
-  forests and extremely randomized trees. 
-  \wjnote{Incorporate Balaji's latest figure. There is only one ?}
   }
   \label{fig:logistic_uncertainty}
 %   \caption{Uncertainty estimates of random forests on two uncertainty test sets 
 %   shown in \figref{fig:logistic_predvar_unexplored}. } 
-\end{figure*}
+\end{figure}
 
 
 One of the most important tasks in JIT learning is to correctly estimate 
@@ -1166,10 +1186,12 @@ in which each point corresponds to an incoming message.
 The test sets contain a mix of messages in the dense region of 
 the training set and messages in unexplored regions.
 
-\figref{fig:logistic_predvar}, \figref{fig:breiman_uncertainty}, and 
-\figref{fig:ert_uncertainty} show uncertainty estimates of each point in 
-the two test sets by our kernel-based operator, Breiman's random forests 
-and extremely randomized trees, where we fix 
+\figref{fig:logistic_uncertainty_all}
+% \figref{fig:breiman_uncertainty}, and \figref{fig:ert_uncertainty} 
+% and \figref{fig:eslami_uncertainty} 
+shows uncertainty estimates on each input point in 
+the two test sets by our kernel-based operator and \citeauthor{Eslami2014}'s 
+random forests where we fix 
 $\msg{p_i}{\factor} := \text{Beta}(p_i; 1, 2)$ for testing. 
 The implementation of the random forests closely
 follows the description detailed in \cite{Eslami2014}. 
@@ -1334,7 +1356,7 @@ than the importance sampler.
 % 	}
   %
   \subfloat[Inferred shape \label{fig:cg_infer_shape}]{
-  \includegraphics[width=0.31\columnwidth]{img/online/cg_post_shape-crop}
+  \includegraphics[width=0.33\columnwidth]{img/online/cg_post_shape-crop}
   %\missingfigure[figwidth=0.49\columnwidth]{}
   }
   %
@@ -1344,12 +1366,12 @@ than the importance sampler.
   }
   %
   \subfloat[Inference time\label{fig:cg_infer_time}]{
-  \includegraphics[width=0.34\columnwidth]{img/online/cg_inference_time-crop}
+  \includegraphics[width=0.33\columnwidth]{img/online/cg_inference_time-crop}
   }
   \caption{Shape (a) and rate (b) parameters of the inferred posteriors in 
   the compound gamma problem. 
   (c) KJIT is able to infer equally good posterior parameters compared to Infer.NET 
-  while requiring several orders of magnitude less runtime. \aenote{Figure fonts too small.}}
+  while requiring several orders of magnitude less runtime. }
   \label{fig:cg_performance}
 \end{figure}
 
@@ -1410,18 +1432,6 @@ classification test sets. The uncertainty threshold is set to -9 and the minibat
 size is 500. All other parameters are the same as in the JIT learning experiment in
 \secref{sec:logistic_factor}.
 
-Classification errors on the test sets and inference times are shown in 
-\figref{fig:uci_01_loss} and \figref{fig:uci_infer_time}, respectively.
-The results positively suggest that KJIT improves the inference time on all the 
-problems without sacrificing inference accuracy. The trace of the predictive 
-variance of each outgoing message is shown in 
-\figref{fig:uci_temporal_uncertainty}. An essential feature to notice is the 
-rapid increase of the uncertainty after the first EP iteration of each problem. 
-As shown in \figref{fig:uci_in_msgs}, the distributions of incoming messages 
-of the four problems are diverse. 
-This rise of uncertainty indicates that the operator is able to detect a 
-big change in
-
 % UCI data classification error
 % Inference time
 \begin{figure}[ht]
@@ -1437,6 +1447,20 @@ big change in
    }
   \label{fig:uci_performance}
 \end{figure}
+
+
+Classification errors on the test sets and inference times are shown in 
+\figref{fig:uci_01_loss} and \figref{fig:uci_infer_time}, respectively.
+The results positively suggest that KJIT improves the inference time on all the 
+problems without sacrificing inference accuracy. The trace of the predictive 
+variance of each outgoing message is shown in 
+\figref{fig:uci_temporal_uncertainty}. An essential feature to notice is the 
+rapid increase of the uncertainty after the first EP iteration of each problem. 
+As shown in \figref{fig:uci_in_msgs}, the distributions of incoming messages 
+of the four problems are diverse. 
+The sharp rise followed by a steady decrease of the uncertainty is a good indicator 
+that the operator is able to promptly detect a change of input distribution
+and robustly adapt to the new input distributions by querying the oracle.
 
 
 % \hrulefill{}
@@ -1464,15 +1488,29 @@ big change in
 %=============================================
 \section{Conclusions and Future Work\label{sec:Conclusions-and-Future} }
 %=============================================
+In this work, we made one step forward toward the goal of having a fully 
+automatic and fast inference engine. 
+We demonstrated that inference with EP can be sped up without 
+losing inference accuracy by embedding an uncertainty aware distribution-to-distribution 
+regressor at a factor node for sending outgoing EP messages given incoming messages. 
+The regressor acts as a cache of message computation that the factor can refer to 
+upon getting an input . 
 
-We propose to learn to send EP messages with kernel ridge regression
-by casting the KL minimization problem as a supervised learning problem.
-With random features, incoming messages to a learned operator are
-converted to a finite-dimensional vector. Computing an outgoing message
-amounts to computing the moment parameters by multiplying the vector
-with a matrix given by the solution of the primal ridge regression.
+The proposed use kernel ridge regression 
+in the primal form with random feature representation of incoming messages 
+leads to a number of desirable properties for JIT learning: powerful 
+representation of incoming messages, ease of online update and efficient outgoing 
+message computation. 
 
-% future work: a good way to choose kernel parameters
+Our study Nonetheless, the random feature map itself depends on 
+hyperparameters which may need to be adapted during inference.
+Our future works will address this issue. 
+
+
+%In effect, computing an outgoing message
+%amounts to computing the moment parameters by multiplying the ramdom feature vector
+%with a matrix given by the solution of the regression.
+
 
 {\small 
 \bibliographystyle{abbrvnat}
@@ -1975,8 +2013,23 @@ If we instead define $\kappa$ as the sum of $c$ kernels, we have
 where $\hat{\varphi}(p):=\left(\hat{\phi}^{(1)}(p^{(1)})^{\top},\ldots,\hat{\phi}^{(c)}(p^{(c)})^{\top}\right)^{\top}\in\mathbb{R}^{cD}$
 whose memory requirement is much lower.
 
+%------------------------------------
+\subsection{Number of Random Features for Gaussian Kernel on Mean Embeddings }
+%------------------------------------
+We quantify the effect of $D_{in}$ and $D_{out}$
+empirically as follows. We generate 300 Gaussian messages, compute the true gram
+matrix and the approximate gram matrix given by the random features,
+and report the Frobenius norm of the difference of the two matrices
+on a grid of $D_{in}$ and $D_{out}$. For each $(D_{in},D_{out})$,
+we repeat 20 times with a different set of random features and report
+the averaged Frobenius norm.
 
+\includegraphics[width=8cm]{img/kggauss_rf_grid-crop} 
 
+The result suggests that $D_{out}$ has more effect in improving the
+approximation.
+
+\begin{comment}
 %------------------------------------
 \subsection{Kernel on tuples of messages}
 %------------------------------------
@@ -2018,22 +2071,8 @@ is $D_{out}$ as compared to $D_{out}^{c}$ (product kernel) and $cD_{out}$
 (sum kernel). One potential disadvantage is that we treat all neighbouring
 variables as independent.
 
-
-\paragraph{Experiments on Random Features for Gaussian Kernel on Mean Embeddings }
-
-It is unclear how $D_{in}$ and $D_{out}$ affect the quality of the
-random feature approximation. We quantify the effect empirically as
-follows. We generate 300 Gaussian messages, compute the true gram
-matrix and the approximate gram matrix given by the random features,
-and report the Frobenius norm of the difference of the two matrices
-on a grid of $D_{in}$ and $D_{out}$. For each $(D_{in},D_{out})$,
-we repeat 20 times with a different set of random features and report
-the averaged Frobenius norm.
-
-\includegraphics[width=8cm]{img/kggauss_rf_grid-crop} 
-
-The result suggests that $D_{out}$ has more effect in improving the
-approximation.
+\end{comment}
+.
 
 
 \bibliographystylesup{abbrvnat}

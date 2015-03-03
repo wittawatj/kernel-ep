@@ -1532,15 +1532,26 @@ and robustly adapt to the new input distributions by querying the oracle.
 %=============================================
 \section{Conclusions and Future Work\label{sec:Conclusions-and-Future} }
 %=============================================
+In this work, we made one step forward toward the goal of having a fully 
+automatic and fast inference engine. 
+We demonstrated that inference with EP can be sped up without 
+losing inference accuracy by embedding an uncertainty aware distribution-to-distribution 
+regressor at a factor node for sending outgoing EP messages given incoming messages.
+The regressor essentially acts as a cache for message computation, offering 
+the factor an outgoing message when it is certain about an input. 
+The proposed use kernel ridge regression 
+in the primal form with random feature representation of incoming messages 
+leads to a number of desirable properties for JIT learning: powerful 
+representation of incoming messages, ease of online update and efficient outgoing 
+message computation. 
+Nonetheless, the random feature map itself depends on 
+hyperparameters which may need to be adapted during inference.
+Our future works will address this issue. 
 
-We propose to learn to send EP messages with kernel ridge regression
-by casting the KL minimization problem as a supervised learning problem.
-With random features, incoming messages to a learned operator are
-converted to a finite-dimensional vector. Computing an outgoing message
-amounts to computing the moment parameters by multiplying the vector
-with a matrix given by the solution of the primal ridge regression.
+%In effect, computing an outgoing message
+%amounts to computing the moment parameters by multiplying the ramdom feature vector
+%with a matrix given by the solution of the regression.
 
-% future work: a good way to choose kernel parameters
 
 {\small 
 \bibliographystyle{abbrvnat}
@@ -2043,8 +2054,23 @@ If we instead define $\kappa$ as the sum of $c$ kernels, we have
 where $\hat{\varphi}(p):=\left(\hat{\phi}^{(1)}(p^{(1)})^{\top},\ldots,\hat{\phi}^{(c)}(p^{(c)})^{\top}\right)^{\top}\in\mathbb{R}^{cD}$
 whose memory requirement is much lower.
 
+%------------------------------------
+\subsection{Number of Random Features for Gaussian Kernel on Mean Embeddings }
+%------------------------------------
+We quantify the effect of $D_{in}$ and $D_{out}$
+empirically as follows. We generate 300 Gaussian messages, compute the true gram
+matrix and the approximate gram matrix given by the random features,
+and report the Frobenius norm of the difference of the two matrices
+on a grid of $D_{in}$ and $D_{out}$. For each $(D_{in},D_{out})$,
+we repeat 20 times with a different set of random features and report
+the averaged Frobenius norm.
 
+\includegraphics[width=8cm]{img/kggauss_rf_grid-crop} 
 
+The result suggests that $D_{out}$ has more effect in improving the
+approximation.
+
+\begin{comment}
 %------------------------------------
 \subsection{Kernel on tuples of messages}
 %------------------------------------
@@ -2086,22 +2112,8 @@ is $D_{out}$ as compared to $D_{out}^{c}$ (product kernel) and $cD_{out}$
 (sum kernel). One potential disadvantage is that we treat all neighbouring
 variables as independent.
 
-
-\paragraph{Experiments on Random Features for Gaussian Kernel on Mean Embeddings }
-
-It is unclear how $D_{in}$ and $D_{out}$ affect the quality of the
-random feature approximation. We quantify the effect empirically as
-follows. We generate 300 Gaussian messages, compute the true gram
-matrix and the approximate gram matrix given by the random features,
-and report the Frobenius norm of the difference of the two matrices
-on a grid of $D_{in}$ and $D_{out}$. For each $(D_{in},D_{out})$,
-we repeat 20 times with a different set of random features and report
-the averaged Frobenius norm.
-
-\includegraphics[width=8cm]{img/kggauss_rf_grid-crop} 
-
-The result suggests that $D_{out}$ has more effect in improving the
-approximation.
+\end{comment}
+.
 
 
 \bibliographystylesup{abbrvnat}
