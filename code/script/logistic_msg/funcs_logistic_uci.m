@@ -209,7 +209,7 @@ function plotTemporalUncertainty(kjit)
     end
     set(gca, 'FontSize', 11);
     ylabel('Log predictive variance');
-    xlabel('Factor invocations.');
+    xlabel('Factor invocations');
     %title('Predictive variance of the outgoing message')
     legend('Predictive variance', sprintf('Moving average'), 'Threshold');
     pbaspect([40, 5, 1]);
