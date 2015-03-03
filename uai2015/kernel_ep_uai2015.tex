@@ -1172,10 +1172,17 @@ used to update $\Sigma_{w}$ and $\mu_{w}$ as described previously.
 \section{Experiments  \label{sec:Experiments}}
 %=============================================
 
-Below we evaluate our learned message operator using two different factors, the logistic factor, and the compound Gamma factor. In our first experiment, for the sigmoid factor, we demonstrate that proposed operator is generally capable of learning high-quality mappings from incoming to outgoing messages in a batch setting. The second experiment shows that the uncertainty estimates of the learned operator are very reliable and it provides a comparison to random forests in this regard. The third and fourth experiments assess the performance of the operator as part of the full EP inference loop in two different models, approximating the logistic and the compound gamma factor. Our final experiment highlights the learned operators ability to reliably and quickly adapt to large shifts in the message distribution encountered during inference in a sequence of several real-world regression problems. 
-%
+Below we evaluate our learned message operator using two different factors, the logistic factor, and the compound Gamma factor. In the first and second experiment we demonstrate that proposed operator is generally capable of learning high-quality mappings from incoming to outgoing messages, and that the associated uncertainty estimates are very reliable. The third and fourth experiments assess the performance of the operator as part of the full EP inference loop in two different models, approximating the logistic and the compound gamma factor. Our final experiment highlights the learned operators ability to reliably and quickly adapt to large shifts in the message distribution encountered during inference in a sequence of several real-world regression problems. 
+
+
 For all experiments we used Infer.NET \citep{Minka2014} with its extensible factor interface for our own operator. 
-We use the default settings of Infer.NET unless stated otherwise.
+We use the default settings of Infer.NET unless stated otherwise. In all our experiments the regression target is the marginal belief (numerator of eq.\ \ref{eq:msgPassing:EP}),  from which the outgoing message can be calculated straightforwardly.
+% as
+%$\msg{\factor}{x} = q_{\factor \rightarrow x} / \msg{x}{\factor} $.
+%$q_{\factor \rightarrow z_i}$
+%(i.e., the numerator of \eqref{eq:msgPassing:EP}) rather than 
+%the outgoing message $\msg{\factor}{z_i}$. 
+%An 
 
 
 %------------------------------------
@@ -1243,24 +1250,22 @@ a different $\boldsymbol{w} \sim \mathcal{N}(0, I)$ and then a set of $\{(x_i, y
 For each dataset we ran EP for 10 iterations and collected incoming-outgoing message pairs in 
 the first five iterations of EP from Infer.NET's implementation of the 
 logistic factor.
-All collected messages were randomly partitioned into 5,000 training messages and 
-3,000 testing messages.
-We learned a message operator to predict $m_{f\rightarrow X}$
-using a Gaussian kernel on joint embeddings, as 
-described in \eqref{eq:gauss_joint_emb}.
-Regularization and kernel parameters were chosen by leave-one-out cross validation
-(note that cross-validation can be performed 
-faster using a reduced  number of random features, albeit
-with some increase in noise).
-The number of random features was set to $D_{in}=500$ and $D_{out}=1,000$.
-Empirically, we observed no significant improvements beyond 1,000 random features.
-Since an EP outgoing message can be improper e.g., a normal distribution with 
-negative variance, the regression target was set to be the belief message 
-$q_{\factor \rightarrow z_i}$
-(i.e., the numerator of \eqref{eq:msgPassing:EP}) rather than 
-the outgoing message $\msg{\factor}{z_i}$. 
-An outgoing message can be constructed straightforwardly as
-$\msg{\factor}{z_i} = q_{\factor \rightarrow z_i} / \msg{z_i}{\factor} $.
+We partitioned the messages randomly into 5,000 training and 
+3,000 test messages and learned a message operator to predict $m_{f\rightarrow z_i}$
+as described in section \ref{sec:Online}. 
+Regularization and kernel parameters were chosen by leave-one-out cross validation.
+%(note that cross-validation can be performed 
+%faster using a reduced  number of random features, albeit
+%with some increase in noise).
+We set the number of random features to $D_{in}=500$ and $D_{out}=1,000$; 
+empirically, we observed no significant improvements beyond 1,000 random features.
+%Since an EP outgoing message can be improper e.g., a normal distribution with 
+%negative variance, the regression target was set to be the belief message 
+%$q_{\factor \rightarrow z_i}$
+%(i.e., the numerator of \eqref{eq:msgPassing:EP}) rather than 
+%the outgoing message $\msg{\factor}{z_i}$. 
+%An outgoing message can be constructed straightforwardly as
+%$\msg{\factor}{z_i} = q_{\factor \rightarrow z_i} / \msg{z_i}{\factor} $.
 
 \begin{figure}[ht]
   \centering
@@ -1282,7 +1287,7 @@ $\msg{\factor}{z_i} = q_{\factor \rightarrow z_i} / \msg{z_i}{\factor} $.
 
 We report 
 $\log KL[q_{\factor \rightarrow z_i} \| \hat{q}_{\factor \rightarrow z_i}]$ 
-where $q_{\factor \rightarrow z_i}$ is the ground truth projected belief and 
+where $q_{\factor \rightarrow z_i}$ is the ground truth projected belief (numerator of eq.\ \ref{eq:msgPassing:EP}) and 
 $\hat{q}_{\factor \rightarrow z_i}$ is the prediction.
 % For better numerical scaling, regression outputs are set to $(\mathbb{E}_{q}\left[x\right],
 % \log\mathbb{V}_{q}\left[x\right])$ instead of the expectations of the first two moments. 
