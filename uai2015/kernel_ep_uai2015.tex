@@ -348,7 +348,7 @@ Computing the numerator of (\ref{eq:msgPassing:EP}) can be challenging, as it re
 %However, while deterministic approximations to (\ref{eq:msgPassing:EP}) may be hard to come by,
 \cite{Barthelme2011,Heess2013,Eslami2014} propose an alternative, stochastic approach to the integration and projection step.
 When the projection $\proj$ is to a member $q(x|\eta)=h(x)\exp\left(\eta^{\top}u(x)-A(\eta)\right)$ of an exponential family, one simply computes the expectation of the sufficient statistic $u(\cdot)$ under the numerator of (\ref{eq:msgPassing:EP}). \wjnote{Under the exact marginal $\msg{ \outV }{\factor}(x_{\outV})\msg{ \factor }{\outV}(x_{\outV})$  ?}
-A sample based approximation of this expectation can be obtained via MCMC. 
+A sample based approximation of this expectation can be obtained via Markov chain Monte Carlo (MCMC). 
 Given a forward-sampling function $f$ as described above, one especially simple approach is importance sampling, 
 %\wjnote{$N$ is used for training size. Use $M$ here instead ?}
 %AG: fixed
@@ -397,7 +397,7 @@ employ random forests as their class of learning functions, and update their app
 \uncertaintyMsg{\factor}{\outV}{\theta}: (\msg{\outV'}{\factor} )_{\outV' \in \fis{\factor}} \mapsto \uncert,
 \end{equation}
 where $\uncert$ indicates the expected unreliability  of the predicted, approximate message $\msg{\factor}{\outV}$ returned by $\approxMsg{\factor}{\outV}{\theta}$. If $\uncert = \uncertaintyMsg{\factor}{\outV}{\theta} \left( (\msg{\outV'}{\factor} )_{\outV' \in \fis{\factor}}\right)$ 
-exceeds a pre-defined threshold, the required message is approximated via importance sampling (cf.\ eq.\ \ref{eq:msgIS}) and $\approxMsg{\factor}{\outV}{\theta}$ is updated
+exceeds a pre-defined threshold, the required message is approximated via importance sampling (cf.\ Eq.\ \ref{eq:msgIS}) and $\approxMsg{\factor}{\outV}{\theta}$ is updated
 %AG: fixed
 %\wjnote{Just updated not retrained ?}
 on this new datapoint (leading to a new set of parameters  $\theta'$ with $\uncertaintyMsg{\factor}{\outV}{\theta'} \left( (\msg{\outV'}{\factor} )_{\outV' \in \fis{\factor}}\right)) < \uncertaintyMsg{\factor}{\outV}{\theta} \left( (\msg{\outV'}{\factor} )_{\outV' \in \fis{\factor}}\right)$.
@@ -420,7 +420,7 @@ Indeed, for large amounts of training set drift, the
 leaf-splitting approach of \citeauthor{Eslami2014} can result in a decision tree which is a long chain, giving a worst case
 cost of prediction (computational and storage) of $O(N)$ for training data of size $N$, vs the ideal of $O(\log(N))$
 for balanced trees.
-Finally, note that the approach of \citeauthor{Eslami2014} uses certain bespoke features of the factors when
+Finally, note that the approach of \citeauthor{Eslami2014}\ uses certain bespoke features of the factors when
 specifying tree traversal in the random forests,
 notably the value of the factor potentials at the mean and mode of the incoming messages.
 These features 
