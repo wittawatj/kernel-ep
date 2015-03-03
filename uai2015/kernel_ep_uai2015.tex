@@ -658,7 +658,7 @@ $\mathsf{r}=\prod_{l=1}^{c}r^{(l)}$, as
 \begin{equation}
 \mu_{\mathsf{r}}
 :=
-\int k([x^{(1)} \hdots x^{(c)}],\cdot) \prod_{l=1}^{c}dr^{(l)}(x^{(l)}),
+\int g([x^{(1)} \hdots x^{(c)}],\cdot) \prod_{l=1}^{c}dr^{(l)}(x^{(l)}),
 \label{eq:featureOfTuple}
 \end{equation}
 where we have defined the joint kernel $k$ on the concatenation of the features
@@ -746,19 +746,31 @@ supplementary material.
 \subsection{Random feature approximations}
 %------------------------------------
 
-Our message operator $\approxMsg{\factor}{\outV}{\theta}$ is based on kernel ridge 
-regression using the kernel defined in \eqref{eq:gauss_joint_emb}. 
-However, kernel ridge regression in its dual form is not suitable for JIT learning 
-as its solution is expressed in terms of inner products between the messages in 
-the training set. This is problematic for our JIT learning 
-purpose because the training size grows as new examples 
-(incoming-outgoing message pairs) arrive. 
-One possible solution to this is to approximate  the kernel with 
+One approach to learning the mapping  $\approxMsg{\factor}{\outV}{\theta}$ from incoming to outgoing messages
+would be to employ kernel ridge regression, using the kernel \eqref{eq:gauss_joint_emb}.
+This approach is not suited to just-in-time (JIT) learning, however,
+as both prediction and storage cost grow with the size of the training set:
+thus, inference on even moderately sized datasets rapidly becomes computationally prohibitive.
+Instead, we define 
 a finite-dimensional random feature map $\hat{\phi} \in \mathbb{R}^{D_{out}}$ such that 
 $\kappa(\mathsf{r}, \mathsf{s}) \approx \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s})$, 
-which will then allow us 
-to do kernel ridge regression in its primal form: equivalently this is just the 
-standard linear regression with the basis expansion function $\hat{\psi}$. 
+and regress directly on these feature maps, in the primal (see next section): storage and computation 
+are then a function of the dimension of the feature map $D_{out}$, yet performance is close to that
+obtained using a kernel.
+
+%% Our message operator $\approxMsg{\factor}{\outV}{\theta}$ is based on kernel ridge 
+%% regression using the kernel defined in \eqref{eq:gauss_joint_emb}. 
+%% However, kernel ridge regression in its dual form is not suitable for JIT learning 
+%% as its solution is expressed in terms of inner products between the messages in 
+%% the training set. This is problematic for our JIT learning 
+%% purpose because the training size grows as new examples 
+%% (incoming-outgoing message pairs) arrive. 
+%% One possible solution to this is to approximate  the kernel with 
+%% a finite-dimensional random feature map $\hat{\phi} \in \mathbb{R}^{D_{out}}$ such that 
+%% $\kappa(\mathsf{r}, \mathsf{s}) \approx \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s})$, 
+%% which will then allow us 
+%% to do kernel ridge regression in its primal form: equivalently this is just the 
+%% standard linear regression with the basis expansion function $\hat{\psi}$. 
 
 % The kernel $\kappa_{\text{gauss}}(\mathsf{r}, \mathsf{s})$ defines an inner product 
 % $\kappa(\mathsf{r}, \mathsf{s}) = \langle 
@@ -768,17 +780,18 @@ standard linear regression with the basis expansion function $\hat{\psi}$.
 % kernel in \eqref{eq:gauss_joint_emb}), an explicit feature map $\phi$ 
 % cannot be computed.
 
-In \cite{Rahimi2007}, methods based on Fourier transforms for computing a vector
+In \cite{Rahimi2007}, a method based on Fourier transforms was proposed for computing a vector
 of random features $\hat{\varphi}$ for the standard Gaussian kernel 
-$g(x, y) = \exp\left(-\frac{\| x-y\|^2}{2\beta^2} \right) $ were 
-proposed such that $g(x, y) \approx \hat{\varphi}(x)^\top \hat{\varphi}(y)$
+$g(x, y) = \exp\left(-\frac{\| x-y\|^2}{2\beta^2} \right)$, 
+ such that $g(x, y) \approx \hat{\varphi}(x)^\top \hat{\varphi}(y)$
 where $x,y \in \mathbb{R}^d$ and $\hat{\varphi} \in \mathbb{R}^{D_{in}}$.  
-Here we will follow a similar approach and derive 
-a set of random Fourier features for \eqref{eq:gauss_joint_emb} via a two-stage 
-approximations.
+We will follow a similar approach, and derive 
+a two-stage set of random Fourier features for \eqref{eq:gauss_joint_emb}.
+%via a two-stage 
+%approximations.
 
 We start by expanding the square in the exponent 
-of \eqref{eq:gauss_joint_emb} yielding 
+of \eqref{eq:gauss_joint_emb} as
 %
 \begin{align*}
  %& \kappa_{\text{gauss}}(p,q) \\
@@ -789,7 +802,7 @@ Assume that the embedding kernel $g$ used to define the embeddings $\mu_\mathsf{
 and $\mu_\mathsf{s}$ is translation invariant. Since 
 $\langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}  \rangle
 = \mathbb{E}_{\mathsf{r}(x)} \mathbb{E}_{\mathsf{s}(y)} g(x-y)$, one can use 
-the result of \cite{Rahimi2007} to have 
+the result of \cite{Rahimi2007} to write
 %
 \begin{align*}
  \langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}  \rangle
@@ -797,9 +810,10 @@ the result of \cite{Rahimi2007} to have
    \hat{\varphi}(x)^\top \hat{\varphi}(y) \\
  & = \mathbb{E}_{\mathsf{r}(x)} 
    \hat{\varphi}(x)^\top \mathbb{E}_{\mathsf{s}(y)}  \hat{\varphi}(y) 
- := \hat{\phi}(\mathsf{r})^\top \hat{\phi}(\mathsf{s})
+ := \hat{\phi}(\mathsf{r})^\top \hat{\phi}(\mathsf{s}),
 \end{align*}
-
+where the mappings $\hat{\phi}$ are $D_{in}$ standard Rahimi-Recht random features
+for the Gaussian kernel, shown in Steps 1-3 of Algorithm~\ref{algo:random_features_kgg}).
 
 With the approximation of $\langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}  \rangle$,
 we have
@@ -808,33 +822,29 @@ we have
 %
 %:=k_{\text{gauss}}\left(\hat{\phi}(p)-\hat{\phi}(q);\gamma^{2}\right)
 \]
-which can be thought of as a standard Gaussian kernel on $\mathbb{R}^{D_{in}}$.
+which is a standard Gaussian kernel on $\mathbb{R}^{D_{in}}$.
 We can thus further approximate this Gaussian kernel 
 %
 % $ k_{\text{gauss}}\left(\hat{\phi}(p), \hat{\phi}(q);\gamma^{2}\right)\approx\hat{\psi}(p)^{\top}\hat{\psi}(q)$
 %
-by random Fourier features of \citeauthor{Rahimi2007} to obtain a vector 
+by the random Fourier features of \citeauthor{Rahimi2007} to obtain a vector 
 of random features $\hat{\psi}$ such that 
 $\kappa_{\text{gauss}}(\mathsf{r}, \mathsf{s}) \approx \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s})$
 where $\hat{\psi} \in \mathbb{R}^{D_{out}}$. 
-
-
-
-A pseudocode for generating the random features $\hat{\psi}$ is summarized in Algorithm~\ref{algo:random_features_kgg}. For a more detailed derivation, 
-please refer to the supplementary materials.
-For the random features, we need to pre-compute $\left\{ \omega_{i}\right\} _{i=1}^{D_{in}},\left\{ b_{i}\right\} _{i=1}^{D_{in}},\left\{ \nu_{i}\right\} _{i=1}^{D_{out}}$
+Pseudocode for generating the random features $\hat{\psi}$ is given in Algorithm~\ref{algo:random_features_kgg}. Please refer to the supplementary material for more detail.
+For the implementation, we need to pre-compute $\left\{ \omega_{i}\right\} _{i=1}^{D_{in}},\left\{ b_{i}\right\} _{i=1}^{D_{in}},\left\{ \nu_{i}\right\} _{i=1}^{D_{out}}$
 and $\left\{ c_{i}\right\} _{i=1}^{D_{out}}$ where $D_{in}$ and
-$D_{out}$ are the number of random features to be specified. 
+$D_{out}$ are the number of random features used. 
 A more efficient way to support a large number of random features 
 is to store only the random seed used to generate 
-them. The coefficients are generated on the fly when needed \citep{Dai2014}. 
+the features, and to generate the coefficients  on-the-fly as needed \citep{Dai2014}. 
 
 
 %%%
 
 
 \begin{algorithm}[t]
-\caption{Construction of two-staged random features for $\kappa_{\text{gauss}}$}
+\caption{Construction of two-stage random features for $\kappa_{\text{gauss}}$}
 \label{algo:random_features_kgg}
 \begin{algorithmic}[1]
 \REQUIRE Input distribution $\mathsf{r}$, Fourier transform $\hat{k}$ of the embedding kernel $k$, number of inner features $D_{in}$, number of outer features $D_{out}$, outer Gaussian width $\gamma^2$.
@@ -992,11 +1002,13 @@ i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
 %
 
 Let $\mathsf{X}=\left(\mathsf{x}_{1}|\cdots|\mathsf{x}_{N}\right)$
-be the training regression inputs, and $\mathsf{Y}=\left(\mathbb{E}_{q_{\factor\rightarrow \outV}^{1}}u(x_{\outV})|\cdots|\mathbb{E}_{q_{f\rightarrow \outV}^{N}}u(x_{\outV})\right)\in\mathbb{R}^{D_{y}\times N}$
-be the regression outputs where $q^i_{\factor \rightarrow \outV}$ is the numerator 
+be the $N$ training samples of incoming messages to a factor node, and let $\mathsf{Y}=\left(\mathbb{E}_{q_{\factor\rightarrow \outV}^{1}}u(x_{\outV})|\cdots|\mathbb{E}_{q_{f\rightarrow \outV}^{N}}u(x_{\outV})\right)\in\mathbb{R}^{D_{y}\times N}$
+be the corresponding  output messages, where $q^i_{\factor \rightarrow \outV}$ is the numerator 
 of \eqref{eq:msgPassing:EP}.
-In our application, $\mathsf{x}_{i}$ denotes a random feature
-vector representing the $i^{th}$ tuple of incoming messages. 
+We write $\mathsf{x}_{i}= \hat{\psi}(\mathsf{r}_i)$
+as a more compact notation for the random feature
+vector representing the $i^{th}$ tuple of incoming messages,
+as copmuted via Algorithm~\ref{algo:random_features_kgg}. 
 %Thus, the dimensionality of  $\mathsf{X}$ is $D_{out} \times N$.
 
 
