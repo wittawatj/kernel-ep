@@ -347,7 +347,7 @@ Computing the numerator of (\ref{eq:msgPassing:EP}) can be challenging, as it re
 %This significantly limits the ease with which EP can be applied and its scope in practice. 
 %However, while deterministic approximations to (\ref{eq:msgPassing:EP}) may be hard to come by,
 \cite{Barthelme2011,Heess2013,Eslami2014} propose an alternative, stochastic approach to the integration and projection step.
-When the projection $\proj$ is to a member $q(x|\eta)=h(x)\exp\left(\eta^{\top}u(x)-A(\eta)\right)$ of an exponential family, one simply computes the expectation of the sufficient statistic $u(\cdot)$ under the numerator of (\ref{eq:msgPassing:EP}). \wjnote{Under the exact marginal $\msg{ \outV }{\factor}(x_{\outV})\msg{ \factor }{\outV}(x_{\outV})$  ?}
+When the projection $\proj$ is to a member $q(x|\eta)=h(x)\exp\left(\eta^{\top}u(x)-A(\eta)\right)$ of an exponential family, one simply computes the expectation of the sufficient statistic $u(\cdot)$ under the numerator of (\ref{eq:msgPassing:EP}). %\wjnote{Under the exact marginal $\msg{ \outV }{\factor}(x_{\outV})\msg{ \factor }{\outV}(x_{\outV})$  ?}
 A sample based approximation of this expectation can be obtained via MCMC. 
 Given a forward-sampling function $f$ as described above, one especially simple approach is importance sampling, 
 %\wjnote{$N$ is used for training size. Use $M$ here instead ?}
@@ -1384,7 +1384,9 @@ random forests,
 where we fix 
 $\msg{p_i}{\factor} := \text{Beta}(p_i; 1, 2)$ for testing. 
 The implementation of the random forests closely
-follows that of \cite{Eslami2014}. 
+follows 
+%that of 
+\cite{Eslami2014}. 
 
 From the figure, as the mean of the test message moves away from the region densely sampled by the training data, the predictive variance reported by the kernel method increases
 much more smoothly than that of the random forests. Further, our method
@@ -1409,14 +1411,14 @@ thereby wasting computation.
 %\end{figure}
 
 \paragraph{Experiment 3: Just-in-time learning}
-In this experiment we test the approximate operator in the logistic regression model as part of the full EP inference loop in a just-in-time learning setting (KJIT) . % on the same task with toy data. 
+In this experiment we test the approximate operator in the logistic regression model as part of the full EP inference loop in a just-in-time learning setting (KJIT). % on the same task with toy data. 
 We now learn two kernel-based message operators, one for each outgoing 
 direction from the logistic factor. 
 The data generation is the same as in the batch learning experiment.
 We sequentially presented the operator with 30 related problems, where a new 
 set of observations $\{(x_i, y_i)\}_{i=1}^n$ was generated at the beginning of 
 each problem from the model, while keeping $\boldsymbol{w}$ fixed.
-This scenario is common in practice because one is often given several sets of 
+This scenario is common in practice: one is often given several sets of 
 observations which share the same model parameter \citep{Eslami2014}. 
 As before, the inference target was $p(\boldsymbol{w}|\{(x_i, y_i)\}_{i=1}^n)$.
 We set the maximum number of EP iterations to 10 in each problem.
