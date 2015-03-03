@@ -109,7 +109,7 @@
 \newcommand{\aenote}[1]{\textbf{\color{red!50!black}{#1}} }
 \newcommand{\nhnote}[1]{\textbf{\color{magenta!90!black}{#1}} }
 \newcommand{\agnote}[1]{\textbf{\color{green!50!black}{#1}} }
-\newcommand{\dsnote}[1]{\textbf{\color{orange!50!black}{#1}} }
+\newcommand{\dsnote}[1]{}%\textbf{\color{orange!50!black}{#1}} }
 
 \newcommand{\figref}[1]{Fig.~\ref{#1}}
 \newcommand{\secref}[1]{Sec.~\ref{#1}}
@@ -260,10 +260,8 @@ than those for random forests, especially as we move away from the training data
 
 %\todo{AE: suggestion: to have a quick summary of contributions in one or two sentences somewhere?}
 %AG: I think we are ok, and the introduction is already too long.
-\dsnote{why gold standard below, why not just training data?}
 Our paper proceeds as follows. In Section \ref{sec:EP}, we introduce the notation for expectation propagation,
-and indicate how an importance sampling procedure can be used as an oracle to provide
-``gold standard'' training data for the message operator.
+and indicate how an importance sampling procedure can be used as an oracle to provide training data for the message operator.
 We also give a brief overview of previous learning approaches to the problem, with a focus on
 that of \citet{Eslami2014}.
 Next, in Section \ref{sec:Online}, we describe our kernel regression approach, and
@@ -342,7 +340,7 @@ where $\msg{\outV'}{\factor}$ are the messages sent to factor $\factor$ from its
 %\label{sec:EP:MC}
 
 %By projecting messages onto simple parametric forms, EP introduces an approximation that allows message passing to proceed when the true messages are not easily representable in closed form.
-Computing the numerator of (\ref{eq:msgPassing:EP}) can be challenging, as it requires evaluating a high-dimensional integral as well as minimization of the Kullback-Leibler divergence to some non-standard distribution. For non-trivial factors with known analytic form this often requires hand-crafted approximations, or the use of expensive numerical integration techniques; for ``black-box'' factors implemented as forward sampling functions (Sec.\ \ref{sec:EP}), fully nonparametric techniques are needed. 
+Computing the numerator of (\ref{eq:msgPassing:EP}) can be challenging, as it requires evaluating a high-dimensional integral as well as minimization of the Kullback-Leibler divergence to some non-standard distribution. Even for factors with known analytic form this often requires hand-crafted approximations, or the use of expensive numerical integration techniques; for ``black-box'' factors implemented as forward sampling functions (Sec.\ \ref{sec:EP}), fully nonparametric techniques are needed. 
 
 %For such factors the only assumption we make is that we are provided with a forward sampling function $f: \xin \mapsto \xout$, i.e. a function that maps (stochastically or deterministically) a setting of the input variables $\xin$ to a sample from the conditional distribution over $\xout \sim \factor(\cdot| \xin)$. Such a function may, for instance, be
 
@@ -393,7 +391,7 @@ where $\theta$ are the parameters of the approximator.
 %Note that for exponential family distribution this effectively reduces to a multi-variate regression problem as each message can be represented by a finite-dimensional parameter vector, and the message update (\ref{eq:msgPassing:EP}) can thus be understood as a vector valued function.
 %\wjnote{Why do we need to mention ``can be understood as a vector valued function'' ?}
 
-While \cite{Heess2013} use neural networks and a very large, fixed training set to learn their approximate message operator prior to running EP with the intractable factor, \cite{Eslami2014}
+While \cite{Heess2013} use neural networks and a large, fixed training set to learn their approximate message operator prior to running EP, \cite{Eslami2014}
 employ random forests as their class of learning functions, and update their approximate message operator on the fly during inference, depending on the predictive uncertainty of the current message operator. Specifically, they endow their function approximator with an uncertainty estimate
 \begin{equation}
 \uncertaintyMsg{\factor}{\outV}{\theta}: (\msg{\outV'}{\factor} )_{\outV' \in \fis{\factor}} \mapsto \uncert,
@@ -799,10 +797,10 @@ This approach is not suited to just-in-time (JIT) learning, however,
 as both prediction and storage cost grow with the size of the training set:
 thus, inference on even moderately sized datasets rapidly becomes computationally prohibitive.
 Instead, we define 
-a finite-dimensional random feature map $\hat{\phi} \in \mathbb{R}^{D_{out}}$ such that 
+a finite-dimensional random feature map $\hat{\phi} \in \mathbb{R}^{D_\mathrm{out}}$ such that 
 $\kappa(\mathsf{r}, \mathsf{s}) \approx \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s})$, 
 and regress directly on these feature maps, in the primal (see next section): storage and computation 
-are then a function of the dimension of the feature map $D_{out}$, yet performance is close to that
+are then a function of the dimension of the feature map $D_\mathrm{out}$, yet performance is close to that
 obtained using a kernel.
 
 %% Our message operator $\approxMsg{\factor}{\outV}{\theta}$ is based on kernel ridge 
@@ -813,7 +811,7 @@ obtained using a kernel.
 %% purpose because the training size grows as new examples 
 %% (incoming-outgoing message pairs) arrive. 
 %% One possible solution to this is to approximate  the kernel with 
-%% a finite-dimensional random feature map $\hat{\phi} \in \mathbb{R}^{D_{out}}$ such that 
+%% a finite-dimensional random feature map $\hat{\phi} \in \mathbb{R}^{D_\mathrm{out}}$ such that 
 %% $\kappa(\mathsf{r}, \mathsf{s}) \approx \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s})$, 
 %% which will then allow us 
 %% to do kernel ridge regression in its primal form: equivalently this is just the 
@@ -831,7 +829,7 @@ In \cite{Rahimi2007}, a method based on Fourier transforms was proposed for comp
 of random features $\hat{\varphi}$ for the standard Gaussian kernel 
 $g(x, y) = \exp\left(-\frac{\| x-y\|^2}{2\beta^2} \right)$, 
  such that $g(x, y) \approx \hat{\varphi}(x)^\top \hat{\varphi}(y)$
-where $x,y \in \mathbb{R}^d$ and $\hat{\varphi} \in \mathbb{R}^{D_{in}}$.  
+where $x,y \in \mathbb{R}^d$ and $\hat{\varphi} \in \mathbb{R}^{D_\mathrm{in}}$.  
 We will follow a similar approach, and derive 
 a two-stage set of random Fourier features for \eqref{eq:gauss_joint_emb}.
 %via a two-stage 
@@ -859,17 +857,17 @@ the result of \cite{Rahimi2007} to write
    \hat{\varphi}(x)^\top \mathbb{E}_{\mathsf{s}(y)}  \hat{\varphi}(y) 
  := \hat{\phi}(\mathsf{r})^\top \hat{\phi}(\mathsf{s}),
 \end{align*}
-where the mappings $\hat{\phi}$ are $D_{in}$ standard Rahimi-Recht random features
+where the mappings $\hat{\phi}$ are $D_\mathrm{in}$ standard Rahimi-Recht random features
 for the Gaussian kernel, shown in Steps 1-3 of Algorithm~\ref{algo:random_features_kgg}).
 
 With the approximation of $\langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}  \rangle$,
 we have
 \begin{equation}
-\kappa_{\text{gauss}}(\mathsf{r}, \mathsf{s})\approx\exp\left(-\frac{\|\hat{\phi}(\mathsf{r})-\hat{\phi}(\mathsf{r})\|_{D_{in}}^{2}}{2\gamma^{2}}\right),
+\kappa_{\text{gauss}}(\mathsf{r}, \mathsf{s})\approx\exp\left(-\frac{\|\hat{\phi}(\mathsf{r})-\hat{\phi}(\mathsf{r})\|_{D_\mathrm{in}}^{2}}{2\gamma^{2}}\right),
 %
 %:=k_{\text{gauss}}\left(\hat{\phi}(p)-\hat{\phi}(q);\gamma^{2}\right)
 \end{equation}
-which is a standard Gaussian kernel on $\mathbb{R}^{D_{in}}$.
+which is a standard Gaussian kernel on $\mathbb{R}^{D_\mathrm{in}}$.
 We can thus further approximate this Gaussian kernel 
 %
 % $ k_{\text{gauss}}\left(\hat{\phi}(p), \hat{\phi}(q);\gamma^{2}\right)\approx\hat{\psi}(p)^{\top}\hat{\psi}(q)$
@@ -877,11 +875,11 @@ We can thus further approximate this Gaussian kernel
 by the random Fourier features of \citeauthor{Rahimi2007} to obtain a vector 
 of random features $\hat{\psi}$ such that 
 $\kappa_{\text{gauss}}(\mathsf{r}, \mathsf{s}) \approx \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s})$
-where $\hat{\psi} \in \mathbb{R}^{D_{out}}$. 
+where $\hat{\psi} \in \mathbb{R}^{D_\mathrm{out}}$. 
 Pseudocode for generating the random features $\hat{\psi}$ is given in Algorithm~\ref{algo:random_features_kgg}. Please refer to the supplementary material for more detail.
-For the implementation, we need to pre-compute $\left\{ \omega_{i}\right\} _{i=1}^{D_{in}},\left\{ b_{i}\right\} _{i=1}^{D_{in}},\left\{ \nu_{i}\right\} _{i=1}^{D_{out}}$
-and $\left\{ c_{i}\right\} _{i=1}^{D_{out}}$ where $D_{in}$ and
-$D_{out}$ are the number of random features used. 
+For the implementation, we need to pre-compute $\left\{ \omega_{i}\right\} _{i=1}^{D_\mathrm{in}},\left\{ b_{i}\right\} _{i=1}^{D_\mathrm{in}},\left\{ \nu_{i}\right\} _{i=1}^{D_\mathrm{out}}$
+and $\left\{ c_{i}\right\} _{i=1}^{D_\mathrm{out}}$ where $D_\mathrm{in}$ and
+$D_\mathrm{out}$ are the number of random features used. 
 A more efficient way to support a large number of random features 
 is to store only the random seed used to generate 
 the features, and to generate the coefficients  on-the-fly as needed \citep{Dai2014}. 
@@ -894,29 +892,29 @@ the features, and to generate the coefficients  on-the-fly as needed \citep{Dai2
 \caption{Construction of two-stage random features for $\kappa_{\text{gauss}}$}
 \label{algo:random_features_kgg}
 \begin{algorithmic}[1]
-\REQUIRE Input distribution $\mathsf{r}$, Fourier transform $\hat{k}$ of the embedding kernel $k$, number of inner features $D_{in}$, number of outer features $D_{out}$, outer Gaussian width $\gamma^2$.
-\ENSURE Random features $\hat{\psi}(\mathsf{r}) \in \mathbb{R}^{D_{out}}$. 
+\REQUIRE Input distribution $\mathsf{r}$, Fourier transform $\hat{k}$ of the embedding kernel $k$, number of inner features $D_\mathrm{in}$, number of outer features $D_\mathrm{out}$, outer Gaussian width $\gamma^2$.
+\ENSURE Random features $\hat{\psi}(\mathsf{r}) \in \mathbb{R}^{D_\mathrm{out}}$. 
 
 %\STATE Compute the Fourier transform $\hat{k}$ of the kernel $k$.
-\STATE Sample  $\{ \omega_i \}_{i=1}^{D_{in}} \overset{i.i.d}{\sim} \hat{k}$.
-\STATE Sample $\{b_i\}_{i=1}^{D_{in}} \overset{i.i.d}{\sim} \text{Uniform}[0, 2\pi] $.
-\STATE $\hat{\phi}(\mathsf{r}) = \sqrt{\frac{2}{D_{in}}} \left( \mathbb{E}_{\mathsf{r(x)}} 
-\cos(\omega_{i}^{\top}x+b_{i} ) \right)_{i=1}^{D_{in}} \in \mathbb{R}^{D_{in}}$ \\
-%\STATE  $\hat{\phi}(p)=\mathbb{E}_{p(x)}\sqrt{\frac{2}{D_{in}}}\left(\cos\left(\omega_{1}^{\top}x+b_{1}\right),\ldots,\cos\left(\omega_{D_{in}}^{\top}x+b_{D_{in}}\right)\right)^{\top}$.
-If $\mathsf{r}(x)=\mathcal{N}(x;m, V )$, 
+\STATE Sample  $\{ \omega_i \}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} \hat{k}$.
+\STATE Sample $\{b_i\}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} \text{Uniform}[0, 2\pi] $.
+\STATE $\hat{\phi}(\mathsf{r}) = \sqrt{\frac{2}{D_\mathrm{in}}} \left( \mathbb{E}_{\mathsf{r(x)}} 
+\cos(\omega_{i}^{\top}x+b_{i} ) \right)_{i=1}^{D_\mathrm{in}} \in \mathbb{R}^{D_\mathrm{in}}$ \\
+%\STATE  $\hat{\phi}(p)=\mathbb{E}_{p(x)}\sqrt{\frac{2}{D_\mathrm{in}}}\left(\cos\left(\omega_{1}^{\top}x+b_{1}\right),\ldots,\cos\left(\omega_{D_\mathrm{in}}^{\top}x+b_{D_\mathrm{in}}\right)\right)^{\top}$.
+If $\mathsf{r}(x)=\mathcal{N}(x;m, \Sigma )$, 
 \small
 \begin{equation*}
-\hat{\phi}( \mathsf{r}) = \sqrt{\frac{2}{D_{in}}} \left( \cos(\omega_{i}^{\top}m +b_{i}) \exp 
-\left(-\frac{1}{2}\omega_{i}^{\top}V \omega_{i} \right) \right)_{i=1}^{D_{in}}.
+\hat{\phi}( \mathsf{r}) = \sqrt{\frac{2}{D_\mathrm{in}}} \left( \cos(\omega_{i}^{\top}m +b_{i}) \exp 
+\left(-\frac{1}{2}\omega_{i}^{\top}\Sigma \omega_{i} \right) \right)_{i=1}^{D_\mathrm{in}}.
 \end{equation*}
 %Even if $p$ is not a normal distribution, we may still use it as an approximation.
 %
-\STATE Sample $\{ \nu_i \}_{i=1}^{D_{out}} \overset{i.i.d}{\sim} \hat{k}_{\text{gauss}}(\gamma^{2})$.  
+\STATE Sample $\{ \nu_i \}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} \hat{k}_{\text{gauss}}(\gamma^{2})$.  
 i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
-\STATE Sample $\{c_i\}_{i=1}^{D_{out}} \overset{i.i.d}{\sim} \text{Uniform}[0, 2\pi] $.
-\STATE $\hat{\psi}(\mathsf{r}) = \sqrt{\frac{2}{D_{out}}} \left(  
-\cos(\nu_{i}^{\top} \hat{\phi}(\mathsf{r}) + c_{i} ) \right)_{i=1}^{D_{out}} \in 
-\mathbb{R}^{D_{out}}$
+\STATE Sample $\{c_i\}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} \text{Uniform}[0, 2\pi] $.
+\STATE $\hat{\psi}(\mathsf{r}) = \sqrt{\frac{2}{D_\mathrm{out}}} \left(  
+\cos(\nu_{i}^{\top} \hat{\phi}(\mathsf{r}) + c_{i} ) \right)_{i=1}^{D_\mathrm{out}} \in 
+\mathbb{R}^{D_\mathrm{out}}$
 \end{algorithmic}
 \end{algorithm}
 
@@ -1056,7 +1054,7 @@ We write $\mathsf{x}_{i}= \hat{\psi}(\mathsf{r}_i)$
 as a more compact notation for the random feature
 vector representing the $i^{th}$ tuple of incoming messages,
 as copmuted via Algorithm~\ref{algo:random_features_kgg}. 
-%Thus, the dimensionality of  $\mathsf{X}$ is $D_{out} \times N$.
+%Thus, the dimensionality of  $\mathsf{X}$ is $D_\mathrm{out} \times N$.
 
 
 %\agnote{Add the sans serif notation below.}
@@ -1069,7 +1067,7 @@ variance.
 Here we give a brief review of Bayesian linear regression on the random features. 
 We are given the priors
 \begin{align}
-w & \sim\mathcal{N}\left(w;0,I_{D_{out}}\sigma_{0}^{2}\right), \\
+w & \sim\mathcal{N}\left(w;0,I_{D_\mathrm{out}}\sigma_{0}^{2}\right), \\
 \mathsf{Y} \mid \mathsf{X},w & \sim\mathcal{N}\left(\mathsf{Y};w^{\top} \mathsf{X},\sigma_{y}^{2}I_{N}\right),
 \end{align}
 %
@@ -1137,13 +1135,13 @@ the covariance at time $N$.
 %\left(A+uv^{\top}\right)^{-1}=A^{-1}-\frac{A^{-1}uv^{\top}A^{-1}}{1+v^{\top}A^{-1}u}
 %\]
 %with $A=\Sigma_{w}^{-1(N)}$. 
-Updating $\Sigma_{w}$ costs $O(D_{out}^{2})$ per one new observation. 
+Updating $\Sigma_{w}$ costs $O(D_\mathrm{out}^{2})$ per one new observation. 
 For $\mu_{w}= \Sigma_{w} \mathsf{X} \mathsf{Y}^{\top}\sigma_{y}^{-2}$, we maintain
 $ \mathsf{X} \mathsf{Y}^{\top}\in\mathbb{R}^{D}$ and update it with
 \begin{equation}
 \left( \feaX \feaY^{\top}\right)^{(N+1)}=\left( \feaX \feaY^{\top}+ \feax_{N+1} \feay_{N+1}\right), 
 \end{equation}
-costing $O(D_{out})$ per update. 
+costing $O(D_\mathrm{out})$ per update. 
 %In the first iteration when no data are observed, $\Sigma_{w}^{(1)}=\sigma_{0}^{2}I$.
 
 
@@ -1266,6 +1264,26 @@ empirically, we observed no significant improvements beyond 1,000 random feature
 %the outgoing message $\msg{\factor}{z_i}$. 
 %An outgoing message can be constructed straightforwardly as
 %$\msg{\factor}{z_i} = q_{\factor \rightarrow z_i} / \msg{z_i}{\factor} $.
+%=======
+%All collected messages were randomly partitioned into 5,000 training messages and 
+%3,000 testing messages.
+%We learned a message operator to predict $m_{f\rightarrow X}$
+%using a Gaussian kernel on joint embeddings, as 
+%described in \eqref{eq:gauss_joint_emb}.
+%Regularization and kernel parameters were chosen by leave-one-out cross validation
+%(note that cross-validation can be performed 
+%faster using a reduced  number of random features, albeit
+%with some increase in noise).
+%The number of random features was set to $D_\mathrm{in}=500$ and $D_\mathrm{out}=1,000$.
+%Empirically, we observed no significant improvements beyond 1,000 random features.
+%Since an EP outgoing message can be improper e.g., a normal distribution with 
+%negative variance, the regression target was set to be the belief message 
+%$q_{\factor \rightarrow z_i}$
+%(i.e., the numerator of \eqref{eq:msgPassing:EP}) rather than 
+%the outgoing message $\msg{\factor}{z_i}$. 
+%An outgoing message can be constructed straightforwardly as
+%$\msg{\factor}{z_i} = q_{\factor \rightarrow z_i} / \msg{z_i}{\factor} $.
+%>>>>>>> 1a716b28202c0f2b7e105940d649e83eada16f1d
 
 \begin{figure}[ht]
   \centering
@@ -1419,7 +1437,7 @@ cross validation for parameter selection; however for simplicity we set the kern
 parameters according to the median heuristic \citep{Scholkopf2002}. 
 %AG: removed cross validation discussion from here, put it earlier.
 The numbers 
-of random features were $D_{in} = 300$ and $D_{out} = 500$. The output noise variance 
+of random features were $D_\mathrm{in} = 300$ and $D_\mathrm{out} = 500$. The output noise variance 
 $\sigma^2_y$ was fixed to $10^{-4}$ and the uncertainty threshold on the log 
 predictive variance was set to -8.5. To simulate a black-box setup, we used
 an importance sampler as the oracle rather than Infer.NET's factor implementation, 
@@ -2203,17 +2221,17 @@ whose memory requirement is much lower.
 %------------------------------------
 \subsection{Number of Random Features for Gaussian Kernel on Mean Embeddings }
 %------------------------------------
-We quantify the effect of $D_{in}$ and $D_{out}$
+We quantify the effect of $D_\mathrm{in}$ and $D_\mathrm{out}$
 empirically as follows. We generate 300 Gaussian messages, compute the true gram
 matrix and the approximate gram matrix given by the random features,
 and report the Frobenius norm of the difference of the two matrices
-on a grid of $D_{in}$ and $D_{out}$. For each $(D_{in},D_{out})$,
+on a grid of $D_\mathrm{in}$ and $D_\mathrm{out}$. For each $(D_\mathrm{in},D_\mathrm{out})$,
 we repeat 20 times with a different set of random features and report
 the averaged Frobenius norm.
 
 \includegraphics[width=8cm]{img/kggauss_rf_grid-crop} 
 
-The result suggests that $D_{out}$ has more effect in improving the
+The result suggests that $D_\mathrm{out}$ has more effect in improving the
 approximation.
 
 \begin{comment}
@@ -2233,15 +2251,15 @@ With random features, we have
 \[
 \kappa(M_{i},M_{j})\approx\prod_{l=1}^{c}\hat{\psi}_{l}(p_{l}^{i})^{\top}\hat{\psi}_{l}(p_{l}^{j})=\hat{\Psi}(M_{i})^{\top}\hat{\Psi}(M_{j})
 \]
-where $\hat{\Psi}(M_{i}):=\left(\left(\hat{\psi}_{1}(p_{1}^{i})_{i_{1}}\right)\times\cdots\times\left(\hat{\psi}_{c}(p_{c}^{i})_{i_{c}}\right)\right)_{i_{1}\cdots i_{c}=1}^{c}=\hat{\psi}_{1}(p_{1}^{i})\circledast\hat{\psi}_{2}(p_{2}^{i})\circledast\cdots\circledast\hat{\psi}_{c}(p_{c}^{i})\in\mathbb{R}^{D_{out}^{c}}$.
+where $\hat{\Psi}(M_{i}):=\left(\left(\hat{\psi}_{1}(p_{1}^{i})_{i_{1}}\right)\times\cdots\times\left(\hat{\psi}_{c}(p_{c}^{i})_{i_{c}}\right)\right)_{i_{1}\cdots i_{c}=1}^{c}=\hat{\psi}_{1}(p_{1}^{i})\circledast\hat{\psi}_{2}(p_{2}^{i})\circledast\cdots\circledast\hat{\psi}_{c}(p_{c}^{i})\in\mathbb{R}^{D_\mathrm{out}^{c}}$.
 The symbol $\circledast$ denotes a Kronecker product. The total number
-of random features is given by $D=\left(D_{out}\right)^{c}$. It can
+of random features is given by $D=\left(D_\mathrm{out}\right)^{c}$. It can
 be seen that the total number of features grows exponentially in the
 number of connected variables. We can also use 
 \begin{align*}
 \kappa\left(M_{i},M_{j}\right) & =\sum_{l=1}^{c}\kappa_{l}\left(m_{V_{l}\rightarrow f}^{i},m_{V_{l}\rightarrow f}^{j}\right)
 \end{align*}
-which gives $D=cD_{out}$. We expect the product kernel to be able
+which gives $D=cD_\mathrm{out}$. We expect the product kernel to be able
 to better capture the interaction among incoming messages.
 
 Yet another way to form a kernel on tuples of messages is to consider
@@ -2254,7 +2272,7 @@ Gaussian kernel on mean embeddings of these joint distributions:
 \kappa(M_{i},M_{j})=\kappa_{\text{gauss}}(\mathbb{M}_{i},\mathbb{M}_{j}).
 \]
 An advantage of this kernel is that the final number of random features
-is $D_{out}$ as compared to $D_{out}^{c}$ (product kernel) and $cD_{out}$
+is $D_\mathrm{out}$ as compared to $D_\mathrm{out}^{c}$ (product kernel) and $cD_\mathrm{out}$
 (sum kernel). One potential disadvantage is that we treat all neighbouring
 variables as independent.
 
