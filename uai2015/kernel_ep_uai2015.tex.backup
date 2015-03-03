@@ -348,7 +348,7 @@ Computing the numerator of (\ref{eq:msgPassing:EP}) can be challenging, as it re
 %However, while deterministic approximations to (\ref{eq:msgPassing:EP}) may be hard to come by,
 \cite{Barthelme2011,Heess2013,Eslami2014} propose an alternative, stochastic approach to the integration and projection step.
 When the projection $\proj$ is to a member $q(x|\eta)=h(x)\exp\left(\eta^{\top}u(x)-A(\eta)\right)$ of an exponential family, one simply computes the expectation of the sufficient statistic $u(\cdot)$ under the numerator of (\ref{eq:msgPassing:EP}).
-%\wjnote{Under the exact marginal $\msg{ \outV }{\factor}(x_{\outV})\msg{ \factor }{\outV}(x_{\outV})$  ?}
+% \wjnote{Under the exact marginal $\msg{ \outV }{\factor}(x_{\outV})\msg{ \factor }{\outV}(x_{\outV})$  ?}
 A sample based approximation of this expectation can be obtained via MCMC. 
 Given a forward-sampling function $f$ as described above, one especially simple approach is importance sampling, 
 %\wjnote{$N$ is used for training size. Use $M$ here instead ?}
@@ -1181,7 +1181,9 @@ Below we evaluate our learned message operator using two different factors: the 
 
 
 For all experiments we used Infer.NET \citep{Minka2014} with its extensible factor interface for our own operator. 
-We use the default settings of Infer.NET unless stated otherwise. The regression target is always the marginal belief (numerator of eq.\ \ref{eq:msgPassing:EP}),  from which the outgoing message can be calculated straightforwardly.
+We use the default settings of Infer.NET unless stated otherwise. 
+The regression target is the marginal belief (numerator of eq.\ \ref{eq:msgPassing:EP}) in experiment 1,2,3 and 5. We set the regression target to the outgoing message in experiment 4. 
+Given a marginal belief, the outgoing message can be calculated straightforwardly.
 % as
 %$\msg{\factor}{x} = q_{\factor \rightarrow x} / \msg{x}{\factor} $.
 %$q_{\factor \rightarrow z_i}$
