@@ -155,7 +155,9 @@ Messages}
 
 
 An increasing priority in Bayesian modelling is to make inference accessible and implementable for practitioners,
-without their requiring specialist expertise in Bayesian inference. This
+without their requiring specialist knowledge.
+% in Bayesian inference.
+This
 is a goal sought in probabistic programming languages \citep{WinGooStuSis11,GooManRoyBonTen08}, 
 as well as in more granular, component-based procedures \citep{DuvLloGroetal13,GroSalFreTen12} and
 systems \citep{SDT2014,Minka2014}. In all cases, the user
@@ -202,10 +204,10 @@ The disadvantages of the neural network approach were the basis for work by
 \cite{Eslami2014}, who replaced the neural networks with random forests.
 The random forests  provided uncertainty estimates for each prediction. This allowed them to be trained `just-in-time', during EP inference, whenever the predictor decided it was uncertain.
 Uncertainty estimation for random forests relies on unproven heuristics, however: we demonstrate
-empirically that such heuristics can become highly misleading  we move away from the initial
+empirically that such heuristics can become highly misleading as we move away from the initial
 training data.
 Moreover,  online updating
-can result in unbalanced trees cost of prediction of $O(N)$ for training data of size $N$, vs the ideal of $O(\log(N))$.
+can result in unbalanced trees, resulting in a cost of prediction of $O(N)$ for training data of size $N$, vs the ideal of $O(\log(N))$.
 
 
 % AG: costs of GP are in paper ``Fast Gaussian Process Regression using KD-Trees'', which gives
@@ -213,7 +215,7 @@ can result in unbalanced trees cost of prediction of $O(N)$ for training data of
 
 We propose a novel, kernel-based approach to learning a message operator nonparametrically
 for expectation propagation. The learning algorithm takes the form of a distribution regression
-problem, where the inputs are probabilty measures (represented as embeddings of the distributions to an RKHS), and the outputs are vectors of message
+problem, where the inputs are probability measures (represented as embeddings of the distributions to an RKHS), and the outputs are vectors of message
 parameters \citep{Szabo2014}. 
 A first advantage of this approach is that one does not need to pre-specify customized features
 of the distributions, as in \citep{Eslami2014,Heess2013}. Rather, 
@@ -300,9 +302,8 @@ We deal with models in which some of the factors have a non-standard form, or ma
 
 Expectation Propagation (EP) is an approximate iterative procedure for computing marginal beliefs of variables
 by iteratively passing messages between variables and factors until convergence \citep{Minka2001}.
-Unlike belief propagation, messages and marginals are projected
-onto a member of 
-some class of known parametric distributions. 
+It can be seen as an extension of belief propagation, where the marginals are projected
+onto a member of some class of known parametric distributions. 
 The message $\msg{ \factor }{i}(x_i)$  from factor $\factor$ to variable $\outV$ is 
 %
 \begin{equation}
