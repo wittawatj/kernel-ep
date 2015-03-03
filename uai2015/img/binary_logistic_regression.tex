@@ -27,6 +27,11 @@
  \bayesfactor[right = 6mm of p] {bern} {below:Bernoulli} {} {};
  \node[obs, right = 6mm of bern]  (y)   {$y_i$}; %
  
+ \factoredge {x} {dot} {z};
+ \factoredge {z} {logistic} {p};
+ \factoredge {p} {bern} {y};
+ 
+ 
  \edge[-] {dot} {x} ;
  \edge[-] {w} {dot};
  \edge[-] {dot} {z} ;

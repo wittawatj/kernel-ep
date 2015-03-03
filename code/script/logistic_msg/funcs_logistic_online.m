@@ -106,9 +106,10 @@ function [kepLoss, isLoss, dnetLoss] = plot01Loss(kepCells, isCells, dnetPost)
     set(gca, 'FontSize', 18);
     xlabel('Problems seen');
     ylabel('Classification error')
-    title(sprintf('Test size: %d.', nte ));
+    %title(sprintf('Test size: %d', nte ));
     %legend('KJIT', 'Sampling', 'Infer.NET');
     legend('Infer.NET', 'Sampling', 'Sampling + KJIT');
+    pbaspect([4, 3, 1]);
     grid on
     hold off
 
@@ -210,7 +211,7 @@ function [kepCells, isCells, kepInferTimes, isInferTimes, ...
     %isSize = 100000;
     epIter = 10;
     n = 300;
-    seed_to = 5;
+    seed_to = 20;
     seeds =  1:seed_to;
     scriptFol = Global.getScriptFolder();
     fullFileFunc = @(fn)fullfile(scriptFol, 'logistic_msg', ...
@@ -311,8 +312,9 @@ function plotInferenceResults()
     set(gca, 'FontSize', 18);
     ylabel('Time in log(ms)')
     xlabel('Problems seen');
-    title('Inference time')
+    %title('Inference time')
     legend('Infer.NET', 'Sampling', 'Sampling + KJIT');
+    pbaspect([4, 3, 1]);
     grid on
     hold off
 
@@ -333,11 +335,13 @@ function plotInferenceResults()
     % draw vertical lines to indicate new problems
     vline(xProblemInds, '-.*k');
     xlim([1, max(unSub)]);
-    set(gca, 'FontSize', 12);
-    ylabel('Log of predictive variance');
+    set(gca, 'FontSize', 11);
+    ylabel('Log predictive variance');
     xlabel('Factor invocations');
-    title('Predictive variance of incoming messages');
-    legend('Log predictive variance', sprintf('Moving average'), 'Threshold');
+    title('Predictive variance of the outgoing message');
+    legend('Predictive variance', sprintf('Moving average'), 'Threshold');
+    pbaspect([40, 5, 1]);
+    %daspect([10, 2, 1]);
     hold off
 
     plotPosteriorKL(kepCells, isCells);

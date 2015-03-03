@@ -156,16 +156,17 @@ function  plot01Loss(kjit, is, dnet)
     set(H(2), 'FaceColor', [0, 0, 0.8]);
     set(H(3), 'FaceColor', [0.8, 0, 0]);
 
-    set(gca, 'FontSize', 14);
+    set(gca, 'FontSize', 18);
     legend('Infer.NET', 'Sampling', 'Sampling + KJIT' );
     set(gca, 'XTick', 1:length(dataLabels));
     set(gca, 'XTickLabel', dataLabels);
 
 
     ylabel('Error')
-    title(sprintf('Classification error on held-out test sets.'));
+    %title(sprintf('Classification error on held-out test sets'));
     %legend('KJIT', 'Sampling', 'Infer.NET');
     legend('Infer.NET', 'Sampling', 'Sampling + KJIT');
+    pbaspect([4 3 1]);
     grid on
     hold off
 
@@ -206,11 +207,12 @@ function plotTemporalUncertainty(kjit)
         %dn = dataNames{i};
         vline(xProblemInds(i), '-.*k', dataLabels{i});
     end
-    set(gca, 'FontSize', 12);
-    ylabel('Log of predictive variance');
+    set(gca, 'FontSize', 11);
+    ylabel('Log predictive variance');
     xlabel('Factor invocations.');
-    title('Predictive variance of incoming messages')
-    legend('Log predictive variance', sprintf('Moving average'), 'Threshold');
+    title('Predictive variance of the outgoing message')
+    legend('Predictive variance', sprintf('Moving average'), 'Threshold');
+    pbaspect([40, 5, 1]);
     %legend('Log predictive variance', sprintf('Moving average'), 'Consult oracle');
     hold off
 
@@ -325,10 +327,11 @@ function plotIncomingMessages(is)
 
         plot(Means, log(prec), styles{i});
     end
-    set(gca, 'FontSize', 16);
+    set(gca, 'FontSize', 13);
     legend(dataLabels);
     ylabel('Log precision');
     xlabel('Mean');
+    pbaspect([8, 3, 1]);
     hold off
 
 end
@@ -361,12 +364,13 @@ function plotInferenceTimes(kjit, is)
     H = bar(T, 1, 'grouped');
     set(H(1), 'FaceColor', [0, 0, .8]);
     set(H(2), 'FaceColor', [.8, 0, 0]);
-    set(gca, 'FontSize', 14);
+    set(gca, 'FontSize', 18);
     legend('Sampling', 'Sampling + KJIT' );
-    title('Inference time on real datasets.')
+    %title('Inference time on real datasets.')
     ylabel('Time in ms');
     set(gca, 'XTick', 1:length(dataLabels));
     set(gca, 'XTickLabel', dataLabels);
+    pbaspect([4 3 1]);
 
     grid on
     hold off 

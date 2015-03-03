@@ -32,7 +32,7 @@ function plotUncertaintyAlongSlices(s, trBundle, teBundle, subsample)
     rng(1);
 
     if nargin < 4
-        subsample = 3000;
+        subsample = 2000;
     end
     assert(isa(s.dist_mapper, 'UAwareDistMapper'), 's.dist_mapper must be UAwareDistMapper');
     trIns = trBundle.getInputBundles();
@@ -91,7 +91,7 @@ function plotUncertaintyAlongSlices(s, trBundle, teBundle, subsample)
     xlabel_text ='Mean'; 
     %
     % plot  data points
-    fontsize = 15;
+    fontsize = 16;
     figure 
     %subplot(1, 2, 1);
     hold on 
@@ -108,7 +108,7 @@ function plotUncertaintyAlongSlices(s, trBundle, teBundle, subsample)
     xlabel(xlabel_text);
     ylabel('Log precision');
     xlim([min(testMeans)-1, max(testMeans)+1]);
-    axis square
+    pbaspect([4 3 1]);
     hold off 
 
     % plot uncertainty 
@@ -142,7 +142,7 @@ function plotUncertaintyAlongSlices(s, trBundle, teBundle, subsample)
     xlabel(xlabel_text);
     ylabel('Log of predictive variance')
     xlim([min(testMeans)-1, max(testMeans)+1]);
-    axis square;
+    pbaspect([4 3 1]);
     grid on;
     hold off 
 

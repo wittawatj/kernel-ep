@@ -217,12 +217,13 @@ function plotInferenceResults()
     thresh = -6;
     plot(unSub, thresh*ones(1, length(unSub)), '-k');
     xlim([1, length(unSub)]);
-    set(gca, 'FontSize', 10);
+    set(gca, 'FontSize', 11);
     ylabel('Log predictive variance');
     xlabel('Factor invocations');
-    title('Predictive variance of the incoming message');
-    legend('Log predictive variance', sprintf('Moving average'), 'Consult oracle', ...
+    title('Predictive variance of the outgoing message');
+    legend('Predictive variance', sprintf('Moving average'), 'Oracle consultation', ...
         'Threshold');
+    pbaspect([40, 5, 1]);
     grid on
     hold off
 
