@@ -283,8 +283,9 @@ on artificial data with well-controlled statistical properties,
 and a logistic regression experiment on four different real-world datasets,
 demonstrating our just-in-time learner can correctly evaluate its uncertainty
 and update the regression function, as the incoming messages change.
+Code to implement the method will be made available online.
 
-
+%AG: note code promise above :)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1112,7 +1113,7 @@ where $\delta$ is the Dirac delta function, in the context of
 The factor is deterministic when conditioning on $z$. 
 There are two incoming messages to the factor: 
 $\msg{p_i}{\factor} = \text{Beta}(p_i; \alpha, \beta) $ and 
-$\msg{z_i}{\factor} = \mathcal{N}(z_i; \mu, \sigma^2)$ 
+$\msg{z_i}{\factor} = \mathcal{N}(z_i; \mu, \sigma^2)$, 
 where $z_i = \boldsymbol{w}^\top x_i$ represents the dot product between an observation 
 $x_i \in \mathbb{R}^d$ and the coefficient vector $\boldsymbol{w}$ whose posterior is 
 to be inferred.
@@ -1122,27 +1123,32 @@ Our goal is to learn a kernel-based message operators to send an outgoing messag
 Following \cite{Eslami2014}, we set $d$ to 20, sample 
 $\{x_i\}_{i=1}^n, \boldsymbol{w} \sim \mathcal{N}(0, I)$, and set the number 
 of observations $n$ to 300.
-We run EP for 20 trials where in each trial a new true parameter $\boldsymbol{w}$ is 
-redrawn along with the observations $\{(x_i, y_i)\}_{i=1}^n$.
-The number of EP iterations is set to 10.
-We use Infer.NET framework \citep{Minka2014} for implementing EP.
-Unless stated otherwise, all configurations follow the default settings of Infer.NET.
-In each of the 20 trials, we collect incoming-outgoing message pairs in 
+We ran EP for 20 trials, where in each trial a new true parameter $\boldsymbol{w}$ was
+drawn, along with the observations $\{(x_i, y_i)\}_{i=1}^n$.
+The number of EP iterations was set to 10.
+We used Infer.NET \citep{Minka2014} for implementing EP, including
+its extensible factor interface for our model.
+Unless stated otherwise, all configurations followed the default settings of Infer.NET.
+In each of the 20 trials, we collected incoming-outgoing message pairs in 
 the first five iterations of EP from Infer.NET's default implementation of the 
 logistic factor.
-All collected messages are randomly partitioned into 5000 training messages and 
+All collected messages were randomly partitioned into 5000 training messages and 
 3000 testing messages.
-We learn a message operator using a Gaussian kernel on joint embeddings as 
-described in \eqref{eq:gauss_joint_emb} for sending $m_{f\rightarrow X}$.
-Regularization and kernel parameters are chosen by leave-one-out cross validation. 
-The number of random features are set to $D_{in}=500$ and $D_{out}=1000$.
-Empirically, we observe no significant improvements beyond 1000 random features.
-Since in general an EP outgoing message can be improper e.g., a normal distribution with 
-negative variance, the regression target is set to be the belief message 
+We learned a message operator to predict $m_{f\rightarrow X}$
+using a Gaussian kernel on joint embeddings, as 
+described in \eqref{eq:gauss_joint_emb}.
+Regularization and kernel parameters were chosen by leave-one-out cross validation
+(note that cross-validation can be performed 
+faster using a reduced  number of random features, albeit
+with some increase in noise).
+The number of random features was set to $D_{in}=500$ and $D_{out}=1000$.
+Empirically, we observed no significant improvements beyond 1000 random features.
+Since an EP outgoing message can be improper e.g., a normal distribution with 
+negative variance, the regression target was set to be the belief message 
 $q_{\factor \rightarrow z_i}$
 (i.e., the numerator of \eqref{eq:msgPassing:EP}) rather than 
-the outgoing message $\msg{\factor}{z_i}$ to sidestep the issue. 
-An outgoing message can be constructed straightforwardly with
+the outgoing message $\msg{\factor}{z_i}$. 
+An outgoing message can be constructed straightforwardly as
 $\msg{\factor}{z_i} = q_{\factor \rightarrow z_i} / \msg{z_i}{\factor} $.
 
 \begin{figure}[ht]
@@ -1156,7 +1162,7 @@ $\msg{\factor}{z_i} = q_{\factor \rightarrow z_i} / \msg{z_i}{\factor} $.
   \includegraphics[width=0.47\columnwidth]{img/4plots_ntr5000_iter5_sf1_st20_fm_joint-crop}
   }
   \caption{Prediction errors of backward outgoing messages from the logistic 
-  factor and examples of predicted messages at different error levels. 
+  factor, and examples of predicted messages at different error levels. 
   }
   % reference: exp7/RFGJointKGGLearner_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat
   \label{fig:kl_div}
@@ -1166,15 +1172,15 @@ $\msg{\factor}{z_i} = q_{\factor \rightarrow z_i} / \msg{z_i}{\factor} $.
 We report 
 $\log KL[q_{\factor \rightarrow z_i} \| \hat{q}_{\factor \rightarrow z_i}]$ 
 where $q_{\factor \rightarrow z_i}$ is the ground truth projected belief and 
-$\hat{q}_{\factor \rightarrow z_i}$ is the predicted.
+$\hat{q}_{\factor \rightarrow z_i}$ is the prediction.
 % For better numerical scaling, regression outputs are set to $(\mathbb{E}_{q}\left[x\right],
 % \log\mathbb{V}_{q}\left[x\right])$ instead of the expectations of the first two moments. 
 % \aenote{AE: No need to mention log-scaling?} 
 The histogram of the log KL errors is shown in \figref{fig:kl_div_hist} 
-accompanied by \figref{fig:kl_div_4plots} showing examples of predicted messages 
+while \figref{fig:kl_div_4plots} shows examples of predicted messages 
 at different log KL errors. 
-It is evident that the kernel-based operator is able to capture well the relationship
-of incoming and outgoing messages. The discrepancy to the ground truth is barely 
+It is evident that the kernel-based operator effectively captures the relationship
+between incoming and outgoing messages. The discrepancy with respect to the ground truth is barely 
 visible even at the 99th percentile.
 
 
@@ -1205,8 +1211,8 @@ visible even at the 99th percentile.
 %   \subfloat[\citeauthor{Eslami2014}'s random forests \label{fig:eslami_uncertainty}]{
 %   \includegraphics[width=0.3\textwidth]{img/uncertainty/uncertainty-data-10dim-method-ali_rf-n_candidates-100-regressor-quadratic-n_trees-64-crop}
 %   }
-  \caption{ (a) Incoming messages from $z$ to $\factor$ from 20 EP runs in the binary 
-  logistic regression as shown in \figref{fig:factor_graph_binlog}.  
+  \caption{ (a) Incoming messages from $z$ to $\factor$ from 20 EP runs of binary 
+  logistic regression, as shown in \figref{fig:factor_graph_binlog}.  
   %
   (b) Uncertainty estimates of the proposed kernel-based method and 
   \citeauthor{Eslami2014}'s random forests on the two 
@@ -1224,35 +1230,37 @@ the predictive uncertainty in unexplored regions in the space of incoming messag
 We compute the predictive variance using the same learned operator as used in 
 \figref{fig:kl_div}. The forward incoming messages $\msg{z_i}{\factor}$ in the previously 
 used training set are shown in \figref{fig:logistic_uncertainty_test}. 
-The backward incoming messages $\msg{p_i}{\factor}$ are not shown.
-Shown in the same plot are two curves representing two uncertainty test sets
-in which each point corresponds to an incoming message. 
-The test sets contain a mix of messages in the dense region of 
-the training set and messages in unexplored regions.
-
+The backward incoming messages $\msg{p_i}{\factor}$ are not displayed.
+Shown in the same plot are two curves (a blue line, and a pink parabola) representing two ``uncertainty test sets'':
+these are sets of parameter pairs on which we wish to evaluate
+the uncertainty of the predictor, and contain regions
+with both high and low densities of training samples.
+%
 \figref{fig:logistic_uncertainty_all}
 % \figref{fig:breiman_uncertainty}, and \figref{fig:ert_uncertainty} 
 % and \figref{fig:eslami_uncertainty} 
-shows uncertainty estimates on each input point in 
-the two test sets by our kernel-based operator and \citeauthor{Eslami2014}'s 
-random forests where we fix 
+shows uncertainty estimates
+of our
+kernel-based operator and of
+random forests,
+where we fix 
 $\msg{p_i}{\factor} := \text{Beta}(p_i; 1, 2)$ for testing. 
 The implementation of the random forests closely
 follows the description detailed in \cite{Eslami2014}. 
 
 From the figure, as the mean of the testing message moves away from the dense 
-training region, the predictive variance reported by the proposed method increases
-much more smoothly compared to that of the random forests. Further, our method
+training region, the predictive variance reported by the kernel method increases
+much more smoothly than that of the random forests. Further, our method
 clearly exhibits a higher uncertainty on the test set \#1 than on the test set \#2.
-This behaviour is desirable as most of the points in the test set \#1 are either 
-in a low density region or unexplored regions. These results ensure that the 
-predictive variance is a robust thresholding criterion for querying the oracle.
+This behaviour is desirable, as most of the points in the test set \#1 are either 
+in a low density region or an unexplored region. These results ensure that the 
+predictive variance is a robust thresholding criterion for querying the importance sampling oracle.
 One key observation is that the uncertainty estimates of the random 
 forests are highly non-smooth i.e., uncertainty on nearby points may vary wildly.
 As a result, a random forest-based JIT learner may still query the importance 
 sampler oracle when 
-presented with incoming messages very similar to one in the training set, 
-thereby unnecessarily wasting computations.
+presented with incoming messages similar to those in the training set, 
+thereby wasting computation.
 
 
 %\begin{figure}
@@ -1264,16 +1272,16 @@ thereby unnecessarily wasting computations.
 %\end{figure}
 
 \paragraph{Just-in-time learning}
-Next we consider a just-in-time learning setting on the same task with toy data. 
+Next we consider a kernel just-in-time (KJIT) learning setting on the same task with toy data. 
 Our goal is to learn two kernel-based message operators, one for each outgoing 
 direction from the logistic factor. 
 The data generation is the same as in the batch learning experiment.
-We sequentially present the operator with 30 related problems where a new 
-set of observations $\{(x_i, y_i)\}_{i=1}^n$ are generated at the beginning of 
+We sequentially presented the operator with 30 related problems, where a new 
+set of observations $\{(x_i, y_i)\}_{i=1}^n$ was generated at the beginning of 
 each problem from the model, while keeping $\boldsymbol{w}$ fixed.
 This scenario is common in practice because one is often given several sets of 
 observations which share the same model parameter \citep{Eslami2014}. 
-As before, the inference target is the $p(\boldsymbol{w}|\{(x_i, y_i)\}_{i=1}^n)$.
+As before, the inference target was $p(\boldsymbol{w}|\{(x_i, y_i)\}_{i=1}^n)$.
 We set the maximum number of EP iterations to 10 in each problem.
 
 % logistic temporal uncertainty
@@ -1287,22 +1295,22 @@ of a new inference problem.
 }
 \end{figure*}
 
-\wjnote{The term KJIT should be introduced somewhere before here.}
+%\wjnote{The term KJIT should be introduced somewhere before here.}
+%AG: I guess so. I've just introduced it in the paragraph above.
 
-We employ a ``minibatch'' idea in which the operator always consults the oracle in
+We employed a ``minibatch'' idea in which the operator always consults the oracle in
 the first few hundred factor invocations for initial batch training. 
 In principle, during the initial batch training, the operator can perform 
 cross validation for parameter selection; however for simplicity we set the kernel 
-parameters with the median heuristic \citep{Scholkopf2002} 
+parameters according to the median heuristic \citep{Scholkopf2002} 
 (see \secref{sec:median_heuristic} in the supplementary materials for details). 
-Cross validation can be performed 
-quickly by reducing the number of random features and setting it back to the 
-desired number once the best parameter combination is chosen. The numbers 
-of random features are $D_{in} = 300$ and $D_{out} = 500$. The output noise variance 
-$\sigma^2_y$ is fixed to $10^{-4}$ and the uncertainty threshold on the log 
-predictive variance is set to -8.5. To simulate a black-box setup, we use 
+%AG: removed cross validation discussion from here, put it earlier.
+The numbers 
+of random features were $D_{in} = 300$ and $D_{out} = 500$. The output noise variance 
+$\sigma^2_y$ was fixed to $10^{-4}$ and the uncertainty threshold on the log 
+predictive variance was set to -8.5. To simulate a black-box setup, we used
 an importance sampler as the oracle rather than Infer.NET's factor implementation, 
-where the proposal distribution is fixed to $\mathcal{N}(z; 0, 200)$ with 
+where the proposal distribution was fixed to $\mathcal{N}(z; 0, 200)$ with 
 $5 \times 10^5$ particles.
 
 \figref{fig:logistic_temporal_uncertainty} shows a trace of predictive variance 
@@ -1344,11 +1352,11 @@ operator's confidence; hence the drop of uncertainty.
 using the inferred posterior mean of $\boldsymbol{w}$ on a test set of size 
 10000 generated from the true underlying parameter. 
 Included in the plot are the errors obtained by using only the importance 
-sampler for inference (denoted by ``Sampling''), and using the Infer.NET's 
+sampler for inference (``Sampling''), and using the Infer.NET's 
 hand-crafted logistic factor. The loss of KJIT matches well with that of 
 the importance sampler and Infer.NET, suggesting that the inference accuracy
-is as good as importance sampler and Infer.NET. \figref{fig:logistic_inference_time} 
-shows the inference time spent by all methods in each problem. 
+is as good as these alternatives. \figref{fig:logistic_inference_time} 
+shows the inference time required by all methods in each problem. 
 While the inference quality is equally good, KJIT is orders of magnitude faster 
 than the importance sampler. 
 
@@ -1375,7 +1383,7 @@ than the importance sampler.
 
 
 %------------------------------------
-\subsection{Compound gamma factor}
+%\subsection{Compound gamma factor}
 %------------------------------------
 
 % compound gamma temporal uncertainty
@@ -1415,7 +1423,7 @@ than the importance sampler.
   \caption{Shape (a) and rate (b) parameters of the inferred posteriors in 
   the compound gamma problem. 
   (c) KJIT is able to infer equally good posterior parameters compared to Infer.NET 
-  while requiring several orders of magnitude less runtime. }
+  while requiring a runtime several orders of magnitude lower. }
   \label{fig:cg_performance}
 \end{figure}
 
@@ -1431,37 +1439,42 @@ Uncertainty estimate of KJIT of outgoing messages on the four UCI datasets.
 \end{figure*}
 
 
-We next explore the compound gamma factor, an alternative to a gamma distribution 
-as a heavy-tailed prior distribution on the precision of a normal random variable
+{\bf Compound gamma factor:} We next simulate the compound gamma factor, % an alternative to a gamma distribution as
+ a heavy-tailed prior distribution on the precision of a Gaussian random variable.
 A variable $\tau$ is said to follow the compound gamma distribution 
 if $\tau \sim \text{Gamma}(\tau; s_2, r_2)$ (shape-rate parameterization) and 
 $r_2 \sim \text{Gamma}(r_2; s_1, r_1)$ where $(s_1, r_1, s_2)$ are parameters. 
-The task we consider is to infer the posterior of the precision $tau$ of a normally 
+The task we consider is to infer the posterior of the precision $\tau$ of a normally 
 distributed variable $x \sim \mathcal{N}(x; 0, \tau)$ given realizations 
 $\{x_i\}_{i=1}^n$. We consider the setting $(s_1, r_1, s_2) = (1, 1, 1)$ which was 
 used in \cite{Heess2013}. Infer.NET's implementation requires two gamma factors
 to specify the compound gamma. Here, we collapse them into one factor 
-and let the operator JIT learn to directly send an outgoing message $\msg{\factor}{\tau}$ 
-given $\msg{\tau}{\factor}$ using Infer.NET as the oracle. 
-The Infer.NET's default implementation in this case relies on a quadrature method.
-As in \cite{Eslami2014}, we sequentially present to the operator a number of 
-problems where at the beginning of each problem, a random number of observations 
-from 10 to 100 and $\tau$ are redrawn from the model.
+and let the operator learn to directly send an outgoing message $\msg{\factor}{\tau}$ 
+given $\msg{\tau}{\factor}$, using Infer.NET as the oracle. 
+The  default implementation of Infer.NET relies on a quadrature method.
+As in \cite{Eslami2014}, we sequentially presented a number of 
+problems to our algorithm, where at the beginning of each problem, a random number of observations 
+from 10 to 100, and the parameter $\tau$, were drawn from the model.
 
 \figref{fig:cg_infer_shape} and \figref{fig:cg_infer_rate} summarize the inferred 
-posterior parameters obtained from running only Infer.NET and Infer.NET + KJIT i.e., 
-the KJIT with Infer.NET as the oracle. \figref{fig:cg_infer_time} shows the inference 
-time of both methods. The plots collectively imply that KJIT can deliver posteriors 
-highly agreeing with those obtained from Infer.NET at a much lower cost. 
-Note that in this task only one message is passed to the factor in each problem
-Thus, \figref{fig:cg_infer_time} indicates that KJIT requires less oracle 
+posterior parameters obtained from running only Infer.NET and Infer.NET + KJIT, i.e., 
+KJIT with Infer.NET as the oracle. \figref{fig:cg_infer_time} shows the inference 
+time of both methods. The plots collectively show that KJIT can deliver posteriors 
+in good agreement with those obtained from Infer.NET, at a much lower cost. 
+Note that in this task only one message is passed to the factor in each problem.
+\figref{fig:cg_infer_time} indicates that KJIT requires fewer oracle 
 consultations as more problems are seen.
 
 %------------------------------------
-\subsection{Real data}
+%\subsection{Real data}
 %------------------------------------
 
-In the final experiment, we demonstrate the high flexibility of the operator 
+{\bf Classification benchmarks:} In the final experiment, we demonstrate
+that our method for learning the message operator is able to detect changes
+in the distribution of incoming messages via its uncertainty estimate,
+and to query these estimates 
+
+the high flexibility of the operator 
 under a change of the distribution of incoming messages. We consider four real 
 binary classification datasets from the UCI repository 
 \citep{Lichm2013}: banknote authentication, blood transfusion, fertility 
