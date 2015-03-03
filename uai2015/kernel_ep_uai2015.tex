@@ -148,8 +148,7 @@ Messages}
 
 \begin{abstract}
 
-  We propose an efficient nonparametric strategy
-  for learning a message operator in expectation propagation (EP), which takes as input the set of incoming messages to a factor node, and produces an outgoing message as output. This learned operator replaces the multivariate integral required in classical EP, which may not have an analytic expression. We use kernel-based regression, which is trained on a set of probability distributions representing the incoming messages, and the associated outgoing messages. The kernel approach has two main advantages: first, it is fast, as it is implemented using a novel two-layer random feature representation of the input message distributions; second, it has principled uncertainty estimates, and can be cheaply updated online, meaning it can request and incorporate new training data when it encounters inputs on which it is uncertain.  In experiments, our approach is able to solve learning problems where a single message operator is required for multiple, substantially different data sets (logistic regression for a variety of classification problems), where the ability to accurately assess uncertainty and to efficiently and robustly update the message operator are essential.
+We propose an efficient nonparametric strategy for learning a message operator in expectation propagation (EP), which takes as input the set of incoming messages to a factor node, and produces an outgoing message as output. This learned operator replaces the multivariate integral required in classical EP, which may not have an analytic expression. We use kernel-based regression, which is trained on a set of probability distributions representing the incoming messages, and the associated outgoing messages. The kernel approach has two main advantages: first, it is fast, as it is implemented using a novel two-layer random feature representation of the input message distributions; second, it has principled uncertainty estimates, and can be cheaply updated online, meaning it can request and incorporate new training data when it encounters inputs on which it is uncertain.  In experiments, our approach is able to solve learning problems where a single message operator is required for multiple, substantially different data sets (logistic regression for a variety of classification problems), where the ability to accurately assess uncertainty and to efficiently and robustly update the message operator are essential.
 
 \end{abstract}
 
@@ -1142,7 +1141,7 @@ Updating $\Sigma_{w}$ costs $O(D_{out}^{2})$ per one new observation.
 For $\mu_{w}= \Sigma_{w} \mathsf{X} \mathsf{Y}^{\top}\sigma_{y}^{-2}$, we maintain
 $ \mathsf{X} \mathsf{Y}^{\top}\in\mathbb{R}^{D}$ and update it with
 \begin{equation}
-\left( \feaX \feaY^{\top}\right)^{(N+1)}=\left( \feaX \feaY^{\top}+x_{N+1}y_{N+1}\right), 
+\left( \feaX \feaY^{\top}\right)^{(N+1)}=\left( \feaX \feaY^{\top}+ \feax_{N+1} \feay_{N+1}\right), 
 \end{equation}
 costing $O(D_{out})$ per update. 
 %In the first iteration when no data are observed, $\Sigma_{w}^{(1)}=\sigma_{0}^{2}I$.
@@ -1174,6 +1173,10 @@ used to update $\Sigma_{w}$ and $\mu_{w}$ as described previously.
 %=============================================
 
 Below we evaluate our learned message operator using two different factors, the logistic factor, and the compound Gamma factor. In our first experiment, for the sigmoid factor, we demonstrate that proposed operator is generally capable of learning high-quality mappings from incoming to outgoing messages in a batch setting. The second experiment shows that the uncertainty estimates of the learned operator are very reliable and it provides a comparison to random forests in this regard. The third and fourth experiments assess the performance of the operator as part of the full EP inference loop in two different models, approximating the logistic and the compound gamma factor. Our final experiment highlights the learned operators ability to reliably and quickly adapt to large shifts in the message distribution encountered during inference in a sequence of several real-world regression problems. 
+%
+For all experiments we used Infer.NET \citep{Minka2014} with its extensible factor interface for our own operator. 
+We use the default settings of Infer.NET unless stated otherwise.
+
 
 %------------------------------------
 %\subsection{Logistic factor \label{sec:logistic_factor} } 
@@ -1234,18 +1237,11 @@ where $z_i = \boldsymbol{w}^\top x_i$ represents the dot product between an obse
 $x_i \in \mathbb{R}^d$ and the coefficient vector $\boldsymbol{w}$ whose posterior is 
 to be inferred.
 
-In this first experiment we only learn a kernel-based operator to send message %$\msg{\factor}{z_i}$.
-Following \cite{Eslami2014}, we set $d$ to 20, sample 
-$\{x_i\}_{i=1}^n, \boldsymbol{w} \sim \mathcal{N}(0, I)$, and set the number 
-of observations $n$ to 300.
-We ran EP for 20 trials, where in each trial a new true parameter $\boldsymbol{w}$ was
-drawn, along with the observations $\{(x_i, y_i)\}_{i=1}^n$.
-The number of EP iterations was set to 10.
-We used Infer.NET \citep{Minka2014} for implementing EP, including
-its extensible factor interface for our model.
-Unless stated otherwise, all configurations followed the default settings of Infer.NET.
-In each of the 20 trials, we collected incoming-outgoing message pairs in 
-the first five iterations of EP from Infer.NET's default implementation of the 
+In this first experiment we only learn a kernel-based operator to send message $\msg{\factor}{z_i}$.
+Following \cite{Eslami2014}, we set $d$ to 20, and generate 20 different datasets, sampling 
+a different $\boldsymbol{w} \sim \mathcal{N}(0, I)$ and then a set of $\{(x_i, y_i)\}_{i=1}^n$ ($n=300$) observations according to the model.
+For each dataset we ran EP for 10 iterations and collected incoming-outgoing message pairs in 
+the first five iterations of EP from Infer.NET's implementation of the 
 logistic factor.
 All collected messages were randomly partitioned into 5,000 training messages and 
 3,000 testing messages.
@@ -1384,7 +1380,7 @@ thereby wasting computation.
 %\label{fig:tree_uncertainty_unexplored}
 %\end{figure}
 
-\paragraph{Just-in-time learning}
+\paragraph{Experiment 3: Just-in-time learning}
 Next we consider a kernel just-in-time (KJIT) learning setting on the same task with toy data. 
 Our goal is to learn two kernel-based message operators, one for each outgoing 
 direction from the logistic factor. 
@@ -1551,7 +1547,7 @@ Uncertainty estimate of KJIT for outgoing messages on the four UCI datasets.
 \end{figure*}
 
 
-\paragraph{Compound gamma factor} We next simulate the compound gamma factor, % an alternative to a gamma distribution as
+\paragraph{Experiment 4: Compound gamma factor} We next simulate the compound gamma factor, % an alternative to a gamma distribution as
  a heavy-tailed prior distribution on the precision of a Gaussian random variable.
 A variable $\tau$ is said to follow the compound gamma distribution 
 if $\tau \sim \text{Gamma}(\tau; s_2, r_2)$ (shape-rate parameterization) and 
@@ -1581,7 +1577,7 @@ consultations as more problems are seen.
 %\subsection{Real data}
 %------------------------------------
 
-\paragraph{Classification benchmarks} In the final experiment, we demonstrate
+\paragraph{Experiment 5: Classification benchmarks} In the final experiment, we demonstrate
 that our method for learning the message operator is able to detect changes
 in the distribution of incoming messages via its uncertainty estimate,
 and to subsequently update its prediction through additional oracle queries.
