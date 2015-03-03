@@ -104,6 +104,7 @@
 \newcommand{\aenote}[1]{\textbf{\color{red!50!black}{#1}} }
 \newcommand{\nhnote}[1]{\textbf{\color{magenta!90!black}{#1}} }
 \newcommand{\agnote}[1]{\textbf{\color{green!50!black}{#1}} }
+\newcommand{\dsnote}[1]{\textbf{\color{orange!50!black}{#1}} }
 
 \newcommand{\figref}[1]{Fig.~\ref{#1}}
 \newcommand{\secref}[1]{Sec.~\ref{#1}}
@@ -203,14 +204,14 @@ required output family, can be difficult, and in some cases not achieveable in c
 Thus, a number of approaches have been proposed to implement EP updates numerically, independent
 of the details of the factor potential being used.  One approach, due to
 \citet{Barthelme2011}, is to compute the message update via importance sampling.
-While these estimates converge to the desired integrals for sufficient samples, the sampling procedure must be run at every iteration during inference,
+While these estimates converge to the desired integrals for a sufficient number of importance samples, the sampling procedure must be run at every iteration during inference,
 hence  it is not viable for large-scale problems.
 
 An improvement on this approach is to use importance sampled instances of input/output
 message pairs to train a regression algorithm, which can then be used in place of the sampler.
 \citet{Heess2013} use neural networks to learn the mapping from incoming
-to outgoing messages. The mappings learned performed well on a variety of practical problems,
-however this approach comes with a disadvantage: it requires training data
+to outgoing messages, and the learned mappings perform well on a variety of practical problems.
+However, this approach comes with a disadvantage: it requires training data
 that cover the entire set of possible input messages for a given type of problem (e.g., datasets
 representative of all classification problems the user proposes to solve),
 and it has no way of assessing the uncertainty of its prediction, or of updating
@@ -248,17 +249,17 @@ we use a general characteristic kernel on input distributions
 %A potential downside of the kernel approach is that it can be computationally
 %costly, with training time of $O(N^3)$ and a cost of $O(N)$ to make a prediction. 
 To make the algorithm computationally tractable, 
-we regress  directly in the primal from random features of the data \citep{Rahimi2007,Le2013,YanSmoZonWil14}.
+we regress  directly in the primal from random Fourier features of the data \citep{Rahimi2007,Le2013,YanSmoZonWil14}.
 In particular, we establish a novel random feature representation for when
  inputs are distributions, via a novel two-level random feature approach.
 This gives us both fast prediction (linear in the number of
-random features), and fast online updates (square in the number of random features).
+random features), and fast online updates (quadratic in the number of random features).
 
 %\todo{AE: suggestion: mention advantages first, then mention possible disadvantage and its resolution.}
 A second advantage of our approach is that, being an instance of Gaussian process
 regression, there are well established estimates of predictive uncertainty \citep[Ch. 2]{RasWil06}.
 We use these uncertainty estimates so as to determine when to query the importance sampler
-for additional input/output pairs, where uncertain predictions trigger just-in-time updates
+for additional input/output pairs, i.e., the uncertain predictions trigger just-in-time updates
 of the regressor. We demonstrate empirically that our uncertainty estimates are 
 more robust and informative,
 than those for random forests, especially as we move away from the training data.
@@ -270,7 +271,7 @@ than those for random forests, especially as we move away from the training data
 
 %\todo{AE: suggestion: to have a quick summary of contributions in one or two sentences somewhere?}
 %AG: I think we are ok, and the introduction is already too long.
-
+\dsnote{why gold standard below, why not just training data?}
 Our paper proceeds as follows. In Section \ref{sec:EP}, we introduce the notation for expectation propagation,
 and indicate how an importance sampling procedure can be used as an oracle to provide
 ``gold standard'' training data for the message operator.
@@ -313,7 +314,7 @@ We assume that distributions (or densities) over a set of variables $\bx = (x_1,
 \begin{equation}
 p(\bx) = \frac{1}{Z} \prod_{j=1}^J \factor_j(\fx{\factor_j}).
 \end{equation}
-The factors $\factor_j$ are non-negative functions which are defined over subsets $\fx{\factor_j}$ of the full set of variables $\bx$. These variables form the neighbors of the factor node $\factor_j$ in the factor graph, and we use $\fis{\factor_j}$ to denote the corresponding set of indices. $Z$ is the normalization constant. 
+The factors $\factor_j$ are non-negative functions which are defined over subsets $\fx{\factor_j}$ of the full set of variables $\bx$. These variables form the neighbors of the factor node $\factor_j$ in the factor graph, and we use $\fis{\factor_j}$ to denote the corresponding set of indices. $Z$ is the normalization constant.
 
 We deal with models in which some of the factors have a non-standard form, or may not have a known analytic expression (i.e.\ ``black box'' factors). Although our approach applies to any such factor in principle, in this paper we focus on \textit{directed} factors $\factor(\xout | \xin)$ which specify a conditional distribution over variables $\xout$ given $\xin$ (and thus $\fx{\factor} = (\xout, \xin))$. The only assumption we make is that we are provided with a forward sampling function $f: \xin \mapsto \xout$, i.e. a function that maps (stochastically or deterministically) a setting of the input variables $\xin$ to a sample from the conditional distribution over $\xout \sim \factor(\cdot| \xin)$. A natural way of specifying $f$ is a short piece of code in a probabilistic program.
 
@@ -335,7 +336,7 @@ Expectation Propagation (EP) is an approximate iterative procedure for computing
 by iteratively passing messages between variables and factors until convergence \citep{Minka2001}.
 It can be seen as an extension of belief propagation, where the marginals are projected
 onto a member of some class of known parametric distributions. 
-The message $\msg{ \factor }{i}(x_i)$  from factor $\factor$ to variable $\outV$ is 
+The message $\msg{ \factor }{\outV}(x_{\outV})$  from factor $\factor$ to variable $\outV\in\fis{\factor}$ is 
 %
 \begin{equation}
 \small
@@ -363,18 +364,17 @@ Computing the numerator of (\ref{eq:msgPassing:EP}) can be challenging, as it re
 \cite{Barthelme2011,Heess2013,Eslami2014} propose an alternative, stochastic approach to the integration and projection step:
 when the projection is to a member of an exponential family, 
 $q(x|\eta)=h(x)\exp\left(\eta^{\top}u(x)-A(\eta)\right),$
-requires us simply to compute the expectation of $u(\cdot)$ under the numerator of (\ref{eq:msgPassing:EP}). \wjnote{Under the exact marginal $\msg{ \outV }{\factor}(x_{\outV})\msg{ \factor }{\outV}(x_{\outV})$  ?}
+requires us simply to compute the expectation of the sufficient statistic $u(\cdot)$ under the numerator of (\ref{eq:msgPassing:EP}). \wjnote{Under the exact marginal $\msg{ \outV }{\factor}(x_{\outV})\msg{ \factor }{\outV}(x_{\outV})$  ?}
 A sample based approximation of this expectation can be obtained via MCMC. 
 Given a forward-sampling function $f$ as described above, one especially simple approach is importance sampling, 
 %\wjnote{$N$ is used for training size. Use $M$ here instead ?}
 %AG: fixed
 \begin{align}
-\expectationE{u(x)}{\fx{\factor}\sim b }
-&\approx \frac{1}{M} \sum_{l=1}^M w(\fx{\factor}^l) u(x_{\outV}^l),~~~~\fx{\factor}^s \sim \tilde{b}
+\expectationE{u(x_{\outV})}{\fx{\factor}\sim b }
+&\approx \frac{1}{M} \sum_{l=1}^M w(\fx{\factor}^l) u(x_{\outV}^l),
 \label{eq:msgIS}
 \end{align}
-\aenote{Make equation and number fit on one line}
-where, on the left hand side, 
+where $\fx{\factor}^l \sim \tilde{b}$, for $l=1,\ldots,M$ and on the left hand side, 
 \begin{equation}
 b(\fx{\factor}) = \factor (\fx{\factor}) \prod_{W \in \fis{\factor}} \msg{W}{\factor}(x_{W}). 
 \end{equation}
@@ -382,12 +382,12 @@ On the right hand side we draw samples $\fx{\factor}^l$ from some proposal distr
 \begin{equation}
 \tilde{b}(\fx{\factor}) = r(\xin)\factor(\xout | \xin)
 \end{equation}
-for some $r$ with appropriate support, and compute importance weights 
+for some distribution $r$ with appropriate support, and compute importance weights 
 \begin{equation}
 w(\fx{\factor}) = \frac{\prod_{W \in \fis{\factor}} \msg{W}{\factor}(x_{W})}{r(\xin)}.
 \end{equation}
 
-The thus estimated expected sufficient statistics provide us with an estimate of the parameters $\eta$ of the result $q$ of the projection $\projP{p}$, from which the message is readily computed.
+The thus estimated expected sufficient statistics provide us with an estimate of the parameters $\eta$ of the result $q$ of the projection $\projP{p}$, from which the message is readily computed.\dsnote{isn't $\eta$ the actual message?}
 
 
 %--------------------------------------------------------------------
