@@ -1316,11 +1316,10 @@ $\hat{q}_{\factor \rightarrow z_i}$ is the prediction.
 % For better numerical scaling, regression outputs are set to $(\mathbb{E}_{q}\left[x\right],
 % \log\mathbb{V}_{q}\left[x\right])$ instead of the expectations of the first two moments. 
 % \aenote{AE: No need to mention log-scaling?} 
-The histogram of the log KL errors is shown in \figref{fig:kl_div_hist} 
-while \figref{fig:kl_div_4plots} shows examples of predicted messages 
-at different log KL errors. 
-It is evident that the kernel-based operator effectively captures the relationship
-between incoming and outgoing messages. The discrepancy with respect to the ground truth is barely 
+The histogram of the log KL errors is shown in \figref{fig:kl_div_hist}; \figref{fig:kl_div_4plots} shows examples of predicted messages 
+for different log KL errors. 
+It is evident that the kernel-based operator captures the relationship
+between incoming and outgoing messages well. The discrepancy with respect to the ground truth is barely 
 visible even at the 99th percentile.
 
 
