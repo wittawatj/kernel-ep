@@ -282,7 +282,7 @@ a benchmark of our uncertainty estimates, a demonstraction of factor learning
 on artificial data with well-controlled statistical properties,
 and a logistic regression experiment on four different real-world datasets,
 demonstrating our just-in-time learner can correctly evaluate its uncertainty
-and update the regression function, as the incoming messages change.
+and update the regression function, as the incoming messages change (see Figure \ref{fig:uci_in_msgs}).
 Code to implement the method will be made available online.
 
 %AG: note code promise above :)
@@ -291,6 +291,18 @@ Code to implement the method will be made available online.
 
 
 \section{Background}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\columnwidth]{img/online/uci_in_msgs-crop}
+\caption{Distributions of incoming messages to logistic factor% $\msg{z_i}{\factor}$
+  in four different UCI datasets. 
+%\wjnote{Refer to this figure in the intro. }
+% AG: done
+%\aenote{Figure fonts too large.}
+\label{fig:uci_in_msgs}
+}
+\end{figure}
 
 
 \label{sec:EP}
@@ -574,16 +586,6 @@ and the number of samples   $L$ per leaf was between 10 and 50.
 \section{Kernel learning of message operators}\label{sec:Online}
 %=============================================
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.9\columnwidth]{img/online/uci_in_msgs-crop}
-\caption{Incoming messages $\msg{z_i}{\factor}$ in the online learning on the four
-UCI datasets. 
-\wjnote{Refer to this figure in the intro. }
-%\aenote{Figure fonts too large.}
-\label{fig:uci_in_msgs}
-}
-\end{figure}
 
 
 We now propose a kernel method for learning the message operator $\approxMsg{\factor}{\outV}{\theta}$ and
@@ -1060,7 +1062,7 @@ To ensure that the proposed message operator is capable of learning the relation
 of incoming and outgoing messages, we first consider a batch learning setting.
 
 %------------------------------------
-\subsection{Logistic factor \label{sec:logistic_factor} } 
+%\subsection{Logistic factor \label{sec:logistic_factor} } 
 %------------------------------------
 
 
@@ -1288,8 +1290,8 @@ We set the maximum number of EP iterations to 10 in each problem.
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.95\textwidth]{img/online/logistic_temporal_uncertainty-crop}
-\caption{Uncertainty estimate of KJIT of outgoing messages at each factor invocation
-in the binary logistic regression problem. The black dashed lines indicate the start 
+\caption{Uncertainty estimate of KJIT in its prediction of outgoing messages at each factor invocation,
+for the binary logistic regression problem. The black dashed lines indicate the start 
 of a new inference problem.
 \label{fig:logistic_temporal_uncertainty}
 }
@@ -1433,7 +1435,7 @@ than the importance sampler.
 \centering
 \includegraphics[width=0.95\textwidth]{img/online/uci_temporal_uncertainty-crop}
 \caption{
-Uncertainty estimate of KJIT of outgoing messages on the four UCI datasets.
+Uncertainty estimate of KJIT for outgoing messages on the four UCI datasets.
 \label{fig:uci_temporal_uncertainty}
 }
 \end{figure*}
@@ -1472,22 +1474,22 @@ consultations as more problems are seen.
 {\bf Classification benchmarks:} In the final experiment, we demonstrate
 that our method for learning the message operator is able to detect changes
 in the distribution of incoming messages via its uncertainty estimate,
-and to query these estimates 
-
-the high flexibility of the operator 
-under a change of the distribution of incoming messages. We consider four real 
+and to subsequently update its prediction through additional oracle queries.
+The different distributions of incoming messages are achieved
+by presenting a sequence of different classification problems to our learner.
+We used four 
 binary classification datasets from the UCI repository 
 \citep{Lichm2013}: banknote authentication, blood transfusion, fertility 
 and ionosphere, in the same binary logistic regression setting as 
-before. As a stress test, we let the operator JIT learn to send outgoing messages 
+before. The operator was required to learn just-in-time to send outgoing messages 
 $\msg{\factor}{z_i}$ and $\msg{\factor}{p_i}$ on the four problems presented 
-sequentially. The training observations consist of 200 data points subsampled
+in sequence. The training observations consisted of 200 data points subsampled
 from each dataset by stratified sampling. 
-For the fertility dataset which contains only 
-100 data points, we subsample half of them. The rest of the data is used as 
-classification test sets. The uncertainty threshold is set to -9 and the minibatch 
-size is 500. All other parameters are the same as in the JIT learning experiment in
-\secref{sec:logistic_factor}.
+For the fertility dataset, which contains only 
+100 data points, we subsampled half the points. The remaining  data were used as 
+ test sets. The uncertainty threshold was set to -9, and the minibatch 
+ size was 500. All other parameters were the same as in the earlier JIT learning experiment.
+% in \secref{sec:logistic_factor}.
 
 % UCI data classification error
 % Inference time
@@ -1508,16 +1510,16 @@ size is 500. All other parameters are the same as in the JIT learning experiment
 
 Classification errors on the test sets and inference times are shown in 
 \figref{fig:uci_01_loss} and \figref{fig:uci_infer_time}, respectively.
-The results positively suggest that KJIT improves the inference time on all the 
-problems without sacrificing inference accuracy. The trace of the predictive 
+The results demonstrate that KJIT improves the inference time on all the 
+problems without sacrificing inference accuracy. The  predictive 
 variance of each outgoing message is shown in 
 \figref{fig:uci_temporal_uncertainty}. An essential feature to notice is the 
 rapid increase of the uncertainty after the first EP iteration of each problem. 
 As shown in \figref{fig:uci_in_msgs}, the distributions of incoming messages 
-of the four problems are diverse. 
+ the four problems are diverse. 
 The sharp rise followed by a steady decrease of the uncertainty is a good indicator 
-that the operator is able to promptly detect a change of input distribution
-and robustly adapt to the new input distributions by querying the oracle.
+that the operator is able to promptly detect a change in input message distribution,
+and robustly adapt to this new distribution by querying the oracle.
 
 
 % \hrulefill{}
