@@ -789,10 +789,10 @@ supplementary material.
 \subsection{Random feature approximations}
 %------------------------------------
 \label{sec:randomFeatureApproximations}
-
+%AG: replaced ``kernel ridge'' wiht Gaussian process'' so as not to switch back and forth.
 
 One approach to learning the mapping  $\approxMsg{\factor}{\outV}{\theta}$ from incoming to outgoing messages
-would be to employ kernel ridge regression, using the kernel \eqref{eq:gauss_joint_emb}.
+would be to employ Gaussian process regression, using the kernel \eqref{eq:gauss_joint_emb}.
 This approach is not suited to just-in-time (JIT) learning, however,
 as both prediction and storage cost grow with the size of the training set:
 thus, inference on even moderately sized datasets rapidly becomes computationally prohibitive.
@@ -856,7 +856,7 @@ the result of \cite{Rahimi2007} to write
  & = \mathbb{E}_{\mathsf{r}(x)} 
    \hat{\varphi}(x)^\top \mathbb{E}_{\mathsf{s}(y)}  \hat{\varphi}(y) 
  := \hat{\phi}(\mathsf{r})^\top \hat{\phi}(\mathsf{s}),
-\end{align}
+\end{align*}
 where the mappings $\hat{\phi}$ are $D_\mathrm{in}$ standard Rahimi-Recht random features
 for the Gaussian kernel, shown in Steps 1-3 of Algorithm~\ref{algo:random_features_kgg}).
 
@@ -1052,19 +1052,25 @@ be the corresponding  output messages, where $q^i_{\factor \rightarrow \outV}$ i
 of \eqref{eq:msgPassing:EP}.
 We write $\mathsf{x}_{i}= \hat{\psi}(\mathsf{r}_i)$
 as a more compact notation for the random feature
-vector representing the $i^{th}$ tuple of incoming messages,
-as copmuted via Algorithm~\ref{algo:random_features_kgg}. 
-%Thus, the dimensionality of  $\mathsf{X}$ is $D_\mathrm{out} \times N$.
+vector representing the $i^{th}$ training tuple of incoming messages,
+as computed via Algorithm~\ref{algo:random_features_kgg}. 
+%Thus, the dimensionality of  $\mathsf{X}$ is $D_{out} \times N$.
 
 
 %\agnote{Add the sans serif notation below.}
-As mentioned, kernel ridge regression in the primal form is equivalent to  
-standard ridge regression, which is equivalent to Bayesian linear regression 
-by interpreting the regularization parameter as the output noise variance.
-A probabilistic interpretation is useful as we seek an uncertainty estimate 
-on test points. The uncertainty estimate in this case will be the predictive 
+%% As mentioned, kernel ridge regression in the primal form is equivalent to  
+%% standard ridge regression, which is equivalent to Bayesian linear regression 
+%% by interpreting the regularization parameter as the output noise variance.
+%% A probabilistic interpretation is useful as we seek an uncertainty estimate 
+%% on test points.
+
+Since we require uncertainty estimates on our predictions,
+we perform Bayesian linear regression from the random features to the output messages,
+which yields predictions close to those obtained by Gaussian process regression
+with the kernel in \eqref{eq:gauss_joint_emb}.
+The uncertainty estimate in this case will be the predictive 
 variance.
-Here we give a brief review of Bayesian linear regression on the random features. 
+%Here we give a brief review of Bayesian linear regression on the random features. 
 We are given the priors
 \begin{align}
 w & \sim\mathcal{N}\left(w;0,I_{D_\mathrm{out}}\sigma_{0}^{2}\right), \\
@@ -1110,15 +1116,15 @@ Treating all outputs jointly can be achieved with a multi-output kernel \citep{A
 %\subsection{Online Update \label{sec:kernel_ep_online}}
  
 \paragraph{Online update}
-We consider an online update for $\Sigma_{w}$ and
+We describe an online update for $\Sigma_{w}$ and
 $\mu_{w}$ when observations (i.e., random features representing incoming 
-messages) $\mathsf{X}$ comes in stream. We will use $\cdot^{(N)}$
+messages) $\mathsf{x}_i$ arrive sequentially. We use $\cdot^{(N)}$
 to denote a quantity constructed from $N$ samples. Recall that $\Sigma_{w}^{-1(N)}= \mathsf{X} \mathsf{X}^{\top}\sigma_{y}^{-2}+\sigma_{0}^{-2}I$.
 The posterior covariance matrix at time $N+1$ is
 \begin{equation}
 \Sigma_{w}^{(N+1)} 
  =
-\Sigma_{w}^{(N)}-\frac{\Sigma_{w}^{(N)} \mathsf{x}_{N+1} \mathsf{x}_{N+1}^{\top} \Sigma_{w}^{(N)}\sigma_{y}^{-2}}{1+ \mathsf{x}_{N+1}^{\top}\Sigma_{w}^{(N)} \mathsf{x}_{N+1}\sigma_{y}^{-2}}.
+\Sigma_{w}^{(N)}-\frac{\Sigma_{w}^{(N)} \mathsf{x}_{N+1} \mathsf{x}_{N+1}^{\top} \Sigma_{w}^{(N)}\sigma_{y}^{-2}}{1+ \mathsf{x}_{N+1}^{\top}\Sigma_{w}^{(N)} \mathsf{x}_{N+1}\sigma_{y}^{-2}},
 \end{equation}
 %AG: don't need this proof
 
@@ -1129,7 +1135,9 @@ The posterior covariance matrix at time $N+1$ is
 % & =\Sigma_{w}^{(N)}-\frac{\Sigma_{w}^{(N)}x_{N+1}x_{N+1}^{\top}\Sigma_{w}^{(N)}\sigma_{y}^{-2}}{1+x_{N+1}^{\top}\Sigma_{w}^{(N)}x_{N+1}\sigma_{y}^{-2}}
 %\end{align*}
 %where we used the Sherman-Morrison formula. 
-In this form, the posterior covariance at time $N+1$ can be expressed in terms of 
+%In this form, the posterior covariance at time $N+1$
+meaning it can be expressed
+as an inexpensive update of
 the covariance at time $N$.
 %\[
 %\left(A+uv^{\top}\right)^{-1}=A^{-1}-\frac{A^{-1}uv^{\top}A^{-1}}{1+v^{\top}A^{-1}u}
@@ -1137,20 +1145,18 @@ the covariance at time $N$.
 %with $A=\Sigma_{w}^{-1(N)}$. 
 Updating $\Sigma_{w}$ costs $O(D_\mathrm{out}^{2})$ per one new observation. 
 For $\mu_{w}= \Sigma_{w} \mathsf{X} \mathsf{Y}^{\top}\sigma_{y}^{-2}$, we maintain
-$ \mathsf{X} \mathsf{Y}^{\top}\in\mathbb{R}^{D}$ and update it with
+$ \mathsf{X} \mathsf{Y}^{\top}\in\mathbb{R}^{D_{\mathrm{in}}\times D_{\mathrm{out}}}$ and update it
+at cost $O(D_\mathrm{in}\times D_\mathrm{out})$ as
 \begin{equation}
-\left( \feaX \feaY^{\top}\right)^{(N+1)}=\left( \feaX \feaY^{\top}+ \feax_{N+1} \feay_{N+1}\right), 
+\left( \feaX \feaY^{\top}\right)^{(N+1)}=\left( \feaX \feaY^{\top}+ \feax_{N+1} \feay^\top_{N+1}\right).
 \end{equation}
-costing $O(D_\mathrm{out})$ per update. 
 %In the first iteration when no data are observed, $\Sigma_{w}^{(1)}=\sigma_{0}^{2}I$.
-
-
-
+%
 %If the predictive variance of the current incoming messages $x^{*}$
 %is high, the operator queries the correct outgoing message from the importance sampler
 %(oracle) and update the $\Sigma_{w}$ and $\mu_{w}$. 
 %Otherwise, the outgoing message is efficiently computed by the operator. 
-
+%
 Since we have $D_{y}$ regression functions, 
 for each tuple of incoming messages $\feax^{*}$, there are $D_{y}$
 predictive variances, $v_{1}^{*},\ldots,v_{D_{y}}^{*}$, one for each
@@ -1161,7 +1167,7 @@ Given a new input $\feax^{*}$, if $v_{1}^{*}>\tau_{1}$ or $\cdots$
 or $v_{D_{y}}^{*}>\tau_{D_{y}}$ i.e., the operator is uncertain, 
 a query is made to the oracle to obtain a ground truth $\feay^{*}$. 
 The pair $(\feax^{*}, \feay^{*})$ is then
-used to update $\Sigma_{w}$ and $\mu_{w}$ as described previously. 
+used to update $\Sigma_{w}$ and $\mu_{w}$.% as described previously. 
 %Querying the oracle incurs a high computational cost.
 
 %%%%%%%%%%%%%%
