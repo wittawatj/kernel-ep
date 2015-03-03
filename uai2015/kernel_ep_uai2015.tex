@@ -105,11 +105,16 @@
 \newcommand{\feay}{\mathsf{y}}
 \newcommand{\feaY}{\mathsf{Y}}
 
-\newcommand{\wjnote}[1]{\textbf{\color{blue!90!black}{WJ: #1}}  }
-\newcommand{\aenote}[1]{\textbf{\color{red!50!black}{#1}} }
-\newcommand{\nhnote}[1]{\textbf{\color{magenta!90!black}{#1}} }
-\newcommand{\agnote}[1]{\textbf{\color{green!50!black}{#1}} }
-\newcommand{\dsnote}[1]{}%\textbf{\color{orange!50!black}{#1}} }
+% \newcommand{\wjnote}[1]{\textbf{\color{blue!90!black}{WJ: #1}}  }
+% \newcommand{\aenote}[1]{\textbf{\color{red!50!black}{#1}} }
+% \newcommand{\nhnote}[1]{\textbf{\color{magenta!90!black}{#1}} }
+% \newcommand{\agnote}[1]{\textbf{\color{green!50!black}{#1}} }
+% \newcommand{\dsnote}[1]{}%\textbf{\color{orange!50!black}{#1}} }
+\newcommand{\wjnote}[1]{ }
+\newcommand{\aenote}[1]{}
+\newcommand{\nhnote}[1]{}
+\newcommand{\agnote}[1]{}
+ \newcommand{\dsnote}[1]{}%\textbf{\color{orange!50!black}{#1}} }
 
 \newcommand{\figref}[1]{Fig.~\ref{#1}}
 \newcommand{\secref}[1]{Sec.~\ref{#1}}
@@ -126,8 +131,8 @@
 
 
 % WJ's space hacks. Is it okay to do this ?
-\setlength{\intextsep}{3mm}
-\setlength{\dbltextfloatsep }{4mm}
+\setlength{\intextsep}{2mm}
+\setlength{\dbltextfloatsep }{2mm}
 %\setlength{\dblfloatsep}{4mm}
 %\setlength{\belowcaptionskip}{1mm}
 
@@ -228,7 +233,7 @@ parameters \citep{Szabo2014}.
 A first advantage of this approach is that one does not need to pre-specify customized features
 of the distributions, as in \citep{Eslami2014,Heess2013}. Rather, 
 we use a general characteristic kernel on input distributions 
-\citep[eq. 9]{ChristmannSteinwart10}.
+\citep[eq. 9]{Christmann2010}.
 %, which in our experiments gives better performance than customized features. 
 %\wjnote{We do not have such an experiment comparing the two.}
 %
@@ -575,7 +580,7 @@ and the number of samples   $L$ per leaf was between 10 and 50.
 
 We now propose a kernel regression method for jointly learning the message operator $\approxMsg{\factor}{\outV}{\theta}$ and
 uncertainty estimate $\uncertaintyMsg{\factor}{\outV}{\theta}$. We will regress from the tuple of incoming messages, which
-are probability distributions, to the parameters of the outgoing message. To this end we extend a kernel over distributions from \citep{ChristmannSteinwart10} to the case where the input consists of more than one distribution.
+are probability distributions, to the parameters of the outgoing message. To this end we extend a kernel over distributions from \citep{Christmann2010} to the case where the input consists of more than one distribution.
 
 We note that \citet{SonGreGue10,SonGreBicLowGue11} propose a related regression approach for predicting outgoing
 messages from incoming messages, for the purpose of Belief Propagation. Their setup is entirely different from ours, however, as their messages are smoothed conditional density functions rather than parametric distributions of known form.
@@ -797,7 +802,7 @@ This approach is not suited to just-in-time (JIT) learning, however,
 as both prediction and storage cost grow with the size of the training set:
 thus, inference on even moderately sized datasets rapidly becomes computationally prohibitive.
 Instead, we define 
-a finite-dimensional random feature map $\hat{\phi} \in \mathbb{R}^{D_\mathrm{out}}$ such that 
+a finite-dimensional random feature map $\hat{\psi} \in \mathbb{R}^{D_\mathrm{out}}$ such that 
 $\kappa(\mathsf{r}, \mathsf{s}) \approx \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s})$, 
 and regress directly on these feature maps, in the primal (see next section): storage and computation 
 are then a function of the dimension of the feature map $D_\mathrm{out}$, yet performance is close to that
@@ -1180,7 +1185,9 @@ Below we evaluate our learned message operator using two different factors: the 
 
 
 For all experiments we used Infer.NET \citep{Minka2014} with its extensible factor interface for our own operator. 
-We use the default settings of Infer.NET unless stated otherwise. The regression target is always the marginal belief (numerator of eq.\ \ref{eq:msgPassing:EP}),  from which the outgoing message can be calculated straightforwardly.
+We use the default settings of Infer.NET unless stated otherwise. 
+The regression target is the marginal belief (numerator of eq.\ \ref{eq:msgPassing:EP}) in experiment 1,2,3 and 5. We set the regression target to the outgoing message in experiment 4. 
+Given a marginal belief, the outgoing message can be calculated straightforwardly.
 % as
 %$\msg{\factor}{x} = q_{\factor \rightarrow x} / \msg{x}{\factor} $.
 %$q_{\factor \rightarrow z_i}$
@@ -1679,11 +1686,11 @@ and robustly adapt to this new distribution by querying the oracle.
 
 %\subsection*{Acknowledgement}
 %Gatsby Charitable Foundation for funding.
-
+\vspace{-2mm}
 %=============================================
 \section{Conclusions and Future Work\label{sec:Conclusions-and-Future} }
 %=============================================
-
+\vspace{-2mm}
 
 We have proposed a method for learning the mapping between incoming and outgoing
 messages to a factor in Expectation Propagation, which can be used
