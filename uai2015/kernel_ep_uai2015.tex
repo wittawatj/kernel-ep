@@ -88,8 +88,8 @@
 \newcommand{\xout}{\mathbf{x}_{ \mathrm{out} }}			% child of directed factor
 \newcommand{\msg}[2]{m_{#1 \rightarrow #2}}			% message from arg1 to arg2
 \newcommand{\approxMsg}[3]{M_{#1 \rightarrow #2}^{#3}}			% message from arg1 to arg2
-\newcommand{\uncert}{v}          %%AG: variable used to denote uncertainty
-\newcommand{\uncertaintyMsg}[3]{V_{#1 \rightarrow #2}^{#3}}			% message from arg1 to arg2
+\newcommand{\uncert}{{\mathfrak v}}          %%AG: variable used to denote uncertainty
+\newcommand{\uncertaintyMsg}[3]{{\mathfrak V}_{#1 \rightarrow #2}^{#3}}			% message from arg1 to arg2
 \newcommand{\diffd}{\mathrm{d}}
 %\newcommand{\proj}{\mathrm{proj}}   %AG: replaced with notation using less space
 \newcommand{\proj}{\mathbb{Q}}
@@ -148,8 +148,6 @@ Messages}
 
 \begin{abstract}
 
-  \agnote{can we get rid of the massive space below the title?}
-  \wjnote{Tried vspace -3cm but did not work. The space is for author list ?}
   We propose an efficient nonparametric strategy
   for learning a message operator in expectation propagation (EP),
   which takes as input the set of incoming messages to a factor node, and
@@ -180,7 +178,7 @@ An increasing priority in Bayesian modelling is to make inference accessible and
 without their requiring specialist knowledge.
 % in Bayesian inference.
 This
-is a goal sought in probabistic programming languages \citep{WinGooStuSis11,GooManRoyBonTen08}, 
+is a goal sought in probabilistic programming languages \citep{WinGooStuSis11,GooManRoyBonTen08}, 
 as well as in more granular, component-based
 %AG: at Ali's suggestion, removed these two references
 %procedures \citep{DuvLloGroetal13,GroSalFreTen12} and
@@ -205,7 +203,7 @@ them challenging to implement or impractical to run.
 We address the particular setting of expectation propagation \citep{Minka2001}, a message
 passing algorithm wherein messages are confined to being members of a particular parametric
 family. The process of integrating incoming messages over a factor potential, and projecting the result onto the
-required output family, can be difficult, and in some cases not achieveable in closed form.
+required output family, can be difficult, and in some cases not achievable in closed form.
 Thus, a number of approaches have been proposed to implement EP updates numerically, independent
 of the details of the factor potential being used.  One approach, due to
 \citet{Barthelme2011}, is to compute the message update via importance sampling.
@@ -286,7 +284,7 @@ Next, in Section \ref{sec:Online}, we describe our kernel regression approach, a
 the form of an efficient kernel message operator mapping the input messages (distributions embedded in an
 RKHS) to output messages (sets of parameters of the outgoing messages).
 Finally, in Section \ref{sec:Experiments}, we describe our experiments, which cover three topics:
-a benchmark of our uncertainty estimates, a demonstraction of factor learning
+a benchmark of our uncertainty estimates, a demonstration of factor learning
 on artificial data with well-controlled statistical properties,
 and a logistic regression experiment on four different real-world datasets,
 demonstrating our just-in-time learner can correctly evaluate its uncertainty
@@ -303,8 +301,7 @@ Code to implement the method will be made available online.
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.9\columnwidth]{img/online/uci_in_msgs-crop}
-\caption{Distributions of incoming messages to logistic factor% $\msg{z_i}{\factor}$
-  in four different UCI datasets. 
+\caption{Distributions of incoming messages to logistic factor in four different UCI datasets. 
 %\wjnote{Refer to this figure in the intro. }
 % AG: done
 %\aenote{Figure fonts too large.}
@@ -346,12 +343,11 @@ The message $\msg{ \factor }{\outV}(x_{\outV})$  from factor $\factor$ to variab
 \begin{equation}
 \small
 \frac{\projP{ \msg{\outV}{\factor}(x_{\outV})
-\int \factor (\fx{\factor}) \prod_{\outV' \in \fis{\factor} \textbackslash \outV} \msg{\outV'}{\factor}(x_{\outV'}) \diffd \bx_{\fis{\factor} \textbackslash \outV}}}
+\int \factor (\fx{\factor}) \prod_{\outV'} \msg{\outV'}{\factor}(x_{\outV'}) \diffd \bx_{\fis{\factor} \textbackslash \outV}}}
 {\msg{\outV}{\factor}(x_{\outV})}
 \label{eq:msgPassing:EP}
 \end{equation}
 %
-\aenote{Make equation and number fit on one line}
 where $\msg{\outV'}{\factor}$ are the messages sent to factor $\factor$ from its neighboring variables $x_{\outV'}$ other than $x_{\outV}$,  $\projP{p} = \argmin{q \in \mathcal{Q}} \kld{p}{q}$, and $\mathcal{Q}$ is typically in the exponential family, e.g.\ the set of Gaussian or Beta distributions.
 
 %--------------------------------------------------------------------
@@ -416,7 +412,7 @@ employ random forests as their class of learning functions, and update their app
 \begin{equation}
 \uncertaintyMsg{\factor}{\outV}{\theta}: (\msg{\outV'}{\factor} )_{\outV' \in \fis{\factor}} \mapsto \uncert,
 \end{equation}
-where $\uncert$ indicates the expected unreliability  of the predicted, approximate message $\msg{\factor}{\outV}$ returned by $\approxMsg{\factor}{\outV}{\theta}$. If $v = \uncertaintyMsg{\factor}{\outV}{\theta} \left( (\msg{\outV'}{\factor} )_{\outV' \in \fis{\factor}}\right)$ 
+where $\uncert$ indicates the expected unreliability  of the predicted, approximate message $\msg{\factor}{\outV}$ returned by $\approxMsg{\factor}{\outV}{\theta}$. If $\uncert = \uncertaintyMsg{\factor}{\outV}{\theta} \left( (\msg{\outV'}{\factor} )_{\outV' \in \fis{\factor}}\right)$ 
 exceeds a pre-defined threshold, the required message is approximated via importance sampling (cf.\ eq.\ \ref{eq:msgIS}) and $\approxMsg{\factor}{\outV}{\theta}$ is updated
 %AG: fixed
 %\wjnote{Just updated not retrained ?}
@@ -588,7 +584,7 @@ and the number of samples   $L$ per leaf was between 10 and 50.
 
 
 %=============================================
-\section{Kernel learning of message operators}\label{sec:Online}
+\section{Kernel learning of operators}\label{sec:Online}
 %=============================================
 
 
@@ -653,14 +649,15 @@ in the tuple: Let us define a RKHS
 $\mathcal{H}^{(l)}$ on each domain, with respective kernels $k^{(l)}(x^{(l)}_1,x^{(l)}_2)$.
 We may embed individual probability distributions to these RKHSs, following \citep{Smola2007}.
 The {\em mean embedding} of $r^{(l)}$ is written
-\[\mu_{r^{(l)}}(\cdot):=\int k^{(l)}(x^{(l)},\cdot) dr^{(l)} (x^{(l)}),
-\]
+\begin{equation}
+\mu_{r^{(l)}}(\cdot):=\int k^{(l)}(x^{(l)},\cdot) dr^{(l)} (x^{(l)}),
+\end{equation}
 and has the property
 $\langle f,\mu_{r^{(l)}} \rangle_{\mathcal{H}^{(l)}} = \mathbb{E}_{r^{(l)}}(f(X^{(l)}))$
 for all $f\in \mathcal{H}^{(l)}$.
 
-On the same basis, a mean embedding may be defined on the product of  messages in a tuple,
-$\mathsf{r}=\prod_{l=1}^{c}r^{(l)}$, as
+Similarly, a mean embedding may be defined on the product of  messages in a tuple
+$\mathsf{r}=\prod_{l=1}^{c}r^{(l)}$ as
 \begin{equation}
 \mu_{\mathsf{r}}
 :=
@@ -855,23 +852,23 @@ $\langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}  \rangle
 = \mathbb{E}_{\mathsf{r}(x)} \mathbb{E}_{\mathsf{s}(y)} g(x-y)$, one can use 
 the result of \cite{Rahimi2007} to have 
 %
-\begin{align*}
+\begin{align}
  \langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}  \rangle
  & \approx \mathbb{E}_{\mathsf{r}(x)} \mathbb{E}_{\mathsf{s}(y)} 
-   \hat{\varphi}(x)^\top \hat{\varphi}(y) \\
+   \hat{\varphi}(x)^\top \hat{\varphi}(y) \nonumber \\ 
  & = \mathbb{E}_{\mathsf{r}(x)} 
    \hat{\varphi}(x)^\top \mathbb{E}_{\mathsf{s}(y)}  \hat{\varphi}(y) 
- := \hat{\phi}(\mathsf{r})^\top \hat{\phi}(\mathsf{s})
-\end{align*}
+ := \hat{\phi}(\mathsf{r})^\top \hat{\phi}(\mathsf{s}).
+\end{align}
 
 
 With the approximation of $\langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}  \rangle$,
 we have
-\[
-\kappa_{\text{gauss}}(\mathsf{r}, \mathsf{s})\approx\exp\left(-\frac{\|\hat{\phi}(\mathsf{r})-\hat{\phi}(\mathsf{r})\|_{D_{in}}^{2}}{2\gamma^{2}}\right)
+\begin{equation}
+\kappa_{\text{gauss}}(\mathsf{r}, \mathsf{s})\approx\exp\left(-\frac{\|\hat{\phi}(\mathsf{r})-\hat{\phi}(\mathsf{r})\|_{D_{in}}^{2}}{2\gamma^{2}}\right),
 %
 %:=k_{\text{gauss}}\left(\hat{\phi}(p)-\hat{\phi}(q);\gamma^{2}\right)
-\]
+\end{equation}
 which can be thought of as a standard Gaussian kernel on $\mathbb{R}^{D_{in}}$.
 We can thus further approximate this Gaussian kernel 
 %
@@ -1073,34 +1070,33 @@ on test points. The uncertainty estimate in this case will be the predictive
 variance.
 Here we give a brief review of Bayesian linear regression on the random features. 
 We are given the priors
-
-\begin{align*}
-w & \sim\mathcal{N}\left(w;0,I_{D_{out}}\sigma_{0}^{2}\right)\\
+\begin{align}
+w & \sim\mathcal{N}\left(w;0,I_{D_{out}}\sigma_{0}^{2}\right), \\
 \mathsf{Y} \mid \mathsf{X},w & \sim\mathcal{N}\left(\mathsf{Y};w^{\top} \mathsf{X},\sigma_{y}^{2}I_{N}\right),
-\end{align*}
+\end{align}
 %
 where the output noise variance $\sigma_{y}^{2}$ captures the intrinsic
 stochasticity of the importance sampler used to generate $\mathsf{Y}$. It
 follows that the posterior of $w$ is given by \citep{Bishop2006}
 %
-\begin{align*}
-p(w | \mathsf{Y}) & =\mathcal{N}(w;\mu_{w},\Sigma_{w})\\
-\Sigma_{w} & = \left( \mathsf{X} \mathsf{X}^{\top}\sigma_{y}^{-2}+\sigma_{0}^{-2}I \right)^{-1} \\
+\begin{align}
+p(w | \mathsf{Y}) & =\mathcal{N}(w;\mu_{w},\Sigma_{w}), \\
+\Sigma_{w} & = \left( \mathsf{X} \mathsf{X}^{\top}\sigma_{y}^{-2}+\sigma_{0}^{-2}I \right)^{-1}, \\
 \mu_{w} & =\Sigma_{w} \mathsf{X} \mathsf{Y}^{\top}\sigma_{y}^{-2}.
 %=\left(XX^{\top}+\frac{\sigma_{y}^{2}}{\sigma_{0}^{2}}I\right)^{-1}XY^{\top}.
-\end{align*}
+\end{align}
 %The noise variance $\sigma_{y}^{2}$ is proportional to the regularization
 %parameter in linear regression. 
 The predictive distribution on the output $\mathsf{y}^{*}$ given an 
 observation $\mathsf{x}^{*}$ is
 %
-\begin{align*}
+\begin{align}
 p(\mathsf{y}^{*}| \mathsf{x}^{*}, \mathsf{Y}) & =\int  
  p(\mathsf{y}^{*}|w, \mathsf{x}^{*}, \mathsf{Y}) p(w|\mathsf{Y}) \, dw\\
- & =\mathcal{N}\left(\mathsf{y}^{*}; \mathsf{x}^{*\top}\mu_{w}, \mathsf{x}^{*\top}\Sigma_{w} \mathsf{x}^{*}+\sigma_{y}^{2}\right)
+ & =\mathcal{N}\left(\mathsf{y}^{*}; \mathsf{x}^{*\top}\mu_{w}, \mathsf{x}^{*\top}\Sigma_{w} \mathsf{x}^{*}+\sigma_{y}^{2}\right).
 % & =\mathcal{N}(y^{*};m^{*},v^{*}).
-\end{align*}
-
+\end{align}
+%
 % The marginal likelihood is given by
 %\begin{align*}
 %p(Y|X) & =\int dw\, p(Y|X,w)p(w)\\
@@ -1110,24 +1106,24 @@ p(\mathsf{y}^{*}| \mathsf{x}^{*}, \mathsf{Y}) & =\int
 %where $K=X^{\top}X$ is a gram matrix of $X$. 
 %One can do gradient ascent on $\log p(Y|X)$
 %to optimize $\sigma_{0}^{2},\sigma_{y}^{2}$ and kernel parameters.
-
+%
 For simplicity, we treat each output (expected sufficient statistic) as a separate regression problem. 
 Treating all outputs jointly can be achieved with a multi-output kernel \citep{Alvarez2011}.
 
 %AG: don't need a subsection
 %\subsection{Online Update \label{sec:kernel_ep_online}}
  
-\paragraph{Online Update}
+\paragraph{Online update}
 We consider an online update for $\Sigma_{w}$ and
 $\mu_{w}$ when observations (i.e., random features representing incoming 
 messages) $\mathsf{X}$ comes in stream. We will use $\cdot^{(N)}$
 to denote a quantity constructed from $N$ samples. Recall that $\Sigma_{w}^{-1(N)}= \mathsf{X} \mathsf{X}^{\top}\sigma_{y}^{-2}+\sigma_{0}^{-2}I$.
 The posterior covariance matrix at time $N+1$ is
-\[
+\begin{equation}
 \Sigma_{w}^{(N+1)} 
  =
-\Sigma_{w}^{(N)}-\frac{\Sigma_{w}^{(N)} \mathsf{x}_{N+1} \mathsf{x}_{N+1}^{\top} \Sigma_{w}^{(N)}\sigma_{y}^{-2}}{1+ \mathsf{x}_{N+1}^{\top}\Sigma_{w}^{(N)} \mathsf{x}_{N+1}\sigma_{y}^{-2}}
- \]
+\Sigma_{w}^{(N)}-\frac{\Sigma_{w}^{(N)} \mathsf{x}_{N+1} \mathsf{x}_{N+1}^{\top} \Sigma_{w}^{(N)}\sigma_{y}^{-2}}{1+ \mathsf{x}_{N+1}^{\top}\Sigma_{w}^{(N)} \mathsf{x}_{N+1}\sigma_{y}^{-2}}.
+\end{equation}
 %AG: don't need this proof
 
 %\begin{align*}
@@ -1146,9 +1142,9 @@ the covariance at time $N$.
 Updating $\Sigma_{w}$ costs $O(D_{out}^{2})$ per one new observation. 
 For $\mu_{w}= \Sigma_{w} \mathsf{X} \mathsf{Y}^{\top}\sigma_{y}^{-2}$, we maintain
 $ \mathsf{X} \mathsf{Y}^{\top}\in\mathbb{R}^{D}$ and update it with
-\[
+\begin{equation}
 \left( \feaX \feaY^{\top}\right)^{(N+1)}=\left( \feaX \feaY^{\top}+x_{N+1}y_{N+1}\right), 
-\]
+\end{equation}
 costing $O(D_{out})$ per update. 
 %In the first iteration when no data are observed, $\Sigma_{w}^{(1)}=\sigma_{0}^{2}I$.
 
@@ -1422,8 +1418,7 @@ We employed a ``minibatch'' idea in which the operator always consults the oracl
 the first few hundred factor invocations for initial batch training. 
 In principle, during the initial batch training, the operator can perform 
 cross validation for parameter selection; however for simplicity we set the kernel 
-parameters according to the median heuristic \citep{Scholkopf2002} 
-(see \secref{sec:median_heuristic} in the supplementary materials for details). 
+parameters according to the median heuristic \citep{Scholkopf2002}. 
 %AG: removed cross validation discussion from here, put it earlier.
 The numbers 
 of random features were $D_{in} = 300$ and $D_{out} = 500$. The output noise variance 
@@ -1559,7 +1554,7 @@ Uncertainty estimate of KJIT for outgoing messages on the four UCI datasets.
 \end{figure*}
 
 
-{\bf Compound gamma factor:} We next simulate the compound gamma factor, % an alternative to a gamma distribution as
+\paragraph{Compound gamma factor} We next simulate the compound gamma factor, % an alternative to a gamma distribution as
  a heavy-tailed prior distribution on the precision of a Gaussian random variable.
 A variable $\tau$ is said to follow the compound gamma distribution 
 if $\tau \sim \text{Gamma}(\tau; s_2, r_2)$ (shape-rate parameterization) and 
@@ -1589,7 +1584,7 @@ consultations as more problems are seen.
 %\subsection{Real data}
 %------------------------------------
 
-{\bf Classification benchmarks:} In the final experiment, we demonstrate
+\paragraph{Classification benchmarks} In the final experiment, we demonstrate
 that our method for learning the message operator is able to detect changes
 in the distribution of incoming messages via its uncertainty estimate,
 and to subsequently update its prediction through additional oracle queries.
@@ -1860,11 +1855,11 @@ ans =
 \end{comment}
 
 %=========================================  
-\section{Median Heuristic for Gaussian Kernel on Mean Embeddings
-\label{sec:median_heuristic}
-}
-
-\hl{need details}
+% \section{Median Heuristic for Gaussian Kernel on Mean Embeddings
+% \label{sec:median_heuristic}
+% }
+% 
+% \hl{need details}
 %=========================================
 
 \begin{comment}
@@ -1949,7 +1944,7 @@ back to the desired value during testing.
 
 \paragraph{Operator representation}
 
-Once the best parameter combination is choosen, we increase $d$ to
+Once the best parameter combination is chosen, we increase $d$ to
 the desired value and precompute $\hat{C}_{Y|X}\approx\underbrace{Y}_{d_{y}\times n}\underbrace{\hat{\Phi}^{\top}}_{n\times d}\underbrace{\left(\hat{\Phi}\hat{\Phi}^{\top}+\lambda I\right)^{-1}}_{d\times d}$
 for test time. One obvious improvement is to avoid forming $\hat{\Phi}$
 explicitly since the memory cost will be $O(dn)$ which can already
@@ -2033,7 +2028,7 @@ Assume there are $c$ incoming messages $\left(p^{(i)}\right)_{i=1}^{c}$
 \mathbb{E}_{q^{(l)}}\left[y\right] & =\mu_{l}\\
 \mathbb{V}_{q^{(l)}}\left[y\right] & =\sigma_{l}^{2}.
 \end{align*}
-We use $p^{(l)}(x)$ and $m_{x_{i}\rightarrow f}(x)$ interchageably.
+We use $p^{(l)}(x)$ and $m_{x_{i}\rightarrow f}(x)$ interchangeably.
 Incoming messages are not necessarily Gaussian. They do have to be
 in the exponential family. MV (mean-variance) kernel is a a product
 kernel on means and variances. 
@@ -2041,7 +2036,7 @@ kernel on means and variances.
 \kappa\left(\left(p^{(i)}\right)_{i=1}^{c},\left(q^{(i)}\right)_{i=1}^{c}\right) & =\prod_{i=1}^{c}\kappa^{(i)}\left(p^{(i)},q^{(i)}\right)\\
  & =\prod_{i=1}^{c}k\left(\left(m_{i}-\mu_{i}\right)/w_{i}^{m}\right)\prod_{i=1}^{c}k\left(\left(v_{i}-\sigma_{i}^{2}\right)/w_{i}^{v}\right)
 \end{align*}
-where $k$ is a Gassian kernel with unit width. The kernel $\kappa$
+where $k$ is a Gaussian kernel with unit width. The kernel $\kappa$
 has $P:=\left(w_{1}^{m},\ldots,w_{c}^{m},w_{1}^{v},\ldots,w_{c}^{v}\right)$
 as its parameters. With this kernel, we treat messages as finite dimensional
 vector. All incoming messages $(q^{(i)})_{i=1}^{c}$ are essentially
