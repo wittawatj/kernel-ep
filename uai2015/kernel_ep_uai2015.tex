@@ -305,7 +305,7 @@ a benchmark of our uncertainty estimates, a demonstration of factor learning
 on artificial data with well-controlled statistical properties,
 and a logistic regression experiment on four different real-world datasets,
 demonstrating our just-in-time learner can correctly evaluate its uncertainty
-and update the regression function, as the incoming messages change (see Figure \ref{fig:uci_in_msgs}).
+and update the regression function, as the incoming messages change (see \figref{fig:uci_in_msgs}).
 Code to implement the method will be made available online.
 
 %AG: note code promise above :)
@@ -509,7 +509,7 @@ uncertainty estimate $\uncertaintyMsg{\factor}{\outV}{\theta}$. We will regress 
 are probability distributions, to the parameters of the outgoing message. To this end we extend a kernel over distributions from \citep{Christmann2010} to the case where the input consists of more than one distribution.
 
 We note that \citet{SonGreGue10,SonGreBicLowGue11} propose a related regression approach for predicting outgoing
-messages from incoming messages, for the purpose of Belief Propagation. Their setup is entirely different from oYanSmoZonWil14urs, however, as their messages are smoothed conditional density functions rather than parametric distributions of known form.
+messages from incoming messages, for the purpose of Belief Propagation. Their setup is entirely different from ours, however, as their messages are smoothed conditional density functions rather than parametric distributions of known form.
 
 To achieve fast predictions and factor updates, we follow \citep{Rahimi2007,Le2013,YanSmoZonWil14}, and express the kernel regression in terms of random features whose expected inner product
 is equal to the kernel function; i.e.\, we perform regression directly in the primal on these random features.
