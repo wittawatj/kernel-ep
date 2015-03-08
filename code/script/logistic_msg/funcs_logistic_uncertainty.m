@@ -117,7 +117,7 @@ function plotUncertaintyAlongSlicesSuperImposed(s, trBundle, teBundle, Un )
     legend('Random forests: #1', 'Random forests: #2', ...
         'Kernel: #1', 'Kernel: #2');
     xlabel(xlabel_text);
-    ylabel('Log predictive variance')
+    ylabel('Log uncertainty')
     xlim([min(testMeans)-1, max(testMeans)+1]);
     pbaspect([4 3 1]);
     grid on;
