@@ -1109,7 +1109,9 @@ the covariance at time $N$.
 %\left(A+uv^{\top}\right)^{-1}=A^{-1}-\frac{A^{-1}uv^{\top}A^{-1}}{1+v^{\top}A^{-1}u}
 %\]
 %with $A=\Sigma_{w}^{-1(N)}$. 
-Updating $\Sigma_{w}$ for all the $D_y$ outputs costs $O( (D_\mathrm{in}D_\mathrm{out})^{2} D_y)$ per one new observation. 
+Updating $\Sigma_{w}$ for all the $D_y$ outputs costs 
+$O( (D_\mathrm{in}D_\mathrm{out} + D_\mathrm{out}^{2}) D_y)$ 
+per one new observation. 
 For $\mu_{w}= \Sigma_{w} \mathsf{X} \mathsf{Y}^{\top}\sigma_{y}^{-2}$, we maintain
 $ \mathsf{X} \mathsf{Y}^{\top}\in\mathbb{R}^{D_{\mathrm{out}}\times D_{\mathrm{y}}}$ and update it
 at cost $O(D_\mathrm{in}D_\mathrm{out}D_y)$ as
