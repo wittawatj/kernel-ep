@@ -2118,7 +2118,7 @@ Notice that the translation invariant kernel $k$
 provides $\hat{k}$ from which $\{w_{i}\}_{i}$ are
 drawn. For different types of distribution $r$, we only need to
 be able to compute $\mathbb{E}_{r(x)}\cos\left(w_{i}^{\top}x+b_{i}\right)$.
-With $\hat{\phi}(r)$, we have $\kappa(r, s)\approx\hat{\phi}(r)^{\top}\hat{\phi}(s)$
+With $\hat{\phi}(r)$, we have $\kappa_\text{pro}(r, s)\approx\hat{\phi}(r)^{\top}\hat{\phi}(s)$
 with equality in expectation.
 
 
@@ -2130,7 +2130,7 @@ $k(x-y)=\exp\left(-\frac{1}{2}\left(x-y\right)^{\top}\Sigma^{-1}\left(x-y\right)
 where $\Sigma$ is the kernel parameter.
 \begin{align*}
 \mathbb{E}_{r}\mathbb{E}_{s}k(x-y) & =\sqrt{\frac{\det(D_{rs})}{\det(\Sigma^{-1})}}\exp\left(-\frac{1}{2}\left(m_{r}-m_{s}\right)^{\top}D_{rs}\left(m_{r}-m_{s}\right)\right)\\
-D_{rs} & :=\left(V_{r}+V_{s}+\Sigma\right)^{-1}
+D_{rs} & :=\left(V_{r}+V_{s}+\Sigma\right)^{-1}.
 \end{align*}
 
 \paragraph{Approximation Quality}
@@ -2254,7 +2254,6 @@ is $D_\mathrm{out}$ as compared to $D_\mathrm{out}^{c}$ (product kernel) and $cD
 variables as independent.
 
 \end{comment}
-.
 
 
 \bibliographystylesup{abbrvnat}
