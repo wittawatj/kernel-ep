@@ -1,0 +1,155 @@
+\usetheme{default}
+\usecolortheme{ucl}
+\RequirePackage{calc}
+
+% the height of the banner (after scaling)
+\newlength\bannerheight
+% the height of the banner stripe: according to UCL style this should be the
+% height of the tower
+\newlength\stripeheight
+% the amount to trim off the banner (before scaling)
+\newlength\bannerimagetrim
+
+% UCL banner template
+\defbeamertemplate*{banner}{ucl}[1][1]{%
+  \uclcolorname{banner.bg}{\ucl@bannercolorname}%
+  \includegraphics[width=\paperwidth,trim=\bannerimagetrim{} 0 0 0]% 
+  {banners/uclbanner\ucl@bannercolorname}%
+}
+[action]{% set lengths when loading template
+  \setlength\bannerimagetrim{363bp-363bp/\real{#1}}
+  \settoheight\bannerheight{\usebeamertemplate*{banner}}  
+  \setlength\stripeheight{0.1875\bannerheight}
+}
+
+% blank banner, for when you don't want UCL banner on every page
+\defbeamertemplate{banner}{blank}{%
+  \hspace{\beamer@leftmargin}%
+  \begin{beamercolorbox}[wd=\paperwidth,ht=\bannerheight]{banner}%
+  \end{beamercolorbox}
+}
+
+% if you don't want a banner at all.
+\defbeamertemplate{banner}{empty}{%
+}
+
+
+
+% draw the banner on the background
+\defbeamertemplate*{background}{ucl}{% for everything else
+  \hspace{\beamer@leftmargin}%
+  \begin{beamercolorbox}[wd=\paperwidth]{banner stripe}%
+    \usebeamertemplate*{banner}\par%
+    \ifbeamercolorempty[bg]{banner stripe}{}{\vspace{\stripeheight}}%
+  \end{beamercolorbox}%
+}
+
+
+% The default headline is just empty space.
+% this ensures content doesn't overlap
+\defbeamertemplate*{headline}{ucl}{%
+  \vspace{\bannerheight}%
+  \ifbeamercolorempty[bg]{banner stripe}{}{\vspace{\stripeheight}}%
+}  
+
+
+% Section / Subsection
+\defbeamertemplate{headline}{section}{%
+  \begin{beamercolorbox}[ignorebg,ht=\bannerheight]{section in head/foot}%
+    \vbox to\bannerheight{
+      \vspace{1em}%
+      \usebeamerfont{section in head/foot}%
+      \hspace{1em}\insertsectionhead%
+      \ifx\insertsubsectionhead\@empty%
+      \else%
+      {\usebeamerfont{subsection in head/foot}%
+        \usebeamercolor[fg]{subsection in head/foot}%
+        \,/\,\insertsubsectionhead}%
+      \fi%      
+      \par%
+      \vfil}%
+  \end{beamercolorbox}%
+  \ifbeamercolorempty[bg]{banner stripe}{}{\vspace{\stripeheight}}%
+}  
+
+% Miniframes
+\defbeamertemplate{headline}{miniframes}[1][0.6\paperwidth]{% 
+  \begin{beamercolorbox}[ignorebg,ht=\bannerheight]{section in head/foot}%
+    \vbox to\bannerheight{
+      \vspace{1ex}%
+      \insertnavigation{#1}%
+      \par%
+      \vfil}%
+  \end{beamercolorbox}%
+  \ifbeamercolorempty[bg]{banner stripe}{}{\vspace{\stripeheight}}%
+}
+% use boxes instead of circles
+\setbeamertemplate{mini frames}[box]
+
+% Department and subdepartment/slogan in the headline
+\defbeamertemplate{headline}{department}{%
+  \begin{beamercolorbox}[ignorebg,ht=\bannerheight]{section in head/foot}%
+    \vbox to\bannerheight{
+      \vfil%
+      \usebeamerfont*{section in head/foot}%
+      \usebeamercolor[fg]{section in head/foot}%
+      \hspace{1em}%
+      \usebeamertemplate{department}%
+      \par%
+      \vspace*{.5ex}%
+      \hspace{1em}%
+      \usebeamerfont*{subsection in head/foot}%
+      \usebeamercolor[fg]{subsection in head/foot}%
+      \usebeamertemplate{subdepartment}%
+      \par%
+      \vfil}%
+  \end{beamercolorbox}%
+  \ifbeamercolorempty[bg]{banner stripe}{}{\vspace{\stripeheight}}%
+}
+
+\defbeamertemplate{footline}{author title date}
+{
+  \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+    \usebeamerfont{author in head/foot}\insertshortauthor\expandafter\beamer@ifempty\expandafter{\beamer@shortinstitute}{}{~~(\insertshortinstitute)}
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+    \usebeamerfont{title in head/foot}\insertshorttitle
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,right]{date in head/foot}%
+    \usebeamerfont{date in head/foot}\insertshortdate{}\hspace*{2em}
+    \usebeamertemplate*{slide counter}\hspace*{2ex}
+  \end{beamercolorbox}}%
+  \vskip0pt%
+}
+
+% Slide counter
+\defbeamertemplate*{slide counter}{frametotal}[1][]{%
+  \usebeamercolor[fg]{date in head/foot}%
+  #1~\insertframenumber\ \vrule width0.3pt height5pt\ \inserttotalframenumber%
+}
+\defbeamertemplate{slide counter}{frameonly}[1][]{%
+  \usebeamercolor[fg]{date in head/foot}%
+  #1~\insertframenumber%
+}
+\defbeamertemplate{slide counter}{empty}{%
+}
+
+% Reduce margins
+\setbeamersize{text margin left=1.4em,text margin right=1.4em}
+
+% make everything rectangle-y
+\useinnertheme{rectangles}
+
+% use the Helvetica font
+\usepackage[scaled]{helvet}
+\usepackage{eulervm}
+
+%%% the UCL font is actually Arial, if you want to use it, you should install
+%%% the font using the getnonfreefonts script, then it can be loaded by the
+%%% following:
+% \usepackage[T1]{fontenc}
+% \usepackage{uarial}
+% \renewcommand{\familydefault}{\sfdefault}
+
