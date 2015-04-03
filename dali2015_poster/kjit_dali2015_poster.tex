@@ -325,8 +325,81 @@ University of Oxford$^2$
 \begin{columns}[t]
 
 %==================================
-\column{0.27\textwidth}
+\column{0.29\textwidth}
 %==================================
+
+%%--------------------------
+%\begin{block}{Introduction }
+%%--------------------------
+
+%\justifying{}Two approaches to automated probabilistic inference
+%{[}3{]}:
+%\begin{enumerate}
+%\item \justifying{}\textbf{Uninformed}: 
+
+
+%\Vskip{}\Smile{} Free to use any factors to express a model.
+
+
+%\Vskip{}\Frown{} Typically rely on MCMC-based sampling techniques.
+%Slow.
+
+%\item \textbf{Informed}: 
+
+
+%\Vskip{}\Smile{} Models built from handcrafted factors known to the
+%inference engine e.g., Infer.NET {[}4{]}. Efficient inference. 
+
+
+%\Vskip{}\Frown{} Use of unsupported factors requires manual derivation
+%of message updates. 
+
+%\end{enumerate}
+%\end{block}
+
+%--------------------------
+\begin{block}{Contribution }
+%--------------------------
+
+Propose to incrementally learn during inference a kernel-based EP message operator 
+(distribution-to-distribution regression)
+%
+\begin{equation*}
+    \left[ m_{V'\rightarrow f}  \right]_{V' \in \mathrm{ne}(f)} \mapsto q_{f \rightarrow V}
+\end{equation*}
+%
+for any factor $f$ that can be sampled. 
+%Outgoing message 
+%$m_{f \rightarrow V} := q_{f \rightarrow V} / m_{V \rightarrow f}$ can be computed easily.
+
+%Bridge the gap between the two approaches. 
+
+%\Vskip{}\Smile{} No constraint on the set of usable factors.
+
+%\Vskip{}\Smile{} Message updates automatically learned online (just in time).
+
+%\Vskip{}\Smile{} Novel two-layer random feature representation of input
+%messages for fast message updates.
+
+%\Vskip{}\Smile{} The operator can ask the oracle and incorporate new input
+%messages when it is uncertain.
+
+\vspace*{3mm}
+\textbf{Merits}:
+\begin{itemize}
+%\item No constraint on the set of usable factors.
+
+\item  Message updates automatically learned online (just in time).
+
+\item Novel two-layer random feature representation of input
+messages for fast message updates.
+
+\item The operator can ask the oracle and incorporate new input
+messages when it is uncertain.
+\end{itemize}
+
+\end{block}
+
 
 %--------------------------
 \begin{block}{Expectation Propagation (EP)}
@@ -435,82 +508,93 @@ V}}\left[u(v)\right] \text{(moment matching).} \]
 %
 \end{block}
 
-%%--------------------------
-%\begin{block}{Introduction }
-%%--------------------------
-
-%\justifying{}Two approaches to automated probabilistic inference
-%{[}3{]}:
-%\begin{enumerate}
-%\item \justifying{}\textbf{Uninformed}: 
-
-
-%\Vskip{}\Smile{} Free to use any factors to express a model.
-
-
-%\Vskip{}\Frown{} Typically rely on MCMC-based sampling techniques.
-%Slow.
-
-%\item \textbf{Informed}: 
-
-
-%\Vskip{}\Smile{} Models built from handcrafted factors known to the
-%inference engine e.g., Infer.NET {[}4{]}. Efficient inference. 
-
-
-%\Vskip{}\Frown{} Use of unsupported factors requires manual derivation
-%of message updates. 
-
-%\end{enumerate}
-%\end{block}
+%==================================
+\column{0.23\textwidth}
+%==================================
 
 %--------------------------
-\begin{block}{Contribution }
+\begin{block}{Kernel on Incoming Messages}
 %--------------------------
 
-Propose to incrementally learn during inference a kernel-based EP message operator 
-(distribution-to-distribution regression)
+\begin{itemize}
+    \item Let $\mu_{r_{l}}:=\mathbb{E}_{r_{l}(a)}k(\cdot,a)$ be the mean
+        embedding [2] of a message $r_{l}$. 
+    \item Let $\mathsf{r}:=\times_{l=1}^c r_{l}$ and
+        $\mathsf{s}:=\times_{l=1}^c s_{l}$ be the joint distribution formed
+        from $c$ incoming messages.
+\end{itemize}
+%
+\vspace{3mm}
+
+\textbf{Gaussian Kernel on Mean Embeddings [6]: }
+\begin{align*}
+\kappa(\mathsf{r}, \mathsf{s}) &= 
+ \exp\left(-\frac{\|\mu_{\mathsf{r}}-\mu_{\mathsf{s}}\|_{\mathcal{H}}^{2}}{2\gamma^{2}}\right). 
+%&= \exp\left(-\frac{1}{2\gamma^{2}}\left\langle
+%  \mu_{\mathsf{r}},\mu_{\mathsf{r}}\right\rangle
+%  +\frac{1}{\gamma^{2}}\left\langle
+%  \mu_{\mathsf{r}},\mu_{\mathsf{s}}\right\rangle
+%  -\frac{1}{2\gamma^{2}}\left\langle
+%  \mu_{\mathsf{s}},\mu_{\mathsf{s}}\right\rangle \right).
+\end{align*}
+
+\textbf{Two-Staged Random Feature Approximations: }
+
+\vspace*{5mm}
+%\begin{align*}
+% %\kappa_{\text{gauss}}(p,q) \\
+%    \kappa(\mathsf{r}, \mathsf{s}) = 
+%  \exp\left(-\frac{1}{2\gamma^{2}}\left\langle
+%  \mu_{\mathsf{r}},\mu_{\mathsf{r}}\right\rangle
+%  +\frac{1}{\gamma^{2}}\left\langle
+%  \mu_{\mathsf{r}},\mu_{\mathsf{s}}\right\rangle
+%  -\frac{1}{2\gamma^{2}}\left\langle
+%  \mu_{\mathsf{s}},\mu_{\mathsf{s}}\right\rangle \right).
+%  %
+%\end{align*}
+%
+\underline{1$^{\text{st}}$ stage } \vspace{5mm} \\ 
+%Approximate $\left\langle
+%\mu_{\mathsf{r}},\mu_{\mathsf{s}}\right\rangle$  with 
+%%
+%\begin{align*}
+% \langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}  \rangle
+% & \approx 
+% %\mathbb{E}_{\mathsf{r}(x)} \mathbb{E}_{\mathsf{s}(y)} 
+% %  \hat{\varphi}(x)^\top \hat{\varphi}(y) \nonumber \\ 
+%  \mathbb{E}_{\mathsf{r}(x)} 
+%   \hat{\varphi}(x)^\top \mathbb{E}_{\mathsf{s}(y)}  \hat{\varphi}(y) 
+% = \hat{\phi}(\mathsf{r})^\top \hat{\phi}(\mathsf{s}),
+%\end{align*}
+Approximate $\mu_{\mathsf{r}}$ with $D_\mathrm{in}$ features:
+%
+\begin{align*}
+    \mu_{\mathsf{r}} \approx \hat{\phi}(\mathsf{r}).
+    %\in \mathbb{R}^{D_\mathrm{in}}.
+\end{align*}
+%
+We have
 %
 \begin{equation*}
-    \left[ m_{V'\rightarrow f}  \right]_{V' \in \mathrm{ne}(f)} \mapsto q_{f \rightarrow V}
+\kappa(\mathsf{r},
+\mathsf{s})\approx\exp\left(-\frac{\|\hat{\phi}(\mathsf{r})-\hat{\phi}(\mathsf{s})\|_{D_\mathrm{in}}^{2}}{2\gamma^{2}}\right),
+%
 \end{equation*}
 %
-for any factor $f$ that can be sampled. 
-%Outgoing message 
-%$m_{f \rightarrow V} := q_{f \rightarrow V} / m_{V \rightarrow f}$ can be computed easily.
+which is a standard Gaussian kernel. 
 
-%Bridge the gap between the two approaches. 
 
-%\Vskip{}\Smile{} No constraint on the set of usable factors.
+\vspace{10mm}
+\underline{2$^{\text{nd}}$ stage } \vspace{5mm} \\ 
+Apply Rahimi-Recht random features [1] on the Gaussian kernel to obtain 
+%again \textcolor{green!70!black}{($2^{nd}$ stage)} to obtain 
+$\kappa(\mathsf{r}, \mathsf{s}) \approx \hat{\psi}(\mathsf{r})^\top
+\hat{\psi}(\mathsf{s})$.
 
-%\Vskip{}\Smile{} Message updates automatically learned online (just in time).
-
-%\Vskip{}\Smile{} Novel two-layer random feature representation of input
-%messages for fast message updates.
-
-%\Vskip{}\Smile{} The operator can ask the oracle and incorporate new input
-%messages when it is uncertain.
-
-\vspace*{3mm}
-\textbf{Merits}:
-\begin{itemize}
-%\item No constraint on the set of usable factors.
-
-\item  Message updates automatically learned online (just in time).
-
-\item Novel two-layer random feature representation of input
-messages for fast message updates.
-
-\item The operator can ask the oracle and incorporate new input
-messages when it is uncertain.
-\end{itemize}
-
+% where $\mathcal{G}$ is an RKHS consisting of functions $g:\mathcal{X}_{1}\times\cdots\times\mathcal{X}_{c}\rightarrow\mathbb{R}$
+%and $\mathcal{X}_{l}$ denotes the domain of $r_{l}$ and $s_{l}$.
 \end{block}
 
-
-%==================================
-\column{0.25\textwidth}
-%==================================
 
 %--------------------------
 \begin{block}{Regression}
@@ -570,83 +654,6 @@ Otherwise, update the operator with $(x^*, y^*)$ where $y^* =\mathbb{E}_{r_{f
 \end{block}
 
 
-%--------------------------
-\begin{block}{Kernel on Incoming Messages}
-%--------------------------
-
-\begin{itemize}
-    \item Let $\mu_{r_{l}}:=\mathbb{E}_{r_{l}(a)}k(\cdot,a)$ be the mean
-        embedding [2] of a message $r_{l}$. 
-    \item Let $\mathsf{r}:=\times_{l=1}^c r_{l}$ and
-        $\mathsf{s}:=\times_{l=1}^c s_{l}$ be the joint distribution formed
-        from $c$ incoming messages.
-\end{itemize}
-%
-\vspace{3mm}
-
-\textbf{Gaussian Kernel on Mean Embeddings [6]: }
-\begin{align*}
-\kappa(\mathsf{r}, \mathsf{s}) &= 
- \exp\left(-\frac{\|\mu_{\mathsf{r}}-\mu_{\mathsf{s}}\|_{\mathcal{H}}^{2}}{2\gamma^{2}}\right). \\
-&= \exp\left(-\frac{1}{2\gamma^{2}}\left\langle
-  \mu_{\mathsf{r}},\mu_{\mathsf{r}}\right\rangle
-  +\frac{1}{\gamma^{2}}\left\langle
-  \mu_{\mathsf{r}},\mu_{\mathsf{s}}\right\rangle
-  -\frac{1}{2\gamma^{2}}\left\langle
-  \mu_{\mathsf{s}},\mu_{\mathsf{s}}\right\rangle \right).
-\end{align*}
-
-\textbf{Two-Staged Random Feature Approximations: }
-
-\vspace*{5mm}
-%\begin{align*}
-% %\kappa_{\text{gauss}}(p,q) \\
-%    \kappa(\mathsf{r}, \mathsf{s}) = 
-%  \exp\left(-\frac{1}{2\gamma^{2}}\left\langle
-%  \mu_{\mathsf{r}},\mu_{\mathsf{r}}\right\rangle
-%  +\frac{1}{\gamma^{2}}\left\langle
-%  \mu_{\mathsf{r}},\mu_{\mathsf{s}}\right\rangle
-%  -\frac{1}{2\gamma^{2}}\left\langle
-%  \mu_{\mathsf{s}},\mu_{\mathsf{s}}\right\rangle \right).
-%  %
-%\end{align*}
-%
-\underline{1$^{\text{st}}$ stage } \vspace{5mm} \\ 
-Approximate $\left\langle
-\mu_{\mathsf{r}},\mu_{\mathsf{s}}\right\rangle$  with 
-%
-\begin{align*}
- \langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}  \rangle
- & \approx 
- %\mathbb{E}_{\mathsf{r}(x)} \mathbb{E}_{\mathsf{s}(y)} 
- %  \hat{\varphi}(x)^\top \hat{\varphi}(y) \nonumber \\ 
-  \mathbb{E}_{\mathsf{r}(x)} 
-   \hat{\varphi}(x)^\top \mathbb{E}_{\mathsf{s}(y)}  \hat{\varphi}(y) 
- = \hat{\phi}(\mathsf{r})^\top \hat{\phi}(\mathsf{s}),
-\end{align*}
-%
-where $\hat{\phi} \in \mathbb{R}^{D_\mathrm{in}}$. We have 
-%
-\begin{equation*}
-\kappa(\mathsf{r},
-\mathsf{s})\approx\exp\left(-\frac{\|\hat{\phi}(\mathsf{r})-\hat{\phi}(\mathsf{s})\|_{D_\mathrm{in}}^{2}}{2\gamma^{2}}\right),
-%
-\end{equation*}
-%
-which is a standard Gaussian kernel. 
-
-
-\vspace{10mm}
-\underline{2$^{\text{nd}}$ stage } \vspace{5mm} \\ 
-Apply Rahimi-Recht random features [1] on the Gaussian kernel to obtain 
-%again \textcolor{green!70!black}{($2^{nd}$ stage)} to obtain 
-$\kappa(\mathsf{r}, \mathsf{s}) \approx \hat{\psi}(\mathsf{r})^\top
-\hat{\psi}(\mathsf{s})$.
-
-% where $\mathcal{G}$ is an RKHS consisting of functions $g:\mathcal{X}_{1}\times\cdots\times\mathcal{X}_{c}\rightarrow\mathbb{R}$
-%and $\mathcal{X}_{l}$ denotes the domain of $r_{l}$ and $s_{l}$.
-\end{block}
-
 
 %==================================
 \column{0.22\textwidth}
@@ -699,12 +706,12 @@ i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
 \begin{block}{ Experiment 1: Uncertainty Estimates}
 %--------------------------
 
-\begin{itemize}
-
 \begin{center}
 %\includegraphics[width=20cm]{binary_logistic_regression-crop}
 \includegraphics[width=20cm]{img/binlog_graph_title-crop}
 \end{center}
+
+\begin{itemize}
 
 \item Approximate the logistic factor $f$: 
     %$f(z|x)=\delta\left(z-\frac{1}{1+\exp(-x)}\right)$.  Two incoming messages:
@@ -713,7 +720,7 @@ i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
     \begin{align*}
     f(z|x) &= \delta\left(z-\frac{1}{1+\exp(-x)}\right)  \\
     \msg{z_i}{\factor} &= \mathcal{N}(z_i; \mu, \sigma^2), \hspace{10mm} 
-    \msg{p_i}{\factor} = \text{Beta}(p_i; \alpha, \beta) . 
+    \msg{p_i}{\factor} = \text{Beta}(p_i; \alpha, \beta). 
     \end{align*}
     \vspace{-10mm}
 
@@ -936,3 +943,4 @@ NIPS 2013. }
 \end{frame}
 
 \end{document}
+
