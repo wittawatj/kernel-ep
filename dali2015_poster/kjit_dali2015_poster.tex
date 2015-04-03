@@ -13,6 +13,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{caption}
+\usepackage[mathscr]{eucal}
 \usepackage{graphicx}
 \usepackage{esint}
 
@@ -174,7 +175,7 @@
 % \setbeamertemplate{background canvas}{%
 %   \includegraphics[width=\paperwidth]{imagename}}
 
-\setbeamersize{text margin left=7cm,text margin right=1.5cm}
+\setbeamersize{text margin left=9cm,text margin right=-2cm}
 % \newlength\blockcolsep
 % \setlength\blockcolsep{2ex}
 % \newlength\postercolumnsep
@@ -325,7 +326,7 @@ University of Oxford$^2$
 \begin{columns}[t]
 
 %==================================
-\column{0.29\textwidth}
+\column{0.31\textwidth}
 %==================================
 
 %%--------------------------
@@ -389,17 +390,19 @@ for any factor $f$ that can be sampled.
 \begin{itemize}
 %\item No constraint on the set of usable factors.
 
-\item  Message updates automatically learned online (just in time).
+\item  Efficient message updates: 
+    \begin{itemize}
+        \item Learned online (just in time).
+        \item Two-layer random kitchen sinks 
+    \end{itemize}
 
-\item Novel two-layer random feature representation of input
-messages for fast message updates.
+\item Operator: uncertainty aware
 
-\item The operator can ask the oracle and incorporate new input
-messages when it is uncertain.
+%    The operator can ask the oracle and incorporate new input
+%messages when it is uncertain.
 \end{itemize}
 
 \end{block}
-
 
 %--------------------------
 \begin{block}{Expectation Propagation (EP)}
@@ -418,7 +421,7 @@ Under an approximation that each factor fully factorizes, an outgoing EP message
 \draw[help lines, white] (0, -1) grid (25, 2); 
 %\draw[very thick, <->] (1,0) to (0,0) to (0,1); 
 \node (v_def) [right, fill=orange!20, inner sep=10pt, align=center, text
-width=8cm] at (3, 0) {set of $c$ variables connected to $f$};
+width=9cm] at (3, 0) {set of $c$ variables connected to $f$};
 \node (proj_msg_def) [right, fill=green!20, ellipse, inner sep=1pt,
 align=center, text width=5cm] at (18, 0) {projected message};
 \end{tikzpicture}
@@ -481,6 +484,7 @@ width=5cm]  at (23, 0) {incoming message from $V'$};
 %% };
 %% \end{tikzpicture}
 
+\vspace{-20mm}
 \begin{figure}[ht]
 \centering
   \subfloat[ Message passing on a factor graph.]{
@@ -494,13 +498,19 @@ width=5cm]  at (23, 0) {incoming message from $V'$};
 \end{figure}
 %
 \vspace{1cm}
-\textbf{Projection:} Let $q_{f\rightarrow V}(v)\in\text{ExpFam}$
-with sufficient statistic $u(v)$. The projected message $q_{f\rightarrow
-V}(v)=\proj\left[r_{f\rightarrow V}(v)\right]$
-satisfies 
+\textbf{Projected message:} 
 
-\[ \mathbb{E}_{q_{f\rightarrow V}}\left[u(v)\right]=\mathbb{E}_{r_{f\rightarrow
-V}}\left[u(v)\right] \text{(moment matching).} \]
+\begin{itemize}
+    \item $q_{f\rightarrow V}(v)=\proj\left[r_{f\rightarrow V}(v)\right] \in
+        \text{ExpFam}$ with sufficient statistic $u(v)$
+
+    \item Moment matching: $\mathbb{E}_{q_{f\rightarrow
+        V}}\left[u(v)\right]=\mathbb{E}_{r_{f\rightarrow V}}\left[u(v)\right] $
+\end{itemize}
+
+%Let $q_{f\rightarrow V}(v)\in\text{ExpFam}$
+%with sufficient statistic $u(v)$. 
+
 
 %\begin{equation*}
 %\mathbb{E}_{q_{f\rightarrow V}}\left[T(v)\right]=\mathbb{E}_{r_{f\rightarrow V}}\left[T(v)\right] \text{(moment matching).}
@@ -508,39 +518,32 @@ V}}\left[u(v)\right] \text{(moment matching).} \]
 %
 \end{block}
 
-%==================================
-\column{0.23\textwidth}
-%==================================
-
 %--------------------------
 \begin{block}{Kernel on Incoming Messages}
 %--------------------------
 
 \begin{itemize}
-    \item Let $\mu_{r_{l}}:=\mathbb{E}_{r_{l}(a)}k(\cdot,a)$ be the mean
-        embedding [2] of a message $r_{l}$. 
-    \item Let $\mathsf{r}:=\times_{l=1}^c r_{l}$ and
-        $\mathsf{s}:=\times_{l=1}^c s_{l}$ be the joint distribution formed
-        from $c$ incoming messages.
-\end{itemize}
-%
-\vspace{3mm}
+    \item Joint distribution from $c$ incoming messages: 
+        $\mathsf{r}:=\times_{l=1}^c r_{l}$, \hspace{5mm}
+        $\mathsf{s}:=\times_{l=1}^c s_{l}$     
+    
+    \item Mean embedding of $\mathsf{r}$:
+        $\mu_{\mathsf{r}}:=\mathbb{E}_{a \sim \mathsf{r}}k(\cdot,a)$ 
 
-\textbf{Gaussian Kernel on Mean Embeddings [5]: }
-\begin{align*}
-\kappa(\mathsf{r}, \mathsf{s}) &= 
- \exp\left(-\frac{\|\mu_{\mathsf{r}}-\mu_{\mathsf{s}}\|_{\mathcal{H}}^{2}}{2\gamma^{2}}\right). 
+    \item Gaussian Kernel: 
+        \begin{align*}
+            \kappa(\mathsf{r}, \mathsf{s}) &= 
+            \exp\left(-\frac{\|\mu_{\mathsf{r}}-\mu_{\mathsf{s}}\|_{\mathcal{H}}^{2}}{2\gamma^{2}}\right). 
 %&= \exp\left(-\frac{1}{2\gamma^{2}}\left\langle
 %  \mu_{\mathsf{r}},\mu_{\mathsf{r}}\right\rangle
 %  +\frac{1}{\gamma^{2}}\left\langle
 %  \mu_{\mathsf{r}},\mu_{\mathsf{s}}\right\rangle
 %  -\frac{1}{2\gamma^{2}}\left\langle
 %  \mu_{\mathsf{s}},\mu_{\mathsf{s}}\right\rangle \right).
-\end{align*}
+        \end{align*}
 
-\textbf{Two-Staged Random Feature Approximations: }
-
-\vspace*{5mm}
+\end{itemize}
+%
 %\begin{align*}
 % %\kappa_{\text{gauss}}(p,q) \\
 %    \kappa(\mathsf{r}, \mathsf{s}) = 
@@ -553,92 +556,64 @@ V}}\left[u(v)\right] \text{(moment matching).} \]
 %  %
 %\end{align*}
 %
-\underline{1$^{\text{st}}$ stage } \vspace{5mm} \\ 
-%Approximate $\left\langle
-%\mu_{\mathsf{r}},\mu_{\mathsf{s}}\right\rangle$  with 
-%%
-%\begin{align*}
-% \langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}  \rangle
-% & \approx 
-% %\mathbb{E}_{\mathsf{r}(x)} \mathbb{E}_{\mathsf{s}(y)} 
-% %  \hat{\varphi}(x)^\top \hat{\varphi}(y) \nonumber \\ 
-%  \mathbb{E}_{\mathsf{r}(x)} 
-%   \hat{\varphi}(x)^\top \mathbb{E}_{\mathsf{s}(y)}  \hat{\varphi}(y) 
-% = \hat{\phi}(\mathsf{r})^\top \hat{\phi}(\mathsf{s}),
-%\end{align*}
-Approximate $\mu_{\mathsf{r}}$ with $D_\mathrm{in}$ features:
-%
-\begin{align*}
-    \mu_{\mathsf{r}} \approx \hat{\phi}(\mathsf{r}).
-    %\in \mathbb{R}^{D_\mathrm{in}}.
-\end{align*}
-%
-We have
-%
-\begin{equation*}
-\kappa(\mathsf{r},
-\mathsf{s})\approx\exp\left(-\frac{\|\hat{\phi}(\mathsf{r})-\hat{\phi}(\mathsf{s})\|_{D_\mathrm{in}}^{2}}{2\gamma^{2}}\right),
-%
-\end{equation*}
-%
-which is a standard Gaussian kernel. 
-
-
-\vspace{10mm}
-\underline{2$^{\text{nd}}$ stage } \vspace{5mm} \\ 
-Apply Rahimi-Recht random features [1] on the Gaussian kernel to obtain 
-%again \textcolor{green!70!black}{($2^{nd}$ stage)} to obtain 
-$\kappa(\mathsf{r}, \mathsf{s}) \approx \hat{\psi}(\mathsf{r})^\top
-\hat{\psi}(\mathsf{s})$.
-
-% where $\mathcal{G}$ is an RKHS consisting of functions $g:\mathcal{X}_{1}\times\cdots\times\mathcal{X}_{c}\rightarrow\mathbb{R}$
-%and $\mathcal{X}_{l}$ denotes the domain of $r_{l}$ and $s_{l}$.
 \end{block}
+%==================================
+\column{0.3\textwidth}
+%==================================
 
+Two-Staged Random Feature Approximations
+\begin{equation*}
+    \kappa(\mathsf{r},
+    \mathsf{s})\approx\exp\left(-\frac{
+        \|\hat{\phi}(\mathsf{r})-\hat{\phi}(\mathsf{s})\|_{D_\mathrm{in}}^{2}}{2\gamma^{2}}\right)
+        \approx
+        \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s}).
+    \end{equation*}
 
 %--------------------------
-\begin{block}{Regression}
+\begin{block}{Message Operator }
 %--------------------------
+Bayesian linear regression:
+
 \begin{itemize}
-    \item $\mathsf{X}=\left(\mathsf{x}_{1}|\cdots|\mathsf{x}_{N}\right)$: 
-        the $N$ training incoming messages represented as random feature vectors.
-    \item $\mathsf{Y}=\left(\mathbb{E}_{r_{\factor\rightarrow
+    \item \textbf{Input:} $\mathsf{X}=\left(\mathsf{x}_{1}|\cdots|\mathsf{x}_{N}\right)$: 
+        $N$ training incoming messages represented as random feature vectors.
+    \item \textbf{Output:} $\mathsf{Y}=\left(\mathbb{E}_{r_{\factor\rightarrow
         \outV}^{1}}u(x_{\outV})|\cdots|\mathbb{E}_{r_{f\rightarrow
         \outV}^{N}}u(x_{\outV})\right)\in\mathbb{R}^{D_{y}\times N}$: 
         sufficient statistics of outgoing messages.
-    \item Learn $w$ with Bayesian linear regression.
+    \item Inexpensive online update
+    \item Uncertainty estimate: predictive variance
 \end{itemize}
 
 %
-\small
-\begin{align*}
-    w & \sim\mathcal{N}\left(w;0,I_{D_\mathrm{out}}\sigma_{0}^{2}\right) & \text{prior}  \\
-    \mathsf{Y} \mid \mathsf{X},w & \sim\mathcal{N}\left(\mathsf{Y};w^{\top}
-    \mathsf{X},\sigma_{y}^{2}I_{N}\right) & \text{likelihood}\\
-%
-    p(w | \mathsf{Y}) & =\mathcal{N}(w;\mu_{w},\Sigma_{w}) & \text{posterior of } w \\
-    %
-    \Sigma_{w} & = \left( \mathsf{X}
-    \mathsf{X}^{\top}\sigma_{y}^{-2}+\sigma_{0}^{-2}I \right)^{-1} 
-    & \text{posterior covariance}\\
-    %
-    \mu_{w} & =\Sigma_{w} \mathsf{X} \mathsf{Y}^{\top}\sigma_{y}^{-2}. 
-    & \text{posterior mean }\\
-% predictive
-    p(\mathsf{y}^{*}| \mathsf{x}^{*}, \mathsf{Y}) 
-    & =\mathcal{N}\left(\mathsf{y}^{*}; \mathsf{x}^{*\top}\mu_{w},
-    \mathsf{x}^{*\top}\Sigma_{w} \mathsf{x}^{*}+\sigma_{y}^{2}\right)
-    & \text{predictive dist.}
-\end{align*}
+%\small
+%\begin{align*}
+%    w & \sim\mathcal{N}\left(w;0,I_{D_\mathrm{out}}\sigma_{0}^{2}\right) & \text{prior}  \\
+%    \mathsf{Y} \mid \mathsf{X},w & \sim\mathcal{N}\left(\mathsf{Y};w^{\top}
+%    \mathsf{X},\sigma_{y}^{2}I_{N}\right) & \text{likelihood}\\
+%%
+%    p(w | \mathsf{Y}) & =\mathcal{N}(w;\mu_{w},\Sigma_{w}) & \text{posterior of } w \\
+%    %
+%    \Sigma_{w} & = \left( \mathsf{X}
+%    \mathsf{X}^{\top}\sigma_{y}^{-2}+\sigma_{0}^{-2}I \right)^{-1} 
+%    & \text{posterior covariance}\\
+%    %
+%    \mu_{w} & =\Sigma_{w} \mathsf{X} \mathsf{Y}^{\top}\sigma_{y}^{-2}. 
+%    & \text{posterior mean }\\
+%% predictive
+%    p(\mathsf{y}^{*}| \mathsf{x}^{*}, \mathsf{Y}) 
+%    & =\mathcal{N}\left(\mathsf{y}^{*}; \mathsf{x}^{*\top}\mu_{w},
+%    \mathsf{x}^{*\top}\Sigma_{w} \mathsf{x}^{*}+\sigma_{y}^{2}\right)
+%    & \text{predictive dist.}
+%\end{align*}
 
-\textbf{Uncertainty Awareness}
-If $\mathsf{x}^{*\top}\Sigma_{w} \mathsf{x}^{*}+\sigma_{y}^{2} \leq $
-uncertainty threshold, $m_{f \rightarrow V}$ is efficiently predicted.
-Otherwise, update the operator with $(x^*, y^*)$ where $y^* =\mathbb{E}_{r_{f
-\rightarrow V}}[u(v)] $ is obtained by importance sampling.
+%\textbf{Uncertainty Awareness}
+%If $\mathsf{x}^{*\top}\Sigma_{w} \mathsf{x}^{*}+\sigma_{y}^{2} \leq $
+%uncertainty threshold, $m_{f \rightarrow V}$ is efficiently predicted.
+%Otherwise, update the operator with $(x^*, y^*)$ where $y^* =\mathbb{E}_{r_{f
+%\rightarrow V}}[u(v)] $ is obtained by importance sampling.
 
-\vspace{5mm}
-\textbf{Inexpensive Online Update} for $\Sigma_w$ and $\mu_w$.
 %Posterior covariance at time $N+1$:
 %%
 %\begin{equation*}
@@ -654,12 +629,6 @@ Otherwise, update the operator with $(x^*, y^*)$ where $y^* =\mathbb{E}_{r_{f
 \end{block}
 
 
-
-%==================================
-\column{0.22\textwidth}
-%==================================
-
-
 %--------------------------
 \begin{block}{Two-Staged Random Features }
 %--------------------------
@@ -669,14 +638,18 @@ Otherwise, update the operator with $(x^*, y^*)$ where $y^* =\mathbb{E}_{r_{f
 \begin{algorithmic}[1]
 \REQUIRE 
 %Joint $\mathsf{r}$ of incoming messages, 
-Fourier transform $\hat{k}$ of $k$, \#inner features $D_\mathrm{in}$, \#outer features $D_\mathrm{out}$
+$\mathscr{F}(k)$: Fourier transform of $k$, $D_\mathrm{in}$: \#inner features, 
+$D_\mathrm{out}$: \#outer features 
 %, outer Gaussian width $\gamma^2$.
 \ENSURE Random features $\hat{\psi}(\mathsf{r}) \in \mathbb{R}^{D_\mathrm{out}}$
 
 %\STATE Compute the Fourier transform $\hat{k}$ of the kernel $k$.
-\STATE Sample  $\{ \omega_i \}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} \hat{k}$.
-\STATE Sample $\{b_i\}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} \text{Uniform}[0, 2\pi] $.
-\STATE $\hat{\phi}(\mathsf{r}) = \sqrt{\frac{2}{D_\mathrm{in}}} \left( \mathbb{E}_{\mathsf{r(x)}} 
+\STATE Sample  $\{ \omega_i \}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} \mathscr{F}(k)$, 
+\hspace{10mm} $\{b_i\}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
+
+%\STATE Sample $\{b_i\}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
+\STATE $\hat{\phi}(\mathsf{r}) = \sqrt{\frac{2}{D_\mathrm{in}}} \left(
+\mathbb{E}_{\mathsf{x \sim \mathsf{r}}} 
 \cos(\omega_{i}^{\top}x+b_{i} ) \right)_{i=1}^{D_\mathrm{in}} \in \mathbb{R}^{D_\mathrm{in}}$ \\
 %\STATE  $\hat{\phi}(p)=\mathbb{E}_{p(x)}\sqrt{\frac{2}{D_\mathrm{in}}}\left(\cos\left(\omega_{1}^{\top}x+b_{1}\right),\ldots,\cos\left(\omega_{D_\mathrm{in}}^{\top}x+b_{D_\mathrm{in}}\right)\right)^{\top}$.
 %If $\mathsf{r}(x)=\mathcal{N}(x;m, \Sigma )$,  \\
@@ -691,9 +664,9 @@ Fourier transform $\hat{k}$ of $k$, \#inner features $D_\mathrm{in}$, \#outer fe
 %Even if $p$ is not a normal distribution, we may still use it as an approximation.
 %
 \STATE Sample $\{ \nu_i \}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim}
-\hat{k}_{\text{gauss}}(\gamma^{2})$
-i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
-\STATE Sample $\{c_i\}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} \text{Uniform}[0, 2\pi] $.
+\mathscr{F}({k}_{\text{gauss}}(\gamma^{2}))$, \hspace{10mm} 
+$\{c_i\}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
+%i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
 \STATE $\hat{\psi}(\mathsf{r}) = \sqrt{\frac{2}{D_\mathrm{out}}} \left(  
 \cos(\nu_{i}^{\top} \hat{\phi}(\mathsf{r}) + c_{i} ) \right)_{i=1}^{D_\mathrm{out}} \in 
 \mathbb{R}^{D_\mathrm{out}}$
@@ -702,13 +675,14 @@ i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
 
 \end{block}
 
+
 %--------------------------
 \begin{block}{ Experiment 1: Uncertainty Estimates}
 %--------------------------
 
 \begin{center}
 %\includegraphics[width=20cm]{binary_logistic_regression-crop}
-\includegraphics[width=20cm]{img/binlog_graph_title-crop}
+\includegraphics[width=21cm]{img/binlog_graph_title-crop}
 \end{center}
 
 \begin{itemize}
@@ -719,8 +693,8 @@ i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
     %$\msg{p_i}{\factor} = \text{Beta}(p_i; \alpha, \beta) $. 
     \begin{align*}
     f(z|x) &= \delta\left(z-\frac{1}{1+\exp(-x)}\right)  \\
-    \msg{z_i}{\factor} &= \mathcal{N}(z_i; \mu, \sigma^2), \hspace{10mm} 
-    \msg{p_i}{\factor} = \text{Beta}(p_i; \alpha, \beta). 
+    \msg{z_i}{\factor} &= \mathcal{N}(z_i; \mu, \sigma^2) \\
+    \msg{p_i}{\factor} &= \text{Beta}(p_i; \alpha, \beta). 
     \end{align*}
     \vspace{-10mm}
 
@@ -729,11 +703,13 @@ i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
 \begin{figure}[ht]
 \centering
   \subfloat[Parameters of $\msg{z_i}{\factor}$ \label{fig:logistic_uncertainty_test}]{
-  \includegraphics[width=11cm]{uncertainty/logistic_uncertainty_test-crop}
+  \includegraphics[width=14cm]{uncertainty/logistic_uncertainty_test-crop}
   }
+  \hspace{2cm}
   %
   \subfloat[Uncertainty estimates \label{fig:logistic_uncertainty_all}]{
-  \includegraphics[width=11cm]{uncertainty/logistic_uncertainty_all-crop}
+  \includegraphics[width=14cm]{uncertainty/logistic_uncertainty_all-crop}
+  \hspace{1.5cm}
   }
   %
   %\caption{   
@@ -771,6 +747,12 @@ i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
 \end{block}
 
 
+
+
+%==================================
+\column{0.38\textwidth} 
+%==================================
+
 %--------------------------
 \begin{block}{ Experiment 2: Classification Errors}
 %--------------------------
@@ -786,18 +768,18 @@ i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
 % }
 % \end{figure}
 
-    Sequentially present 30 problems. Fix true
-        $\boldsymbol{w}$. Generate $\{(x_i, y_i\}_{i=1}^{300}$ for each problem.
+    Fix true $\boldsymbol{w}$. Sequentially present 30 problems. Generate
+    $\{(x_i, y_i\}_{i=1}^{300}$ for each.  
         %
 \begin{figure}[ht]
     \vspace{5mm}
   \centering
   \subfloat[Test error \label{fig:logistic_01_loss}]{
-  \includegraphics[width=11cm]{online/logistic_01_loss-crop}
+  \includegraphics[width=14cm]{online/logistic_01_loss-crop}
   }
   \hspace{5mm}
   \subfloat[Inference time\label{fig:logistic_inference_time}]{
-  \includegraphics[width=11cm]{online/logistic_inference_time-crop}
+  \includegraphics[width=14cm]{online/logistic_inference_time-crop}
   }
   \label{fig:logistic_performance}
 \end{figure}
@@ -806,15 +788,11 @@ i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
 
 \end{block}
 
-%==================================
-\column{0.26\textwidth} 
-%==================================
-
 %--------------------------
 \begin{block}{ Experiment 3: Compound Gamma Factor }
 %--------------------------
 Infer posterior of the precision $\tau$ of $x \sim \mathcal{N}(x; 0, \tau)$ 
-from observations $\{x_i\}_{i=1}^N $ where 
+from observations $\{x_i\}_{i=1}^N $:
 %
 \noindent
 \begin{columns}[T]
@@ -842,17 +820,17 @@ from observations $\{x_i\}_{i=1}^N $ where
 % 	}
   %
   \subfloat[Inferred shape \label{fig:cg_infer_shape}]{
-  \includegraphics[width=9cm]{online/cg_post_shape-crop}
+  \includegraphics[width=11cm]{online/cg_post_shape-crop}
   %\missingfigure[figwidth=0.49\columnwidth]{}
   }
   %
   \subfloat[Inferred rate \label{fig:cg_infer_rate}]{
-  \includegraphics[width=9cm]{online/cg_post_rate-crop}
+  \includegraphics[width=11cm]{online/cg_post_rate-crop}
   %\missingfigure[figwidth=0.49\columnwidth]{}
   }
   %
   \subfloat[Inference time\label{fig:cg_infer_time}]{
-  \includegraphics[width=9cm]{online/cg_inference_time-crop}
+  \includegraphics[width=11cm]{online/cg_inference_time-crop}
   }
   %\caption{Shape (a) and rate (b) parameters of the inferred posteriors in 
   %the compound gamma problem. 
@@ -862,16 +840,16 @@ from observations $\{x_i\}_{i=1}^N $ where
 \end{figure}
 
 \vspace{5mm}
-Inference quality is as good as the hand-crafted factor while being orders of 
-magnitude faster.
+
+\textbf{Inference quality}: as good as hand-crafted factor, much faster.
 \end{block}
 
 %--------------------------
 \begin{block}{ Experiment 4: Real Data}
 %--------------------------
 \begin{itemize}
-    \item Binary logistic regression.  Four real datasets.     
-    \item Sequentially present the 4 problems to the operator.
+    \item Binary logistic regression.  Sequentially present 4 real datasets
+        to the operator.
     \item Diverse distributions of incoming messages.
 \end{itemize}
 
@@ -880,15 +858,15 @@ magnitude faster.
 \begin{figure}[ht]
   \centering
   \subfloat[Incoming messages]{
-      \includegraphics[width=0.45\columnwidth]{online/uci_in_msgs-crop}
+      \includegraphics[width=0.32\columnwidth]{online/uci_in_msgs-crop}
   }
-
+  %
   \subfloat[Test error\label{fig:uci_01_loss}]{
-  \includegraphics[width=0.41\columnwidth]{online/uci_classification-crop}
+  \includegraphics[width=0.31\columnwidth]{online/uci_classification-crop}
   }
   %
   \subfloat[Inference time\label{fig:uci_infer_time}]{
-  \includegraphics[width=0.41\columnwidth]{online/uci_infer_time-crop}
+  \includegraphics[width=0.31\columnwidth]{online/uci_infer_time-crop}
   }
   %\caption{Classification performance and inference times on the four UCI datasets.  }
   \label{fig:uci_performance}
@@ -912,30 +890,30 @@ magnitude faster.
 
 
 
-%--------------------------
-\begin{block}{References}
-%--------------------------
+%%--------------------------
+%\begin{block}{References}
+%%--------------------------
 
-{\footnotesize
-\begin{enumerate}
-\item \justifying{} { A. Rahimi and B. Recht. Random Features
-for Large-scale Kernel Machines. NIPS 2007.}
-\item A. Smola et al. A Hilbert Space Embedding for Distributions. ALT 2007.
-\item { A. N. Heess et al. Learning to Pass Expectation Propagation Messages.
-NIPS 2013. }
-%\item T. Minka et al. Infer.NET. \url{http://research.microsoft.com/infernet}. 2012
-\item S. M. A. Eslami et al. Just-In-Time Learning for Fast and Flexible Inference.
-    NIPS 2014.
-\item A. Christmann and I. Steinwart. Universal kernels on non-standard input
-    spaces. NIPS 2010.
-\end{enumerate}
-}
+%{\footnotesize
+%\begin{enumerate}
+%\item \justifying{} { A. Rahimi and B. Recht. Random Features
+%for Large-scale Kernel Machines. NIPS 2007.}
+%\item A. Smola et al. A Hilbert Space Embedding for Distributions. ALT 2007.
+%\item { A. N. Heess et al. Learning to Pass Expectation Propagation Messages.
+%NIPS 2013. }
+%%\item T. Minka et al. Infer.NET. \url{http://research.microsoft.com/infernet}. 2012
+%\item S. M. A. Eslami et al. Just-In-Time Learning for Fast and Flexible Inference.
+%    NIPS 2014.
+%\item A. Christmann and I. Steinwart. Universal kernels on non-standard input
+%    spaces. NIPS 2010.
+%\end{enumerate}
+%}
 
-% \bibliographystyle{unsrt}
-% \bibliography{/nfs/nhome/live/wittawat/Dropbox/gatsby/paper_submission/kernel_ep_workshop/ref}
+%% \bibliographystyle{unsrt}
+%% \bibliography{/nfs/nhome/live/wittawat/Dropbox/gatsby/paper_submission/kernel_ep_workshop/ref}
 
 
-\end{block}
+%\end{block}
 
 
 
