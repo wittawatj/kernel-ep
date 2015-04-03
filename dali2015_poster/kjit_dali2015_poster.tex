@@ -405,7 +405,7 @@ messages when it is uncertain.
 \begin{block}{Expectation Propagation (EP)}
 %--------------------------
 Under an approximation that each factor fully factorizes, an outgoing EP message $m_{f\rightarrow V}$ takes the form
-\vspace{5mm}
+\vspace{15mm}
 %% \begin{align*}
 %% \frac{\proj\left[\int d\mathcal{V}\backslash\{v\}\, f(\mathcal{V})\prod_{V'\in\mathcal{V}}m_{V'\rightarrow f}(v')\right]}{m_{V\rightarrow f}(v)}:=\frac{q_{f\rightarrow V}(v)}{m_{V\rightarrow f}(v)}
 %% \end{align*}
@@ -471,7 +471,6 @@ width=5cm]  at (23, 0) {incoming message from $V'$};
     \path[->, line width=3pt] (proj_msg_def) edge [bend left] (projected.north);
 \end{tikzpicture}
 
-\vspace*{-2cm}
 %% \begin{tikzpicture}[scale=1.5]
 %% \node at (0,0) {
 %% {\Large $  m_{f\rightarrow V}(v) = \frac{
@@ -499,6 +498,7 @@ width=5cm]  at (23, 0) {incoming message from $V'$};
 with sufficient statistic $u(v)$. The projected message $q_{f\rightarrow
 V}(v)=\proj\left[r_{f\rightarrow V}(v)\right]$
 satisfies 
+
 \[ \mathbb{E}_{q_{f\rightarrow V}}\left[u(v)\right]=\mathbb{E}_{r_{f\rightarrow
 V}}\left[u(v)\right] \text{(moment matching).} \]
 
@@ -526,7 +526,7 @@ V}}\left[u(v)\right] \text{(moment matching).} \]
 %
 \vspace{3mm}
 
-\textbf{Gaussian Kernel on Mean Embeddings [6]: }
+\textbf{Gaussian Kernel on Mean Embeddings [5]: }
 \begin{align*}
 \kappa(\mathsf{r}, \mathsf{s}) &= 
  \exp\left(-\frac{\|\mu_{\mathsf{r}}-\mu_{\mathsf{s}}\|_{\mathcal{H}}^{2}}{2\gamma^{2}}\right). 
@@ -880,14 +880,15 @@ magnitude faster.
 \begin{figure}[ht]
   \centering
   \subfloat[Incoming messages]{
-      \includegraphics[width=0.34\columnwidth]{online/uci_in_msgs-crop}
+      \includegraphics[width=0.45\columnwidth]{online/uci_in_msgs-crop}
   }
+
   \subfloat[Test error\label{fig:uci_01_loss}]{
-  \includegraphics[width=0.31\columnwidth]{online/uci_classification-crop}
+  \includegraphics[width=0.41\columnwidth]{online/uci_classification-crop}
   }
   %
   \subfloat[Inference time\label{fig:uci_infer_time}]{
-  \includegraphics[width=0.31\columnwidth]{online/uci_infer_time-crop}
+  \includegraphics[width=0.41\columnwidth]{online/uci_infer_time-crop}
   }
   %\caption{Classification performance and inference times on the four UCI datasets.  }
   \label{fig:uci_performance}
@@ -922,7 +923,7 @@ for Large-scale Kernel Machines. NIPS 2007.}
 \item A. Smola et al. A Hilbert Space Embedding for Distributions. ALT 2007.
 \item { A. N. Heess et al. Learning to Pass Expectation Propagation Messages.
 NIPS 2013. }
-\item T. Minka et al. Infer.NET. \url{http://research.microsoft.com/infernet}. 2012
+%\item T. Minka et al. Infer.NET. \url{http://research.microsoft.com/infernet}. 2012
 \item S. M. A. Eslami et al. Just-In-Time Learning for Fast and Flexible Inference.
     NIPS 2014.
 \item A. Christmann and I. Steinwart. Universal kernels on non-standard input
