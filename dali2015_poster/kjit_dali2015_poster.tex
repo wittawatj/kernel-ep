@@ -277,7 +277,7 @@ University of Oxford$^2$
   \end{beamercolorbox}%
   \begin{beamercolorbox}[wd=.5\paperwidth,ht=2.25ex,dp=1ex]{title in head/foot}%
     \usebeamerfont{title in head/foot} Email:
-    \texttt{wittawat@gatsby.ucl.ac.uk} \hspace*{2cm} Homepage:
+    \texttt{wittawat@gatsby.ucl.ac.uk} \hspace*{2cm} Code available at: 
     \texttt{wittawat.com}
   \end{beamercolorbox}}%
   \vskip0pt%
@@ -328,86 +328,41 @@ University of Oxford$^2$
 \column{0.31\textwidth}
 %==================================
 
-%%--------------------------
-%\begin{block}{Introduction }
-%%--------------------------
-
-%\justifying{}Two approaches to automated probabilistic inference
-%{[}3{]}:
-%\begin{enumerate}
-%\item \justifying{}\textbf{Uninformed}: 
-
-
-%\Vskip{}\Smile{} Free to use any factors to express a model.
-
-
-%\Vskip{}\Frown{} Typically rely on MCMC-based sampling techniques.
-%Slow.
-
-%\item \textbf{Informed}: 
-
-
-%\Vskip{}\Smile{} Models built from handcrafted factors known to the
-%inference engine e.g., Infer.NET {[}4{]}. Efficient inference. 
-
-
-%\Vskip{}\Frown{} Use of unsupported factors requires manual derivation
-%of message updates. 
-
-%\end{enumerate}
-%\end{block}
-
 %--------------------------
-\begin{block}{Contribution }
+\begin{block}{Introduction }
 %--------------------------
-
-Propose to incrementally learn during inference a kernel-based EP message operator 
-(distribution-to-distribution regression)
+EP is a widely used message passing based inference algorithm. 
+\begin{itemize}
+    \item \textbf{Problem}: Expensive to compute outgoing from incoming messages.
+    \item \textbf{Goal}: Speed up computation by a cheap regression function
+        (message operator): 
+    \begin{equation*}
+        \text{incoming messages} \mapsto \text{outgoing message}.
+    \end{equation*}
+\end{itemize}
 %
-\begin{equation*}
-    \left[ m_{V'\rightarrow f}  \right]_{V' \in \mathrm{ne}(f)} \mapsto q_{f \rightarrow V}
-\end{equation*}
-%
-for any factor $f$ that can be sampled. 
-%Outgoing message 
-%$m_{f \rightarrow V} := q_{f \rightarrow V} / m_{V \rightarrow f}$ can be computed easily.
-
-%Bridge the gap between the two approaches. 
-
-%\Vskip{}\Smile{} No constraint on the set of usable factors.
-
-%\Vskip{}\Smile{} Message updates automatically learned online (just in time).
-
-%\Vskip{}\Smile{} Novel two-layer random feature representation of input
-%messages for fast message updates.
-
-%\Vskip{}\Smile{} The operator can ask the oracle and incorporate new input
-%messages when it is uncertain.
-
-\vspace*{3mm}
+\vspace*{-8mm}
 \textbf{Merits}:
 \begin{itemize}
-%\item No constraint on the set of usable factors.
-
-\item  Efficient message updates: 
-    \begin{itemize}
-        \item Learned online (just in time).
-        \item Two-layer random kitchen sinks 
-    \end{itemize}
-
-\item Operator: uncertainty aware
-
+    \item Efficient online update of the operator during inference.
+    \item Uncertainty monitored to invoke new training examples when needed. 
+    \item Automatic random feature representation of incoming messages.
 %    The operator can ask the oracle and incorporate new input
 %messages when it is uncertain.
 \end{itemize}
+
 
 \end{block}
 
 %--------------------------
 \begin{block}{Expectation Propagation (EP)}
 %--------------------------
-Under an approximation that each factor fully factorizes, an outgoing EP message $m_{f\rightarrow V}$ takes the form
-\vspace{15mm}
+%\definecolor{mygreen}{RGB}{0,100,0}
+    \colorlet{mygreen}{green!52!black}
+
+Under an approximation that each factor fully factorizes, an outgoing EP
+message $\textcolor{mygreen}{m_{f\rightarrow V_i}}$ takes the form
+\vspace{5mm}
 %% \begin{align*}
 %% \frac{\proj\left[\int d\mathcal{V}\backslash\{v\}\, f(\mathcal{V})\prod_{V'\in\mathcal{V}}m_{V'\rightarrow f}(v')\right]}{m_{V\rightarrow f}(v)}:=\frac{q_{f\rightarrow V}(v)}{m_{V\rightarrow f}(v)}
 %% \end{align*}
@@ -419,46 +374,48 @@ Under an approximation that each factor fully factorizes, an outgoing EP message
 \begin{tikzpicture}[scale=1]
 \draw[help lines, white] (0, -1) grid (25, 2); 
 %\draw[very thick, <->] (1,0) to (0,0) to (0,1); 
-\node (v_def) [right, fill=orange!20, inner sep=10pt, align=center, text
-width=9cm] at (3, 0) {set of $c$ variables connected to $f$};
+\node (v_def) [right, fill=red!10, inner sep=10pt, align=center, text
+width=9cm] at (6, 0) {set of $c$ variables connected to $f$};
 \node (proj_msg_def) [right, fill=green!20, ellipse, inner sep=1pt,
-align=center, text width=5cm] at (18, 0) {projected message};
+align=center, text width=5cm] at (23, 0) {projected message};
 \end{tikzpicture}
 
 \begin{align*}
-  m_{f\rightarrow V}(v) = 
+    \textcolor{mygreen}{m_{f\rightarrow V_i}(v_i)} = 
   \frac{
 	  \tikz[baseline]{
 	  \node[fill=blue!7,anchor=base] (proj){ $\proj$ };
   }
-  \left[\int d\mathcal{V}\backslash\{v\}\, f(
+  \left[\int d\mathcal{V}\backslash\{v_i\}\, f(
 	  \tikz[baseline]{
-		  \node[fill=orange!20,anchor=base, inner sep=3pt] (v_set){$\mathcal{V}$};
+		  \node[fill=red!10,anchor=base, inner sep=3pt] (v_set){$\mathcal{V}$};
 	  }
-  )\prod_{V'\in\mathcal{V}} 
+  )\prod_{j=1}^c 
+    \setbeamercolor{math text}{fg=red}
 	  \tikz[baseline]{
-		  \node[fill=red!20!white,anchor=base] (inc) 
-		  {$m_{V'\rightarrow f}(v')$}; % end numerator
+		  \node[fill=orange!10!white, anchor=base] (inc) 
+          {\textcolor{red}{$m_{V_j \rightarrow f}(v_j)$}} ; % end numerator
 	  }
-  \right]}{m_{V\rightarrow f}(v)} := 
+    \setbeamercolor{math text}{fg=mathcolor}
+  \right]}{m_{V_i\rightarrow f}(v_i)} := 
   \frac{	
   \tikz[baseline]{
 	  \node[fill=green!20,anchor=base] (projected)
-	  { $q_{f\rightarrow V}(v)$ };
+	  { $q_{f\rightarrow V_i}(v_i)$ };
   }
-  }{m_{V\rightarrow f}(v)}  
+  }{m_{V_i \rightarrow f}(v_i)}  
 \end{align*}
 
 \begin{tikzpicture}[scale=1]
 \draw[help lines, white] (0, -1) grid (25, 2);
 %\draw[very thick, <->] (1,0) to (0,0) to (0,1); 
 \node (projdef) [right, fill=blue!7, rectangle, inner sep=12pt, align=center,
-text width=20cm]  at (0.5, 0) {$\proj[r_{f \rightarrow
-V}]:=\arg\min_{q\in\text{ExpFam}}\text{KL}\left[r_{f \rightarrow V}\,\|\,
+text width=21cm]  at (0.5, 0) {$\proj[r_{f \rightarrow
+V_i}]:=\arg\min_{q\in\text{ExpFam}}\text{KL}\left[r_{f \rightarrow V_i}\,\|\,
 q\right]$ (projection onto exponential family)}; 
 %
-\node (incdef) [right, fill=red!20, ellipse, inner sep=1pt, align=center, text
-width=5cm]  at (23, 0) {incoming message from $V'$}; 
+\node (incdef) [right, fill=orange!10, ellipse, inner sep=1pt, align=center, text
+width=5cm]  at (25, 0) {incoming message from $V_j$}; 
 \end{tikzpicture}
 
 
@@ -501,10 +458,10 @@ width=5cm]  at (23, 0) {incoming message from $V'$};
 
 \begin{itemize}
     \item $q_{f\rightarrow V}(v)=\proj\left[r_{f\rightarrow V}(v)\right] \in
-        \text{ExpFam}$ with sufficient statistic $u(v)$
+        \text{ExpFam}$ with sufficient statistic $u(v)$.
 
     \item Moment matching: $\mathbb{E}_{q_{f\rightarrow
-        V}}\left[u(v)\right]=\mathbb{E}_{r_{f\rightarrow V}}\left[u(v)\right] $
+        V}}\left[u(v)\right]=\mathbb{E}_{r_{f\rightarrow V}}\left[u(v)\right] $.
 \end{itemize}
 
 %Let $q_{f\rightarrow V}(v)\in\text{ExpFam}$
@@ -521,15 +478,31 @@ width=5cm]  at (23, 0) {incoming message from $V'$};
 \begin{block}{Kernel on Incoming Messages}
 %--------------------------
 
+Propose to incrementally learn during inference a kernel-based EP message operator 
+(distribution-to-distribution regression) 
+%
+\begin{equation*}
+    \left[ m_{V_j \rightarrow f}  \right]_{j=1}^c \mapsto q_{f \rightarrow V_i},
+\end{equation*}
+%
+for any factor $f$ that can be sampled. 
+
+\end{block}
+
+%==================================
+\column{0.31\textwidth}
+%==================================
+
+
 \begin{itemize}
-    \item Joint distribution from $c$ incoming messages: 
+    \item Product distribution of $c$ incoming messages: 
         $\mathsf{r}:=\times_{l=1}^c r_{l}$, \hspace{5mm}
-        $\mathsf{s}:=\times_{l=1}^c s_{l}$     
+        $\mathsf{s}:=\times_{l=1}^c s_{l}$.     
     
     \item Mean embedding of $\mathsf{r}$:
-        $\mu_{\mathsf{r}}:=\mathbb{E}_{a \sim \mathsf{r}}k(\cdot,a)$ 
+        $\mu_{\mathsf{r}}:=\mathbb{E}_{a \sim \mathsf{r}}k(\cdot,a)$.
 
-    \item Gaussian Kernel: 
+    \item Gaussian kernel on (product) distributions: 
         \begin{align*}
             \kappa(\mathsf{r}, \mathsf{s}) &= 
             \exp\left(-\frac{\|\mu_{\mathsf{r}}-\mu_{\mathsf{s}}\|_{\mathcal{H}}^{2}}{2\gamma^{2}}\right). 
@@ -540,6 +513,15 @@ width=5cm]  at (23, 0) {incoming message from $V'$};
 %  -\frac{1}{2\gamma^{2}}\left\langle
 %  \mu_{\mathsf{s}},\mu_{\mathsf{s}}\right\rangle \right).
         \end{align*}
+
+Two-staged random feature approximation:
+\begin{equation*}
+    \kappa(\mathsf{r},
+    \mathsf{s})\approx\exp\left(-\frac{
+        \|\hat{\phi}(\mathsf{r})-\hat{\phi}(\mathsf{s})\|_{D_\mathrm{in}}^{2}}{2\gamma^{2}}\right)
+        \approx
+        \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s}).
+    \end{equation*}
 
 \end{itemize}
 %
@@ -555,20 +537,6 @@ width=5cm]  at (23, 0) {incoming message from $V'$};
 %  %
 %\end{align*}
 %
-\end{block}
-%==================================
-\column{0.295\textwidth}
-%==================================
-
-Two-Staged Random Feature Approximations
-\begin{equation*}
-    \kappa(\mathsf{r},
-    \mathsf{s})\approx\exp\left(-\frac{
-        \|\hat{\phi}(\mathsf{r})-\hat{\phi}(\mathsf{s})\|_{D_\mathrm{in}}^{2}}{2\gamma^{2}}\right)
-        \approx
-        \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s}).
-    \end{equation*}
-
 %--------------------------
 \begin{block}{Message Operator: Bayesian Linear Regression }
 %--------------------------
@@ -577,11 +545,12 @@ Two-Staged Random Feature Approximations
     \item \textbf{Input:} $\mathsf{X}=\left(\mathsf{x}_{1}|\cdots|\mathsf{x}_{N}\right)$: 
         $N$ training incoming messages represented as random feature vectors.
     \item \textbf{Output:} $\mathsf{Y}=\left(\mathbb{E}_{r_{\factor\rightarrow
-        \outV}^{1}}u(x_{\outV})|\cdots|\mathbb{E}_{r_{f\rightarrow
-        \outV}^{N}}u(x_{\outV})\right)\in\mathbb{R}^{D_{y}\times N}$: 
+        \outV}^{1}}u(v)|\cdots|\mathbb{E}_{r_{f\rightarrow
+        \outV}^{N}}u(v)\right)\in\mathbb{R}^{D_{y}\times N}$: 
         sufficient statistics of outgoing messages.
-    \item Inexpensive online update
-    \item Uncertainty estimate: predictive variance
+    \item Inexpensive online update.
+    \item Bayesian regression gives prediction and predictive variance.
+    \item If predictive variance $<$ threshold, query importance sampling oracle.
 \end{itemize}
 
 %
@@ -637,15 +606,19 @@ Two-Staged Random Feature Approximations
 \REQUIRE 
 %Joint $\mathsf{r}$ of incoming messages, 
 $\mathscr{F}(k)$: Fourier transform of $k$, $D_\mathrm{in}$: \#inner features, 
-$D_\mathrm{out}$: \#outer features 
+$D_\mathrm{out}$: \#outer features, $k_\text{gauss}$: Gaussian kernel on
+$\mathbb{R}^{D_\mathrm{in}}$
 %, outer Gaussian width $\gamma^2$.
 \ENSURE Random features $\hat{\psi}(\mathsf{r}) \in \mathbb{R}^{D_\mathrm{out}}$
 
 %\STATE Compute the Fourier transform $\hat{k}$ of the kernel $k$.
-\STATE Sample  $\{ \omega_i \}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} \mathscr{F}(k)$
+\STATE Sample  $\{ \omega_i \}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} \mathscr{F}(k)$,
+\hspace{2cm}
+$\{b_i\}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
+
 %\hspace{10mm} $\{b_i\}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
 
-\STATE Sample $\{b_i\}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
+%\STATE Sample $\{b_i\}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
 
 \STATE $\hat{\phi}(\mathsf{r}) = \sqrt{\frac{2}{D_\mathrm{in}}} \left(
 \mathbb{E}_{\mathsf{x \sim \mathsf{r}}} 
@@ -663,9 +636,11 @@ $D_\mathrm{out}$: \#outer features
 %Even if $p$ is not a normal distribution, we may still use it as an approximation.
 %
 \STATE Sample $\{ \nu_i \}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim}
-\mathscr{F}({k}_{\text{gauss}}(\gamma^{2}))$ 
+\mathscr{F}({k}_{\text{gauss}}(\gamma^{2}))$, \hspace{2cm}
+$\{c_i\}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
+
 %\hspace{10mm} 
-\STATE Sample $\{c_i\}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
+%\STATE Sample $\{c_i\}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
 
 %i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
 \STATE $\hat{\psi}(\mathsf{r}) = \sqrt{\frac{2}{D_\mathrm{out}}} \left(  
@@ -683,33 +658,32 @@ $D_\mathrm{out}$: \#outer features
 
 \begin{center}
 %\includegraphics[width=20cm]{binary_logistic_regression-crop}
-\includegraphics[width=21cm]{img/binlog_graph_title-crop}
+\includegraphics[width=19cm]{img/binlog_graph_title-crop}
 \end{center}
 
 \begin{itemize}
 
-\item Approximate the logistic factor $f$: 
-    %$f(z|x)=\delta\left(z-\frac{1}{1+\exp(-x)}\right)$.  Two incoming messages:
-    %$\msg{z_i}{\factor} = \mathcal{N}(z_i; \mu, \sigma^2)$ and 
-    %$\msg{p_i}{\factor} = \text{Beta}(p_i; \alpha, \beta) $. 
-    \begin{align*}
-    f(z|x) &= \delta\left(z-\frac{1}{1+\exp(-x)}\right)  \\
-    \msg{z_i}{\factor} &= \mathcal{N}(z_i; \mu, \sigma^2) \\
-    \msg{p_i}{\factor} &= \text{Beta}(p_i; \alpha, \beta). 
-    \end{align*}
-    \vspace{-10mm}
-
+\item Approximate the logistic factor: 
+    $f(z|x) = \delta\left(z-\frac{1}{1+\exp(-x)}\right)$. 
+    %\begin{align*}
+    %\msg{z_i}{\factor} &= \mathcal{N}(z_i; \mu, \sigma^2), \hspace{2cm}
+    %\msg{p_i}{\factor} = \text{Beta}(p_i; \alpha, \beta). 
+    %\end{align*}
+    %\vspace{-10mm}
+\item Incoming messages: 
+    $\msg{z_i}{\factor} = \mathcal{N}(z_i; \mu, \sigma^2), \hspace{2cm}
+    \msg{p_i}{\factor} = \text{Beta}(p_i; \alpha, \beta). $
 \item Training set = messages collected from 20 EP runs on toy data.
 
 \begin{figure}[ht]
 \centering
   \subfloat[Parameters of $\msg{z_i}{\factor}$ \label{fig:logistic_uncertainty_test}]{
-  \includegraphics[width=13cm]{uncertainty/logistic_uncertainty_test-crop}
+  \includegraphics[width=12cm]{uncertainty/logistic_uncertainty_test-crop}
   }
   \hspace{2cm}
   %
   \subfloat[Uncertainty estimates \label{fig:logistic_uncertainty_all}]{
-      \includegraphics[width=13cm]{uncertainty/logistic_uncertainty_all-crop}
+      \includegraphics[width=12cm]{uncertainty/logistic_uncertainty_all-crop}
   \hspace{1.5cm}
   }
   %
@@ -748,7 +722,7 @@ $D_\mathrm{out}$: \#outer features
 \end{block}
 
 %==================================
-\column{0.375\textwidth } 
+\column{0.37\textwidth } 
 %\column{\dimexpr\paperwidth-10pt}
 %==================================
 
@@ -768,7 +742,7 @@ $D_\mathrm{out}$: \#outer features
 % \end{figure}
 
     Fix true $\boldsymbol{w}$. Sequentially present 30 problems. Generate
-    $\{(x_i, y_i\}_{i=1}^{300}$ for each.  
+    $\{(x_i, y_i)\}_{i=1}^{300}$ for each.  
         %
 \begin{figure}[ht]
     \vspace{5mm}
@@ -783,7 +757,7 @@ $D_\mathrm{out}$: \#outer features
   \label{fig:logistic_performance}
 \end{figure}
 
-\textbf{Sampling + KJIT} = KJIT with an importance sampling oracle.
+\textbf{Sampling + KJIT} = proposed KJIT with an importance sampling oracle.
 
 \end{block}
 
@@ -823,13 +797,13 @@ from observations $\{x_i\}_{i=1}^N $:
   %\missingfigure[figwidth=0.49\columnwidth]{}
   }
   %
-  \hspace{1.5cm}
+  \hspace{1.8cm}
   \subfloat[Inferred rate \label{fig:cg_infer_rate}]{
   \includegraphics[width=10.5cm]{online/cg_post_rate-crop}
   %\missingfigure[figwidth=0.49\columnwidth]{}
   }
   %
-  \hspace{1.5cm}
+  \hspace{1.8cm}
   \subfloat[Inference time\label{fig:cg_infer_time}]{
   \includegraphics[width=11.2cm]{online/cg_inference_time-crop}
   }
@@ -842,7 +816,7 @@ from observations $\{x_i\}_{i=1}^N $:
 
 \vspace{5mm}
 
-\textbf{Inference quality}: as good as hand-crafted factor, much faster.
+\textbf{Inference quality}: as good as hand-crafted factor; much faster.
 \end{block}
 
 %--------------------------
@@ -876,7 +850,7 @@ from observations $\{x_i\}_{i=1}^N $:
 \end{figure}
 
 \begin{itemize}
-    \item KJIT factor can adapt to the change of input message distributions.
+    \item KJIT operator can adapt to the change of input message distributions.
 \end{itemize}
 
 % UCI datasets. temporal uncertainty.
