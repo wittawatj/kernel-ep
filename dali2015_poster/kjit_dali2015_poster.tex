@@ -175,15 +175,11 @@
 % \setbeamertemplate{background canvas}{%
 %   \includegraphics[width=\paperwidth]{imagename}}
 
-\setbeamersize{text margin left=9cm,text margin right=-2cm}
+\setbeamersize{text margin left=7cm,text margin right=0cm}
 % \newlength\blockcolsep
 % \setlength\blockcolsep{2ex}
 % \newlength\postercolumnsep
 % \setlength\postercolumnsep{2cm}
-
-
-\newlength\totalwidth
-\setlength\totalwidth{\textwidth+3ex}
 
 
 \newcommand{\bx}{\mathbf{x}}				% all variables
@@ -280,7 +276,9 @@ University of Oxford$^2$
     \usebeamerfont{author in head/foot} \hspace{0.5cm} We gratefully acknowledge the support of the Gatsby Charitable Foundation.
   \end{beamercolorbox}%
   \begin{beamercolorbox}[wd=.5\paperwidth,ht=2.25ex,dp=1ex]{title in head/foot}%
-    \usebeamerfont{title in head/foot} Email: \texttt{wittawat@gatsby.ucl.ac.uk} \hspace*{2cm} Homepage: \texttt{wittawat.com}
+    \usebeamerfont{title in head/foot} Email:
+    \texttt{wittawat@gatsby.ucl.ac.uk} \hspace*{2cm} Homepage:
+    \texttt{wittawat.com}
   \end{beamercolorbox}}%
   \vskip0pt%
 }
@@ -320,6 +318,7 @@ University of Oxford$^2$
 \newcommand{\Frown}{ {\large \textcolor{red}{\xmark}} }
 
 \newcommand{\Vskip}{\vspace{5mm}}
+
 \begin{frame}
 
 
@@ -558,7 +557,7 @@ width=5cm]  at (23, 0) {incoming message from $V'$};
 %
 \end{block}
 %==================================
-\column{0.3\textwidth}
+\column{0.295\textwidth}
 %==================================
 
 Two-Staged Random Feature Approximations
@@ -571,9 +570,8 @@ Two-Staged Random Feature Approximations
     \end{equation*}
 
 %--------------------------
-\begin{block}{Message Operator }
+\begin{block}{Message Operator: Bayesian Linear Regression }
 %--------------------------
-Bayesian linear regression:
 
 \begin{itemize}
     \item \textbf{Input:} $\mathsf{X}=\left(\mathsf{x}_{1}|\cdots|\mathsf{x}_{N}\right)$: 
@@ -644,10 +642,11 @@ $D_\mathrm{out}$: \#outer features
 \ENSURE Random features $\hat{\psi}(\mathsf{r}) \in \mathbb{R}^{D_\mathrm{out}}$
 
 %\STATE Compute the Fourier transform $\hat{k}$ of the kernel $k$.
-\STATE Sample  $\{ \omega_i \}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} \mathscr{F}(k)$, 
-\hspace{10mm} $\{b_i\}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
+\STATE Sample  $\{ \omega_i \}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} \mathscr{F}(k)$
+%\hspace{10mm} $\{b_i\}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
 
-%\STATE Sample $\{b_i\}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
+\STATE Sample $\{b_i\}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
+
 \STATE $\hat{\phi}(\mathsf{r}) = \sqrt{\frac{2}{D_\mathrm{in}}} \left(
 \mathbb{E}_{\mathsf{x \sim \mathsf{r}}} 
 \cos(\omega_{i}^{\top}x+b_{i} ) \right)_{i=1}^{D_\mathrm{in}} \in \mathbb{R}^{D_\mathrm{in}}$ \\
@@ -664,8 +663,10 @@ $D_\mathrm{out}$: \#outer features
 %Even if $p$ is not a normal distribution, we may still use it as an approximation.
 %
 \STATE Sample $\{ \nu_i \}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim}
-\mathscr{F}({k}_{\text{gauss}}(\gamma^{2}))$, \hspace{10mm} 
-$\{c_i\}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
+\mathscr{F}({k}_{\text{gauss}}(\gamma^{2}))$ 
+%\hspace{10mm} 
+\STATE Sample $\{c_i\}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
+
 %i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
 \STATE $\hat{\psi}(\mathsf{r}) = \sqrt{\frac{2}{D_\mathrm{out}}} \left(  
 \cos(\nu_{i}^{\top} \hat{\phi}(\mathsf{r}) + c_{i} ) \right)_{i=1}^{D_\mathrm{out}} \in 
@@ -703,12 +704,12 @@ $\{c_i\}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
 \begin{figure}[ht]
 \centering
   \subfloat[Parameters of $\msg{z_i}{\factor}$ \label{fig:logistic_uncertainty_test}]{
-  \includegraphics[width=14cm]{uncertainty/logistic_uncertainty_test-crop}
+  \includegraphics[width=13cm]{uncertainty/logistic_uncertainty_test-crop}
   }
   \hspace{2cm}
   %
   \subfloat[Uncertainty estimates \label{fig:logistic_uncertainty_all}]{
-  \includegraphics[width=14cm]{uncertainty/logistic_uncertainty_all-crop}
+      \includegraphics[width=13cm]{uncertainty/logistic_uncertainty_all-crop}
   \hspace{1.5cm}
   }
   %
@@ -746,11 +747,9 @@ $\{c_i\}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
 
 \end{block}
 
-
-
-
 %==================================
-\column{0.38\textwidth} 
+\column{0.375\textwidth } 
+%\column{\dimexpr\paperwidth-10pt}
 %==================================
 
 %--------------------------
@@ -777,7 +776,7 @@ $\{c_i\}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
   \subfloat[Test error \label{fig:logistic_01_loss}]{
   \includegraphics[width=14cm]{online/logistic_01_loss-crop}
   }
-  \hspace{5mm}
+  \hspace{3cm}
   \subfloat[Inference time\label{fig:logistic_inference_time}]{
   \includegraphics[width=14cm]{online/logistic_inference_time-crop}
   }
@@ -824,13 +823,15 @@ from observations $\{x_i\}_{i=1}^N $:
   %\missingfigure[figwidth=0.49\columnwidth]{}
   }
   %
+  \hspace{1.5cm}
   \subfloat[Inferred rate \label{fig:cg_infer_rate}]{
-  \includegraphics[width=11cm]{online/cg_post_rate-crop}
+  \includegraphics[width=10.5cm]{online/cg_post_rate-crop}
   %\missingfigure[figwidth=0.49\columnwidth]{}
   }
   %
+  \hspace{1.5cm}
   \subfloat[Inference time\label{fig:cg_infer_time}]{
-  \includegraphics[width=11cm]{online/cg_inference_time-crop}
+  \includegraphics[width=11.2cm]{online/cg_inference_time-crop}
   }
   %\caption{Shape (a) and rate (b) parameters of the inferred posteriors in 
   %the compound gamma problem. 
@@ -861,10 +862,12 @@ from observations $\{x_i\}_{i=1}^N $:
       \includegraphics[width=0.32\columnwidth]{online/uci_in_msgs-crop}
   }
   %
+  \hspace{5mm}
   \subfloat[Test error\label{fig:uci_01_loss}]{
   \includegraphics[width=0.31\columnwidth]{online/uci_classification-crop}
   }
   %
+  \hspace{5mm}
   \subfloat[Inference time\label{fig:uci_infer_time}]{
   \includegraphics[width=0.31\columnwidth]{online/uci_infer_time-crop}
   }
@@ -920,6 +923,7 @@ from observations $\{x_i\}_{i=1}^N $:
 \end{columns}
 
 \end{frame}
+
 
 \end{document}
 
