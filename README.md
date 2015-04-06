@@ -8,30 +8,30 @@ divergence between the tilted distribution and the approximate posterior. Such
 operator allows one to bypass the computation of the integral by directly
 mapping all incoming messages into an outgoing message. Learning of such an
 operator is done online during EP.  The operator is termed **KJIT** for
-Kernel-based Just-In-Time learning to pass EP messages.
+**K**ernel-based **J**ust-**I**n-**T**ime learning for passing EP messages.
 
-More technical details can be found on [this
-page](http://wittawat.com/pages/kernel_ep.html) or in the following paper.
+Short technical description can be found on [this
+page](http://wittawat.com/pages/kernel_ep.html). Full details are in our 
+[paper](http://arxiv.org/abs/1503.02551).
 
-    Wittawat Jitkrittum, Arthur Gretton, Nicolas Heess, S. M. Ali Eslami, Balaji Lakshminarayanan, Dino Sejdinovic, and Zoltán Szabó
-    Kernel-Based Just-In-Time Learning for Passing Expectation Propagation Messages
-    [arXiv:1503.02551](http://arxiv.org/abs/1503.02551), 2015
+    Wittawat Jitkrittum, Arthur Gretton, Nicolas Heess, 
+    S. M. Ali Eslami, Balaji Lakshminarayanan, Dino Sejdinovic, and Zoltán Szabó
+    "Kernel-Based Just-In-Time Learning for Passing Expectation Propagation Messages"
+    arXiv:1503.02551, 2015
 
 
 This project extends 
 
     Heess, Nicolas, Daniel Tarlow, and John Winn. 
     “Learning to Pass Expectation Propagation Messages.” 
-    In Advances in Neural Information Processing Systems 26, 
-    edited by C. j c Burges, L. Bottou, M. Welling, Z. Ghahramani, and K. q Weinberger, 
-    3219–27, 2013. 
+    NIPS, 2013.
     http://media.nips.cc/nipsbooks/nipspapers/paper_files/nips26/1493.pdf.
 
 and 
 
     Eslami, S. M. A.; Tarlow, D.; Kohli, P. & Winn, 
     "Just-In-Time Learning for Fast and Flexible Inference." 
-    In Advances in Neural Information Processing Systems 27, 2014, 154-162
+    NIPS, 2014.
     http://papers.nips.cc/paper/5595-just-in-time-learning-for-fast-and-flexible-inference.pdf
 
 
@@ -40,33 +40,34 @@ KJIT software is under MIT license.
 
 The KJIT software relies on
 [Infer.NET](http://research.microsoft.com/en-us/um/cambridge/projects/infernet/download.aspx)
-which is not included in our software. Even though the license of KJIT software
-is permissive, Infer.NET is not. Please refer to [its
+(freely available for non-commercial use) which is not included in our software. Even
+though the license of KJIT software is permissive, Infer.NET is not. Please
+refer to [its
 license](http://research.microsoft.com/en-us/downloads/710cd61f-3587-44f4-b12d-a2c75722c4f6/InferNetLicense.rtf)
 for details.
 
 ## Repository structure 
-The repository contains mainly three components of interest.
+The repository contains a number of components.
 
-* Poster and paper source files are in the top most folders i.e., `dali2015_poster` 
+1. **Poster and paper source files** are in the topmost folders i.e., `dali2015_poster` 
 and `uai2015`.
-* Matlab code for experimenting in a batch learning setting. Experiments on new
+2. **Matlab code** for experimenting in a batch learning setting. Experiments on new
   kernels, factors, random features, message operators are all done in Matlab
-in the first stage. Once the methods are developed, they are reimplemented
-in C# to be operable in Infer.NET framework. All Matlab code is in the `code`
-folder.
-* Actual message operators implemented in Infer.NET framework in C#. 
-The code for this part is in `code/KernelEP.NET` which contains a C# project 
-developed with [Monodevelop](http://www.monodevelop.com/) on Ubuntu 14.04. 
-You should be able to use Visual studio in Windows to open the project file if
-it is more preferable.
+in the first stage. Once the methods are developed, they are reimplemented in
+C# to be operable in Infer.NET framework. EP inference is implemented in C#
+using Infer.NET, not in Matlab. All Matlab code is in the `code` folder.
+3. **C# code** for message operators in Infer.NET framework. The code for this
+   part is in `code/KernelEP.NET` which contains a C# project developed with
+[Monodevelop](http://www.monodevelop.com/) (free cross-platform IDE) on Ubuntu
+14.04.  You should be able to use Visual studio in Windows to open the project
+file if it is more preferable.
 
-All the code is expected to be cross-platform.
+All the code is written in Matlab and C# and expected to be cross-platform.
 
 
-## Include Infer.NET
+## Include Infer.NET 
 The Matlab part of this project does not depend on the Infer.NET package. 
-However, to use our KJIT message operator in Infer.NET framework, you have to
+However, to use our KJIT message operator in the Infer.NET framework, you have to
 include Infer.NET package by taking the following steps.
 
 1. Download Infer.NET package from its [Microsoft research
@@ -80,7 +81,7 @@ not compile due to the missing dependency.
 3. Try to build the project. There should be no errors.
 
 
-## Useful components
+## Useful submodules
 
 In the development of the code for learning an EP message operator, some commonly 
 used functions are reimplemented to better suit the need of this project. 
@@ -106,4 +107,5 @@ and `DefaultDynamicMatrix`.
 I am well aware that code without any documentation is not useful. 
 I will gradually put up documents for the code in Wiki of this github repository.
 Please feel free to contact me regarding code usage.
+
 
