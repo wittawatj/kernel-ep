@@ -41,7 +41,7 @@ KJIT software is under MIT license.
 The KJIT software relies on
 [Infer.NET](http://research.microsoft.com/en-us/um/cambridge/projects/infernet/download.aspx)
 (freely available for non-commercial use) which is not included in our software. Even
-though the license of KJIT software is permissive, Infer.NET is not. Please
+though the license of KJIT software is permissive, Infer.NET's license is not. Please
 refer to [its
 license](http://research.microsoft.com/en-us/downloads/710cd61f-3587-44f4-b12d-a2c75722c4f6/InferNetLicense.rtf)
 for details.
