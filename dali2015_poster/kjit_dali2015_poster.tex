@@ -255,9 +255,9 @@
 %%%%%%%%%%%%%%
 \title{Kernel-Based Just-In-Time Learning for Passing Expectation Propagation
     Messages \vspace{5mm} }
-\author{Wittawat Jitkrittum$^1$, \, Arthur Gretton$^1$, \, Nicolas Heess, \, S. M. Ali Eslami \\
+\author{Wittawat Jitkrittum$^1$, \, Arthur Gretton$^1$, \, Nicolas Heess, \, S. M. Ali Eslami, \, 
 Balaji Lakshminarayanan$^1$, \, Dino Sejdinovic$^2$, and \, Zolt{\'a}n Szab{\'o}$^1$  
-\vspace*{2mm} 
+\vspace*{3mm} 
 }
 \institute{%
 Gatsby Computational Neuroscience Unit, University College London$^1$ 
@@ -517,9 +517,9 @@ for any factor $f$ that can be sampled.
 Two-staged random feature approximation:
 \begin{equation*}
     \kappa(\mathsf{r},
-    \mathsf{s})\approx\exp\left(-\frac{
+    \mathsf{s}) \stackrel{1^{st}}{\approx}\exp\left(-\frac{
         \|\hat{\phi}(\mathsf{r})-\hat{\phi}(\mathsf{s})\|_{D_\mathrm{in}}^{2}}{2\gamma^{2}}\right)
-        \approx
+        \stackrel{2^{nd}}{\approx}
         \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s}).
     \end{equation*}
 
@@ -748,11 +748,11 @@ $\{c_i\}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
     \vspace{5mm}
   \centering
   \subfloat[Test error \label{fig:logistic_01_loss}]{
-  \includegraphics[width=14cm]{online/logistic_01_loss-crop}
+  \includegraphics[width=13cm]{online/logistic_01_loss-crop}
   }
   \hspace{3cm}
   \subfloat[Inference time\label{fig:logistic_inference_time}]{
-  \includegraphics[width=14cm]{online/logistic_inference_time-crop}
+  \includegraphics[width=13cm]{online/logistic_inference_time-crop}
   }
   \label{fig:logistic_performance}
 \end{figure}
@@ -783,7 +783,7 @@ from observations $\{x_i\}_{i=1}^N $:
    \includegraphics[width=11cm]{img/compound_gamma_graph-crop}
    \end{column}
 \end{columns}
-
+%
 % compound gamma inferred results and time.
 \begin{figure}[ht]
   \centering
@@ -816,7 +816,10 @@ from observations $\{x_i\}_{i=1}^N $:
 
 \vspace{5mm}
 
-\textbf{Inference quality}: as good as hand-crafted factor; much faster.
+\begin{itemize}
+    \item \textbf{Infer.NET + KJIT} = proposed KJIT with a hand-crafted factor as oracle.
+    \item \textbf{Inference quality}: as good as hand-crafted factor; much faster.
+\end{itemize}
 \end{block}
 
 %--------------------------
