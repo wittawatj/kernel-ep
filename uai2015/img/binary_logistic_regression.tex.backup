@@ -22,15 +22,13 @@
  \bayesfactor[right= of x] {dot} {below:dot} {} {};
  \node[latent, above = 5mm of dot] (w) {$\boldsymbol{w}$};
  \node[latent, right = 6mm of dot] (z) {$z_i$};
- \bayesfactor[right= 6mm of z, color=red] {logistic} {below:logistic ($f$)} {} {};
- \node[latent, right = 8mm of logistic] (p) {$p_i$};
+ \bayesfactor[right= 6mm of z, color=red] {logistic} {below:logistic} {} {};
+ \node[latent, right = 6mm of logistic] (p) {$p_i$};
  \bayesfactor[right = 6mm of p] {bern} {below:Bernoulli} {} {};
- \node[obs, right = 8mm of bern]  (y)   {$y_i$}; %
+ \node[obs, right = 6mm of bern]  (y)   {$y_i$}; %
  
- \factoredge {x} {dot} {z};
- \factoredge {z} {logistic} {p};
- \factoredge {p} {bern} {y};
- 
+ \factoredge {x} {dot} {z}
+ \factoredge {z} {log} {p}
  
  \edge[-] {dot} {x} ;
  \edge[-] {w} {dot};

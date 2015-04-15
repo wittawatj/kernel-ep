@@ -1,0 +1,1 @@
+This folder should contain Infer.Compiler.dll and Infer.Runtime.dll from Infer.NET package.

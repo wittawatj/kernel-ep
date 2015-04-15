@@ -42,10 +42,10 @@
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="Infer.Compiler">
-      <HintPath>..\lib\Infer.NET 2.6\Bin\Infer.Compiler.dll</HintPath>
+      <HintPath>..\lib\Infer.NET\Bin\Infer.Compiler.dll</HintPath>
     </Reference>
     <Reference Include="Infer.Runtime">
-      <HintPath>..\lib\Infer.NET 2.6\Bin\Infer.Runtime.dll</HintPath>
+      <HintPath>..\lib\Infer.NET\Bin\Infer.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="System.Core" />
     <Reference Include="MathNet.Numerics">

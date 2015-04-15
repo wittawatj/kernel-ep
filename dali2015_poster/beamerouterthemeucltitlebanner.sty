@@ -1,0 +1,68 @@
+% Puts the frame title in the banner
+% TODO:
+% title page
+
+\DeclareOptionBeamer{small}{%
+  \setbeamertemplate{banner}[ucl][1]%
+  \setbeamertemplate{frametitle}[one line]%
+}
+\DeclareOptionBeamer{large}{%
+  \setbeamertemplate{banner}[ucl][1.5]%
+  \setbeamertemplate{frametitle}[two lines]%
+}
+
+% reset headline to default
+\setbeamertemplate{headline}[default]
+
+% set the colours from banner
+\setbeamercolor*{frametitle}{use=banner,fg=banner.fg}
+
+% puts the title on one line, and subtitle below
+\defbeamertemplate{frametitle}{two lines}{%
+  \begin{beamercolorbox}[ignorebg,ht=\bannerheight]{frametitle}%
+    \vbox to\bannerheight{
+      \vspace{1ex}%
+      \usebeamerfont{frametitle}\usebeamercolor[fg]{frametitle}%
+      \strut\insertframetitle\strut\par%
+      {%
+        \ifx\insertframesubtitle\@empty%
+        \else%
+        {\usebeamerfont{framesubtitle}\usebeamercolor[fg]{framesubtitle}\insertframesubtitle\strut\par}%
+        \fi
+      }%
+      \vfil%
+    }
+    \end{beamercolorbox}
+    \ifbeamercolorempty[bg]{banner stripe}{}{\vspace{\stripeheight}}%
+  }
+
+% puts the title and subtitle on the same line
+\defbeamertemplate{frametitle}{one line}{%
+  \begin{beamercolorbox}[ignorebg,ht=\bannerheight]{frametitle}%
+    \vbox to\bannerheight{
+      \vspace{1ex}%
+      \usebeamerfont{frametitle}\usebeamercolor[fg]{frametitle}%
+      \strut\insertframetitle\strut%
+      {%
+        \ifx\insertframesubtitle\@empty%
+        \else%
+        {\hspace{0.6em}\usebeamerfont{framesubtitle}\usebeamercolor[fg]{framesubtitle}\insertframesubtitle\strut}%
+        \fi
+      }%
+      \par%
+      \vfil%
+    }
+  \end{beamercolorbox}
+  \ifbeamercolorempty[bg]{banner stripe}{}{\vspace{\stripeheight}}%
+  }
+
+
+% this ensures the title page doesn't overlap the banner
+\addtobeamertemplate{title page}{%
+  \vspace{\bannerheight}%
+  \ifbeamercolorempty[bg]{banner stripe}{}{\vspace{\stripeheight}}%
+}{}
+
+
+\ExecuteOptionsBeamer{large}
+\ProcessOptionsBeamer

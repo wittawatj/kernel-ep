@@ -1,0 +1,78 @@
+% sets the block environment to have borders
+% this modifies the default definition in beamerinnerthemedefault.sty
+% the effect is achieved using nested beamercolorboxes
+% it may be possible to do this in a simpler manner using the 
+% tcolorbox package
+
+\defbeamertemplateparent{blocks}[bordered]{block begin,block end,%
+  block alerted begin,block alerted end,%
+  block example begin,block example end}{}
+
+% Standard block
+\defbeamertemplate*{block begin}{bordered}{%
+  \par\vskip\medskipamount%
+  % border box
+  \begin{beamercolorbox}[colsep*=1.25ex]{block title}%
+    % title box
+    \vskip-1ex
+    \begin{beamercolorbox}[colsep*=0.75ex,dp=0ex]{block title}%
+      \usebeamerfont*{block title}\insertblocktitle\par%
+    \end{beamercolorbox}%
+    {\parskip0pt\par}%
+    % body box
+    \usebeamerfont{block body}%
+    \begin{beamercolorbox}[colsep*=0.75ex]{block body}
+      {\parskip0pt\par}%
+    }
+\defbeamertemplate*{block end}{bordered}{%
+  \end{beamercolorbox}%
+  \vskip-0.75ex%
+  \end{beamercolorbox}%
+  \vskip\smallskipamount%
+}
+
+% Alerted block
+\defbeamertemplate*{block alerted begin}{bordered}{%
+  \par\vskip\medskipamount%
+  % border box
+  \begin{beamercolorbox}[colsep*=1.25ex]{block title alerted}%
+    % title box
+    \vskip-1ex
+    \begin{beamercolorbox}[colsep*=0.75ex,dp=0ex]{block title alerted}%
+      \usebeamerfont*{block title alerted}\insertblocktitle\par%
+    \end{beamercolorbox}%
+    {\parskip0pt\par}%
+    % body box
+    \usebeamerfont{block body alerted}%
+    \begin{beamercolorbox}[colsep*=0.75ex]{block body alerted}
+      {\parskip0pt\par}%
+    }
+\defbeamertemplate*{block alerted end}{bordered}{%
+  \end{beamercolorbox}%
+  \vskip-0.75ex%
+  \end{beamercolorbox}%
+  \vskip\smallskipamount%
+}
+
+% Example block
+\defbeamertemplate*{block example begin}{bordered}{%
+  \par\vskip\medskipamount%
+  % border box
+  \begin{beamercolorbox}[colsep*=1.25ex]{block title example}%
+    % title box
+    \vskip-1ex
+    \begin{beamercolorbox}[colsep*=0.75ex,dp=0ex]{block title example}%
+      \usebeamerfont*{block title example}\insertblocktitle\par%
+    \end{beamercolorbox}%
+    {\parskip0pt\par}%
+    % body box
+    \usebeamerfont{block body example}%
+    \begin{beamercolorbox}[colsep*=0.75ex]{block body example}
+      {\parskip0pt\par}%
+    }
+\defbeamertemplate*{block example end}{bordered}{%
+  \end{beamercolorbox}%
+  \vskip-0.75ex%
+  \end{beamercolorbox}%
+  \vskip\smallskipamount%
+}
