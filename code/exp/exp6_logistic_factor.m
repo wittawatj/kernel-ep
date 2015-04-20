@@ -93,7 +93,6 @@ learner.opt('use_multicore', true);
 % ----- options for RFGJointKGGLearner ----
 learner.opt('num_primal_features', num_primal_features);
 learner.opt('num_inner_primal_features', num_inner_primal_features);
-learner.opt('use_multicore', true);
 learner.opt('featuremap_candidates', fm_candidates);
 %
 % --- options for ICholMapperLearner ----

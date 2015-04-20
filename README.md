@@ -22,14 +22,14 @@ page](http://wittawat.com/pages/kernel_ep.html). Full details are in our
 
 This project extends 
 
-    Heess, Nicolas, Daniel Tarlow, and John Winn. 
+    Nicolas Heess, Daniel Tarlow, and John Winn. 
     “Learning to Pass Expectation Propagation Messages.” 
     NIPS, 2013.
     http://media.nips.cc/nipsbooks/nipspapers/paper_files/nips26/1493.pdf.
 
 and 
 
-    Eslami, S. M. A.; Tarlow, D.; Kohli, P. & Winn, 
+    S. M. Ali Eslami, Daniel Tarlow, Pushmeet Kohli, and John Winn
     "Just-In-Time Learning for Fast and Flexible Inference." 
     NIPS, 2014.
     http://papers.nips.cc/paper/5595-just-in-time-learning-for-fast-and-flexible-inference.pdf
