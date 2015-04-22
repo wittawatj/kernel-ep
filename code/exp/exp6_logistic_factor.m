@@ -23,7 +23,7 @@ bundle=se.loadBundle(bunName);
 
 %n=5000;
 %n=25000;
-[trBundle, teBundle] = bundle.partitionTrainTest(6000, 2000);
+[trBundle, teBundle] = bundle.partitionTrainTest(5000, 3000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(100, 900);
 %[trBundle, teBundle] = bundle.partitionTrainTest(3000, 1000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(6000, 4000);
@@ -34,8 +34,8 @@ bundle=se.loadBundle(bunName);
 inTensor = trBundle.getInputTensorInstances();
 % median factors 
 medf = [1/20, 1/10, 1/5, 1/3, 1/2, 1, 2, 3, 5, 10, 20];
-num_primal_features = 500; 
-num_inner_primal_features = 300;
+num_primal_features = 1000; 
+num_inner_primal_features = 500;
 %medf = [1];
 %out_msg_distbuilder = DNormalSDBuilder();
 %out_msg_distbuilder = DistNormalBuilder();

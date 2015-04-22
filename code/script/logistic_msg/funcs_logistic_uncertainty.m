@@ -273,7 +273,8 @@ function [betaMsgs, normalMsgs] = genMsgBundleFromMeanLogPrec(means, logPrecs, b
     betaMsgs = DistBeta(repmat(betaMsg.alpha, 1, n), repmat(betaMsg.beta, 1, n));
 end
 
-function [Xtr, Ytr, Xte1, Xte2, Ttr, Tte1, Tte2] = gen2DUncertaintyCheckData2(trBundle )
+function [Xtr, Ytr, Xte1, Xte2, Ttr, Tte1, Tte2] = gen2DUncertaintyCheckData2(...
+        trBundle, removeBadMsgs)
     % This method is used to generate data for Balaji.
     % Include tree parameterization of Ali et. al (see appendix).
     %
@@ -286,6 +287,9 @@ function [Xtr, Ytr, Xte1, Xte2, Ttr, Tte1, Tte2] = gen2DUncertaintyCheckData2(tr
     %         commit: '0dac41dc'
     %      timeStamp: [2015 2 18 17 54 12.6150]
 
+    if nargin < 2
+        removeBadMsgs = true;
+    end
     trIns = trBundle.getInputBundles();
     trLog = trIns{1}.distArray;
     trLog_alpha = [trLog.alpha];
@@ -295,10 +299,14 @@ function [Xtr, Ytr, Xte1, Xte2, Ttr, Tte1, Tte2] = gen2DUncertaintyCheckData2(tr
     trX_mean = [trX.mean];
     trX_var = [trX.variance];
 
-    % remove messages possibly resulted from Infer.NET's 
-    % truncation i.e., SetToRatio(..) with force proper.
-    Itruncate =  ~(abs(trX_mean) <= 1e-3 & log(trX_var)>0 );
-    Itr = Itruncate ;
+    if removeBadMsgs
+        % remove messages possibly resulted from Infer.NET's 
+        % truncation i.e., SetToRatio(..) with force proper.
+        Itruncate =  ~(abs(trX_mean) <= 1e-3 & log(trX_var)>0 );
+        Itr = Itruncate ;
+    else 
+        Itr = true(1, length(trBundle));
+    end
     %Ite =  ~(abs(teX_mean) <= 1e-3 & log(teX_var)>0 );
     trX_mean_fil = trX_mean(Itr);
     trX_var_fil = trX_var(Itr);

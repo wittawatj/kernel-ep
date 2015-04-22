@@ -18,9 +18,10 @@ function primalKEGauss()
     K=ker.eval(X, X);
 
     % repeat per D
-    repeats=10;
+    repeats=5;
     % try multiple D (#random features)
-    Ds = [ 500:500:10000];
+    %Ds = [ 500:500:10000];
+    Ds = [ 200:200:1600];
     %Ds=[500:500:1000];
     MaxErr = zeros(repeats, length(Ds)); 
     AvgErr = zeros(repeats, length(Ds));
@@ -32,8 +33,10 @@ function primalKEGauss()
     for i=1:length(Ds)
         % number of random features
         D = Ds(i);
+        display(sprintf('#features: %d', D));
 
         for r=1:repeats
+            display(sprintf('repeat: %d', r));
             % draw from Fourier transform of k. 
             % Width is the reciprocal of the original width
             W = randn(D, 1)/sqrt(sigma2);

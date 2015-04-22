@@ -33,10 +33,26 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
             this.width2 = width2;
         end
         
+        function SNor = selfNormalizer(this, P)
+            % compute sqrt( det(D_rr) * det(diag(embed_width2s)) )
+            % where D_rr = (2V_r + diag(embed_width2s) )^-1
+            % and V_r is the rth covariance matrix
+            assert(isa(P, 'Distribution'), 'P is not a distribution');
+            n = length(P);
+            embedDet = prod(this.embed_width2s);
+            Nor = zeros(1, n);
+            Sig = diag(this.embed_width2s);
+            for i=1:n
+                vari = P(i).variance;
+                Nor(i) = 1.0/det(2*vari+Sig);
+            end
+            SNor = sqrt(Nor*embedDet);
+
+        end
         
         function Kmat = eval(this, P, Q)
-            assert(isa(P, 'Distribution'));
-            assert(isa(Q, 'Distribution'));
+            assert(isa(P, 'Distribution'), 'P is not a distribution');
+            assert(isa(Q, 'Distribution'), 'Q is not a distribution');
             dim_p = unique([P.d]);
             assert(length(dim_p) == 1, 'Dimensionally inhomogenous dist array P.');
             dim_q = unique([Q.d]);
@@ -44,11 +60,18 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
             assert(dim_p == length(this.embed_width2s), 'param length does not match dimension of P');
             assert(dim_q == length(this.embed_width2s), 'param length does not match dimension of P');
 
-            pp = this.kegauss.pairEval(P, P);
-            qq = this.kegauss.pairEval(Q, Q);
+            %pp = this.kegauss.pairEval(P, P);
+            %qq = this.kegauss.pairEval(Q, Q);
+            %pq = this.kegauss.eval(P, Q);
+            %D2 = bsxfun(@plus, pp(:), qq(:)') - 2*pq;
+            %Kmat = exp( -D2/(2*this.width2) );
+
+            % same as above but should be faster.
+            norP = this.selfNormalizer(P);
+            norQ = this.selfNormalizer(Q);
             pq = this.kegauss.eval(P, Q);
-            D2 = bsxfun(@plus, pp(:), qq(:)') - 2*pq;
-            Kmat = exp( -D2/(2*this.width2) );
+            D2 = bsxfun(@plus, norP(:), norQ(:)')- 2*pq;
+            Kmat = exp(-D2/(2.0*this.width2));
         end
         
         
@@ -60,11 +83,19 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
             assert(isa(Y, 'Distribution'));
             assert(length(X)==length(Y));
             
-            pp = this.kegauss.pairEval(X, Y);
-            qq = this.kegauss.pairEval(X, Y);
+            %pp = this.kegauss.pairEval(X, X);
+            %qq = this.kegauss.pairEval(Y, Y);
+            %pq = this.kegauss.pairEval(X, Y);
+            %D2 = pp + qq - 2*pq;
+            %Kvec = exp(-D2/(2*this.width2));
+
+            % same as above but faster
+            norX = this.selfNormalizer(X);
+            norY = this.selfNormalizer(Y);
             pq = this.kegauss.pairEval(X, Y);
-            D2 = pp + qq - 2*pq;
+            D2 = norX + norY -2*pq;
             Kvec = exp(-D2/(2*this.width2));
+
             %if X(1).d==1
             %    % operation on obj array can be expensive..
             %    M1 = [X.mean];

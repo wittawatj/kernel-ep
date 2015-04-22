@@ -30,7 +30,9 @@ classdef KEGaussian < Kernel & PrimitiveSerializable
         end
         
         
-        function Kmat = eval(this, D1, D2)
+        function [Kmat, Zmat] = eval(this, D1, D2)
+            % Return also the normalizer matrix (the expression multiplied with 
+            % the exp(...) in the kernel expression.
             assert(isa(D1, 'Distribution') || isa(D1, 'DistArray'));
             assert(isa(D2, 'Distribution') || isa(D2, 'DistArray'));
             d1=unique(D1(1).d);
@@ -60,6 +62,7 @@ classdef KEGaussian < Kernel & PrimitiveSerializable
                 end
                 Z(imag(Z)~=0) = 0;
                 Kmat = Z.*exp(-D./(2*W) );
+                Zmat = Z;
             else
                 % multivariate case 
                 % The following is an adhoc implementation which needs to be improved.
@@ -67,6 +70,7 @@ classdef KEGaussian < Kernel & PrimitiveSerializable
                 n1=length(D1);
                 n2=length(D2);
                 Kmat=zeros(n1, n2);
+                Zmat = zeros(n1, n2);
                 % do by columns
                 Sigma=diag(this.gwidth2s);
                 assert(~isscalar(Sigma));
@@ -90,13 +94,16 @@ classdef KEGaussian < Kernel & PrimitiveSerializable
                     % column of multipliers
                     Z=sqrt(DetD/detSigmaInv);
                     Kmat(:, j)=Z.*exp(-0.5* sum( MD.*MStack, 2) );
+                    Zmat(:, j) = Z;
                 end
             end
 
         end
 
 
-        function Kvec = pairEval(this, D1, D2)
+        function [Kvec, Zvec] = pairEval(this, D1, D2)
+            % Return also the normalizer matrix (the expression multiplied with 
+            % the exp(...) in the kernel expression.
             assert(isa(D1, 'Distribution') || isa(D1, 'DistArray'));
             assert(isa(D2, 'Distribution') || isa(D2, 'DistArray'));
             assert(length(D1)==length(D2));
@@ -141,6 +148,7 @@ classdef KEGaussian < Kernel & PrimitiveSerializable
                 Z=sqrt(DetD/detSigmaInv);
                 Kvec=Z.*exp(-0.5*Dist2);
             end
+            Zvec = Z;
         end
 
         function Param = getParam(this)
