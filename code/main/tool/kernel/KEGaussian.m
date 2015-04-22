@@ -85,9 +85,10 @@ classdef KEGaussian < Kernel & PrimitiveSerializable
                     DetD=zeros(n1, 1);
                     MStack=bsxfun(@minus, D1mean, D2mean(:, j))';
                     MD=zeros(n1, d);
+                    D2varj = D2var(:, :, j);
                     for i=1:n1
                         %di=D1(i); % accessing D1(i) in a loop is very slow.
-                        Eij= (D1var(:, :, i)+ D2var(:, :, j) +Sigma);
+                        Eij= (D1var(:, :, i)+ D2varj +Sigma);
                         DetD(i)=1/det(Eij);
                         MD(i, :)=MStack(i, :)/Eij;
                     end

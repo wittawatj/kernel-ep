@@ -43,7 +43,10 @@ classdef KGGaussian < Kernel & PrimitiveSerializable
             Nor = zeros(1, n);
             Sig = diag(this.embed_width2s);
             for i=1:n
-                vari = P(i).variance;
+                % P(i).variance will not work because of the way DistArray is 
+                % implemented.
+                dist = P(i);
+                vari = dist.variance;
                 Nor(i) = 1.0/det(2*vari+Sig);
             end
             SNor = sqrt(Nor*embedDet);
