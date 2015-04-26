@@ -40,8 +40,8 @@
 \begin{tikzpicture}
     \bayesfactor[color=red] {cg} {right:CG $(f)$} {} {};
     \node[latent, below = 4mm of cg] (tau) {$\tau$};
-    \bayesfactor[right = 5mm of tau] {gauss} {below:$\mathcal{N}(0, \tau) $} {} {};
-    \node[obs, right = 15mm of gauss] (x) {$x_i$};
+    \bayesfactor[right = 5mm of tau] {gauss} {below:$\mathcal{N}(0, \tau^{-1}) $} {} {};
+    \node[obs, right = 17mm of gauss] (x) {$x_i$};
 
     \edge[-] {cg} {tau};
     \edge[-] {tau} {gauss};
