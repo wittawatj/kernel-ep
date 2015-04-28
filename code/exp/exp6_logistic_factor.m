@@ -23,7 +23,7 @@ bundle=se.loadBundle(bunName);
 
 %n=5000;
 %n=25000;
-[trBundle, teBundle] = bundle.partitionTrainTest(5000, 3000);
+[trBundle, teBundle] = bundle.partitionTrainTest(2000, 3000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(100, 900);
 %[trBundle, teBundle] = bundle.partitionTrainTest(3000, 1000);
 %[trBundle, teBundle] = bundle.partitionTrainTest(6000, 4000);
