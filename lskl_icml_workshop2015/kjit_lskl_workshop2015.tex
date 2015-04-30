@@ -32,8 +32,8 @@
 
 % The \icmltitle you define below is probably too long as a header.
 % Therefore, a short form for the running title is supplied here:
-\icmltitlerunning{Kernel-Based Just-In-Time Learning for Passing Expectation Propagation Messages}
-
+%\icmltitlerunning{Kernel-Based Just-In-Time Learning for Passing Expectation Propagation Messages}
+\icmltitlerunning{ Just-In-Time Kernel Regression for Expectation Propagation }
 %% ---- end icml specific ----
 
 \usepackage{algorithmic}
@@ -130,14 +130,21 @@
 % \dblfloatsep is \floatsep for 2 column output.
 % \abovecaptionskip: space above caption
 % \belowcaptionskip: space below caption
-
+\tolerance 1414
+\hbadness 1414
+\emergencystretch 1.5em
+\hfuzz 0.3pt
+\widowpenalty=10000
+\vfuzz \hfuzz
+\raggedbottom
 \graphicspath{{../uai2015/img/}}
 
 
 \begin{document}
 
 \twocolumn[
-\icmltitle{Kernel-Based Just-In-Time Learning for \\Passing Expectation Propagation Messages}
+%\icmltitle{Kernel-Based Just-In-Time Learning for \\Passing Expectation Propagation Messages}
+\icmltitle{Just-In-Time Kernel Regression for Expectation Propagation}
 
 \icmlauthor{Wittawat Jitkrittum$^*$}{wittawatj@gmail.com}
 \icmlauthor{Arthur Gretton$^*$}{arthur.gretton@gmail.com}
@@ -147,7 +154,7 @@
 \icmlauthor{Dino Sejdinovic$^\dagger$}{dino.sejdinovic@gmail.com}
 \icmlauthor{Zolt{\'a}n Szab{\'o}$^*$}{z.szabo@ucl.ac.uk}
 
-\icmladdress{$^*$Gatsby Unit, University College London, London, UK}
+\icmladdress{$^*$Gatsby Unit, University College London}
 \vspace*{-3mm}
 \icmladdress{$^\dagger$University of Oxford}
 
@@ -181,11 +188,6 @@ We propose an efficient nonparametric strategy for learning a message operator i
 
 \section{Introduction}
 
-%% Intro paragraphs
-
-%AG: not sure where these shoudl go.
-%\cite{Rezende2014,Kingma2013,Stuhlmuller2013,Ross2011}
-
 
 An increasing priority in Bayesian modelling is to make inference accessible and implementable for practitioners,
 without  requiring specialist knowledge.
@@ -193,26 +195,23 @@ without  requiring specialist knowledge.
 This
 is a goal sought in probabilistic programming languages \citep{WinGooStuSis11,GooManRoyBonTen08}, 
 as well as in more granular, component-based
-%AG: at Ali's suggestion, removed these two references
-%procedures \citep{DuvLloGroetal13,GroSalFreTen12} and
 systems \citep{SDT2014,Minka2014}. In all cases, the user
 should be able to freely specify what they wish their model to express,
 without having to deal with the complexities of sampling, variational
 approximation, or distribution conjugacy.  In reality, however, model convenience and
 simplicity can  limit
-or undermine intended models. %\wjnote{Is it SD or variance ?}
-% AG: variance - fixed :)
-%\todo{AE: suggestion: `the inverted Gamma prior, which is widely used due to being a convenient 
-%conjugate prior' or something similar}
-%AG: fixed
+or undermine intended models, sometimes in ways the users
+might not expect. To take one example, the inverse gamma prior, which is
+widely used due to being a convenient
+conjugate prior for the variance, has quite pathological behaviour \citep{Gelman2006}.
 In general, more expressive, freely chosen models are more likely
 to require expensive sampling or quadrature approaches, which can make
 them challenging to implement or impractical to run.
 
-In this work, we address the particular setting of expectation propagation (EP)
-\citep{Minka2001}, a message passing algorithm wherein messages are confined to
+In this work, we address the particular setting of expectation propagation 
+\citep[EP;][]{Minka2001}, a message passing algorithm wherein messages are confined to
 being members of a particular parametric family. Sending EP outgoing messages
-requires a difficult computation involving integrating incoming messages over a
+requires an expensive computation involving integrating incoming messages over a
 factor potential, and projecting the result onto the chosen family. We propose
 a novel, kernel-based approach to learning a message operator nonparametrically
 for EP. The learning algorithm takes the form of a
@@ -280,7 +279,7 @@ $\outV\in\fis{\factor}$ is
 % {\msg{\outV}{\factor}(x_{\outV})}
 \frac{ \projP{ 
 \int \factor (\fx{\factor}) \prod_{\outV' \in \fis{\factor}} \msg{\outV'}{\factor}(x_{\outV'}) \diffd 
-\bx_{\fis{\factor} \textbackslash \outV}} }
+\bx_{\fis{\factor} \backslash \outV}} }
 {\msg{\outV}{\factor}(x_{\outV})}
 %
 \label{eq:msgPassing:EP}
@@ -349,16 +348,11 @@ allowed them to be trained `just-in-time', during EP inference, whenever the
 predictor decided it was uncertain. That is, if the uncertainty on the current
 input messages exceeds a pre-defined threshold, the required outgoing message
 is approximated via importance sampling  and
-$\approxMsg{\factor}{\outV}{\theta}$ is updated on this new datapoint (leading
+$\approxMsg{\factor}{\outV}{\theta}$ is updated on this new data point (leading
 to a new set of parameters  $\theta'$). 
 However, uncertainty estimation for random forests relies on unproven
 heuristics: such heuristics can become highly misleading as we move away from
 the training data.
-
-In contrast to \citet{Eslami2014,Heess2013} our kernel-based approach does not
-need a pre-specified customized features to represent incoming messages.
-Rather, we use a general characteristic kernel operated directly on distributions
-(messages) \citep[eq.  9]{Christmann2010}.
 
 
 %=============================================
@@ -369,35 +363,14 @@ We now propose a kernel regression method for jointly learning the message opera
 uncertainty estimate. We will regress from the tuple of incoming messages, which
 are probability distributions, to the parameters of the outgoing message. 
 
-%We now propose a kernel method for learning the message operator $\approxMsg{\factor}{\outV}{\theta}$ and
-%uncertainty estimator $\uncertaintyMsg{\factor}{\outV}{\theta}$
-%described in the previous section. We will regress from the tuple of input messages, which
-%are probability distributions, to a set of output parameters. Kernel regression
-%from a single distribution to a vector output is  straightfoward \citep{Szabo2014}, and we
-%are able to use any of the kernels on distributions from this work and from \citep{ChristmannSteinwart10}.
-%We will extend these ideas  to the case where more than one distribution is input.
-%
-%We note that \citet{SonGreGue10,SonGreBicLowGue11} propose a related regression approach for predicting outgoing
-%messages from incoming messages, for the purpose of Belief Propagation. The resulting learning problem
-%is dissimlar to ours, however: the incoming messages in the earlier work are smoothed
-%conditional density functions, rather than RKHS distribution embeddings, and the output messages are likewise
-%smoothed conditional density estimates, rather than normalized projections onto a parametric family.
-%
-%
-%An important issue is computational cost, as EP is an iterative algorithm and many predictions must be made.
-%Therefore, following \citep{Rahimi2007,Le2013,YanSmoZonWil14},
-%we do not express our solution in terms of kernels, but in terms of random features whose expected inner product
-%is equal to the kernel function. We then perform regression directly in the primal on these random features.
-%Thus, our first task, in \secref{sec:kernelsOnDistributions}, is to define kernels on tuples of distributions, and to
-%derive the related random feature representations.  We follow this task in Section
-%\ref{sec:ridgeRegression} with a description  of the regression algorithm which predicts the output message parameters from these
-%random features, as well as our strategy for uncertainty evaluation and online updates.
-
-
-%AG: made this a subsection
 %------------------------------------
 \subsection{Kernels on tuples of distributions}\label{sec:kernelsOnDistributions}
 %------------------------------------
+
+In contrast to \citet{Eslami2014,Heess2013} our kernel-based approach does not
+need a pre-specified customized features to represent incoming messages.
+Rather, we use a general characteristic kernel operated directly on distributions
+\citep[eq.  9]{Christmann2010}.
 
 In the following, we consider only a single factor, and therefore drop the factor identity from our notation. We write the set of $c$ incoming messages to a factor node as a tuple of
 probability distributions %$\mathsf{x}_r:=$
@@ -406,17 +379,10 @@ Our goal is to define a kernel between one such tuple, and a second one,
 which we will write %$\mathsf{x}_s:=$
 $S:=(s^{(l)})_{l=1}^c$.
 
-%AG: I have now simplified down to just the kernel we use.
-
-%The simplest kernel between distributions is simply a standard kernel (e.g., a Gaussian kernel) on a parametric representation of the inputs.
-%Thus,  if each input distribution $r^{(l)}$ is represented by a mean-variance pair $(\eta_{r^{(l)}},\sigma^2_{r^{(l)}})$, then a kernel
-%between the message tuples is a product of kernels $\kappa^{(l)}(r^{(l)},s^{(l)})$ between each pair of distributions,
-%where the $\kappa^{(l)}$ are themselves products of a Gaussian kernels between the means, and a Gaussian kernel between the variances. We call this the {\em mean-variance kernel}.
-
 We define our kernel in terms of embeddings of the tuples $R,S$ into a reproducing kernel Hilbert space (RKHS). We first consider the embedding of a single distribution
 in the tuple: Let us define a RKHS
 $\mathcal{H}^{(l)}$ on each domain, with respective kernels $k^{(l)}(x^{(l)}_1,x^{(l)}_2)$.
-We may embed individual probability distributions to these RKHSs, following \citep{Smola2007}.
+We may embed individual probability distributions to these RKHSs, following \citet{Smola2007}.
 The {\em mean embedding} of $r^{(l)}$ is written
 $\mu_{r^{(l)}}(\cdot) := \int k^{(l)}(x^{(l)},\cdot) \, dr^{(l)} (x^{(l)})$,
 such that
@@ -593,72 +559,6 @@ In the experiments, we use a Gaussian kernel for $k$.
 \subsection{Regression for operator prediction}\label{sec:ridgeRegression}
 %------------------------------------
 
-%AG: easiest to just describe regression on the features we learned earlier.
-
-%\wjnote{We need to unify Kernel ridge regression and Bayesian linear regression sections. 
-%Posterior mean estimate of the Bayesian regression is the same as the solution to primal kernel ridge regression.
-%Bayesian regression assumes a Gaussian noise output allowing us to compute predictive variance.}
-
-%Don't really need the below
-
-%\aenote{AE: Too many inline equations in this section. Pull out the most important ones?} 
-%We consider here the problem of regressing smoothly from distribution-valued
-%inputs to feature-valued outputs. We follow the regression framework
-%of \cite{Micchelli2005}, with convergence guarantees provided by
-%\cite{Caponnetto2007}. Under smoothness constraints, this regression
-%can be interpreted as computing the conditional expectation of the
-%output features given the inputs \citep{Gruenewaelder2012}.
-
-
-
-%AG: to make this short: just define Bayesian linear regression on the random features
-%from the previous section, rather than going in and out of ridge regression.
-
-%The ridge regression in the primal form
-%seeks $\mathsf{W}\in\mathbb{R}^{D_{y}\times D}$ for the regression
-%function $g(\mathsf{x})=\mathsf{W}\mathsf{x}$ which minimizes the
-%squared-loss function $J(\mathsf{W})=\sum_{i=1}^{N}\|\mathsf{y}_{i}-\mathsf{W}\mathsf{x}_{i}\|_{2}^{2}+\lambda\trace\left(\mathsf{W}\mathsf{W}^{\top}\right)$
-%where $\lambda$ is a regularization parameter and $\trace$ denotes
-%a matrix trace. 
-
-%It is well known that the solution is given by $\mathsf{W}=\mathsf{Y}\mathsf{X}^{\top}\left(\mathsf{X}\mathsf{X}^{\top}+\lambda I\right)^{-1}$
-%which has an equivalent dual solution $\mathsf{W}=\mathsf{Y}\left(K+\lambda I\right)^{-1}\mathsf{X}^{\top}=A\mathsf{X}^{\top}$
-%. The dual formulation allows one to regress from any type of input
-%objects if a kernel can be defined between them. All the inputs enter to the regression
-%function through the gram matrix $K\in\mathbb{R}^{N\times N}$ where
-%$\left(K\right)_{ij}=\kappa(\mathsf{x}_{i},\mathsf{x}_{j})$ yielding
-%the regression function of the form $g(\mathsf{x})=\sum_{i=1}^{N}a_{i}\kappa(\mathsf{x}_{i},\mathsf{x})$
-%where $A:=(a_{1}|\cdots|a_{N})$. The dual formulation therefore allows
-%one to straightforwardly regress from incoming messages to vectors
-%of mean parameters.
-%Although this property is appealing, the training
-%size $N$ in our setting can be chosen to be arbitrarily large, making
-%computation of $g(\mathsf{x})$ expensive for a new unseen point $\mathsf{x}$.
-
-
-%To eliminate the dependency on $N$, we propose to apply random Fourier
-%features \citep{Rahimi2007} $\hat{\phi}(\mathsf{x})\in\mathbb{R}^{D}$
-%for $\mathsf{x}:=[m_{V\rightarrow f}]_{V\in\mathcal{V}(f)}$ such
-%that $\kappa(\mathsf{x},\mathsf{x}')\approx\hat{\phi}(\mathsf{x})^{\top}\hat{\phi}(\mathsf{x}')$
-%where $D$ is the number of random features. The use of the random
-%features allows us to go back to the primal form of which the regression
-%function $g(\hat{\phi}(\mathsf{x}))=\mathsf{W}\hat{\phi}(\mathsf{x})$
-%can be computed efficiently. In effect, computing an EP outgoing message
-%requires nothing more than a multiplication of a matrix $\mathsf{W}$
-%($D_{y}\times D$ ) with the $D$-dimensional feature vector generated
-%from the incoming messages. 
-
-%AG: I don't think we need this subsection division.
-%\subsection{Bayesian Linear Regression}
-
-%{\bf Bayesian Linear Regression: }
-%Denote $X=\left(x_{1}|\cdots|x_{N}\right)\in\mathbb{R}^{D\times N}$
-%as (finite-dimensional) input and $Y=\left(y_{1}|\cdots|y_{N}\right)\in\mathbb{R}^{1\times N}$
-%(one coordinate of all expected sufficient statistics) as regression
-%output. In our application, $x_{n}$ will denote a random feature
-%vector for $[m_{V\rightarrow f}^{n}]_{V\in\mathcal{V}(f)}$. Assume
-%
-
 Let $\mathsf{X}=\left(\mathsf{x}_{1}|\cdots|\mathsf{x}_{N}\right)$
 be the $N$ training samples of incoming messages to a factor node, and let $\mathsf{Y}=\left(\mathbb{E}_{q_{\factor\rightarrow \outV}^{1}}u(x_{\outV})|\cdots|\mathbb{E}_{q_{f\rightarrow \outV}^{N}}u(x_{\outV})\right)\in\mathbb{R}^{D_{y}\times N}$
 be the expected sufficient statistics of the corresponding  output messages, 
@@ -668,15 +568,7 @@ We write $\mathsf{x}_{i}= \hat{\psi}(\mathsf{r}_i)$
 as a more compact notation for the random feature
 vector representing the $i^{th}$ training tuple of incoming messages, 
 as computed via Algorithm~\ref{algo:random_features_kgg}.
-%Thus, the dimensionality of  $\mathsf{X}$ is $D_{out} \times N$.
 
-
-%\agnote{Add the sans serif notation below.}
-%% As mentioned, kernel ridge regression in the primal form is equivalent to  
-%% standard ridge regression, which is equivalent to Bayesian linear regression 
-%% by interpreting the regularization parameter as the output noise variance.
-%% A probabilistic interpretation is useful as we seek an uncertainty estimate 
-%% on test points.
 
 Since we require uncertainty estimates on our predictions,
 we perform Bayesian linear regression from the random features to the output messages,
@@ -693,7 +585,7 @@ w & \sim\mathcal{N}\left(w;0,I_{D_\mathrm{out}}\sigma_{0}^{2}\right), \\
 %
 where the output noise variance $\sigma_{y}^{2}$ captures the intrinsic
 stochasticity of the importance sampler used to generate $\mathsf{Y}$. It
-follows that the posterior of $w$ is given by \citep{Bishop2006}
+follows that the posterior of $w$ is given by \citet{Bishop2006}
 %
 \begin{align}
 p(w | \mathsf{Y}) & =\mathcal{N}(w;\mu_{w},\Sigma_{w}), \\
@@ -757,13 +649,33 @@ Updating $\mu_{w}$ can be easily achieved by maintaining  $\feaX \feaY^{\top}$.
 \section{Experiments  \label{sec:Experiments}}
 %=============================================
 
-Below we evaluate our learned message operator using the logistic factor.  For
-all experiments we used Infer.NET \citep{Minka2014} with its extensible factor
-interface for our own operator.  We use the default settings of Infer.NET
-unless stated otherwise.  
+Below we evaluate our learned message operator using two different factors: the
+logistic factor, and the compound gamma factor..  For all experiments we used
+Infer.NET \citep{Minka2014} with its extensible factor interface for our own
+operator.  We use the default settings of Infer.NET unless stated otherwise.  
 %The regression target is the marginal belief
 %(numerator of \eqref{eq:msgPassing:EP}).  Given a marginal
 %belief, the outgoing message can be calculated straightforwardly.
+
+
+
+\textbf{Experiment 1: Logistic factor}
+As in \citet{Heess2013} and \citet{Eslami2014}, we study the logistic factor 
+$\factor(p|z)=\delta\left(p-\frac{1}{1+\exp(-z)}\right),$ 
+%
+% \begin{equation*}
+% \factor(p|z)=\delta\left(p-\frac{1}{1+\exp(-z)}\right)
+% \end{equation*}
+%
+where $\delta$ is the Dirac delta function, in the context of 
+a binary logistic regression model  (\figref{fig:factor_graph_binlog}).
+The factor is deterministic and there are two incoming messages: 
+$\msg{p_i}{\factor} = \text{Beta}(p_i; \alpha, \beta) $ and 
+$\msg{z_i}{\factor} = \mathcal{N}(z_i; \mu, \sigma^2)$, 
+where $z_i = \boldsymbol{w}^\top x_i$ represents the dot product between an observation 
+$x_i \in \mathbb{R}^d$ and the coefficient vector $\boldsymbol{w}$ whose posterior is 
+to be inferred.
+
 
 \begin{figure}[ht]
 \centering
@@ -798,26 +710,6 @@ highlighted in red.
 }
 \label{fig:factor_graph_binlog}
 \end{figure}
-
-
-\textbf{Experiment 1: Logistic factor}
-As in \citep{Heess2013} and \citep{Eslami2014}, we study the logistic factor 
-$\factor(p|z)=\delta\left(p-\frac{1}{1+\exp(-z)}\right),$ 
-%
-% \begin{equation*}
-% \factor(p|z)=\delta\left(p-\frac{1}{1+\exp(-z)}\right)
-% \end{equation*}
-%
-where $\delta$ is the Dirac delta function, in the context of 
-a binary logistic regression model  (\figref{fig:factor_graph_binlog}).
-The factor is deterministic and there are two incoming messages: 
-$\msg{p_i}{\factor} = \text{Beta}(p_i; \alpha, \beta) $ and 
-$\msg{z_i}{\factor} = \mathcal{N}(z_i; \mu, \sigma^2)$, 
-where $z_i = \boldsymbol{w}^\top x_i$ represents the dot product between an observation 
-$x_i \in \mathbb{R}^d$ and the coefficient vector $\boldsymbol{w}$ whose posterior is 
-to be inferred.
-
-
 
 
 % UCI datasets. temporal uncertainty.
