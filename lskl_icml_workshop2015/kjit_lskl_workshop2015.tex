@@ -200,8 +200,7 @@ should be able to freely specify what they wish their model to express,
 without having to deal with the complexities of sampling, variational
 approximation, or distribution conjugacy.  In reality, however, model convenience and
 simplicity can  limit
-or undermine intended models, sometimes in ways the users
-might not expect. 
+or undermine intended models.
 %To take one example, the inverse gamma prior, which is
 %widely used due to being a convenient
 %conjugate prior for the variance, has quite pathological behaviour \citep{Gelman2006}.
@@ -221,7 +220,7 @@ the outputs are vectors of message parameters \citep{Szabo2014}.
 
 Being an instance of Gaussian process regression, there are well established
 estimates of predictive uncertainty \citep[Ch. 2]{RasWil06}.  We use these
-uncertainty estimates to determine when to query the importance sampler for
+uncertainty estimates to determine when to query the oracle for
 additional input/output pairs.  To make the algorithm computationally
 tractable, we regress  directly in the primal from random Fourier features of
 the data \citep{Rahimi2007,Le2013,YanSmoZonWil14}.  In particular, we establish
@@ -361,7 +360,7 @@ the training data.
 %=============================================
 
 We now propose a kernel regression method for jointly learning the message operator $\approxMsg{\factor}{\outV}{\theta}$ and
-uncertainty estimate. We will regress from the tuple of incoming messages, which
+uncertainty estimate. We regress from the tuple of incoming messages, which
 are probability distributions, to the parameters of the outgoing message. 
 
 %------------------------------------
@@ -371,7 +370,8 @@ are probability distributions, to the parameters of the outgoing message.
 In contrast to \citet{Eslami2014,Heess2013} our kernel-based approach does not
 need a pre-specified customized features to represent incoming messages.
 Rather, we use a general characteristic kernel operated directly on distributions
-\citep[eq.  9]{Christmann2010}.
+\citep[eq.  9]{Christmann2010}. The kernel is independent of the parameterization of 
+incoming messages. 
 
 In the following, we consider only a single factor, and therefore drop the factor identity from our notation. We write the set of $c$ incoming messages to a factor node as a tuple of
 probability distributions %$\mathsf{x}_r:=$
@@ -385,20 +385,18 @@ in the tuple: Let us define a RKHS
 $\mathcal{H}^{(l)}$ on each domain, with respective kernels $k^{(l)}(x^{(l)}_1,x^{(l)}_2)$.
 We may embed individual probability distributions to these RKHSs, following \citet{Smola2007}.
 The {\em mean embedding} of $r^{(l)}$ is written
-$\mu_{r^{(l)}}(\cdot) := \int k^{(l)}(x^{(l)},\cdot) \, dr^{(l)} (x^{(l)})$,
-such that
-$\langle f,\mu_{r^{(l)}} \rangle_{\mathcal{H}^{(l)}} = \mathbb{E}_{r^{(l)}}(f(X^{(l)})), $ for all $f\in \mathcal{H}^{(l)}$.
+$\mu_{r^{(l)}}(\cdot) := \int k^{(l)}(x^{(l)},\cdot) \, dr^{(l)} (x^{(l)})$.
 %
 Similarly, a mean embedding may be defined on the product of  messages in a tuple
 $\mathsf{r}=\times_{l=1}^{c}r^{(l)}$ as
 %
-\begin{equation}
-\mu_{\mathsf{r}}
+%\begin{equation}
+$\mu_{\mathsf{r}}
 :=
 %\int k([x^{(1)} \hdots x^{(c)}],\cdot) \prod_{l=1}^{c}dr^{(l)}(x^{(l)}),
-\int k([x^{(1)}, \ldots, x^{(c)}],\cdot) \, d\mathsf{r}(x^{(1)}, \ldots, x^{(c)}),
-\label{eq:featureOfTuple}
-\end{equation}
+\int k([x^{(1)}, \ldots, x^{(c)}],\cdot) \, d\mathsf{r}(x^{(1)}, \ldots, x^{(c)}),$
+%\label{eq:featureOfTuple}
+%\end{equation}
 where we have defined the joint kernel $k$ on the product space
 %concatenation of the features
 $\mathcal{X}^{(1)}\times\cdots\times\mathcal{X}^{(c)}$.
@@ -440,7 +438,7 @@ If $\mathsf{r}(x)=\mathcal{N}(x;m, \Sigma )$,
 \end{equation*}
 %Even if $p$ is not a normal distribution, we may still use it as an approximation.
 %
-\STATE Sample $\{ \nu_i \}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} \hat{k}_{\text{gauss}}(\gamma^{2})$.  
+\STATE Sample $\{ \nu_i \}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} \hat{k}_{\text{gauss}}(\gamma^{2})$
 i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
 \STATE Sample $\{c_i\}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} \text{Uniform}[0, 2\pi] $.
 \STATE $\hat{\psi}(\mathsf{r}) = \sqrt{\frac{2}{D_\mathrm{out}}} \left(  
@@ -488,7 +486,7 @@ of random features $\hat{\varphi}$ for a translation invariant kernel $k(x,y) = 
 % the standard Gaussian kernel 
 % $k(x, y) = \exp\left(-\frac{\| x-y\|^2}{2\beta^2} \right)$, 
  such that $k(x, y) \approx \hat{\varphi}(x)^\top \hat{\varphi}(y)$
-where $x,y \in \mathbb{R}^d$ and $\hat{\varphi} \in \mathbb{R}^{D_\mathrm{in}}$.  
+where $x,y \in \mathbb{R}^d$ and $\hat{\varphi}(x), \hat{\varphi}(y) \in \mathbb{R}^{D_\mathrm{in}}$.  
 We will follow a similar approach, and derive 
 a two-stage set of random Fourier features for \eqref{eq:gauss_joint_emb}.
 %via a two-stage 
@@ -505,15 +503,15 @@ of \eqref{eq:gauss_joint_emb} as
 Assume that the embedding kernel $k$ used to define the embeddings $\mu_\mathsf{r}$ 
 and $\mu_\mathsf{s}$ is translation invariant. Since 
 $\langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}  \rangle
-= \mathbb{E}_{\mathsf{r}(x)} \mathbb{E}_{\mathsf{s}(y)} k(x-y)$, one can use 
+= \mathbb{E}_{x \sim \mathsf{r}} \mathbb{E}_{y \sim \mathsf{s}} k(x-y)$, one can use 
 the result of \cite{Rahimi2007} to write
 %
 \begin{align*}
  \langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}  \rangle
- & \approx \mathbb{E}_{\mathsf{r}(x)} \mathbb{E}_{\mathsf{s}(y)} 
+ & \approx \mathbb{E}_{x \sim \mathsf{r}} \mathbb{E}_{y \sim \mathsf{s}} 
    \hat{\varphi}(x)^\top \hat{\varphi}(y) \nonumber \\ 
- & = \mathbb{E}_{\mathsf{r}(x)} 
-   \hat{\varphi}(x)^\top \mathbb{E}_{\mathsf{s}(y)}  \hat{\varphi}(y) 
+ & = \mathbb{E}_{x \sim \mathsf{r}} 
+   \hat{\varphi}(x)^\top \mathbb{E}_{y \sim \mathsf{s}}  \hat{\varphi}(y) 
  := \hat{\phi}(\mathsf{r})^\top \hat{\phi}(\mathsf{s}),
 \end{align*}
 %
@@ -561,7 +559,10 @@ In the experiments, we use a Gaussian kernel for $k$.
 %------------------------------------
 
 Let $\mathsf{X}=\left(\mathsf{x}_{1}|\cdots|\mathsf{x}_{N}\right)$
-be the $N$ training samples of incoming messages to a factor node, and let $\mathsf{Y}=\left(\mathbb{E}_{q_{\factor\rightarrow \outV}^{1}}u(x_{\outV})|\cdots|\mathbb{E}_{q_{f\rightarrow \outV}^{N}}u(x_{\outV})\right)\in\mathbb{R}^{D_{y}\times N}$
+be the $N$ training samples of incoming messages to a factor node, and let
+$\mathsf{Y}=\left(\mathbb{E}_{x_V \sim q_{\factor\rightarrow
+\outV}^{1}}u(x_{\outV})|\cdots|\mathbb{E}_{x_V \sim q_{f\rightarrow
+\outV}^{N}}u(x_{\outV})\right)\in\mathbb{R}^{D_{y}\times N}$
 be the expected sufficient statistics of the corresponding  output messages, 
 where $q^i_{\factor \rightarrow \outV}$ is the numerator 
 of \eqref{eq:msgPassing:EP}.
@@ -578,7 +579,7 @@ with the kernel in \eqref{eq:gauss_joint_emb}.
 The uncertainty estimate in this case will be the predictive 
 variance.
 %Here we give a brief review of Bayesian linear regression on the random features. 
-We are given the priors
+We assume priors 
 \begin{align}
 w & \sim\mathcal{N}\left(w;0,I_{D_\mathrm{out}}\sigma_{0}^{2}\right), \\
 \mathsf{Y} \mid \mathsf{X},w & \sim\mathcal{N}\left(\mathsf{Y};w^{\top} \mathsf{X},\sigma_{y}^{2}I_{N}\right),
@@ -654,6 +655,8 @@ Below we evaluate our learned message operator using two different factors: the
 logistic factor, and the compound gamma factor..  For all experiments we used
 Infer.NET \citep{Minka2014} with its extensible factor interface for our own
 operator.  We use the default settings of Infer.NET unless stated otherwise.  
+Code is available at \url{https://github.com/wittawatj/kernel-ep}.
+
 %The regression target is the marginal belief
 %(numerator of \eqref{eq:msgPassing:EP}).  Given a marginal
 %belief, the outgoing message can be calculated straightforwardly.
@@ -741,10 +744,10 @@ from each dataset by stratified sampling.  For the fertility dataset, which
 contains only 100 data points, we subsampled half the points. The remaining
 data were used as test sets. 
 
-We employed a ``minibatch'' idea in which the operator always consults the oracle in
+We employed a ``mini-batch'' learning approach in which the operator always consults the oracle in
 the first few hundred factor invocations for initial batch training. 
 In principle, during the initial batch training, the operator can perform 
-cross validation or optimizing the marginal likelihood for parameter selection;
+cross validation or optimize the marginal likelihood for parameter selection;
 however for computational simplicity we set the kernel parameters according to
 the median heuristic
 \citep{Scholkopf2002}. 
