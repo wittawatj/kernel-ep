@@ -1,0 +1,157 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{url}
+
+%opening
+\title{Just-In-Time Kernel Regression for \\Expectation Propagation}
+\author{
+    Wittawat Jitkrittum$^1$, \, Arthur Gretton$^1$, \, Nicolas Heess, \, S. M. Ali Eslami \\
+    \vspace{5mm}
+    Balaji Lakshminarayanan$^1$, \, Dino Sejdinovic$^2$, \, Zolt{\'a}n Szab{\'o}$^1$ \\ 
+%
+Gatsby Unit, University College London$^1$ \\
+University of Oxford$^2$ 
+%\texttt{ \{wittawatj,  arthur.gretton\}@gmail.com}, \, \texttt{nheess@nhuk.de} \\ 
+%\texttt{ali@arkitus.com}, \, \texttt{balaji@gatsby.ucl.ac.uk},\\
+%\texttt{dino.sejdinovic@gmail.com},\, \texttt{z.szabo@ucl.ac.uk}
+}
+
+\begin{document}
+\maketitle
+
+\section{Background}
+
+Expectation Propagation (EP) is an approximate iterative procedure for
+computing marginal beliefs of variables by iteratively passing messages between
+variables and factors until convergence.  The message $m_{f \rightarrow V_i}(v_i)$ 
+from a factor $f$ to neighboring variable $V_i$ is 
+\begin{align*}
+    m_{f \rightarrow V_i}(v_i) &= \frac{
+        \mathrm{proj}\left[ 
+            \int f(\mathcal{V}) \prod_{j=1}^c m_{V_j \rightarrow f}(v_j) 
+            \, \mathrm{d}\mathcal{V} \backslash \{v_i \}
+        \right]
+    }{m_{V_i \rightarrow f}(v_i) }  \\
+    &:=
+    \frac{ \mathrm{proj}[r_{f \rightarrow V_i}]}{m_{V_i \rightarrow f}(v_i)} 
+    :=
+    \frac{q_{f \rightarrow V}(v_i)}{m_{V \rightarrow f}(v_i)} 
+\end{align*}
+where we assume that $f$ has $c$ neighboring variables, $m_{V_j \rightarrow f}$
+is the message sent to factor $f$ from its neighboring 
+variable $V_j$ and $\mathrm{proj}[r] = \arg\min_{q \in \mathrm{ExpFam}} \mathrm{KL}[r \| q]$ denotes a projection onto the
+exponential family in the sense of the Kullback-Leibler divergence.
+The marginal belief of a variable $V_i$ is given by the product of all incoming messages 
+to $V_i$. 
+
+
+Although the marginal belief obtained from EP is often accurate, computing
+$q_{f \rightarrow V_i}$ can be challenging as it involves multiple integrals, and 
+typically requires the use of expensive numerical integration techniques.
+
+
+\paragraph{Summary}
+
+%Given a factor $f$, it can be seen that an outgoing message
+%$m_{f \rightarrow V_i}$ is determined by the incoming messages $[m_{V_j
+%\rightarrow f}]_{j=1}^c$. 
+To speed up message computation, we propose an
+efficient nonparametric strategy for learning a message operator (a
+distribution-to-distribution regression function)
+which takes as input the set of incoming messages to a factor node, and produces an 
+outgoing message as output, thereby bypassing the expensive integrals. 
+Our black-box message operator has a number of desirable properties.
+
+\begin{enumerate}
+    \item Learns how to send outgoing messages without the need of manually
+        deriving message update formulae.
+    \item Cheap online (just-in-time) learning during the EP inference.
+    \item Has principled uncertainty estimate for the predicted outgoing
+    messages.  This means the operator can request the true outgoing message
+when it encounters inputs (incoming messages) on which it is uncertain.  
+    \item Automatic representation of incoming messages for the regression task.
+\end{enumerate}
+
+In experiments, we demonstrate that a single message operator is required for
+multiple, substantially different data sets (logistic regression for a variety
+of classification problems), where the ability to accurately assess uncertainty
+and to efficiently and robustly update the message operator are essential.
+
+\section{Computing projected messages}
+When $q := q_{f \rightarrow V_i}$ is  required to be in the exponential family
+(ExpFam), i.e., $q(v|\eta) = h(v)\exp(\eta^\top u(v) - A(\eta))$, 
+it is well known that the projected message $q(v|\eta) = \mathrm{proj}[r]$ is
+the one such that $\mathbb{E}_r[u(v)] = \mathbb{E}_q[u(v)]$ (moment matching).
+This result implies that computing the projected message amounts to computing
+$\mathbb{E}_r[u(v)]$, which is a numerical integration problem. In this work,
+we use importance sampler to compute $\mathbb{E}_r[u(v)]$ as the oracle when 
+the message operator is uncertain and requires the true outgoing message for 
+learning. 
+
+
+\section{Gaussian process message operator}
+Our proposed message operator is a Gaussian process (GP) in its primal form
+ where the regression target is set to $\mathbb{E}_r[u(v)]$. In
+principle, GP can readily regress from messages, if a kernel
+$\kappa(R, S)$ on sets of incoming messages $R$ and $S$ is available. However,
+GP in its dual form is not suited for online learning as both prediction and storage 
+costs grow with the size of the training set. 
+Instead, we define 
+a finite-dimensional random feature map $\hat{\psi} \in \mathbb{R}^{D_\mathrm{out}}$ such that 
+$\kappa(R, S) \approx \hat{\psi}(R)^\top \hat{\psi}(S)$, 
+and regress directly on these feature maps, in the primal: storage and computation 
+are then a function of the dimension of the feature map $D_\mathrm{out}$, yet
+performance is close to that obtained using the kernel $\kappa$.
+
+We use a Gaussian kernel on mean embeddings for the message operator. Let 
+$\mathsf{r}:= \times_{l=1}^c r^{(l)}$ where $r^{(l)}$ denotes the $l^{th}$
+incoming message (i.e., equivalent to $m_{V_l \rightarrow f}$). Similarly,
+define $\mathsf{s}$ to be the product of incoming messages in another tuple. 
+The kernel $\kappa(R, S) = \kappa(\mathsf{r}, \mathsf{s})$ is defined as 
+\begin{equation}
+\kappa(\mathsf{r}, \mathsf{s}) =
+\exp\left(-\frac{\|\mu_{\mathsf{r}}-\mu_{\mathsf{s}}\|_{\mathcal{H}}^{2}}{2\gamma^{2}}\right),
+\label{eq:gauss_joint_emb}
+\end{equation}
+%
+where $\gamma^2$ is a width parameter, $\mu_{\mathsf{r}}(\cdot) := \int
+k(x, \cdot)\, \mathrm{d}\mathsf{r}(x)$ is the mean embedding of $\mathsf{r}$
+and $k$ is a Gaussian kernel on Euclidean input.  Intuitively, one can think of
+the mean embedding as a map from a distribution to a vector of features
+characterizing the distribution. In our case, since we use 
+a Gaussian kernel for the embedding kernel $k$, the induced vector of features is 
+infinite-dimensional, preserving all the moment information contained in $\mathsf{r}$.
+
+
+\paragraph{Random features for $\kappa$}
+The construction of 
+a finite-dimensional random feature map $\hat{\psi} \in \mathbb{R}^{D_\mathrm{out}}$ such that 
+$\kappa(R, S) \approx \hat{\psi}(R)^\top \hat{\psi}(S)$ relies on Bochner's
+theorem stating that a continuous translation-invariant kernel $k(x, y) = k(x-y)$ 
+can be written in the form of an inverse Fourier transform, where the Fourier 
+transform $\hat{k}$ of the kernel $k$ can be treated as a distribution:
+%
+\begin{equation}
+    k(x-y) = \int e^{i\omega^\top x-y} \hat{k}(\omega) \mathrm{d}\omega ,
+\end{equation}
+where $i=\sqrt{-1}$. The treatment of $\hat{k}$ as a distribution allows one 
+to draw frequency samples $\omega \sim \hat{k}(\omega)$ and approximate the Kernel 
+with a Monte-Carlo average. The sampled frequencies form \emph{random Fourier features}
+and are the basis of the approximation for  $\kappa(R, S) \approx \hat{\psi}(R)^\top \hat{\psi}(S)$.
+With the availability of $\hat{\psi}$, the GP formulation reduces to standard Bayesian 
+linear regression with $\hat{\psi}$ as the basis function. Online updates of the 
+linear regression solution can be achieved straightforwardly by applying
+Sherman-Morrison formula for rank-one update of the inverse matrix.
+
+
+\section*{References}
+For more information, please refer to our paper available at
+\url{http://arxiv.org/abs/1503.02551}. Code to implement the method is available 
+at \url{https://github.com/wittawatj/kernel-ep}.
+
+\end{document}
