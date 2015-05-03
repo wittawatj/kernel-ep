@@ -1,10 +1,11 @@
 \documentclass[a4paper,10pt]{article}
-\usepackage[utf8]{inputenc}
-\usepackage{geometry}
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amsthm}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
 \usepackage{url}
 
 %opening
@@ -23,6 +24,74 @@ University of Oxford$^2$
 
 \begin{document}
 \maketitle
+
+\section*{Short, only text}
+%Graphical models provide us a language to express the relationship of random
+%variables of interest in the form of a graph where nodes represent variables
+%and edges represent dependency among the variables. The goal of probabilistic
+%inference is to find marginal (or conditional) distribution of a variable. This
+%is often achieved with message passing: given a graph, finding the marginal of
+%a variable  amounts to multiplying messages  sent from its neighboring
+%variables (i.e., collecting evidence), and integrating out all the other
+%variables.  Although applicable to any graph, unfortunately it is generally
+%expensive to compute an outgoing message as it involves multiple, possibly
+%multivariate, integrals. 
+
+Message passing is a widely used inference algorithm for finding the marginal
+(or conditional) distribution of a variable in a graphical model. Computing an
+outgoing message from a node requires multiplying incoming messages from its
+neighbours (collecting evidence), and integrating out all the other variables. 
+The involved computation of multiple integrals is very expensive in general.
+Here, we address a very important question: \textbf{Can we speed up the computation of outgoing
+messages without hand-crafting a specific formula for each message ?}
+
+
+The main contribution of \href{http://arxiv.org/abs/1503.02551}{our paper} is
+the proposal of an efficient nonparametric strategy for learning a message
+operator (a distribution-to-distribution regression function) which takes as
+input the set of incoming messages, and produces an outgoing message as output,
+thereby bypassing the expensive integrals.  Our black-box message operator has
+a number of desirable properties.
+
+\begin{enumerate}
+    \item Learns to send outgoing messages online during the message
+    passing procedure without the need of manually deriving message update
+    formulae.  
+
+    \item Has principled uncertainty estimate for the predicted outgoing
+    messages.  This means the operator can request the true outgoing message
+    when it encounters inputs (incoming messages) on which it is uncertain.  
+    The true outgoing message can be computed by a generic recipe based on importance sampling.
+
+    \item
+    Automatic representation of incoming messages for the regression task i.e.,
+    no need to engineer good features for the inputs.
+\end{enumerate}
+
+The message operator can be seen as a ``learning-to-infer'' engine
+which is a useful component in a fully automated inference engine. To give a
+rough idea, the operator is an instance of a Gaussian process regression where 
+the kernel is defined directly on the incoming messages. In particular, it is a
+Gaussian kernel on the mean embeddings of incoming messages, and is independent
+of the message parameterization. Intuitively, one can think of the mean
+embedding as a map from a distribution (message) to a vector of features
+characterizing the distribution. In our case, the vector of features is
+induced by a kernel and has infinite dimensions; therefore preserving all the moment
+information of the messages. To facilitate efficient online learning, we approximate the kernel 
+on messages with random Fourier features, and perform regression with a
+Gaussian process in its primal form.
+
+Empirical studies showed that the approach is highly adaptive and able to solve
+learning problems where a single message operator is required for multiple,
+substantially different real data sets (binary logistic regression) in
+significantly less runtime while achieving as accurate inference as the
+ordinary message passing. 
+
+For more information, please refer to our paper available at
+\url{http://arxiv.org/abs/1503.02551}. Code to implement the operator is available 
+at \url{https://github.com/wittawatj/kernel-ep}.
+
+\hrulefill{}
 
 \section{Background}
 
