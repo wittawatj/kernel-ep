@@ -49,7 +49,7 @@ op.cond_factor = @(x)1./(1+exp(-x));
 op.seed = seed;
 
 % importance sampling data size. 
-op.iw_samples = 1e5;
+op.iw_samples = 5e5;
 
 % proposal distribution 
 op.in_proposal = DistNormal(0, 100);
