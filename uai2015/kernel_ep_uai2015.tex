@@ -150,6 +150,7 @@
 % \abovecaptionskip: space above caption
 % \belowcaptionskip: space below caption
 
+\allowdisplaybreaks
 
 \begin{document}
 \title{Kernel-Based Just-In-Time Learning for \\Passing Expectation Propagation
@@ -259,8 +260,8 @@ can result in unbalanced trees, resulting in a cost of prediction of $O(N)$ for 
 
 We propose a novel, kernel-based approach to learning a message operator nonparametrically
 for expectation propagation. The learning algorithm takes the form of a distribution regression
-problem, where the inputs are probability measures (represented as embeddings
-of the distributions to a reproducing kernel Hilbert space), and the outputs are vectors of message
+problem, where the inputs are probability measures represented as embeddings
+of the distributions to a reproducing kernel Hilbert space (RKHS), and the outputs are vectors of message
 parameters \citep{Szabo2014}. 
 A first advantage of this approach is that one does not need to pre-specify customized features
 of the distributions, as in \citep{Eslami2014,Heess2013}. Rather, 
@@ -1089,7 +1090,7 @@ Treating all outputs jointly can be achieved with a multi-output kernel \citep{A
 %AG: don't need a subsection
 %\subsection{Online Update \label{sec:kernel_ep_online}}
  
-\paragraph{Online update}
+\paragraph{Online Update}
 We describe an online update for $\Sigma_{w}$ and
 $\mu_{w}$ when observations (i.e., random features representing incoming 
 messages) $\mathsf{x}_i$ arrive sequentially. We use $\cdot^{(N)}$
@@ -1210,7 +1211,7 @@ $\msg{p_i}{\factor} = \text{Beta}(p_i; \alpha, \beta) $.
 \end{figure}
 
 
-\paragraph{Experiment 1: Batch learning} 
+\paragraph{Experiment 1: Batch Learning} 
 As in \citep{Heess2013} and \citep{Eslami2014}, we study the logistic factor 
 $\factor(p|z)=\delta\left(p-\frac{1}{1+\exp(-z)}\right),$ 
 %
@@ -1298,11 +1299,12 @@ The histogram of the log KL errors is shown in \figref{fig:kl_div_hist}; \figref
 for different log KL errors. 
 It is evident that the kernel-based operator does well in capturing the relationship
 between incoming and outgoing messages. The discrepancy with respect to the ground truth is barely 
-visible even at the 99th percentile. See \secref{sec:batch_learning_detail} in
-the supplementary material for more detail.
+visible even at the 99th percentile. 
+See \secref{sec:batch_learning_detail} in
+the supplementary material for a comparison with other methods.
 
 
-\paragraph{Experiment 2: Uncertainty estimates}
+\paragraph{Experiment 2: Uncertainty Estimates}
 
 \begin{figure}[t]
 \centering
@@ -1390,7 +1392,7 @@ thereby wasting computation.
 %\label{fig:tree_uncertainty_unexplored}
 %\end{figure}
 
-\paragraph{Experiment 3: Just-in-time learning}
+\paragraph{Experiment 3: Just-In-Time Learning}
 In this experiment we test the approximate operator in the logistic regression model as part of the full EP inference loop in a just-in-time learning setting (KJIT). % on the same task with toy data. 
 We now learn two kernel-based message operators, one for each outgoing 
 direction from the logistic factor. 
@@ -1424,6 +1426,8 @@ cross validation for parameter selection; however for computational simplicity
 we set the kernel parameters (i.e., $\gamma$ in the kernel $\kappa$) according
 to the median heuristic
 \citep{Scholkopf2002}. 
+%See \secref{sec:median_heuristic} in the supplementary
+%material for more detail.
 %AG: removed cross validation discussion from here, put it earlier.
 The numbers 
 of random features were $D_\mathrm{in} = 300$ and $D_\mathrm{out} = 500$. The output noise variance 
@@ -1559,7 +1563,7 @@ Uncertainty estimate of KJIT for outgoing messages on the four UCI datasets.
 \end{figure*}
 
 
-\paragraph{Experiment 4: Compound gamma factor} We next simulate the compound gamma factor, 
+\paragraph{Experiment 4: Compound Gamma Factor} We next simulate the compound gamma factor, 
  a heavy-tailed prior distribution on the precision of a Gaussian random variable.
 A variable $\tau$ is said to follow the compound gamma distribution 
 if $\tau \sim \text{Gamma}(\tau; s_2, r_2)$ (shape-rate parameterization) and 
@@ -1589,7 +1593,7 @@ consultations as more problems are seen.
 %\subsection{Real data}
 %------------------------------------
 
-\paragraph{Experiment 5: Classification benchmarks} In the final experiment, we demonstrate
+\paragraph{Experiment 5: Classification Benchmarks} In the final experiment, we demonstrate
 that our method for learning the message operator is able to detect changes
 in the distribution of incoming messages via its uncertainty estimate,
 and to subsequently update its prediction through additional oracle queries.
@@ -1659,7 +1663,8 @@ and robustly adapt to this new distribution by querying the oracle.
 % \end{itemize}
 
 
-\subsubsection*{Acknowledgement}
+\subsubsection*{ACKNOWLEDGEMENT}
+We thank the anonymous reviewers for their constructive comments. 
 WJ, AG, BL, and ZS thank the Gatsby Charitable Foundation for the financial
 support.
 
@@ -1773,9 +1778,9 @@ and standard deviations.
  \textbf{RF + Gaussian kernel on joint embeddings} (KJIT) & -8.97 & 1.57  \\
  {IChol + sum of Gaussian kernel on embeddings} & -2.75 & 2.84  \\
  IChol + Gaussian kernel on joint embeddings & -8.71 & 1.69  \\\hline
- Breiman's random forests \citep{Breiman2001} & -8.69 & 1.79\\
- Extremely randomized trees \citep{Geurts2006} & -8.90 & 1.59 \\
- \citeauthor{Eslami2014}'s random forests \citep{Eslami2014} & -6.94 & 3.88 \\
+ Breiman's random forests \citepsup{Breiman2001} & -8.69 & 1.79\\
+ Extremely randomized trees \citepsup{Geurts2006} & -8.90 & 1.59 \\
+ \citetsup{Eslami2014}'s random forests \citepsup{Eslami2014} & -6.94 & 3.88 \\
  \hline
 \end{tabular}
 \end{center}
@@ -1785,12 +1790,13 @@ Here product (sum) of expected product kernels refers to a product (sum) of kern
 is an expected product kernel defined on one incoming message. Evidently, the Gaussian 
 kernel on joint mean embeddings performs significantly better than other kernels. 
 Besides the proposed method, we also compare the message prediction performance
-to  Breiman's random forests \citep{Breiman2001}, extremely randomized trees
-\citep{Geurts2006}, and \citeauthor{Eslami2014}'s random forests. We use
+to  Breiman's random forests \citepsup{Breiman2001}, extremely randomized trees
+\citepsup{Geurts2006}, and \citetsup{Eslami2014}'s random forests. We use
 scikit-learn 
 toolbox for the extremely randomized trees and Breiman's random forests. For
-\citeauthor{Eslami2014}'s random forests, we reimplemented the method as
-closely as possible according to the description given in \citet{Eslami2014}.  
+\citetsup{Eslami2014}'s random forests, we reimplemented the method as
+closely as possible according to the description given in \citetsup{Eslami2014}.  
+In all cases, the number of trees is set to 64.
 Empirically we observe that decreasing the
 log KL error below -8 will not yield 
 a noticeable performance gain in the actual EP. 
@@ -1860,7 +1866,6 @@ on the test set indicates that the operator does not overfit.
 \end{figure}
 
 
-  
 
 %%=========================================  
 %\section{MEDIAN HEURISTIC FOR GAUSSIAN KERNEL ON MEAN EMBEDDINGS  }
@@ -1905,7 +1910,7 @@ from $\hat{k}$.
 \item $\hat{\phi}(x)=\sqrt{\frac{2}{D}}\left(\cos\left(\omega_{1}^{\top}x+b_{1}\right),\ldots,\cos\left(\omega_{D}^{\top}x+b_{D}\right)\right)^{\top}\in\mathbb{R}^{D}$
 \end{enumerate}
 
-\paragraph{Why it works ?}
+\paragraph{Why It Works ?}
 \begin{thm}
 Bochner's theorem. A continuous kernel $k(x,y)=k(x-y)$ on $\mathbb{R}^{m}$
 is positive definite iff $k(\delta)$ is the Fourier transform of
@@ -1962,7 +1967,7 @@ vector. All incoming messages $(s^{(i)})_{i=1}^{c}$ are essentially
 represented as $\left(\mu_{1},\ldots,\mu_{c},\sigma_{1}^{2},\ldots,\sigma_{c}^{2}\right)^{\top}$.
 This treatment reduces the problem of having distributions as inputs
 to the familiar problem of having input points from a Euclidean space.
-The random features of \cite{Rahimi2007} can be applied straightforwardly. 
+The random features of \citesup{Rahimi2007} can be applied straightforwardly. 
 
 %------------------------------------
 \subsection{EXPECTED PRODUCT KERNEL}
@@ -2001,7 +2006,7 @@ where the imaginary part  i.e., $i\sin(tb)$ vanishes.
 %
 
 
-From \cite{Rahimi2007} which provides random features for $k(x-y)$,
+From \citesup{Rahimi2007} which provides random features for $k(x-y)$,
 we immediately have
 \begin{align*}
 \mathbb{E}_{r}\mathbb{E}_{s}k(x-y) & \approx\mathbb{E}_{r}\mathbb{E}_{s}\frac{2}{D}\sum_{i=1}^{D}\cos\left(w_{i}^{\top}x+b_{i}\right)\cos\left(w_{i}^{\top}y+b_{i}\right)\\
@@ -2049,7 +2054,7 @@ With $\hat{\phi}(r)$, we have $\kappa_\text{pro}(r, s)\approx\hat{\phi}(r)^{\top
 with equality in expectation.
 
 
-\paragraph{Analytic expression for Gaussian case}
+\paragraph{Analytic Expression for Gaussian Case}
 
 For reference, if $r, s$ are normal distributions and $k$
 is a Gaussian kernel, an analytic expression is available. Assume
