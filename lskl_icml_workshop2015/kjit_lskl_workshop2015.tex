@@ -451,7 +451,7 @@ i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
 One approach to learning the mapping  $\approxMsg{\factor}{\outV}{\theta}$ from incoming to outgoing messages
 would be to employ Gaussian process regression, using the kernel \eqref{eq:gauss_joint_emb}.
 This approach is not suited to just-in-time (JIT) learning, however,
-as both prediction and storage cost grow with the size of the training set.
+as both prediction and storage costs grow with the size of the training set.
 Instead, we define 
 a finite-dimensional random feature map $\hat{\psi} \in \mathbb{R}^{D_\mathrm{out}}$ such that 
 $\kappa(\mathsf{r}, \mathsf{s}) \approx \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s})$, 
