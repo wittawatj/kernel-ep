@@ -191,7 +191,9 @@ University of Oxford$^2$ \\
 
 \begin{abstract}
 
-We propose an efficient nonparametric strategy for learning a message operator in expectation propagation (EP), which takes as input the set of incoming messages to a factor node, and produces an outgoing message as output. This learned operator replaces the multivariate integral required in classical EP, which may not have an analytic expression. We use kernel-based regression, which is trained on a set of probability distributions representing the incoming messages, and the associated outgoing messages. The kernel approach has two main advantages: first, it is fast, as it is implemented using a novel two-layer random feature representation of the input message distributions; second, it has principled uncertainty estimates, and can be cheaply updated online, meaning it can request and incorporate new training data when it encounters inputs on which it is uncertain.  In experiments, our approach is able to solve learning problems where a single message operator is required for multiple, substantially different data sets (logistic regression for a variety of classification problems), where the ability to accurately assess uncertainty and to efficiently and robustly update the message operator are essential.
+  We propose an efficient nonparametric strategy for learning a message operator in expectation propagation (EP), which takes as input the set of incoming messages to a factor node, and produces an outgoing message as output. This learned operator replaces the multivariate integral required in classical EP, which may not have an analytic expression. We use kernel-based regression, which is trained on a set of probability distributions representing the incoming messages, and the associated outgoing messages. The kernel approach has two main advantages: first, it is fast, as it is implemented using a novel two-layer random feature representation of the input message distributions; second, it has principled uncertainty estimates, and can be cheaply updated online, meaning it can request and incorporate new training data when it encounters inputs on which it is uncertain.  In experiments, our approach is able to solve learning problems where a single message operator is required for multiple, substantially different data sets (logistic regression for a variety of classification problems), where
+it is essential to
+   accurately assess uncertainty and to efficiently and robustly update the message operator.
 
 \end{abstract}
 
@@ -219,7 +221,7 @@ approximation, or distribution conjugacy.  In reality, however, model convenienc
 simplicity can  limit
 or undermine intended models, sometimes in ways the users
 might not expect. To take one example, the inverse gamma prior, which is
-widely used due to being a convenient
+widely used as a convenient
 conjugate prior for the variance, has quite pathological behaviour \citep{Gelman2006}.
 In general, more expressive, freely chosen models are more likely
 to require expensive sampling or quadrature approaches, which can make
@@ -239,7 +241,7 @@ An improvement on this approach is to use importance sampled instances of input/
 message pairs to train a regression algorithm, which can then be used in place of the sampler.
 \citet{Heess2013} use neural networks to learn the mapping from incoming
 to outgoing messages, and the learned mappings perform well on a variety of practical problems.
-However, this approach comes with a disadvantage: it requires training data
+This approach comes with a disadvantage: it requires training data
 that cover the entire set of possible input messages for a given type of problem (e.g., datasets
 representative of all classification problems the user proposes to solve),
 and it has no way of assessing the uncertainty of its prediction, or of updating
@@ -249,12 +251,12 @@ the model online in the event that a prediction is uncertain.
 %AG: I shortened the introduction and moved details to later
 The disadvantages of the neural network approach were the basis for work by
 \cite{Eslami2014}, who replaced the neural networks with random forests.
-The random forests  provided uncertainty estimates for each prediction. This allowed them to be trained `just-in-time', during EP inference, whenever the predictor decided it was uncertain.
+The random forests  provide uncertainty estimates for each prediction. This allows them to be trained `just-in-time', during EP inference, whenever the predictor decides it is uncertain.
 Uncertainty estimation for random forests relies on unproven heuristics, however: we demonstrate
 empirically that such heuristics can become highly misleading as we move away from the initial
 training data.
 Moreover,  online updating
-can result in unbalanced trees, resulting in a cost of prediction of $O(N)$ for training data of size $N$, vs the ideal of $O(\log(N))$.
+can result in unbalanced trees, resulting in a cost of prediction of $O(N)$ for training data of size $N$, rather than the ideal of $O(\log(N))$.
 
 
 % AG: costs of GP are in paper ``Fast Gaussian Process Regression using KD-Trees'', which gives
@@ -322,8 +324,8 @@ Finally, in \secref{sec:Experiments}, we describe our experiments, which cover t
 a benchmark of our uncertainty estimates, a demonstration of factor learning
 on artificial data with well-controlled statistical properties,
 and a logistic regression experiment on four different real-world datasets,
-demonstrating our just-in-time learner can correctly evaluate its uncertainty
-and update the regression function, as the incoming messages change (see \figref{fig:uci_in_msgs}).
+demonstrating that our just-in-time learner can correctly evaluate its uncertainty
+and update the regression function as the incoming messages change (see \figref{fig:uci_in_msgs}).
 Code to implement the method is available online at \url{https://github.com/wittawatj/kernel-ep}.
 
 %AG: note code promise above :)
@@ -342,9 +344,9 @@ $p(\bx) = \frac{1}{Z} \prod_{j=1}^J \factor_j(\fx{\factor_j})$.
 %\end{equation*}
 The factors $\factor_j$ are non-negative functions which are defined over subsets $\fx{\factor_j}$ of the full set of variables $\bx$. These variables form the neighbors of the factor node $\factor_j$ in the factor graph, and we use $\fis{\factor_j}$ to denote the corresponding set of indices. $Z$ is the normalization constant.
 
-We deal with models in which some of the factors have a non-standard form, or may not have a known analytic expression (i.e.\ ``black box'' factors). Although our approach applies to any such factor in principle, in this paper we focus on \textit{directed} factors $\factor(\xout | \xin)$ which specify a conditional distribution over variables $\xout$ given $\xin$ (and thus $\fx{\factor} = (\xout, \xin))$. The only assumption we make is that we are provided with a forward sampling function $f: \xin \mapsto \xout$, i.e. a function that maps (stochastically or deterministically) a setting of the input variables $\xin$ to a sample from the conditional distribution over $\xout \sim \factor(\cdot| \xin)$.
+We deal with models in which some of the factors have a non-standard form, or may not have a known analytic expression (i.e.\ ``black box'' factors). Although our approach applies to any such factor in principle, in this paper we focus on \textit{directed} factors $\factor(\xout | \xin)$ which specify a conditional distribution over variables $\xout$ given $\xin$ (and thus $\fx{\factor} = (\xout, \xin))$. The only assumption we make is that we are provided with a forward sampling function $f: \xin \mapsto \xout$, i.e., a function that maps (stochastically or deterministically) a setting of the input variables $\xin$ to a sample from the conditional distribution over $\xout \sim \factor(\cdot| \xin)$.
 In particular, the ability to evaluate the value of $\factor(\xout | \xin)$ is not assumed.
-A natural way of specifying $f$ is a short piece of code in a probabilistic program.
+A natural way to specify $f$ is as  code in a probabilistic program.
 
 
 %--------------------------------------------------------------------
@@ -363,7 +365,7 @@ A natural way of specifying $f$ is a short piece of code in a probabilistic prog
 
 Expectation Propagation (EP) is an approximate iterative procedure for computing marginal beliefs of variables
 by iteratively passing messages between variables and factors until convergence \citep{Minka2001}.
-It can be seen as an extension of belief propagation, where the marginals are projected
+It can be seen as an alternative to belief propagation, where the marginals are projected
 onto a member of some class of known parametric distributions. 
 The message $\msg{ \factor }{\outV}(x_{\outV})$  from factor $\factor$ to variable $\outV\in\fis{\factor}$ is 
 %
@@ -398,7 +400,7 @@ Computing the numerator of (\ref{eq:msgPassing:EP}) can be challenging, as it re
 \citet{Barthelme2011,Heess2013,Eslami2014} propose an alternative, stochastic approach to the integration and projection step.
 When the projection $\proj$ is to a member $q(x|\eta)=h(x)\exp\left(\eta^{\top}u(x)-A(\eta)\right)$ of an exponential family, one simply computes the expectation of the sufficient statistic $u(\cdot)$ under the numerator of (\ref{eq:msgPassing:EP}).
 % \wjnote{Under the exact marginal $\msg{ \outV }{\factor}(x_{\outV})\msg{ \factor }{\outV}(x_{\outV})$  ?}
-A sample based approximation of this expectation can be obtained via Markov chain Monte Carlo (MCMC). 
+A sample based approximation of this expectation can be obtained via Monte Carlo simulation.   %AG: importance sampling is not MCMC
 Given a forward-sampling function $f$ as described above, one especially simple approach is importance sampling, 
 %\wjnote{$N$ is used for training size. Use $M$ here instead ?}
 %AG: fixed
@@ -432,15 +434,17 @@ Thus the estimated expected sufficient statistics provide us with an estimate of
 \label{sec:EP:JIT}
 
 Message approximations as in the previous section could be 
-used directly when running the EP algorithm as in \cite{Barthelme2011}, 
-but this approach can suffer from the unreliability of the importance sampling estimates when the number of samples $M$ is not very large. 
+used directly when running the EP algorithm, as in \cite{Barthelme2011}, 
+but this approach can suffer
+when the number of samples $M$ is small,
+and the  importance sampling estimate is not reliable. 
 %AG: fixed
 %\wjnote{Use $M$ ?}
 On the other hand, for large $M$ the computational cost of running EP 
 with approximate messages can be very high, 
 %as the message approximations have to be re-computed in each iteration of EP. 
-as the importance sampling has to be performed for sending each outgoing message.
-To obtain low-variance message approximations at lower computational cost \cite{Heess2013} and \cite{Eslami2014} both amortize previously computed approximate messages by training a function approximator to directly map a tuple of incoming variable-to-factor messages $(\msg{\outV'}{\factor} )_{\outV' \in \fis{\factor}}$ to an approximate factor to variable message $\msg{\factor}{\outV}$, i.e.\ they learn a mapping
+as importance sampling must be performed for sending each outgoing message.
+To obtain low-variance message approximations at lower computational cost, \cite{Heess2013} and \cite{Eslami2014} both amortize previously computed approximate messages by training a function approximator to directly map a tuple of incoming variable-to-factor messages $(\msg{\outV'}{\factor} )_{\outV' \in \fis{\factor}}$ to an approximate factor to variable message $\msg{\factor}{\outV}$, i.e.\, they learn a mapping
 \begin{equation}
 \approxMsg{\factor}{\outV}{\theta}: (\msg{\outV'}{\factor} )_{\outV' \in \fis{\factor}} \mapsto \msg{\factor}{\outV},
 \end{equation}
@@ -450,7 +454,7 @@ where $\theta$ are the parameters of the approximator.
 %Note that for exponential family distribution this effectively reduces to a multi-variate regression problem as each message can be represented by a finite-dimensional parameter vector, and the message update (\ref{eq:msgPassing:EP}) can thus be understood as a vector valued function.
 %\wjnote{Why do we need to mention ``can be understood as a vector valued function'' ?}
 
-While \cite{Heess2013} use neural networks and a large, fixed training set to learn their approximate message operator prior to running EP, \cite{Eslami2014}
+\cite{Heess2013} use neural networks and a large, fixed training set to learn their approximate message operator prior to running EP. By contrast, \cite{Eslami2014}
 employ random forests as their class of learning functions, and update their approximate message operator on the fly during inference, depending on the predictive uncertainty of the current message operator. Specifically, they endow their function approximator with an uncertainty estimate
 \begin{equation}
 \uncertaintyMsg{\factor}{\outV}{\theta}: (\msg{\outV'}{\factor} )_{\outV' \in \fis{\factor}} \mapsto \uncert,
@@ -463,11 +467,11 @@ on this new datapoint (leading to a new set of parameters  $\theta'$ with $\unce
 
 %The  performance of random forests in online learning relies crucially on having a reliable uncertainty estimate,
 %and being able to robustly update the trees online without an explosion in computational cost and memory.
-\cite{Eslami2014} estimated the predictive uncertainty  $\uncertaintyMsg{\factor}{\outV}{\theta}$  via
+\cite{Eslami2014} estimate the predictive uncertainty  $\uncertaintyMsg{\factor}{\outV}{\theta}$  via
 the heuristic of looking at the variability of the forest predictions for each point \citep{CriSho13}.
-They implemented their online updates by splitting the trees at their
+They implement their online updates by splitting the trees at their
 leaves.
-Both of these mechanisms can be problematic, however. First, the heuristic
+Both these mechanisms can be problematic, however. First, the heuristic
 used in computing uncertainty has no guarantees: indeed, uncertainty estimation for
 random forests remains a challenging topic of current research \citep{Hutter2009}. This is not merely a theoretical
 consideration: in our experiments in \secref{sec:Experiments}, we demonstrate that 
@@ -475,8 +479,8 @@ uncertainty heuristics for random forests become unstable and inaccurate as we m
 training data. Second, online updates of random forests may not work well
 when the newly observed data are from a very different distribution to the
 initial training sample \citep[e.g.][Fig. 3]{LakRoyTeh14}. 
-Indeed, for large amounts of training set drift, the
-leaf-splitting approach of \citeauthor{Eslami2014} can result in a decision tree which is a long chain, giving a worst case
+For large amounts of training set drift, the
+leaf-splitting approach of \citeauthor{Eslami2014} can result in a decision tree in the form of a long chain, giving a worst case
 cost of prediction (computational and storage) of $O(N)$ for training data of size $N$, vs the ideal of $O(\log(N))$
 for balanced trees.
 Finally, note that the approach of \citeauthor{Eslami2014}\ uses certain bespoke features of the factors when
@@ -536,7 +540,7 @@ to the case where the input consists of more than one distribution.
 
 We note that \citet{SonGreGue10,SonGreBicLowGue11} propose a related regression approach for predicting outgoing
 messages from incoming messages, for the purpose of belief propagation. 
-Their setup is entirely different from ours, however, as their messages are smoothed conditional density functions rather than parametric distributions of known form.
+Their setting is  different from ours, however, as their messages are smoothed conditional density functions rather than parametric distributions of known form.
 
 To achieve fast predictions and factor updates, we follow
 \citet{Rahimi2007,Le2013,YanSmoZonWil14}, and express the kernel regression in
@@ -591,8 +595,8 @@ $S:=(s^{(l)})_{l=1}^c$.
 %where the $\kappa^{(l)}$ are themselves products of a Gaussian kernels between the means, and a Gaussian kernel between the variances. We call this the {\em mean-variance kernel}.
 
 We define our kernel in terms of embeddings of the tuples $R,S$ into a reproducing kernel Hilbert space (RKHS). We first consider the embedding of a single distribution
-in the tuple: Let us define a RKHS
-$\mathcal{H}^{(l)}$ on each domain, with respective kernels $k^{(l)}(x^{(l)}_1,x^{(l)}_2)$.
+in the tuple: Let us define an RKHS
+$\mathcal{H}^{(l)}$ on each domain, with respective kernel $k^{(l)}(x^{(l)}_1,x^{(l)}_2)$.
 We may embed individual probability distributions to these RKHSs, following \citep{Smola2007}.
 The {\em mean embedding} of $r^{(l)}$ is written
 \begin{equation}
@@ -612,7 +616,7 @@ $\mathsf{r}=\times_{l=1}^{c}r^{(l)}$ as
 where we have defined the joint kernel $k$ on the product space
 %concatenation of the features
 $\mathcal{X}^{(1)}\times\cdots\times\mathcal{X}^{(c)}$.
-Finally,  a kernel on two such embeddings $\mu_{\mathsf{r}},\mu_{\mathsf{s}}$ of tuples $R,S$ can be obtained as in \citet[eq. 9]{Christmann2010}:
+Finally,  a kernel on two such embeddings $\mu_{\mathsf{r}},\mu_{\mathsf{s}}$ of tuples $R,S$ can be obtained as in \citet[eq. 9]{Christmann2010},
 %
 \begin{equation}
 \kappa(\mathsf{r}, \mathsf{s}) = \exp\left(-\frac{\|\mu_{\mathsf{r}}-\mu_{\mathsf{s}}\|_{\mathcal{H}}^{2}}{2\gamma^{2}}\right).
@@ -765,7 +769,7 @@ thus, inference on even moderately sized datasets rapidly becomes computationall
 Instead, we define 
 a finite-dimensional random feature map $\hat{\psi} \in \mathbb{R}^{D_\mathrm{out}}$ such that 
 $\kappa(\mathsf{r}, \mathsf{s}) \approx \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s})$, 
-and regress directly on these feature maps, in the primal (see next section): storage and computation 
+and regress directly on these feature maps in the primal (see next section): storage and computation 
 are then a function of the dimension of the feature map $D_\mathrm{out}$, yet performance is close to that
 obtained using a kernel.
 
@@ -797,7 +801,7 @@ of random features $\hat{\varphi}$ for a translation invariant kernel $k(x,y) = 
 % $k(x, y) = \exp\left(-\frac{\| x-y\|^2}{2\beta^2} \right)$, 
  such that $k(x, y) \approx \hat{\varphi}(x)^\top \hat{\varphi}(y)$
 where $x,y \in \mathbb{R}^d$ and $\hat{\varphi}(x), \hat{\varphi}(y) \in \mathbb{R}^{D_\mathrm{in}}$.  
-This is possible because of Bochner's theorem \citep{Rudin2013} which states that a
+This is possible because of Bochner's theorem \citep{Rudin2013}, which states that a
 continuous, translation-invariant kernel $k$ can be written in the form of an
 inverse Fourier transform:
 \begin{equation*}
@@ -851,19 +855,19 @@ We can thus further approximate this Gaussian kernel
 %
 % $ k_{\text{gauss}}\left(\hat{\phi}(p), \hat{\phi}(q);\gamma^{2}\right)\approx\hat{\psi}(p)^{\top}\hat{\psi}(q)$
 %
-by the random Fourier features of \citeauthor{Rahimi2007} to obtain a vector 
+by the random Fourier features of \citeauthor{Rahimi2007}, to obtain a vector 
 of random features $\hat{\psi}$ such that 
 $\kappa(\mathsf{r}, \mathsf{s}) \approx \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s})$
 where $\hat{\psi} \in \mathbb{R}^{D_\mathrm{out}}$. 
 Pseudocode for generating the random features $\hat{\psi}$ is given in
 Algorithm~\ref{algo:random_features_kgg}. 
 Note that the sine component in the complex exponential vanishes due to the
-translation invariance property (analogous to an even function) i.e.,  only 
+translation invariance property (analogous to an even function), i.e.,  only 
 the cosine term remains.
 Please refer to \secref{sub:Expected-Product-Kernel} in the supplementary material for more detail.
 
 For the implementation, we need to pre-compute $\left\{ \omega_{i}\right\} _{i=1}^{D_\mathrm{in}},\left\{ b_{i}\right\} _{i=1}^{D_\mathrm{in}},\left\{ \nu_{i}\right\} _{i=1}^{D_\mathrm{out}}$
-and $\left\{ c_{i}\right\} _{i=1}^{D_\mathrm{out}}$ where $D_\mathrm{in}$ and
+and $\left\{ c_{i}\right\} _{i=1}^{D_\mathrm{out}}$, where $D_\mathrm{in}$ and
 $D_\mathrm{out}$ are the number of random features used. 
 A more efficient way to support a large number of random features 
 is to store only the random seed used to generate 
@@ -1135,9 +1139,9 @@ the covariance at time $N$.
 %with $A=\Sigma_{w}^{-1(N)}$. 
 Updating $\Sigma_{w}$ for all the $D_y$ outputs costs 
 $O( (D_\mathrm{in}D_\mathrm{out} + D_\mathrm{out}^{2}) D_y)$ 
-per one new observation. 
+per new observation. 
 For $\mu_{w}= \Sigma_{w} \mathsf{X} \mathsf{Y}^{\top}\sigma_{y}^{-2}$, we maintain
-$ \mathsf{X} \mathsf{Y}^{\top}\in\mathbb{R}^{D_{\mathrm{out}}\times D_{\mathrm{y}}}$ and update it
+$ \mathsf{X} \mathsf{Y}^{\top}\in\mathbb{R}^{D_{\mathrm{out}}\times D_{\mathrm{y}}}$, and update it
 at cost $O(D_\mathrm{in}D_\mathrm{out}D_y)$ as
 \begin{equation}
 \left( \feaX \feaY^{\top}\right)^{(N+1)}=\left( \feaX \feaY^{\top}+ \feax_{N+1} \feay^\top_{N+1}\right).
@@ -1156,7 +1160,7 @@ output.
 Let $\{\tau_{i}\}_{i=1}^{D_{y}}$ be pre-specified predictive variance thresholds.
 %\wjnote{How should we choose these thresholds ?}
 Given a new input $\feax^{*}$, if $v_{1}^{*}>\tau_{1}$ or $\cdots$
-or $v_{D_{y}}^{*}>\tau_{D_{y}}$ i.e., the operator is uncertain, 
+or $v_{D_{y}}^{*}>\tau_{D_{y}}$ (the operator is uncertain), 
 a query is made to the oracle to obtain a ground truth $\feay^{*}$. 
 The pair $(\feax^{*}, \feay^{*})$ is then
 used to update $\Sigma_{w}$ and $\mu_{w}$.% as described previously. 
@@ -1169,11 +1173,11 @@ used to update $\Sigma_{w}$ and $\mu_{w}$.% as described previously.
 \label{sec:Experiments}
 %=============================================
 
-Below we evaluate our learned message operator using two different factors: the logistic factor, and the compound gamma factor. In the first and second experiment we demonstrate that the proposed operator is capable of learning high-quality mappings from incoming to outgoing messages, and that the associated uncertainty estimates are  reliable. The third and fourth experiments assess the performance of the operator as part of the full EP inference loop in two different models: approximating the logistic, and the compound gamma factor. Our final experiment demonstrates the  ability of our learning process to reliably and quickly adapt to large shifts in the message distribution, as encountered during inference in a sequence of several real-world regression problems. 
+We evaluate our learned message operator using two different factors: the logistic factor, and the compound gamma factor. In the first and second experiment we demonstrate that the proposed operator is capable of learning high-quality mappings from incoming to outgoing messages, and that the associated uncertainty estimates are  reliable. The third and fourth experiments assess the performance of the operator as part of the full EP inference loop in two different models: approximating the logistic, and the compound gamma factor. Our final experiment demonstrates the  ability of our learning process to reliably and quickly adapt to large shifts in the message distribution, as encountered during inference in a sequence of several real-world regression problems. 
 
 
 For all experiments we used Infer.NET \citep{Minka2014} with its extensible factor interface for our own operator. 
-We use the default settings of Infer.NET unless stated otherwise. 
+We used the default settings of Infer.NET unless stated otherwise. 
 The regression target is the marginal belief (numerator of \eqref{eq:msgPassing:EP}) in experiment 1,2,3 and 5. We set the regression target to the outgoing message in experiment 4. 
 Given a marginal belief, the outgoing message can be calculated straightforwardly.
 % as
@@ -1227,7 +1231,7 @@ $\msg{p_i}{\factor} = \text{Beta}(p_i; \alpha, \beta) $.
 
 
 \paragraph{Experiment 1: Batch Learning} 
-As in \citet{Heess2013} and \citet{Eslami2014}, we study the logistic factor 
+As in \citep{Heess2013,Eslami2014}, we study the logistic factor 
 $\factor(p|z)=\delta\left(p-\frac{1}{1+\exp(-z)}\right),$ 
 %
 % \begin{equation*}
@@ -1359,7 +1363,7 @@ the supplementary material for a comparison with other methods.
 \end{figure}
 
 
-For the approximate message operator to perform well in a JIT learning setting it is crucial to have reliable estimates 
+For the approximate message operator to perform well in a JIT learning setting, it is crucial to have reliable estimates 
 of operator's predictive uncertainty in different parts of the space of incoming messages.
 %in unexplored regions in the space of incoming messages. 
 To assess this property  we compute the predictive variance using the same learned operator as used in 
@@ -1388,7 +1392,7 @@ follows
 From the figure, as the mean of the test message moves away from the region densely sampled by the training data, the predictive variance reported by the kernel method increases
 much more smoothly than that of the random forests. Further, our method
 clearly exhibits a higher uncertainty on the test set \#1 than on the test set \#2.
-This behaviour is desirable, as most of the points in the test set \#1 are either 
+This behaviour is desirable, as most of the points in  test set \#1 are either 
 in a low density region or an unexplored region. These results suggest that the 
 predictive variance is a robust criterion for querying the importance sampling oracle.
 One key observation is that the uncertainty estimates of the random 
@@ -1398,6 +1402,9 @@ sampler oracle when
 presented with incoming messages similar to those in the training set, 
 thereby wasting computation.
 
+We have further checked that the predictive uncertainty of the regression function is a
+reliable indication of the error in KL divergence of the predicted outgoing messages. These results
+are given in Figure \ref{fig:logistic_predvar_g} of Appendix \ref{sec:batch_learning_detail}.
 
 %\begin{figure}
 %\centering
@@ -1453,7 +1460,7 @@ an importance sampler as the oracle rather than Infer.NET's factor implementatio
 where the proposal distribution was fixed to $\mathcal{N}(z; 0, 200)$ with 
 $5 \times 10^5$ particles.
 
-\figref{fig:logistic_temporal_uncertainty} shows a trace of predictive variance 
+\figref{fig:logistic_temporal_uncertainty} shows a trace of the predictive variance 
 of KJIT in predicting the mean of each $\msg{\factor}{z_i}$ upon each factor invocation. 
 The black dashed lines indicate the start of a new inference problem. 
 Since the first 300 factor invocations are for the initial training, 
@@ -1465,11 +1472,11 @@ which is relatively low compared to approximately 3,000 message passings
 The uncertainty trace displays a periodic structure, repeating itself in 
 every 300 factor invocations, corresponding to a full sweep over all 300 
 observations to collect incoming messages $\msg{z_i}{\factor}$. 
-The abrupt drop of uncertainty in the first EP iteration of each new problem is 
+The abrupt drop in uncertainty in the first EP iteration of each new problem is 
 due to the fact that Infer.NET's inference engine initializes the message from 
 $\boldsymbol{w}$ to have zero mean, leading to $\msg{z_i}{\factor}$ also having a 
 zero mean. Repeated encounters of such a zero mean incoming message reinforce the 
-operator's confidence; hence the drop of uncertainty. 
+operator's confidence; hence the drop in uncertainty. 
 
 % logistic classification error. Inference time
 \begin{figure}[t]
@@ -1562,7 +1569,7 @@ than the importance sampler.
   }
   \caption{Shape (a) and rate (b) parameters of the inferred posteriors in 
   the compound gamma problem. 
-  (c) KJIT is able to infer equally good posterior parameters compared to Infer.NET 
+  (c) KJIT is able to infer equally good posterior parameters compared to Infer.NET, 
   while requiring a runtime several orders of magnitude lower. }
   \label{fig:cg_performance}
 \end{figure}
@@ -1654,7 +1661,7 @@ variance of each outgoing message is shown in
 \figref{fig:uci_temporal_uncertainty}. An essential feature to notice is the 
 rapid increase of the uncertainty after the first EP iteration of each problem. 
 As shown in \figref{fig:uci_in_msgs}, the distributions of incoming messages 
- the four problems are diverse. 
+of the four problems are diverse. 
 The sharp rise followed by a steady decrease of the uncertainty is a good indicator 
 that the operator is able to promptly detect a change in input message distribution,
 and robustly adapt to this new distribution by querying the oracle.
@@ -1750,137 +1757,6 @@ support.
 Messages}
 
 {\large SUPPLEMENTARY MATERIAL}
-%=========================================  
-\section{MORE DETAIL ON EXPERIMENT 1: BATCH LEARNING }
-\label{sec:batch_learning_detail}
-%=========================================
-
-There are a number of kernels on distributions we may use for just-in-time learning.
-To find the most suitable kernel, we compare the performance of each on a 
-collection of incoming and output
-messages at the logistic factor in the binary logistic regression problem i.e., 
-same problem as in experiment $1$ in the main text.
-All messages are collected by running EP 20 times on generated toy data. 
-Only messages in the first five iterations are considered as messages passed in 
-the early phase of EP vary more than in a near-convergence phase.
-The output to the regression is the belief messages i.e., the numerator of \eqref{eq:msgPassing:EP}. 
-
-A training set of 5000 messages and a test set of 3000 messages are obtained by 
-subsampling all the collected messages. 
-Where random features (denoted by RF) are used, kernel widths 
-and regularization parameters are chosen by leave-one-out cross validation.
-To get a good sense of approximation error from the random features, we also 
-compare with incomplete Cholesky factorization (denoted by IChol), a widely used 
-gram matrix approximation technique. We use repeated hold-out for parameter selection 
-and kernel ridge regression in its dual form when the incomplete Cholesky 
-factorization is used. 
-
-Let $\factor$ be the logistic factor and $m_{\factor \rightarrow i}$ be an outgoing message. 
-Let $q_{\factor \rightarrow i}$ be the ground truth belief message (numerator) associated with 
-$m_{\factor\rightarrow i}$. The error metric we use is 
-$\mathrm{KL}[q_{\factor \rightarrow i}\,||\, \hat{q}_{\factor \rightarrow i}]$
-where  $\hat{q}_{\factor \rightarrow i}$ is the belief messages estimated by a learned 
-regression function. The following table reports the mean of the log KL-divergence 
-and standard deviations.
-
-\begin{center}
-
-\begin{tabular}{lcc}
-\hline
-& \textbf{mean log KL} & \textbf{s.d. of log KL}  \\\hline
- RF + MV Kernel & -6.96 & 1.67 \\ 
- {RF + Expected product kernel on joint embeddings} & -2.78 & 1.82  \\
- {RF + Sum of expected product kernels} & -1.05 & 1.93  \\
- {RF + Product of expected product kernels} & -2.64 & 1.65  \\
- \textbf{RF + Gaussian kernel on joint embeddings} (KJIT) & -8.97 & 1.57  \\
- {IChol + sum of Gaussian kernel on embeddings} & -2.75 & 2.84  \\
- IChol + Gaussian kernel on joint embeddings & -8.71 & 1.69  \\\hline
- Breiman's random forests \citepsup{Breiman2001} & -8.69 & 1.79\\
- Extremely randomized trees \citepsup{Geurts2006} & -8.90 & 1.59 \\
- \citetsup{Eslami2014}'s random forests \citepsup{Eslami2014} & -6.94 & 3.88 \\
- \hline
-\end{tabular}
-\end{center}
-
-The MV kernel is defined in \secref{sec:mv_kernel}. 
-Here product (sum) of expected product kernels refers to a product (sum) of kernels, each 
-is an expected product kernel defined on one incoming message. Evidently, the Gaussian 
-kernel on joint mean embeddings performs significantly better than other kernels. 
-Besides the proposed method, we also compare the message prediction performance
-to  Breiman's random forests \citepsup{Breiman2001}, extremely randomized trees
-\citepsup{Geurts2006}, and \citetsup{Eslami2014}'s random forests. We use
-scikit-learn 
-toolbox for the extremely randomized trees and Breiman's random forests. For
-\citetsup{Eslami2014}'s random forests, we reimplemented the method as
-closely as possible according to the description given in \citetsup{Eslami2014}.  
-In all cases, the number of trees is set to 64.
-Empirically we observe that decreasing the
-log KL error below -8 will not yield 
-a noticeable performance gain in the actual EP. 
-
-%\begin{comment} 
-%\textbf{Result paths:} 
-%\begin{itemize}
-%\item{ \small\verb|exp7/RFGMVMapperLearner_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
-%\item{ \small\verb|exp7/RFGJointEProdLearner_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
-%\item{ \small\verb|exp7/RFGSumEProdLearner_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
-%\item{ \small\verb|exp7/RFGProductEProdLearner_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
-%\item{ \small\verb|exp7/RFGJointKGGLearner_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
-%\item{ \small\verb|exp7/ICholKProduct_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
-%\item{ \small\verb|exp7/ICholKProduct_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
-%\item{ \small\verb|exp7/ICholKSum_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
-%\item{ \small\verb|exp7/ICholKGGaussianJoint_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
-%\end{itemize}
-
- 
-%\textbf{Selected parameters:} 
-%\begin{itemize}
-%\item{ \footnotesize\verb|GenericMapper(CondFMFiniteOut(RandFourierGaussMVMap(mw2s=[1.11211      65.6983], vw2s=[0.001     0.52568])), DNormalLogVarBuilder)| } 
-%\item{ \footnotesize\verb|GenericMapper(CondFMFiniteOut(RFGJointEProdMap(gw2s=[0.11111      4.2764])), DNormalLogVarBuilder)| } 
-%\item{ \footnotesize\verb|GenericMapper(CondFMFiniteOut(RFGSumEProdMap(gw2s=[0.555556      21.3243])), DNormalLogVarBuilder)| } 
-%\item{ \footnotesize\verb|GenericMapper(CondFMFiniteOut(RFGProductEProdMap(gw2s=[0.011111     0.44049])), DNormalLogVarBuilder)| } 
-%\item{ \footnotesize\verb|GenericMapper(StackInstancesMapper(BayesLinRegFM(RFGJointKGG(embed_w2=[0.055556      2.1709], outer_w2=0.26)), BayesLinRegFM(RFGJointKGG(embed_w2=[0.055556      2.1709], outer_w2=0.10))), DNormalLogVarBuilder)| } 
-%\item{ \footnotesize\verb|GenericMapper(StackInstancesMapper(CondCholFiniteOut(r=72), CondCholFiniteOut(r=34)), DNormalLogVarBuilder)| } 
-%\item{ \footnotesize\verb|GenericMapper(StackInstancesMapper(CondCholFiniteOut(r=72), CondCholFiniteOut(r=34)), DNormalLogVarBuilder)| } 
-%\item{ \footnotesize\verb|GenericMapper(StackInstancesMapper(CondCholFiniteOut(r=90), CondCholFiniteOut(r=119)), DNormalLogVarBuilder)| } 
-%\item{ \footnotesize\verb|GenericMapper(StackInstancesMapper(CondCholFiniteOut(r=158), CondCholFiniteOut(r=225)), DNormalLogVarBuilder)| } 
-%\end{itemize}
-
-%ans =
-
-%   -6.9554    1.6726       NaN
-%   -2.7765    1.8261       NaN
-%   -1.0518    1.9315       NaN
-%   -2.6410    1.6450       NaN
-%   -8.9591    1.6218       NaN
-%   -3.2097    1.9868       NaN
-%   -3.2097    1.9868       NaN
-%   -2.7510    2.8382       NaN
-%   -8.7144    1.6864       NaN
-%\end{comment}
-
-
-%------------------------------------
-\subsection{UNCERTAINTY ESTIMATES}
-%------------------------------------
-To verify that the uncertainty estimates given by KJIT coincide with the actual 
-predictive performance (i.e., accurate prediction when confident), we plot the 
-predictive variance against the KL-divergence error on both the training and
-test sets. The results are shown in \figref{fig:logistic_predvar_g}.
-%
-The uncertainty estimates show a positive correlation with the KL-divergence errors. 
-It is instructive to note that no point lies at the bottom right i.e., making a
-large error when being confident. 
-The fact that the errors on the training set are roughly the same as the errors
-on the test set indicates that the operator does not overfit.
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=8cm]{img/pred_var/fm_kgg_joint_-bw-out1-crop}
-  \caption{KL-divergence error versus predictive variance for predicting the 
-  mean of $m_{f \rightarrow z_i}$ (normal distribution) in the logistic factor problem. }
-  \label{fig:logistic_predvar_g}
-\end{figure}
 
 
 
@@ -1973,7 +1849,7 @@ and $D$ is the number of random features. High $D$ yields a better
 approximation with higher computational cost. Assume $k(x,y)=k(x-y)$ (translation invariant)
 and $x,y\in\mathbb{R}^{d}$. Random Fourier features $\hat{\phi}(x)\in\mathbb{R}^{D}$
 such that $k(x,y)\approx\hat{\phi}(x)^{\top}\hat{\phi}(y)$ are generated
-as follows.
+as follows:
 \begin{enumerate}
 \item Compute the Fourier transform $\hat{k}$ of the kernel $k$: $\hat{k}(\omega)=\frac{1}{2\pi}\int e^{-j\omega^{\top}\delta}k(\delta)\, d\delta$.
 For a Gaussian kernel with unit width, $\hat{k}(\omega)=\left(2\pi\right)^{-d/2}e^{-\|\omega\|^{2}/2}$.
@@ -1984,7 +1860,7 @@ from $\hat{k}$.
 \item $\hat{\phi}(x)=\sqrt{\frac{2}{D}}\left(\cos\left(\omega_{1}^{\top}x+b_{1}\right),\ldots,\cos\left(\omega_{D}^{\top}x+b_{D}\right)\right)^{\top}\in\mathbb{R}^{D}$
 \end{enumerate}
 
-\paragraph{Why It Works ?}
+\paragraph{Why It Works }
 \begin{thm}
 Bochner's theorem \citepsup{Rudin2013}. A continuous kernel $k(x,y)=k(x-y)$ on $\mathbb{R}^{m}$
 is positive definite iff $k(\delta)$ is the Fourier transform of
@@ -1993,14 +1869,13 @@ a non-negative measure.
 %
 Furthermore, if a translation invariant kernel $k(\delta)$ is properly
 scaled, Bochner's theorem guarantees that its Fourier transform $p(\omega)$
-is a proper probability distribution. From this fact, we have 
+is a  probability distribution. From this fact, we have 
 \[
 k(x-y)=\int\hat{k}(\omega)e^{j\omega^{\top}\left(x-y\right)}\, d\omega=\mathbb{E}_{\omega}\left[\eta_{\omega}(x)\eta_{\omega}(y)^{*}\right], 
 \]
 where $j=\sqrt{-1}$, $\eta_{\omega}(x)=e^{j\omega^{\top}x}$ and $\cdot^{*}$ denotes
 the complex conjugate. Since both $\hat{k}$ and $k$ are real, the complex
-exponential contains only the cosine terms. Drawing $D$ samples is
-for lowering the variance of the approximation.
+exponential contains only the cosine terms. Drawing $D$ samples lowers the variance of the approximation.
 %
 \begin{thm}
 \label{thm:Separation-of-variables.}Separation of variables. Let
@@ -2037,7 +1912,7 @@ kernel on means and variances.
 where $k$ is a Gaussian kernel with unit width. The kernel $\kappa_{\text{mv}}$
 has $P:=\left(w_{1}^{m},\ldots,w_{c}^{m},w_{1}^{v},\ldots,w_{c}^{v}\right)$
 as its parameters. With this kernel, we treat messages as finite dimensional
-vector. All incoming messages $(s^{(i)})_{i=1}^{c}$ are essentially
+vectors. All incoming messages $(s^{(i)})_{i=1}^{c}$ are 
 represented as $\left(\mu_{1},\ldots,\mu_{c},\sigma_{1}^{2},\ldots,\sigma_{c}^{2}\right)^{\top}$.
 This treatment reduces the problem of having distributions as inputs
 to the familiar problem of having input points from a Euclidean space.
@@ -2054,7 +1929,7 @@ as
 \kappa_{\text{pro}}(r, s)=\left\langle \mu_{r},\mu_{s}\right\rangle _{\mathcal{H}}=\mathbb{E}_{r}\mathbb{E}_{s}k(x-y),
 \]
 where $\mu_{r}:=\mathbb{E}_{r}k(x,\cdot)$ is the mean embedding of
-$r$ and we assume that the kernel $k$ associated with $\mathcal{H}$
+$r$, and we assume that the kernel $k$ associated with $\mathcal{H}$
 is translation invariant i.e., $k(x,y)=k(x-y)$. The goal here is
 to derive random Fourier features for the expected product kernel.
 That is, we aim to find $\hat{\phi}$ such that $\kappa_{\text{pro}}(r, s)\approx\hat{\phi}(r)^{\top}\hat{\phi}(s)$
@@ -2075,7 +1950,7 @@ For $m=0,t=1$, we have
 \[
 c_{b}(1)=\mathbb{E}_{b}\left[\exp(ib)\right]=\exp\left(-\frac{1}{2}\sigma^{2}\right)=\mathbb{E}_{b}\left[\cos(b)\right]
 \]
-where the imaginary part  i.e., $i\sin(tb)$ vanishes.
+where the imaginary part  $i\sin(tb)$ vanishes.
 \end{proof}
 %
 
@@ -2133,9 +2008,9 @@ with equality in expectation.
 For reference, if $r, s$ are normal distributions and $k$
 is a Gaussian kernel, an analytic expression is available. Assume
 $k(x-y)=\exp\left(-\frac{1}{2}\left(x-y\right)^{\top}\Sigma^{-1}\left(x-y\right)\right)$
-where $\Sigma$ is the kernel parameter.
+where $\Sigma$ is the kernel parameter. Then
 \begin{align*}
-\mathbb{E}_{r}\mathbb{E}_{s}k(x-y) & =\sqrt{\frac{\det(D_{rs})}{\det(\Sigma^{-1})}}\exp\left(-\frac{1}{2}\left(m_{r}-m_{s}\right)^{\top}D_{rs}\left(m_{r}-m_{s}\right)\right)\\
+\mathbb{E}_{r}\mathbb{E}_{s}k(x-y) & =\sqrt{\frac{\det(D_{rs})}{\det(\Sigma^{-1})}}\exp\left(-\frac{1}{2}\left(m_{r}-m_{s}\right)^{\top}D_{rs}\left(m_{r}-m_{s}\right)\right),\\
 D_{rs} & :=\left(V_{r}+V_{s}+\Sigma\right)^{-1}.
 \end{align*}
 
@@ -2145,12 +2020,12 @@ D_{rs} & :=\left(V_{r}+V_{s}+\Sigma\right)^{-1}.
 See \verb|primalKEGauss.m|.
 \end{comment}
 {} The following result compares the randomly generated features to
-the true kernel matrix using various number of random features $D$. 
-For each $D$, we repeat 10 trials where the randomness in each trial 
+the true kernel matrix using various numbers of random features $D$. 
+For each $D$, we repeat 10 trials, where the randomness in each trial 
 arises from the construction of the random features. 
 Samples are univariate normal distributions $\mathcal{N}(m, v)$ where 
 $m \sim \mathcal{N}(0, 9)$ and $v \sim \text{Gamma}(3, 1/4)$ (shape-rate 
-parameterization). The kernel parameter $\Sigma:=\sigma^2 I$ where $\sigma^2=3$.
+parameterization). The kernel parameter was $\Sigma:=\sigma^2 I$ where $\sigma^2=3$.
 
 \begin{center}
 \includegraphics[width=10cm]{img/primal_egauss_sanity-crop}
@@ -2164,7 +2039,7 @@ matrix and the approximated kernel matrix.
 \subsection{PRODUCT KERNEL ON MEAN EMBEDDINGS}
 %------------------------------------
 Previously, we have defined an expected product kernel on single distributions.
-One way to define a kernel on two tuples of more than one incoming message is to take 
+One way to define a kernel between two tuples of more than one incoming message is to take 
 a product of the kernels defined on each message.
 
 Let $\mu_{r^{(l)}}:=\mathbb{E}_{r^{(l)}(a)}k^{(l)}(\cdot,a)$ be the mean
@@ -2185,7 +2060,7 @@ where $\hat{\phi}(R)^{\top}\hat{\phi}(S)=\prod_{l=1}^{c}\hat{\phi}^{(l)}(r^{(l)}
 The feature map $\hat{\phi}^{(l)}(r^{(l)})$ can be estimated by applying
 the random Fourier features to $k_{\text{gauss }}^{(l)}$and taking
 the expectations $\mathbb{E}_{r^{(l)}(a)}\mathbb{E}_{s^{(l)}(b)}$.
-The final feature map is $\hat{\phi}(R)=\hat{\phi}^{(1)}(r^{(1)})\circledast\hat{\phi}^{(2)}(r^{(2)})\circledast\cdots\circledast\hat{\phi}^{(c)}(r^{(c)})\in\mathbb{R}^{D^{c}}$where
+The final feature map is $\hat{\phi}(R)=\hat{\phi}^{(1)}(r^{(1)})\circledast\hat{\phi}^{(2)}(r^{(2)})\circledast\cdots\circledast\hat{\phi}^{(c)}(r^{(c)})\in\mathbb{R}^{D^{c}}$, where
 $\circledast$ denotes a Kronecker product and we assume that $\hat{\phi}^{(l)}\in\mathbb{R}^{D}$
 for $l\in\{1,\ldots,c\}$. 
 
@@ -2264,6 +2139,142 @@ is $D_\mathrm{out}$ as compared to $D_\mathrm{out}^{c}$ (product kernel) and $cD
 variables as independent.
 
 \end{comment}
+
+
+%=========================================  
+\section{MORE DETAIL ON EXPERIMENT 1: BATCH LEARNING }
+\label{sec:batch_learning_detail}
+%=========================================
+
+There are a number of kernels on distributions we may use for just-in-time learning.
+To find the most suitable kernel, we compare the performance of each on a 
+collection of incoming and output
+messages at the logistic factor in the binary logistic regression problem i.e., 
+same problem as in experiment $1$ in the main text.
+All messages are collected by running EP 20 times on generated toy data. 
+Only messages in the first five iterations are considered as messages passed in 
+the early phase of EP vary more than in a near-convergence phase.
+The regression output to be learned is the numerator of \eqref{eq:msgPassing:EP}. 
+
+A training set of 5000 messages and a test set of 3000 messages are obtained by 
+subsampling all the collected messages. 
+Where random features (denoted by RF) are used, kernel widths 
+and regularization parameters are chosen by leave-one-out cross validation.
+To get a good sense of the approximation error from the random features, we also 
+compare with incomplete Cholesky factorization (denoted by IChol), a widely used 
+gram matrix approximation technique. We use
+hold-out cross validation with randomly chosen training and validation sets
+for parameter selection,
+%repeated hold-out for parameter selection 
+and kernel ridge regression in its dual form when the incomplete Cholesky 
+factorization is used. 
+
+Let $\factor$ be the logistic factor and $m_{\factor \rightarrow i}$ be an outgoing message. 
+Let $q_{\factor \rightarrow i}$ be the ground truth belief message (numerator) associated with 
+$m_{\factor\rightarrow i}$. The error metric we use is 
+$\mathrm{KL}[q_{\factor \rightarrow i}\,||\, \hat{q}_{\factor \rightarrow i}]$
+where  $\hat{q}_{\factor \rightarrow i}$ are the belief messages estimated by a learned 
+regression function. The following table reports the mean of the log KL-divergence 
+and standard deviations.
+
+\begin{center}
+
+\begin{tabular}{lcc}
+\hline
+& \textbf{mean log KL} & \textbf{s.d. of log KL}  \\\hline
+ RF + MV Kernel & -6.96 & 1.67 \\ 
+ {RF + Expected product kernel on joint embeddings} & -2.78 & 1.82  \\
+ {RF + Sum of expected product kernels} & -1.05 & 1.93  \\
+ {RF + Product of expected product kernels} & -2.64 & 1.65  \\
+ \textbf{RF + Gaussian kernel on joint embeddings} (KJIT) & -8.97 & 1.57  \\
+ {IChol + sum of Gaussian kernel on embeddings} & -2.75 & 2.84  \\
+ IChol + Gaussian kernel on joint embeddings & -8.71 & 1.69  \\\hline
+ Breiman's random forests \citepsup{Breiman2001} & -8.69 & 1.79\\
+ Extremely randomized trees \citepsup{Geurts2006} & -8.90 & 1.59 \\
+ \citetsup{Eslami2014}'s random forests \citepsup{Eslami2014} & -6.94 & 3.88 \\
+ \hline
+\end{tabular}
+\end{center}
+
+The MV kernel is defined in \secref{sec:mv_kernel}. 
+Here product (sum) of expected product kernels refers to a product (sum) of kernels, where each 
+is an expected product kernel defined on one incoming message. Evidently, the Gaussian 
+kernel on joint mean embeddings performs significantly better than other kernels. 
+Besides the proposed method, we also compare the message prediction performance
+to  Breiman's random forests \citepsup{Breiman2001}, extremely randomized trees
+\citepsup{Geurts2006}, and \citetsup{Eslami2014}'s random forests. We use
+scikit-learn 
+toolbox for the extremely randomized trees and Breiman's random forests. For
+\citetsup{Eslami2014}'s random forests, we reimplemented the method as
+closely as possible according to the description given in \citetsup{Eslami2014}.  
+In all cases, the number of trees is set to 64.
+Empirically we observe that decreasing the
+log KL error below -8 will not yield 
+a noticeable performance gain in the actual EP. 
+
+%\begin{comment} 
+%\textbf{Result paths:} 
+%\begin{itemize}
+%\item{ \small\verb|exp7/RFGMVMapperLearner_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
+%\item{ \small\verb|exp7/RFGJointEProdLearner_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
+%\item{ \small\verb|exp7/RFGSumEProdLearner_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
+%\item{ \small\verb|exp7/RFGProductEProdLearner_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
+%\item{ \small\verb|exp7/RFGJointKGGLearner_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
+%\item{ \small\verb|exp7/ICholKProduct_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
+%\item{ \small\verb|exp7/ICholKProduct_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
+%\item{ \small\verb|exp7/ICholKSum_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
+%\item{ \small\verb|exp7/ICholKGGaussianJoint_binlogis_bw_proj_n400_iter5_sf1_st20_ntr5000.mat| } 
+%\end{itemize}
+
+ 
+%\textbf{Selected parameters:} 
+%\begin{itemize}
+%\item{ \footnotesize\verb|GenericMapper(CondFMFiniteOut(RandFourierGaussMVMap(mw2s=[1.11211      65.6983], vw2s=[0.001     0.52568])), DNormalLogVarBuilder)| } 
+%\item{ \footnotesize\verb|GenericMapper(CondFMFiniteOut(RFGJointEProdMap(gw2s=[0.11111      4.2764])), DNormalLogVarBuilder)| } 
+%\item{ \footnotesize\verb|GenericMapper(CondFMFiniteOut(RFGSumEProdMap(gw2s=[0.555556      21.3243])), DNormalLogVarBuilder)| } 
+%\item{ \footnotesize\verb|GenericMapper(CondFMFiniteOut(RFGProductEProdMap(gw2s=[0.011111     0.44049])), DNormalLogVarBuilder)| } 
+%\item{ \footnotesize\verb|GenericMapper(StackInstancesMapper(BayesLinRegFM(RFGJointKGG(embed_w2=[0.055556      2.1709], outer_w2=0.26)), BayesLinRegFM(RFGJointKGG(embed_w2=[0.055556      2.1709], outer_w2=0.10))), DNormalLogVarBuilder)| } 
+%\item{ \footnotesize\verb|GenericMapper(StackInstancesMapper(CondCholFiniteOut(r=72), CondCholFiniteOut(r=34)), DNormalLogVarBuilder)| } 
+%\item{ \footnotesize\verb|GenericMapper(StackInstancesMapper(CondCholFiniteOut(r=72), CondCholFiniteOut(r=34)), DNormalLogVarBuilder)| } 
+%\item{ \footnotesize\verb|GenericMapper(StackInstancesMapper(CondCholFiniteOut(r=90), CondCholFiniteOut(r=119)), DNormalLogVarBuilder)| } 
+%\item{ \footnotesize\verb|GenericMapper(StackInstancesMapper(CondCholFiniteOut(r=158), CondCholFiniteOut(r=225)), DNormalLogVarBuilder)| } 
+%\end{itemize}
+
+%ans =
+
+%   -6.9554    1.6726       NaN
+%   -2.7765    1.8261       NaN
+%   -1.0518    1.9315       NaN
+%   -2.6410    1.6450       NaN
+%   -8.9591    1.6218       NaN
+%   -3.2097    1.9868       NaN
+%   -3.2097    1.9868       NaN
+%   -2.7510    2.8382       NaN
+%   -8.7144    1.6864       NaN
+%\end{comment}
+
+
+%------------------------------------
+%\subsection{UNCERTAINTY ESTIMATES}
+%------------------------------------
+To verify that the uncertainty estimates given by KJIT coincide with the actual 
+predictive performance (i.e., accurate prediction when confident), we plot the 
+predictive variance against the KL-divergence error on both the training and
+test sets. The results are shown in \figref{fig:logistic_predvar_g}.
+%
+The uncertainty estimates show a positive correlation with the KL-divergence errors. 
+It is instructive to note that no point lies at the bottom right i.e., making a
+large error while being confident. 
+The fact that the errors on the training set are roughly the same as the errors
+on the test set indicates that the operator does not overfit.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=8cm]{img/pred_var/fm_kgg_joint_-bw-out1-crop}
+  \caption{KL-divergence error versus predictive variance for predicting the 
+  mean of $m_{f \rightarrow z_i}$ (normal distribution) in the logistic factor problem. }
+  \label{fig:logistic_predvar_g}
+\end{figure}
 
 
 \bibliographystylesup{abbrvnat}
