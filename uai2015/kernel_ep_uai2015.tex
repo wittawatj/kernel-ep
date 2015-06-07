@@ -174,7 +174,9 @@ Messages}
 % }
 
 \author{
-Wittawat Jitkrittum$^1$, \, Arthur Gretton$^1$, \, Nicolas Heess, \, \textbf{S. M. Ali Eslami} \\
+    Wittawat Jitkrittum$^1$, \, Arthur Gretton$^1$, \, Nicolas
+    Heess\thanks{\hspace{1mm} Currently at Google DeepMind.}, \,
+\textbf{S. M. Ali Eslami}$^*$ \\
 \textbf{Balaji Lakshminarayanan}$^1$, \, \textbf{Dino Sejdinovic}$^2$ \and \textbf{ Zolt{\'a}n Szab{\'o}}$^1$  \vspace*{2mm} \\
 Gatsby Unit, University College London$^1$ \\
 \vspace*{2mm}
@@ -797,7 +799,7 @@ of random features $\hat{\varphi}$ for a translation invariant kernel $k(x,y) = 
 where $x,y \in \mathbb{R}^d$ and $\hat{\varphi}(x), \hat{\varphi}(y) \in \mathbb{R}^{D_\mathrm{in}}$.  
 This is possible because of Bochner's theorem \citep{Rudin2013} which states that a
 continuous, translation-invariant kernel $k$ can be written in the form of an
-inverse Fourier transform
+inverse Fourier transform:
 \begin{equation*}
 k(x-y)=\int\hat{k}(\omega)e^{j\omega^{\top}\left(x-y\right)}\,
 d\omega,
