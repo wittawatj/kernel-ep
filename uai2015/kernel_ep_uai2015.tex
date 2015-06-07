@@ -315,7 +315,7 @@ We also give a brief overview of previous learning approaches to the problem, wi
 that of \citet{Eslami2014}.
 Next, in \secref{sec:Online}, we describe our kernel regression approach, and
 the form of an efficient kernel message operator mapping the input messages (distributions embedded in an
-RKHS) to output messages (sets of parameters of the outgoing messages).
+RKHS) to outgoing messages (sets of parameters of the outgoing messages).
 Finally, in \secref{sec:Experiments}, we describe our experiments, which cover three topics:
 a benchmark of our uncertainty estimates, a demonstration of factor learning
 on artificial data with well-controlled statistical properties,
@@ -471,7 +471,7 @@ random forests remains a challenging topic of current research \citep{Hutter2009
 consideration: in our experiments in \secref{sec:Experiments}, we demonstrate that 
 uncertainty heuristics for random forests become unstable and inaccurate as we move away from the initial
 training data. Second, online updates of random forests may not work well
-when the newly observed data is from a very different distribution to the
+when the newly observed data are from a very different distribution to the
 initial training sample \citep[e.g.][Fig. 3]{LakRoyTeh14}. 
 Indeed, for large amounts of training set drift, the
 leaf-splitting approach of \citeauthor{Eslami2014} can result in a decision tree which is a long chain, giving a worst case
@@ -536,7 +536,9 @@ We note that \citet{SonGreGue10,SonGreBicLowGue11} propose a related regression 
 messages from incoming messages, for the purpose of belief propagation. 
 Their setup is entirely different from ours, however, as their messages are smoothed conditional density functions rather than parametric distributions of known form.
 
-To achieve fast predictions and factor updates, we follow \citep{Rahimi2007,Le2013,YanSmoZonWil14}, and express the kernel regression in terms of random features whose expected inner product
+To achieve fast predictions and factor updates, we follow
+\citet{Rahimi2007,Le2013,YanSmoZonWil14}, and express the kernel regression in
+terms of random features whose expected inner product
 is equal to the kernel function; i.e.\ we perform regression directly in the primal on these random features.
 In \secref{sec:kernelsOnDistributions}, we define our kernel on tuples of distributions, and then derive the corresponding random feature representation in 
 \secref{sec:randomFeatureApproximations}. \secref{sec:ridgeRegression} describes the regression algorithm, as well as our strategy for uncertainty evaluation and online updates.
@@ -617,7 +619,12 @@ Finally,  a kernel on two such embeddings $\mu_{\mathsf{r}},\mu_{\mathsf{s}}$ of
 %
 This kernel has two parameters: $\gamma^{2}$, and the width parameter of the kernel $k$ defining $\mu_{\mathsf{r}} = \mathbb{E}_{\mathsf{r}}k(x,\cdot)$.
 
-We have considered several alternative kernels on tuples of messages, including kernels on the message parameters, kernels on a tensor feature space of the distribution embeddings in the tuple, and dot products of the features (\ref{eq:featureOfTuple}). We have found these alternatives to have worse empirical performance than the approach described above. We give details of these experiments in the
+We have considered several alternative kernels on tuples of messages, including
+kernels on the message parameters, kernels on a tensor feature space of the
+distribution embeddings in the tuple, and dot products of the features
+(\ref{eq:featureOfTuple}). We have found these alternatives to have worse
+empirical performance than the approach described above. We give details of
+these experiments in \secref{sec:batch_learning_detail} of the
 supplementary material.
 
 %---------
@@ -788,9 +795,15 @@ of random features $\hat{\varphi}$ for a translation invariant kernel $k(x,y) = 
 % $k(x, y) = \exp\left(-\frac{\| x-y\|^2}{2\beta^2} \right)$, 
  such that $k(x, y) \approx \hat{\varphi}(x)^\top \hat{\varphi}(y)$
 where $x,y \in \mathbb{R}^d$ and $\hat{\varphi}(x), \hat{\varphi}(y) \in \mathbb{R}^{D_\mathrm{in}}$.  
-This is possible because of Bochner's theorem which states that a
-continuous, translation-invariant kernel can be written in the form of an
-inverse Fourier transform, where the Fourier transform of the kernel can be
+This is possible because of Bochner's theorem \citep{Rudin2013} which states that a
+continuous, translation-invariant kernel $k$ can be written in the form of an
+inverse Fourier transform
+\begin{equation*}
+k(x-y)=\int\hat{k}(\omega)e^{j\omega^{\top}\left(x-y\right)}\,
+d\omega,
+\end{equation*}
+%
+where $j=\sqrt{-1}$ and the Fourier transform $\hat{k}$ of the kernel can be
 treated as a distribution. The inverse Fourier transform can thus be seen as
 an expectation of the complex exponential, which can be approximated with a
 Monte Carlo average by drawing random frequencies from the Fourier transform. 
@@ -1046,7 +1059,7 @@ with the kernel in \eqref{eq:gauss_joint_emb}.
 The uncertainty estimate in this case will be the predictive 
 variance.
 %Here we give a brief review of Bayesian linear regression on the random features. 
-We assume priors
+We assume prior and likelihood
 \begin{align}
 w & \sim\mathcal{N}\left(w;0,I_{D_\mathrm{out}}\sigma_{0}^{2}\right), \\
 \mathsf{Y} \mid \mathsf{X},w & \sim\mathcal{N}\left(\mathsf{Y};w^{\top} \mathsf{X},\sigma_{y}^{2}I_{N}\right),
@@ -1212,7 +1225,7 @@ $\msg{p_i}{\factor} = \text{Beta}(p_i; \alpha, \beta) $.
 
 
 \paragraph{Experiment 1: Batch Learning} 
-As in \citep{Heess2013} and \citep{Eslami2014}, we study the logistic factor 
+As in \citet{Heess2013} and \citet{Eslami2014}, we study the logistic factor 
 $\factor(p|z)=\delta\left(p-\frac{1}{1+\exp(-z)}\right),$ 
 %
 % \begin{equation*}
@@ -1422,10 +1435,11 @@ of a new inference problem.
 We employed a ``mini-batch'' learning approach in which the operator always consults the oracle in
 the first few hundred factor invocations for initial batch training. 
 In principle, during the initial batch training, the operator can perform 
-cross validation for parameter selection; however for computational simplicity
-we set the kernel parameters (i.e., $\gamma$ in the kernel $\kappa$) according
-to the median heuristic
-\citep{Scholkopf2002}. 
+cross validation or type-II maximum likelihood estimation for parameter
+selection; however for computational simplicity
+we set the kernel parameters  according to the median heuristic
+\citep{Scholkopf2002}. Full detail of the heuristic is given in
+\secref{sec:median_heuristic} in the supplementary material. 
 %See \secref{sec:median_heuristic} in the supplementary
 %material for more detail.
 %AG: removed cross validation discussion from here, put it earlier.
@@ -1577,7 +1591,7 @@ and let the operator learn to directly send an outgoing message $\msg{\factor}{\
 given $\msg{\tau}{\factor}$, using Infer.NET as the oracle. 
 The  default implementation of Infer.NET relies on a quadrature method.
 As in \cite{Eslami2014}, we sequentially presented a number of 
-problems to our algorithm, where at the beginning of each problem, a random number of observations 
+problems to our algorithm, where at the beginning of each problem, a random number of observations $n$
 from 10 to 100, and the parameter $\tau$, were drawn from the model.
 
 \figref{fig:cg_infer_shape} and \figref{fig:cg_infer_rate} summarize the inferred 
@@ -1663,10 +1677,6 @@ and robustly adapt to this new distribution by querying the oracle.
 % \end{itemize}
 
 
-\subsubsection*{ACKNOWLEDGEMENT}
-We thank the anonymous reviewers for their constructive comments. 
-WJ, AG, BL, and ZS thank the Gatsby Charitable Foundation for the financial
-support.
 
 %=============================================
 \section{CONCLUSIONS AND FUTURE WORK}
@@ -1712,7 +1722,12 @@ a better option would be to adapt them online as more data are seen.
 %Hassle-free Bayesian inference is increasingly popular. Some people have been using learned message passing operators for this. However we don't want to have to train the operators in advance (since we'd have to guess input messages). To avoid this, we have to do JIT learning. To do this, we need fast updates and uncertainty. Eslami et al. do this but their method is unprincipled and slow. KJIT addresses both issues.
 
 
+\subsubsection*{ACKNOWLEDGEMENT}
+We thank the anonymous reviewers for their constructive comments. 
+WJ, AG, BL, and ZS thank the Gatsby Charitable Foundation for the financial
+support.
 
+\newpage
 % {\small 
 \bibliographystyle{abbrvnat}
 \bibliography{ref}
@@ -1853,26 +1868,83 @@ test sets. The results are shown in \figref{fig:logistic_predvar_g}.
 %
 The uncertainty estimates show a positive correlation with the KL-divergence errors. 
 It is instructive to note that no point lies at the bottom right i.e., making a
-big error when being confident. 
+large error when being confident. 
 The fact that the errors on the training set are roughly the same as the errors
 on the test set indicates that the operator does not overfit.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=8cm]{img/pred_var/fm_kgg_joint_-bw-out1-crop}
-  \caption{KL-divergence errors versus predictive variances for predicting the 
+  \caption{KL-divergence error versus predictive variance for predicting the 
   mean of $m_{f \rightarrow z_i}$ (normal distribution) in the logistic factor problem. }
   \label{fig:logistic_predvar_g}
 \end{figure}
 
 
 
-%%=========================================  
-%\section{MEDIAN HEURISTIC FOR GAUSSIAN KERNEL ON MEAN EMBEDDINGS  }
-%\label{sec:median_heuristic}
-%%=========================================
+%=========================================  
+\section{MEDIAN HEURISTIC FOR GAUSSIAN KERNEL ON MEAN EMBEDDINGS  }
+\label{sec:median_heuristic}
+%=========================================
 
-%\hl{need details}
+In the proposed KJIT, there are two kernels: the inner kernel $k$ for computing
+mean embeddings, and the outer Gaussian kernel $\kappa$ defined on the mean
+embeddings. Both of the kernels depend on a number parameters. In this section,
+we describe a heuristic to choose the kernel parameters. We emphasize that this
+heuristic is merely for computational convenience. A full parameter selection
+procedure like cross validation or evidence maximization will likely yield a
+better set of parameters. We use this heuristic in the initial mini-batch phase
+before the actual online learning.
+
+Let $\{ r^{(l)}_{i} \mid l= 1,\ldots, c, \text{ and } i=1,\ldots, n \}$ be a set 
+of $n$ incoming message tuples collected during the mini-batch phase, from $c$ variables 
+neighboring the factor. Let $R_i := (r^{(l)}_i)_{l=1}^c$ be the $i^{th}$ tuple, and 
+let $\mathsf{r}_i := \times_{l=1}^c r^{(l)}_i$ be the product of incoming messages 
+in the $i^{th}$ tuple. Define $S_i$ and $\mathsf{s}_i$ to be the corresponding 
+quantities of another tuple of messages. We will drop the subscript $i$ when considering 
+only one tuple.
+
+Recall that the kernel on two tuples of messages $R$ and $S$ is given by 
+\begin{align*}
+\kappa(R, S) &= \kappa(\mathsf{r}, \mathsf{s}) =
+\exp\left(-\frac{\|\mu_{\mathsf{r}}-
+\mu_{\mathsf{s}} \|_{\mathcal{H}}^{2}}{2\gamma^{2}}\right)  \\
+%
+  &= \exp\left(-\frac{1}{2\gamma^{2}}\left\langle \mu_{\mathsf{r}},
+  \mu_{\mathsf{r}}\right\rangle +\frac{1}{\gamma^{2}}\left\langle
+  \mu_{\mathsf{r}}, \mu_{\mathsf{s}}\right\rangle
+  -\frac{1}{2\gamma^{2}}\left\langle
+  \mu_{\mathsf{s}},\mu_{\mathsf{s}}\right\rangle \right),
+\end{align*}
+%
+where 
+$\langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}  \rangle
+= \mathbb{E}_{x \sim \mathsf{r}} \mathbb{E}_{y \sim \mathsf{s}} 
+k(x-y)$. 
+The inner kernel $k$ is a Gaussian kernel defined on the domain 
+$\mathcal{X} := \mathcal{X}^{(1)} \times \cdots \times \mathcal{X}^{(c)} $
+where $\mathcal{X}^{(l)}$ denotes the domain of $r^(l)$. For simplicity, we assume 
+that $\mathcal{X}^{(l)}$ is one-dimensional. The Gaussian kernel $k$ takes
+the form 
+%
+\begin{align*}
+k(x-y) &= \exp\left(-\frac{1}{2}\left(x-y\right)^{\top}
+\Sigma^{-1}\left(x-y\right) \right) 
+= \prod_{l=1}^c \exp \left( -\frac{(x_j - y_j)^2}{2 \sigma^2_l}  \right),
+\end{align*}
+% 
+where $\Sigma = \diag(\sigma^2_1, \ldots, \sigma^2_c)$. The heuristic for choosing 
+$\sigma^2_1, \ldots, \sigma^2_c$ and $\gamma$ is as follows. 
+
+\begin{enumerate}
+    \item Set $\sigma_l^2 := \frac{1}{n} \sum_{i=1}^n \mathbb{V}_{x_l \sim
+            r_i^{(l)}}[x_l]$ where $ \mathbb{V}_{x_l \sim
+                r_i^{(l)}}[x_l]$ denotes the variance of $r_i^{(l)}$.
+    %
+            \item With $\Sigma = \diag(\sigma^2_1, \ldots, \sigma^2_c)$ as defined 
+                in the previous step, set $\gamma^2 := \mathrm{median}\left( \{ \| \mu_{\mathsf{r}_i}
+                - \mu_{\mathsf{s}_j}\|^2\}_{i,j=1}^n \right)$.
+\end{enumerate}
 
 
 %=========================================
@@ -1912,7 +1984,7 @@ from $\hat{k}$.
 
 \paragraph{Why It Works ?}
 \begin{thm}
-Bochner's theorem. A continuous kernel $k(x,y)=k(x-y)$ on $\mathbb{R}^{m}$
+Bochner's theorem \citepsup{Rudin2013}. A continuous kernel $k(x,y)=k(x-y)$ on $\mathbb{R}^{m}$
 is positive definite iff $k(\delta)$ is the Fourier transform of
 a non-negative measure.
 \end{thm}
@@ -1923,7 +1995,7 @@ is a proper probability distribution. From this fact, we have
 \[
 k(x-y)=\int\hat{k}(\omega)e^{j\omega^{\top}\left(x-y\right)}\, d\omega=\mathbb{E}_{\omega}\left[\eta_{\omega}(x)\eta_{\omega}(y)^{*}\right], 
 \]
-where $\eta_{\omega}(x)=e^{j\omega^{\top}x}$ and $\cdot^{*}$ denotes
+where $j=\sqrt{-1}$, $\eta_{\omega}(x)=e^{j\omega^{\top}x}$ and $\cdot^{*}$ denotes
 the complex conjugate. Since both $\hat{k}$ and $k$ are real, the complex
 exponential contains only the cosine terms. Drawing $D$ samples is
 for lowering the variance of the approximation.
@@ -2186,7 +2258,7 @@ Gaussian kernel on mean embeddings of these joint distributions:
 \]
 An advantage of this kernel is that the final number of random features
 is $D_\mathrm{out}$ as compared to $D_\mathrm{out}^{c}$ (product kernel) and $cD_\mathrm{out}$
-(sum kernel). One potential disadvantage is that we treat all neighbouring
+(sum kernel). One potential disadvantage is that we treat all neighboring
 variables as independent.
 
 \end{comment}
