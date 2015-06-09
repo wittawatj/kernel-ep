@@ -126,7 +126,7 @@
 \newcommand{\tabref}[1]{Table.~\ref{#1}}
 %\newcommand{\eqref}[1]{Eq.~\ref{#1}}
 
-\newcites{sup}{Supplementary}
+\newcites{sup}{References}
 
 \makeatother
 
@@ -174,16 +174,17 @@ Messages}
 % }
 
 \author{
-    Wittawat Jitkrittum$^1$, \, Arthur Gretton$^1$, \, Nicolas
-    Heess\thanks{\hspace{1mm} Currently at Google DeepMind.}, \,
+    Wittawat Jitkrittum,$^1$ \, Arthur Gretton,$^1$ \, Nicolas
+    Heess,\thanks{\hspace{1mm} Currently at Google DeepMind.} \, \,
 \textbf{S. M. Ali Eslami}$^*$ \\
-\textbf{Balaji Lakshminarayanan}$^1$, \, \textbf{Dino Sejdinovic}$^2$ \and \textbf{ Zolt{\'a}n Szab{\'o}}$^1$  \vspace*{2mm} \\
+\textbf{Balaji Lakshminarayanan},$^1$ \, \textbf{Dino Sejdinovic}$^2$ \and
+\textbf{ Zolt{\'a}n Szab{\'o}}$^1$  \vspace*{2mm} \\
 Gatsby Unit, University College London$^1$ \\
 \vspace*{2mm}
 University of Oxford$^2$ \\
-\texttt{ \{wittawatj,  arthur.gretton\}@gmail.com}, \, \texttt{nheess@nhuk.de} \\ 
+\texttt{ \{wittawatj,  arthur.gretton\}@gmail.com}, \, \texttt{nheess@gmail.com} \\ 
 \texttt{ali@arkitus.com}, \, \texttt{balaji@gatsby.ucl.ac.uk},\\
-\texttt{dino.sejdinovic@gmail.com},\, \texttt{z.szabo@ucl.ac.uk}
+\texttt{dino.sejdinovic@gmail.com},\, \texttt{zoltan.szabo@gatsby.ucl.ac.uk}
 }
 
 \maketitle
@@ -326,7 +327,7 @@ on artificial data with well-controlled statistical properties,
 and a logistic regression experiment on four different real-world datasets,
 demonstrating that our just-in-time learner can correctly evaluate its uncertainty
 and update the regression function as the incoming messages change (see \figref{fig:uci_in_msgs}).
-Code to implement the method is available online at \url{https://github.com/wittawatj/kernel-ep}.
+Code to implement our method is available online at \url{https://github.com/wittawatj/kernel-ep}.
 
 %AG: note code promise above :)
 
@@ -376,7 +377,7 @@ The message $\msg{ \factor }{\outV}(x_{\outV})$  from factor $\factor$ to variab
 \frac{ \projP{ 
 \int \factor (\fx{\factor}) \prod_{\outV' \in \fis{\factor}} \msg{\outV'}{\factor}(x_{\outV'}) \diffd 
 \bx_{\fis{\factor} \backslash \outV}} }
-{\msg{\outV}{\factor}(x_{\outV})}
+{\msg{\outV}{\factor}(x_{\outV})},
 %
 \label{eq:msgPassing:EP}
 \end{equation}
@@ -398,7 +399,7 @@ Computing the numerator of (\ref{eq:msgPassing:EP}) can be challenging, as it re
 %This significantly limits the ease with which EP can be applied and its scope in practice. 
 %However, while deterministic approximations to (\ref{eq:msgPassing:EP}) may be hard to come by,
 \citet{Barthelme2011,Heess2013,Eslami2014} propose an alternative, stochastic approach to the integration and projection step.
-When the projection $\proj$ is to a member $q(x|\eta)=h(x)\exp\left(\eta^{\top}u(x)-A(\eta)\right)$ of an exponential family, one simply computes the expectation of the sufficient statistic $u(\cdot)$ under the numerator of (\ref{eq:msgPassing:EP}).
+When the projection  is to a member $q(x|\eta)=h(x)\exp\left(\eta^{\top}u(x)-A(\eta)\right)$ of an exponential family, one simply computes the expectation of the sufficient statistic $u(\cdot)$ under the numerator of (\ref{eq:msgPassing:EP}).
 % \wjnote{Under the exact marginal $\msg{ \outV }{\factor}(x_{\outV})\msg{ \factor }{\outV}(x_{\outV})$  ?}
 A sample based approximation of this expectation can be obtained via Monte Carlo simulation.   %AG: importance sampling is not MCMC
 Given a forward-sampling function $f$ as described above, one especially simple approach is importance sampling, 
@@ -460,7 +461,9 @@ employ random forests as their class of learning functions, and update their app
 \uncertaintyMsg{\factor}{\outV}{\theta}: (\msg{\outV'}{\factor} )_{\outV' \in \fis{\factor}} \mapsto \uncert,
 \end{equation}
 where $\uncert$ indicates the expected unreliability  of the predicted, approximate message $\msg{\factor}{\outV}$ returned by $\approxMsg{\factor}{\outV}{\theta}$. If $\uncert = \uncertaintyMsg{\factor}{\outV}{\theta} \left( (\msg{\outV'}{\factor} )_{\outV' \in \fis{\factor}}\right)$ 
-exceeds a pre-defined threshold, the required message is approximated via importance sampling (cf.\ Eq.\ \ref{eq:msgIS}) and $\approxMsg{\factor}{\outV}{\theta}$ is updated
+exceeds a pre-defined threshold, the required message is approximated via
+importance sampling (cf.\ \eqref{eq:msgIS}) and
+$\approxMsg{\factor}{\outV}{\theta}$ is updated
 %AG: fixed
 %\wjnote{Just updated not retrained ?}
 on this new datapoint (leading to a new set of parameters  $\theta'$ with $\uncertaintyMsg{\factor}{\outV}{\theta'} \left( (\msg{\outV'}{\factor} )_{\outV' \in \fis{\factor}}\right)) < \uncertaintyMsg{\factor}{\outV}{\theta} \left( (\msg{\outV'}{\factor} )_{\outV' \in \fis{\factor}}\right)$.
@@ -623,7 +626,8 @@ Finally,  a kernel on two such embeddings $\mu_{\mathsf{r}},\mu_{\mathsf{s}}$ of
 \label{eq:gauss_joint_emb}
 \end{equation}
 %
-This kernel has two parameters: $\gamma^{2}$, and the width parameter of the kernel $k$ defining $\mu_{\mathsf{r}} = \mathbb{E}_{\mathsf{r}}k(x,\cdot)$.
+This kernel has two parameters: $\gamma^{2}$, and the width parameter of the
+kernel $k$ defining $\mu_{\mathsf{r}} = \mathbb{E}_{x \sim \mathsf{r}}k(x,\cdot)$.
 
 We have considered several alternative kernels on tuples of messages, including
 kernels on the message parameters, kernels on a tensor feature space of the
@@ -764,7 +768,7 @@ supplementary material.
 One approach to learning the mapping  $\approxMsg{\factor}{\outV}{\theta}$ from incoming to outgoing messages
 would be to employ Gaussian process regression, using the kernel \eqref{eq:gauss_joint_emb}.
 This approach is not suited to just-in-time (JIT) learning, however,
-as both prediction and storage costs grow with the size of the training set:
+as both prediction and storage costs grow with the size of the training set;
 thus, inference on even moderately sized datasets rapidly becomes computationally prohibitive.
 Instead, we define 
 a finite-dimensional random feature map $\hat{\psi} \in \mathbb{R}^{D_\mathrm{out}}$ such that 
@@ -858,13 +862,13 @@ We can thus further approximate this Gaussian kernel
 by the random Fourier features of \citeauthor{Rahimi2007}, to obtain a vector 
 of random features $\hat{\psi}$ such that 
 $\kappa(\mathsf{r}, \mathsf{s}) \approx \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s})$
-where $\hat{\psi} \in \mathbb{R}^{D_\mathrm{out}}$. 
+where $\hat{\psi}(\mathsf{r}), \hat{\psi}(\mathsf{s}) \in \mathbb{R}^{D_\mathrm{out}}$. 
 Pseudocode for generating the random features $\hat{\psi}$ is given in
 Algorithm~\ref{algo:random_features_kgg}. 
 Note that the sine component in the complex exponential vanishes due to the
 translation invariance property (analogous to an even function), i.e.,  only 
 the cosine term remains.
-Please refer to \secref{sub:Expected-Product-Kernel} in the supplementary material for more detail.
+We refer to \secref{sub:Expected-Product-Kernel} in the supplementary material for more details.
 
 For the implementation, we need to pre-compute $\left\{ \omega_{i}\right\} _{i=1}^{D_\mathrm{in}},\left\{ b_{i}\right\} _{i=1}^{D_\mathrm{in}},\left\{ \nu_{i}\right\} _{i=1}^{D_\mathrm{out}}$
 and $\left\{ c_{i}\right\} _{i=1}^{D_\mathrm{out}}$, where $D_\mathrm{in}$ and
@@ -888,7 +892,7 @@ the embedding translation-invariant kernel $k$, number of inner features $D_\mat
 %\STATE Compute the Fourier transform $\hat{k}$ of the kernel $k$.
 \STATE Sample  $\{ \omega_i \}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} \hat{k}$.
 \STATE Sample $\{b_i\}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} \text{Uniform}[0, 2\pi] $.
-\STATE $\hat{\phi}(\mathsf{r}) = \sqrt{\frac{2}{D_\mathrm{in}}} \left( \mathbb{E}_{\mathsf{r(x)}} 
+\STATE $\hat{\phi}(\mathsf{r}) = \sqrt{\frac{2}{D_\mathrm{in}}} \left( \mathbb{E}_{x \sim \mathsf{r}} 
 \cos(\omega_{i}^{\top}x+b_{i} ) \right)_{i=1}^{D_\mathrm{in}} \in \mathbb{R}^{D_\mathrm{in}}$ \\
 %\STATE  $\hat{\phi}(p)=\mathbb{E}_{p(x)}\sqrt{\frac{2}{D_\mathrm{in}}}\left(\cos\left(\omega_{1}^{\top}x+b_{1}\right),\ldots,\cos\left(\omega_{D_\mathrm{in}}^{\top}x+b_{D_\mathrm{in}}\right)\right)^{\top}$.
 If $\mathsf{r}(x)=\mathcal{N}(x;m, \Sigma )$, 
@@ -1002,7 +1006,7 @@ i.e., Fourier transform of a Gaussian kernel with width $\gamma^2$.
 %which has an equivalent dual solution $\mathsf{W}=\mathsf{Y}\left(K+\lambda I\right)^{-1}\mathsf{X}^{\top}=A\mathsf{X}^{\top}$
 %. The dual formulation allows one to regress from any type of input
 %objects if a kernel can be defined between them. All the inputs enter to the regression
-%function through the gram matrix $K\in\mathbb{R}^{N\times N}$ where
+%function through the Gram matrix $K\in\mathbb{R}^{N\times N}$ where
 %$\left(K\right)_{ij}=\kappa(\mathsf{x}_{i},\mathsf{x}_{j})$ yielding
 %the regression function of the form $g(\mathsf{x})=\sum_{i=1}^{N}a_{i}\kappa(\mathsf{x}_{i},\mathsf{x})$
 %where $A:=(a_{1}|\cdots|a_{N})$. The dual formulation therefore allows
@@ -1099,7 +1103,7 @@ p(\mathsf{y}^{*}| \mathsf{x}^{*}, \mathsf{Y}) & =\int
 % & =\mathcal{\mathcal{N}}\left(Y;0,K\sigma_{0}^{2}+\sigma_{y}^{2}I_{N}\right)\\
 % & =\det\left(2\pi\Sigma\right)^{-1/2}\exp\left(-\frac{1}{2}Y^{\top}\left(K\sigma_{0}^{2}+\sigma_{y}^{2}I_{N}\right)^{-1}Y\right)
 %\end{align*}
-%where $K=X^{\top}X$ is a gram matrix of $X$. 
+%where $K=X^{\top}X$ is a Gram matrix of $X$. 
 %One can do gradient ascent on $\log p(Y|X)$
 %to optimize $\sigma_{0}^{2},\sigma_{y}^{2}$ and kernel parameters.
 %
@@ -1733,7 +1737,7 @@ a better option would be to adapt them online as more data are seen.
 
 \subsubsection*{ACKNOWLEDGEMENT}
 We thank the anonymous reviewers for their constructive comments. 
-WJ, AG, BL, and ZS thank the Gatsby Charitable Foundation for the financial
+WJ, AG, BL, and ZSz thank the Gatsby Charitable Foundation for the financial
 support.
 
 \newpage
@@ -1767,7 +1771,7 @@ Messages}
 
 In the proposed KJIT, there are two kernels: the inner kernel $k$ for computing
 mean embeddings, and the outer Gaussian kernel $\kappa$ defined on the mean
-embeddings. Both of the kernels depend on a number parameters. In this section,
+embeddings. Both of the kernels depend on a number of parameters. In this section,
 we describe a heuristic to choose the kernel parameters. We emphasize that this
 heuristic is merely for computational convenience. A full parameter selection
 procedure like cross validation or evidence maximization will likely yield a
@@ -1844,15 +1848,17 @@ may correspond to an inner product in an infinite-dimensional space
 whose feature map $\phi$ cannot be explicitly computed. In \citesup{Rahimi2007},
 methods of computing an approximate feature maps $\hat{\phi}$ were
 proposed. The approximate feature maps are such that $k(x,y)\approx\hat{\phi}(x)^{\top}\hat{\phi}(y)$
-(with equality in expectation) where $\hat{\phi}\in\mathbb{R}^{D}$
+(with equality in expectation) where $\hat{\phi}(x), \hat{\phi}(y) \in\mathbb{R}^{D}$
 and $D$ is the number of random features. High $D$ yields a better
 approximation with higher computational cost. Assume $k(x,y)=k(x-y)$ (translation invariant)
 and $x,y\in\mathbb{R}^{d}$. Random Fourier features $\hat{\phi}(x)\in\mathbb{R}^{D}$
 such that $k(x,y)\approx\hat{\phi}(x)^{\top}\hat{\phi}(y)$ are generated
 as follows:
 \begin{enumerate}
-\item Compute the Fourier transform $\hat{k}$ of the kernel $k$: $\hat{k}(\omega)=\frac{1}{2\pi}\int e^{-j\omega^{\top}\delta}k(\delta)\, d\delta$.
-For a Gaussian kernel with unit width, $\hat{k}(\omega)=\left(2\pi\right)^{-d/2}e^{-\|\omega\|^{2}/2}$.
+\item Compute the Fourier transform $\hat{k}$ of the kernel $k$:
+    $\hat{k}(\omega)=\frac{1}{2\pi}\int e^{-j\omega^{\top}\delta}k(\delta)\,
+    d\delta$.
+%For a Gaussian kernel with unit width, $\hat{k}(\omega)=\left(2\pi\right)^{-d/2}e^{-\|\omega\|^{2}/2}$.
 \item Draw $D$ i.i.d. samples $\omega_{1},\ldots,\omega_{D}\in\mathbb{R}^{d}$
 from $\hat{k}$. 
 \item Draw $D$ i.i.d samples $b_{1},\ldots,b_{D}\in\mathbb{R}$ from $U[0,2\pi]$
@@ -1907,7 +1913,8 @@ kernel on means and variances.
 \begin{align*}
 \kappa_{\text{mv}}\left(R, S\right) 
 %&=\prod_{i=1}^{c}\kappa^{(i)}\left(p^{(i)},q^{(i)}\right)\\
- &=\prod_{i=1}^{c}k\left(\left(m_{i}-\mu_{i}\right)/w_{i}^{m}\right)\prod_{i=1}^{c}k\left(\left(v_{i}-\sigma_{i}^{2}\right)/w_{i}^{v}\right)
+ &=\prod_{i=1}^{c}k\left(\left(m_{i}-\mu_{i}\right)/w_{i}^{m}\right)
+ \prod_{i=1}^{c}k\left(\left(v_{i}-\sigma_{i}^{2}\right)/w_{i}^{v}\right),
 \end{align*}
 where $k$ is a Gaussian kernel with unit width. The kernel $\kappa_{\text{mv}}$
 has $P:=\left(w_{1}^{m},\ldots,w_{c}^{m},w_{1}^{v},\ldots,w_{c}^{v}\right)$
@@ -1942,13 +1949,15 @@ features for inner product of mean embeddings.
 If $b\sim\mathcal{N}(b;0,\sigma^{2})$, then $\mathbb{E}[\cos(b)]=\exp\left(-\frac{1}{2}\sigma^{2}\right)$.\label{lemma:e_cos}\end{lem}
 \begin{proof}
 We can see this by considering the characteristic function of $x\sim\mathcal{N}(x;\mu,\sigma^{2})$
-which is given by $c_{x}(t)$.
+which is given by 
 \[
-c_{x}(t)=\mathbb{E}_{x}\left[\exp\left(itb\right)\right]=\exp\left(itm-\frac{1}{2}\sigma^{2}t^{2}\right)
+c_{x}(t)=\mathbb{E}_{x}\left[\exp\left(itb\right)\right]
+=\exp\left(itm-\frac{1}{2}\sigma^{2}t^{2} \right).
 \]
 For $m=0,t=1$, we have 
 \[
-c_{b}(1)=\mathbb{E}_{b}\left[\exp(ib)\right]=\exp\left(-\frac{1}{2}\sigma^{2}\right)=\mathbb{E}_{b}\left[\cos(b)\right]
+c_{b}(1)=\mathbb{E}_{b}\left[\exp(ib)\right]=
+\exp\left(-\frac{1}{2}\sigma^{2}\right)=\mathbb{E}_{b}\left[\cos(b)\right],
 \]
 where the imaginary part  $i\sin(tb)$ vanishes.
 \end{proof}
@@ -1961,7 +1970,7 @@ we immediately have
 \mathbb{E}_{r}\mathbb{E}_{s}k(x-y) & \approx\mathbb{E}_{r}\mathbb{E}_{s}\frac{2}{D}\sum_{i=1}^{D}\cos\left(w_{i}^{\top}x+b_{i}\right)\cos\left(w_{i}^{\top}y+b_{i}\right)\\
  & =\frac{2}
  {D}\sum_{i=1}^{D}\mathbb{E}_{r(x)}\cos\left(w_{i}^{\top}x+b_{i}\right)\mathbb{E}_{s(y)}\cos\left(w_{i
- }^{\top}y+b_{i}\right)
+ }^{\top}y+b_{i}\right),
 \end{align*}
 where $\{w_{i}\}_{i=1}^{D}\sim\hat{k}(w)$ (Fourier transform of $k$)
 and $\{b_{i}\}_{i=1}^{D}\sim U\left[0,2\pi\right]$. 
@@ -1979,7 +1988,8 @@ we have,
  {=}\mathbb{E}_{r(d_{i})}\cos(d_{i})\cos(w_{i}^{\top}m_{r}+b_{i})-\mathbb{E}_{r(d_{i})}\sin(d_{i})\sin
  (w_{i}^{\top}m_{r}+b_{i})\\
  & \overset{(b)}{=}\cos(w_{i}^{\top}m_{r}+b_{i})\mathbb{E}_{r(d_{i})}\cos(d_{i})\\
- & \overset{(c)}{=}\cos(w_{i}^{\top}m_{r}+b_{i})\exp\left(-\frac{1}{2}w_{i}^{\top}V_{r}w_{i}\right)
+ & \overset{(c)}{=}\cos(w_{i}^{\top}m_{r}+b_{i})
+ \exp\left(-\frac{1}{2}w_{i}^{\top}V_{r}w_{i}\right),
 \end{align*}
 where at $(a)$ we use $\cos(\alpha+\beta)=\cos(\alpha)\cos(\beta)-\sin(\alpha)\sin(\beta)$.
 We have $(b)$ because $\sin$ is an odd function and $\mathbb{E}_{r(d_{i})}\sin(d_{i})=0$.
@@ -1997,7 +2007,7 @@ are given by
 
 Notice that the translation invariant kernel $k$
 provides $\hat{k}$ from which $\{w_{i}\}_{i}$ are
-drawn. For different types of distribution $r$, we only need to
+drawn. For a different type of distribution $r$, we only need to
 be able to compute $\mathbb{E}_{r(x)}\cos\left(w_{i}^{\top}x+b_{i}\right)$.
 With $\hat{\phi}(r)$, we have $\kappa_\text{pro}(r, s)\approx\hat{\phi}(r)^{\top}\hat{\phi}(s)$
 with equality in expectation.
@@ -2051,12 +2061,14 @@ kernels is defined as
 %
 \begin{align*}
 \kappa_{\text{pro, prod}}(R, S) & :=\left\langle \bigotimes_{l=1}^{c}\mu_{r^{(l)}},
-\bigotimes_{l=1}^{c}\mu_{s^{(l)}}\right\rangle _{\otimes_{l}\mathcal{H}^{(l)}} = 
+\bigotimes_{l=1}^{c}\mu_{s^{(l)}}\right\rangle _{\otimes_{l}\mathcal{H}^{(l)}} \\ 
+&= 
 \prod_{l=1}^{c}\mathbb{E}_{r^{(l)}(a^{(l)})}\mathbb{E}_{s^{(l)}(b^{(l)})}k_{\text{gauss}}^{(l)} 
-\left(a^{(l)}, b^{(l)} \right)\approx\hat{\phi}(R)^{\top}\hat{\phi}(S)
+\left(a^{(l)}, b^{(l)} \right)\approx\hat{\phi}(R)^{\top}\hat{\phi}(S),
 \end{align*}
 %
-where $\hat{\phi}(R)^{\top}\hat{\phi}(S)=\prod_{l=1}^{c}\hat{\phi}^{(l)}(r^{(l)})^{\top}\hat{\phi}^{(l)}(s^{(l)})$.
+where $\hat{\phi}(R)^{\top}\hat{\phi}(S)=\prod_{l=1}^{c}
+\hat{\phi}^{(l)}(r^{(l)})^{\top}\hat{\phi}^{(l)}(s^{(l)})$.
 The feature map $\hat{\phi}^{(l)}(r^{(l)})$ can be estimated by applying
 the random Fourier features to $k_{\text{gauss }}^{(l)}$and taking
 the expectations $\mathbb{E}_{r^{(l)}(a)}\mathbb{E}_{s^{(l)}(b)}$.
@@ -2072,7 +2084,7 @@ If we instead define the kernel as the sum of $c$ kernels, we have
 \begin{align*}
 \kappa_{\text{pro, sum}}(R, S) & =\sum_{l=1}^{c}\left\langle \mu_{r^{(l)}},\mu_{s^{(l)}}\right\rangle _{\mathcal{H}^{(l)}}\\
  & \approx\sum_{l=1}^{c}\hat{\phi}^{(l)}(r^{(l)})^{\top}\hat{\phi}^{(l)}(s^{(l)})\\
- & =\hat{\varphi}(R)^{\top}\hat{\varphi}(S)
+ & =\hat{\varphi}(R)^{\top}\hat{\varphi}(S),
 \end{align*}
 %
 where $\hat{\varphi}(R):=\left(\hat{\phi}^{(1)}(r^{(1)})^{\top},\ldots,\hat{\phi}^{(c)}
@@ -2082,8 +2094,8 @@ where $\hat{\varphi}(R):=\left(\hat{\phi}^{(1)}(r^{(1)})^{\top},\ldots,\hat{\phi
 \subsection{NUMBER OF RANDOM FEATURES FOR GAUSSIAN KERNEL ON MEAN EMBEDDINGS }
 %------------------------------------
 We quantify the effect of $D_\mathrm{in}$ and $D_\mathrm{out}$
-empirically as follows. We generate 300 Gaussian messages, compute the true gram
-matrix and the approximate gram matrix given by the random features,
+empirically as follows. We generate 300 Gaussian messages, compute the true Gram
+matrix and the approximate Gram matrix given by the random features,
 and report the Frobenius norm of the difference of the two matrices
 on a grid of $D_\mathrm{in}$ and $D_\mathrm{out}$. For each $(D_\mathrm{in},D_\mathrm{out})$,
 we repeat 20 times with a different set of random features and report
@@ -2142,7 +2154,7 @@ variables as independent.
 
 
 %=========================================  
-\section{MORE DETAIL ON EXPERIMENT 1: BATCH LEARNING }
+\section{MORE DETAILS ON EXPERIMENT 1: BATCH LEARNING }
 \label{sec:batch_learning_detail}
 %=========================================
 
@@ -2158,11 +2170,11 @@ The regression output to be learned is the numerator of \eqref{eq:msgPassing:EP}
 
 A training set of 5000 messages and a test set of 3000 messages are obtained by 
 subsampling all the collected messages. 
-Where random features (denoted by RF) are used, kernel widths 
+Where random features are used, kernel widths 
 and regularization parameters are chosen by leave-one-out cross validation.
 To get a good sense of the approximation error from the random features, we also 
 compare with incomplete Cholesky factorization (denoted by IChol), a widely used 
-gram matrix approximation technique. We use
+Gram matrix approximation technique. We use
 hold-out cross validation with randomly chosen training and validation sets
 for parameter selection,
 %repeated hold-out for parameter selection 
@@ -2182,11 +2194,11 @@ and standard deviations.
 \begin{tabular}{lcc}
 \hline
 & \textbf{mean log KL} & \textbf{s.d. of log KL}  \\\hline
- RF + MV Kernel & -6.96 & 1.67 \\ 
- {RF + Expected product kernel on joint embeddings} & -2.78 & 1.82  \\
- {RF + Sum of expected product kernels} & -1.05 & 1.93  \\
- {RF + Product of expected product kernels} & -2.64 & 1.65  \\
- \textbf{RF + Gaussian kernel on joint embeddings} (KJIT) & -8.97 & 1.57  \\
+ Random features + MV Kernel & -6.96 & 1.67 \\ 
+ {Random features + Expected product kernel on joint embeddings} & -2.78 & 1.82  \\
+ {Random features + Sum of expected product kernels} & -1.05 & 1.93  \\
+ {Random features + Product of expected product kernels} & -2.64 & 1.65  \\
+ \textbf{Random features + Gaussian kernel on joint embeddings} (KJIT) & -8.97 & 1.57  \\
  {IChol + sum of Gaussian kernel on embeddings} & -2.75 & 2.84  \\
  IChol + Gaussian kernel on joint embeddings & -8.71 & 1.69  \\\hline
  Breiman's random forests \citepsup{Breiman2001} & -8.69 & 1.79\\
