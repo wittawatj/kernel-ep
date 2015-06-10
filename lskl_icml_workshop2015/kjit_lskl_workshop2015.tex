@@ -393,7 +393,7 @@ in the tuple: Let us define an RKHS
 $\mathcal{H}^{(l)}$ on each domain, with respective kernel $k^{(l)}(x^{(l)}_1,x^{(l)}_2)$.
 We may embed individual probability distributions to these RKHSs, following \citet{Smola2007}.
 The {\em mean embedding} of $r^{(l)}$ is written
-$\mu_{r^{(l)}}(\cdot) := \int k^{(l)}(x^{(l)},\cdot) \, dr^{(l)} (x^{(l)})$.
+$\mu_{r^{(l)}}(\cdot) := \int k^{(l)}(x^{(l)},\cdot) \, \mathrm{d}r^{(l)} (x^{(l)})$.
 %
 Similarly, a mean embedding may be defined on the product of  messages in a tuple
 $\mathsf{r}=\times_{l=1}^{c}r^{(l)}$ as
@@ -402,7 +402,7 @@ $\mathsf{r}=\times_{l=1}^{c}r^{(l)}$ as
 $\mu_{\mathsf{r}}
 :=
 %\int k([x^{(1)} \hdots x^{(c)}],\cdot) \prod_{l=1}^{c}dr^{(l)}(x^{(l)}),
-\int k([x^{(1)}, \ldots, x^{(c)}],\cdot) \, d\mathsf{r}(x^{(1)}, \ldots, x^{(c)}),$
+\int k([x^{(1)}, \ldots, x^{(c)}],\cdot) \, \mathrm{d}\mathsf{r}(x^{(1)}, \ldots, x^{(c)}),$
 %\label{eq:featureOfTuple}
 %\end{equation}
 where we have defined the joint kernel $k$ on the product space
@@ -416,7 +416,8 @@ of tuples $R,S$ can be obtained as in \citet[eq. 9]{Christmann2010},
 \label{eq:gauss_joint_emb}
 \end{equation}
 %
-This kernel has two parameters: $\gamma^{2}$, and the width parameter of the kernel $k$ defining $\mu_{\mathsf{r}} = \mathbb{E}_{\mathsf{r}}k(x,\cdot)$.
+This kernel has two parameters: $\gamma^{2}$, and the width parameter of the
+kernel $k$ defining $\mu_{\mathsf{r}} = \mathbb{E}_{x \sim \mathsf{r}}k(x,\cdot)$.
 
 
 
@@ -462,7 +463,7 @@ would be to employ Gaussian process regression, using the kernel \eqref{eq:gauss
 This approach is not suited to just-in-time (JIT) learning, however,
 as both prediction and storage costs grow with the size of the training set.
 Instead, we define 
-a finite-dimensional random feature map $\hat{\psi} \in \mathbb{R}^{D_\mathrm{out}}$ such that 
+a finite-dimensional random feature map $\hat{\psi}(\mathsf{r}), \hat{\psi}(\mathsf{s}) \in \mathbb{R}^{D_\mathrm{out}}$ such that 
 $\kappa(\mathsf{r}, \mathsf{s}) \approx \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s})$, 
 and regress directly on these feature maps in the primal: storage and computation 
 are then a function of the dimension of the feature map $D_\mathrm{out}$, yet performance is close to that
@@ -524,7 +525,7 @@ the result of \cite{Rahimi2007} to write
  := \hat{\phi}(\mathsf{r})^\top \hat{\phi}(\mathsf{s}),
 \end{align*}
 %
-where the mappings $\hat{\phi}$ are $D_\mathrm{in}$ standard Rahimi-Recht
+where the mappings $\hat{\phi}(\mathsf{r}), \hat{\phi}(\mathsf{s})$ are $D_\mathrm{in}$ standard Rahimi-Recht
 random features, shown in Steps 1-3 of
 Algorithm~\ref{algo:random_features_kgg}.
 
@@ -545,9 +546,9 @@ We can thus further approximate this Gaussian kernel
 % $ k_{\text{gauss}}\left(\hat{\phi}(p), \hat{\phi}(q);\gamma^{2}\right)\approx\hat{\psi}(p)^{\top}\hat{\psi}(q)$
 %
 by the random Fourier features of \citeauthor{Rahimi2007} to obtain a vector 
-of random features $\hat{\psi}$ such that 
-$\kappa(\mathsf{r}, \mathsf{s}) \approx \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s})$
-where $\hat{\psi} \in \mathbb{R}^{D_\mathrm{out}}$. 
+of random features $\hat{\psi}(\mathsf{r}), \hat{\psi}(\mathsf{s}) \in \mathbb{R}^{D_\mathrm{out}}$ such that 
+$\kappa(\mathsf{r}, \mathsf{s}) \approx \hat{\psi}(\mathsf{r})^\top
+\hat{\psi}(\mathsf{s})$.
 Pseudocode for generating the random features $\hat{\psi}$ is given in Algorithm~\ref{algo:random_features_kgg}. 
 For the implementation, $\left\{ \omega_{i}\right\}
 _{i=1}^{D_\mathrm{in}},\left\{ b_{i}\right\} _{i=1}^{D_\mathrm{in}},\left\{
