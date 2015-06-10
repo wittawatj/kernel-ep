@@ -119,10 +119,11 @@
 % WJ's space hacks. 
 \setlength{\intextsep}{2mm}
 \setlength{\dbltextfloatsep }{2mm}
-\setlength{\dblfloatsep}{4mm}
+\setlength{\dblfloatsep}{2mm}
 \setlength{\belowcaptionskip}{1mm}
 \setlength{\abovecaptionskip}{2mm}
 
+\allowdisplaybreaks
 % \floatsep: space left between floats.
 % \textfloatsep: space between last top float or first bottom float and the text.
 % \intextsep : space left on top and bottom of an in-text float.
@@ -130,13 +131,15 @@
 % \dblfloatsep is \floatsep for 2 column output.
 % \abovecaptionskip: space above caption
 % \belowcaptionskip: space below caption
-\tolerance 1414
-\hbadness 1414
-\emergencystretch 1.5em
-\hfuzz 0.3pt
-\widowpenalty=10000
-\vfuzz \hfuzz
-\raggedbottom
+
+%\tolerance 1414
+%\hbadness 1414
+%\emergencystretch 1.5em
+%\hfuzz 0.3pt
+%\widowpenalty=10000
+%\vfuzz \hfuzz
+%\raggedbottom
+
 \graphicspath{{../uai2015/img/}}
 
 
@@ -146,17 +149,17 @@
 %\icmltitle{Kernel-Based Just-In-Time Learning for \\Passing Expectation Propagation Messages}
 \icmltitle{Just-In-Time Kernel Regression for Expectation Propagation}
 
-\icmlauthor{Wittawat Jitkrittum$^*$}{wittawatj@gmail.com}
-\icmlauthor{Arthur Gretton$^*$}{arthur.gretton@gmail.com}
-\icmlauthor{Nicolas Heess}{nheess@nhuk.de}
-\icmlauthor{S. M. Ali Eslami}{ali@arkitus.com}
-\icmlauthor{Balaji Lakshminarayanan$^*$}{balaji@gatsby.ucl.ac.uk}
-\icmlauthor{Dino Sejdinovic$^\dagger$}{dino.sejdinovic@gmail.com}
-\icmlauthor{Zolt{\'a}n Szab{\'o}$^*$}{z.szabo@ucl.ac.uk}
+\icmlauthor{Wittawat Jitkrittum$^1$}{wittawatj@gmail.com}
+\icmlauthor{Arthur Gretton$^1$}{arthur.gretton@gmail.com}
+\icmlauthor{Nicolas Heess$^*$}{nheess@gmail.com}
+\icmlauthor{S. M. Ali Eslami$^*$}{ali@arkitus.com}
+\icmlauthor{Balaji Lakshminarayanan$^1$}{balaji@gatsby.ucl.ac.uk}
+\icmlauthor{Dino Sejdinovic$^2$}{dino.sejdinovic@gmail.com}
+\icmlauthor{Zolt{\'a}n Szab{\'o}$^1$}{zoltan.szabo@gatsby.ucl.ac.uk}
 
-\icmladdress{$^*$Gatsby Unit, University College London}
+\icmladdress{$^1$Gatsby Unit, University College London}
 \vspace*{-3mm}
-\icmladdress{$^\dagger$University of Oxford}
+\icmladdress{$^2$University of Oxford}
 
 \icmlkeywords{expectation propagation, kernel, online learning, mean embedding, random features}
 
@@ -181,7 +184,9 @@
 
 \begin{abstract}
 
-We propose an efficient nonparametric strategy for learning a message operator in expectation propagation (EP), which takes as input the set of incoming messages to a factor node, and produces an outgoing message as output. This learned operator replaces the multivariate integral required in classical EP, which may not have an analytic expression. We use kernel-based regression, which is trained on a set of probability distributions representing the incoming messages, and the associated outgoing messages. The kernel approach has two main advantages: first, it is fast, as it is implemented using a novel two-layer random feature representation of the input message distributions; second, it has principled uncertainty estimates, and can be cheaply updated online, meaning it can request and incorporate new training data when it encounters inputs on which it is uncertain.  In experiments, our approach is able to solve learning problems where a single message operator is required for multiple, substantially different data sets (logistic regression for a variety of classification problems), where the ability to accurately assess uncertainty and to efficiently and robustly update the message operator are essential.
+  We propose an efficient nonparametric strategy for learning a message operator in expectation propagation (EP), which takes as input the set of incoming messages to a factor node, and produces an outgoing message as output. This learned operator replaces the multivariate integral required in classical EP, which may not have an analytic expression. We use kernel-based regression, which is trained on a set of probability distributions representing the incoming messages, and the associated outgoing messages. The kernel approach has two main advantages: first, it is fast, as it is implemented using a novel two-layer random feature representation of the input message distributions; second, it has principled uncertainty estimates, and can be cheaply updated online, meaning it can request and incorporate new training data when it encounters inputs on which it is uncertain.  In experiments, our approach is able to solve learning problems where a single message operator is required for multiple, substantially different data sets (logistic regression for a variety of classification problems), where
+it is essential to
+   accurately assess uncertainty and to efficiently and robustly update the message operator.
 
 \end{abstract}
 
@@ -202,7 +207,7 @@ approximation, or distribution conjugacy.  In reality, however, model convenienc
 simplicity can  limit
 or undermine intended models.
 %To take one example, the inverse gamma prior, which is
-%widely used due to being a convenient
+%widely used as a convenient
 %conjugate prior for the variance, has quite pathological behaviour \citep{Gelman2006}.
 In general, more expressive, freely chosen models are more likely
 to require expensive sampling or quadrature approaches, which can make
@@ -255,8 +260,9 @@ not assumed.
 
 %--------------------------------------------------------------------
 
-\subsection{Expectation propagation}
-\label{sec:EP:MP}
+%\subsection{Expectation propagation}
+%\label{sec:EP:MP}
+\paragraph{Expectation propagation}
 
 %AG: I like this explanation,but we are short of space, so I am commenting it out.
 %Belief propagation -- or the sum-product algorithm -- computes marginal distributions over subsets of variables by iteratively passing messages between variables and factors, ensuring consistency of the obtained marginals at convergence. Specifically, the messages sent from a factor $\factor$ to variable $x_i$ (where $i \in \fis{\factor}$) are computed as
@@ -280,7 +286,7 @@ $\outV\in\fis{\factor}$ is
 \frac{ \projP{ 
 \int \factor (\fx{\factor}) \prod_{\outV' \in \fis{\factor}} \msg{\outV'}{\factor}(x_{\outV'}) \diffd 
 \bx_{\fis{\factor} \backslash \outV}} }
-{\msg{\outV}{\factor}(x_{\outV})}
+{\msg{\outV}{\factor}(x_{\outV})},
 %
 \label{eq:msgPassing:EP}
 \end{equation}
@@ -312,8 +318,9 @@ which the message is readily computed.\dsnote{isn't $\eta$ the actual message?}
 
 %--------------------------------------------------------------------
 
-\subsection{Learning to pass EP messages}
-\label{sec:EP:JIT}
+%\subsection{Learning to pass EP messages}
+%\label{sec:EP:JIT}
+\paragraph{Learning to pass EP messages}
 
 One approach to compute the expected sufficient statistics, due to \citet{Barthelme2011}, is 
 via importance sampling.  While these estimates converge to the desired
@@ -328,9 +335,10 @@ to outgoing messages. Specifically, they trained
 a neural network to directly map $(\msg{\outV'}{\factor} )_{\outV'
     \in \fis{\factor}}$ to 
     $\msg{\factor}{\outV}$, i.e.\ they learn a mapping
-\begin{equation}
-\approxMsg{\factor}{\outV}{\theta}: (\msg{\outV'}{\factor} )_{\outV' \in \fis{\factor}} \mapsto \msg{\factor}{\outV},
-\end{equation}
+%\begin{equation}
+$\approxMsg{\factor}{\outV}{\theta}: (\msg{\outV'}{\factor} )_{\outV' \in
+    \fis{\factor}} \mapsto \msg{\factor}{\outV}$,
+%\end{equation}
 where $\theta$ are the parameters of the approximator.
 
 Although the learned mappings perform well on a variety of practical problems, 
@@ -345,7 +353,7 @@ The disadvantages of the neural network approach were the basis for work by
 \citet{Eslami2014}, who replaced the neural networks with random forests.
 The random forests  provided uncertainty estimates for each prediction. This
 allowed them to be trained `just-in-time', during EP inference, whenever the
-predictor decided it was uncertain. That is, if the uncertainty on the current
+predictor decides it is uncertain. That is, if the uncertainty on the current
 input messages exceeds a pre-defined threshold, the required outgoing message
 is approximated via importance sampling  and
 $\approxMsg{\factor}{\outV}{\theta}$ is updated on this new data point (leading
@@ -381,8 +389,8 @@ which we will write %$\mathsf{x}_s:=$
 $S:=(s^{(l)})_{l=1}^c$.
 
 We define our kernel in terms of embeddings of the tuples $R,S$ into a reproducing kernel Hilbert space (RKHS). We first consider the embedding of a single distribution
-in the tuple: Let us define a RKHS
-$\mathcal{H}^{(l)}$ on each domain, with respective kernels $k^{(l)}(x^{(l)}_1,x^{(l)}_2)$.
+in the tuple: Let us define an RKHS
+$\mathcal{H}^{(l)}$ on each domain, with respective kernel $k^{(l)}(x^{(l)}_1,x^{(l)}_2)$.
 We may embed individual probability distributions to these RKHSs, following \citet{Smola2007}.
 The {\em mean embedding} of $r^{(l)}$ is written
 $\mu_{r^{(l)}}(\cdot) := \int k^{(l)}(x^{(l)},\cdot) \, dr^{(l)} (x^{(l)})$.
@@ -400,7 +408,8 @@ $\mu_{\mathsf{r}}
 where we have defined the joint kernel $k$ on the product space
 %concatenation of the features
 $\mathcal{X}^{(1)}\times\cdots\times\mathcal{X}^{(c)}$.
-Finally,  a kernel on two such embeddings $\mu_{\mathsf{r}},\mu_{\mathsf{s}}$ of tuples $R,S$ can be obtained as in \citet[eq. 9]{Christmann2010}:
+Finally,  a kernel on two such embeddings $\mu_{\mathsf{r}},\mu_{\mathsf{s}}$
+of tuples $R,S$ can be obtained as in \citet[eq. 9]{Christmann2010},
 %
 \begin{equation}
 \kappa(\mathsf{r}, \mathsf{s}) = \exp\left(-\frac{\|\mu_{\mathsf{r}}-\mu_{\mathsf{s}}\|_{\mathcal{H}}^{2}}{2\gamma^{2}}\right).
@@ -427,7 +436,7 @@ the embedding translation-invariant kernel $k$, number of inner features $D_\mat
 %\STATE Compute the Fourier transform $\hat{k}$ of the kernel $k$.
 \STATE Sample  $\{ \omega_i \}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} \hat{k}$.
 \STATE Sample $\{b_i\}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} \text{Uniform}[0, 2\pi] $.
-\STATE $\hat{\phi}(\mathsf{r}) = \sqrt{\frac{2}{D_\mathrm{in}}} \left( \mathbb{E}_{\mathsf{r(x)}} 
+\STATE $\hat{\phi}(\mathsf{r}) = \sqrt{\frac{2}{D_\mathrm{in}}} \left( \mathbb{E}_{x \sim \mathsf{r}} 
 \cos(\omega_{i}^{\top}x+b_{i} ) \right)_{i=1}^{D_\mathrm{in}} \in \mathbb{R}^{D_\mathrm{in}}$ \\
 %\STATE  $\hat{\phi}(p)=\mathbb{E}_{p(x)}\sqrt{\frac{2}{D_\mathrm{in}}}\left(\cos\left(\omega_{1}^{\top}x+b_{1}\right),\ldots,\cos\left(\omega_{D_\mathrm{in}}^{\top}x+b_{D_\mathrm{in}}\right)\right)^{\top}$.
 If $\mathsf{r}(x)=\mathcal{N}(x;m, \Sigma )$, 
@@ -455,7 +464,7 @@ as both prediction and storage costs grow with the size of the training set.
 Instead, we define 
 a finite-dimensional random feature map $\hat{\psi} \in \mathbb{R}^{D_\mathrm{out}}$ such that 
 $\kappa(\mathsf{r}, \mathsf{s}) \approx \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s})$, 
-and regress directly on these feature maps, in the primal: storage and computation 
+and regress directly on these feature maps in the primal: storage and computation 
 are then a function of the dimension of the feature map $D_\mathrm{out}$, yet performance is close to that
 obtained using a kernel.
 
@@ -523,11 +532,13 @@ Algorithm~\ref{algo:random_features_kgg}.
 
 With the approximation of $\langle \mu_{\mathsf{r}},\mu_{\mathsf{s}}  \rangle$,
 we have
-\begin{equation}
-\kappa(\mathsf{r}, \mathsf{s})\approx\exp\left(-\frac{\|\hat{\phi}(\mathsf{r})-\hat{\phi}(\mathsf{s})\|_{D_\mathrm{in}}^{2}}{2\gamma^{2}}\right),
+%\begin{equation}
+$\kappa(\mathsf{r},
+\mathsf{s}) \approx \exp\left(-\frac{\|\hat{\phi}
+(\mathsf{r})-\hat{\phi}(\mathsf{s})\|_{D_\mathrm{in}}^{2}}{2\gamma^{2}}\right)$,
 %
 %:=k_{\text{gauss}}\left(\hat{\phi}(p)-\hat{\phi}(q);\gamma^{2}\right)
-\end{equation}
+%\end{equation}
 which is a standard Gaussian kernel on $\mathbb{R}^{D_\mathrm{in}}$.
 We can thus further approximate this Gaussian kernel 
 %
@@ -601,8 +612,9 @@ The predictive distribution on the output $\mathsf{y}^{*}$ given an
 observation $\mathsf{x}^{*}$ is
 %
 \begin{align}
-p(\mathsf{y}^{*}| \mathsf{x}^{*}, \mathsf{Y}) & =\int  
- p(\mathsf{y}^{*}|w, \mathsf{x}^{*}, \mathsf{Y}) p(w|\mathsf{Y}) \, dw\\
+p(\mathsf{y}^{*}| \mathsf{x}^{*}, \mathsf{Y}) 
+%& =\int  
+% p(\mathsf{y}^{*}|w, \mathsf{x}^{*}, \mathsf{Y}) p(w|\mathsf{Y}) \, dw\\
  & =\mathcal{N}\left(\mathsf{y}^{*}; \mathsf{x}^{*\top}\mu_{w}, \mathsf{x}^{*\top}\Sigma_{w} \mathsf{x}^{*}+\sigma_{y}^{2}\right).
 % & =\mathcal{N}(y^{*};m^{*},v^{*}).
 \end{align}
@@ -651,10 +663,10 @@ Updating $\mu_{w}$ can be easily achieved by maintaining  $\feaX \feaY^{\top}$.
 \section{Experiments  \label{sec:Experiments}}
 %=============================================
 
-Below we evaluate our learned message operator using two different factors: the
-logistic factor, and the compound gamma factor..  For all experiments we used
+We evaluate our learned message operator using two different factors: the
+logistic factor, and the compound gamma factor.  For all experiments we used
 Infer.NET \citep{Minka2014} with its extensible factor interface for our own
-operator.  We use the default settings of Infer.NET unless stated otherwise.  
+operator.  We used the default settings of Infer.NET unless stated otherwise.  
 Code is available at \url{https://github.com/wittawatj/kernel-ep}.
 
 %The regression target is the marginal belief
@@ -664,7 +676,7 @@ Code is available at \url{https://github.com/wittawatj/kernel-ep}.
 
 
 \textbf{Experiment 1: Logistic factor}
-As in \citet{Heess2013} and \citet{Eslami2014}, we study the logistic factor 
+As in \citet{Heess2013,Eslami2014}, we study the logistic factor 
 $\factor(p|z)=\delta\left(p-\frac{1}{1+\exp(-z)}\right),$ 
 %
 % \begin{equation*}
@@ -838,7 +850,8 @@ from 10 to 100, and the parameter $\tau$, were drawn from the model.
   \caption{Shape (a) and rate (b) parameters of the inferred posteriors in 
   the compound gamma problem. 
   (c) KJIT is able to infer equally good posterior parameters compared to Infer.NET 
-  while requiring a runtime several orders of magnitude lower. }
+  while requiring a runtime several orders of magnitude lower. 
+  }
   \label{fig:cg_performance}
 \end{figure}
 
@@ -870,32 +883,9 @@ messages. One topic of current research is hyperparameter selection:
 at present, these are learned on an initial mini-batch of data, however
 a better option would be to adapt them online as more data are seen.
 
-
-
-%% In this work, we made one step forward toward the goal of having a fully 
-%% automatic and fast inference engine. 
-%% We demonstrated that inference with EP can be sped up without 
-%% losing inference accuracy by embedding an uncertainty aware distribution-to-distribution 
-%% regressor at a factor node for sending outgoing EP messages given incoming messages.
-%% The regressor essentially acts as a cache for message computation, offering 
-%% the factor an outgoing message when it is certain about an input. 
-%% The proposed use kernel ridge regression 
-%% in the primal form with random feature representation of incoming messages 
-%% leads to a number of desirable properties for JIT learning: powerful 
-%% representation of incoming messages, ease of online update and efficient outgoing 
-%% message computation. 
-%% Nonetheless, the random feature map itself depends on 
-%% hyperparameters which may need to be adapted during inference.
-%% Our future works will address this issue. 
-
-%In effect, computing an outgoing message
-%amounts to computing the moment parameters by multiplying the ramdom feature vector
-%with a matrix given by the solution of the regression.
-
-%Ali's email summary below:
-%Hassle-free Bayesian inference is increasingly popular. Some people have been using learned message passing operators for this. However we don't want to have to train the operators in advance (since we'd have to guess input messages). To avoid this, we have to do JIT learning. To do this, we need fast updates and uncertainty. Eslami et al. do this but their method is unprincipled and slow. KJIT addresses both issues.
-
-
+\section*{Acknowledgement}
+WJ, AG, BL, and ZSz thank the Gatsby Charitable Foundation for the financial
+support.
 
 %\pagebreak
 % {\small 

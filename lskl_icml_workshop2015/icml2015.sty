@@ -75,6 +75,7 @@
 %%%%%%%% Options
 \DeclareOption{accepted}{%
   \renewcommand{\Notice@String}{\ICML@appearing}
+  %\renewcommand{\Notice@String}{}
   \gdef\isaccepted{1}
 }
 \DeclareOption{nohyperref}{%
@@ -111,8 +112,11 @@
 %$\mathit{31}^{st}$ International Conference on Machine Learning},
 %Lille, France, 2015. JMLR: W\&CP volume 37. 
 %Copyright 2015 by the author(s).}
-\newcommand{\ICML@appearing}{ICML 2015 workshop. Large-Scale Kernel Learning:
-Challenges and New Opportunities.}
+
+\newcommand{\ICML@appearing}{
+    %ICML 2015 workshop. Large-Scale Kernel Learning: Challenges and New Opportunities.
+$^*$ Currently at Google DeepMind.
+}
 
 %%%%%%%%%%%%%%%%%%%%
 % This string is printed at the bottom of the page for the draft/under
@@ -225,16 +229,19 @@ Challenges and New Opportunities.}
 \@float{copyrightbox}[b]
 \begin{center}
 \setlength{\unitlength}{1pc}
-\begin{picture}(20,1.5)
+%\begin{picture}(20,1.5)
+\begin{picture}(20,.2)
 % Create a line separating the main text from the note block.
 % 4.818pc==0.8in.
-\put(0,2.5){\line(1,0){4.818}}
+%\put(0,2.5){\line(1,0){4.818}}
+\put(0,1){\line(1,0){4.818}}
 % Insert the text string itself.  Note that the string has to be
 % enclosed in a parbox -- the \put call needs a box object to
 % position.  Without the parbox, the text gets splattered across the
 % bottom of the page semi-randomly.  The 19.75pc distance seems to be
 % the width of the column, though I can't find an appropriate distance
 % variable to substitute here.  -- TDRL.
+%\put(0,0){\parbox[b]{19.75pc}{\small \Notice@String}}
 \put(0,0){\parbox[b]{19.75pc}{\small \Notice@String}}
 \end{picture}
 \end{center}
