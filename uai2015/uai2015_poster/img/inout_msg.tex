@@ -1,0 +1,90 @@
+
+\documentclass{article}
+
+\usepackage{graphics}
+\usepackage{color}
+\usepackage{verbatim}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{empheq}
+\everymath{\color{mathcolor}}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{margin=2cm}
+
+\usepackage{esint}
+\usepackage{tikz}
+\usepackage{xcolor}
+\colorlet{mathcolor}{blue!40!black}
+\usetikzlibrary{bayesnet}
+
+\colorlet{mygreen}{green!52!black}
+\DeclareMathOperator*{\proj}{\text{proj}} % WJ defined this
+\begin{document}
+\thispagestyle{empty}
+\centering
+\tikzstyle{every picture}+=[remember picture]
+\tikzstyle{na} = [baseline=-.5ex]
+
+%\tikz[na] \node[fill=blue!10,draw,circle] (n1) {}; 
+\begin{tikzpicture}[scale=1.2]
+\draw[help lines, white, opacity=0] (0, -1) grid (25, 2); 
+%\draw[very thick, <->] (1,0) to (0,0) to (0,1); 
+\node (v_def) [right, fill=red!10, inner sep=5pt, align=center, text
+width=27mm] at (4, -0.5) {set of $c$ variables connected to $f$};
+\node (proj_msg_def) [right, fill=green!15, ellipse, inner sep=1pt,
+align=center, text width=15mm] at (9, -0.5) {projected message};
+\end{tikzpicture}
+
+\begin{align*}
+    \textcolor{mygreen}{m_{f\rightarrow V_i}(v_i)} = 
+  \frac{
+	  \tikz[baseline]{
+	  \node[fill=blue!7,anchor=base] (proj){ $\proj$ };
+      }
+      \left[ \int  f(
+	  \tikz[baseline]{
+		  \node[fill=red!10,anchor=base, inner sep=3pt] (v_set){$\mathcal{V}$};
+	  }
+  )\prod_{j=1}^c 
+    %\color{red}
+	  \tikz[baseline]{
+		  \node[fill=orange!10!white, anchor=base] (inc) 
+          {\textcolor{red}{$m_{V_j \rightarrow f}(v_j)$}} ; % end numerator
+	  }
+    \, \mathrm{d}\mathcal{V}\backslash\{v_i\}
+    %\color{mathcolor}
+  \right]}{m_{V_i\rightarrow f}(v_i)} := 
+  \frac{	
+  \tikz[baseline]{
+	  \node[fill=green!15,anchor=base] (projected)
+	  { $q_{f\rightarrow V_i}(v_i)$ };
+  }
+  }{m_{V_i \rightarrow f}(v_i)}  
+\end{align*}
+
+\begin{tikzpicture}[scale=1.2]
+\draw[help lines, white, opacity=0] (0, -1) grid (25, 2);
+%\draw[very thick, <->] (1,0) to (0,0) to (0,1); 
+\node (projdef) [right, fill=blue!7, rectangle, inner sep=8pt, align=center,
+text width=70mm]  at (1.8, 1.2) {$\proj[r_{f \rightarrow
+V_i}]:=\arg\min_{q\in\text{ExpFam}}\text{KL}\left[r_{f \rightarrow V_i}\,\|\,
+q\right]$ (projection onto exponential family)}; 
+%
+\node (incdef) [right, fill=orange!10, ellipse, inner sep=1pt, align=center, text
+width=17mm]  at (9.2, 1.2) {incoming message from $V_j$}; 
+\end{tikzpicture}
+
+
+% Now it's time to draw some edges between the global nodes. Note that we
+% have to apply the 'overlay' style.
+\begin{tikzpicture}[overlay]
+   \draw[->, line width=1pt] (v_def) edge [bend left] (v_set.north);
+   %\draw[->, line width=3pt] (projdef.north) to [out=120, in=-90] (proj.south);
+   \draw[->, line width=1pt] (projdef) to [bend left] (proj.south);
+   \path[->, line width=1pt] (incdef) edge [bend left] (inc);
+   %\path[->, line width=4pt] (proj_msg_def) edge [out=80, in=220] (projected.south west);
+   \path[->, line width=1pt] (proj_msg_def) edge [bend left] (projected.north);
+\end{tikzpicture}
+\end{document}

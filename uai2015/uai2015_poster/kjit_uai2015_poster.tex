@@ -26,8 +26,11 @@
 \usepackage{amsfonts}
 \usepackage{amsthm}
 \usepackage{amssymb}
+\usepackage{empheq}
+
 \usepackage{lmodern}
 \usepackage{pifont}
+\usepackage{relsize}
 \usepackage{setspace}
 \usepackage{tikz}
 %\usetikzlibrary{bayesnet}
@@ -37,9 +40,6 @@
 %\usepackage{epstopdf}
 %\usepackage{auto-pst-pdf}
 %\usepackage{subfig}
-
-%\everymath{\color{mathcolor}}
-%\everydisplay{\color{mathcolor}} 
 
 
 \newcommand{\diag}{\mathop{\mathrm{diag}}}
@@ -82,6 +82,8 @@
 \newcommand{\figref}[1]{Fig.~\ref{#1}}
 \newcommand{\secref}[1]{Section~\ref{#1}}
 \newcommand{\tabref}[1]{Table.~\ref{#1}}
+
+\everymath{\color{mathcolor}}
 
 % Gatsby Unit, University College London$^1$ \\
 % \vspace*{2mm}
@@ -139,7 +141,7 @@ University of Oxford$^2$
 }}
 
 
-\colorlet{mathcolor}{blue!70!black}
+\colorlet{mathcolor}{blue!40!black}
 % \newcommand{\Smile}{\Simley{0.6}{green!20}}
 % \newcommand{\Frown}{\Simley{-0.53}{red!15}}
 \newcommand{\cmark}{\ding{51}}%
@@ -172,12 +174,14 @@ EP is a widely used message passing based inference algorithm.
     \item \textbf{Problem}: Expensive to compute outgoing from incoming messages.
     \item \textbf{Goal}: Speed up computation by a cheap regression function
         (message operator): 
+        \textcolor{mathcolor}{
     \begin{equation*}
         \text{incoming messages} \mapsto \text{outgoing message}.
     \end{equation*}
+    }
 \end{itemize}
 %
-\vspace*{-8mm}
+\vspace*{-20mm}
 \textbf{Merits}:
 \begin{itemize}
     \item Efficient online update of the operator during inference.
@@ -195,72 +199,72 @@ EP is a widely used message passing based inference algorithm.
 Under an approximation that each factor fully factorizes, an outgoing EP
 message $\textcolor{mygreen}{m_{f\rightarrow V_i}}$ takes the form
 \vspace{5mm}
-%% \begin{align*}
-%% \frac{\proj\left[\int d\mathcal{V}\backslash\{v\}\, f(\mathcal{V})\prod_{V'\in\mathcal{V}}m_{V'\rightarrow f}(v')\right]}{m_{V\rightarrow f}(v)}:=\frac{q_{f\rightarrow V}(v)}{m_{V\rightarrow f}(v)}
-%% \end{align*}
  
-\tikzstyle{every picture}+=[remember picture]
-\tikzstyle{na} = [baseline=-.5ex]
+%\tikzstyle{every picture}+=[remember picture]
+%\tikzstyle{na} = [baseline=-.5ex]
 
-%\tikz[na] \node[fill=blue!10,draw,circle] (n1) {}; 
-\begin{tikzpicture}[scale=1.2]
-\draw[help lines, white, opacity=0] (0, -1) grid (25, 2); 
-%\draw[very thick, <->] (1,0) to (0,0) to (0,1); 
-\node (v_def) [right, fill=red!10, inner sep=10pt, align=center, text
-width=9cm] at (6, 0) {set of $c$ variables connected to $f$};
-\node (proj_msg_def) [right, fill=green!20, ellipse, inner sep=1pt,
-align=center, text width=5cm] at (21, 0) {projected message};
-\end{tikzpicture}
+%%\tikz[na] \node[fill=blue!10,draw,circle] (n1) {}; 
+%\begin{tikzpicture}[scale=1.2]
+%\draw[help lines, white, opacity=0] (0, -1) grid (25, 2); 
+%%\draw[very thick, <->] (1,0) to (0,0) to (0,1); 
+%\node (v_def) [right, fill=red!10, inner sep=10pt, align=center, text
+%width=9cm] at (6, 0) {set of $c$ variables connected to $f$};
+%\node (proj_msg_def) [right, fill=green!15, ellipse, inner sep=1pt,
+%align=center, text width=5cm] at (21, 0) {projected message};
+%\end{tikzpicture}
 
-\begin{align*}
-    \textcolor{mygreen}{m_{f\rightarrow V_i}(v_i)} = 
-  \frac{
-	  \tikz[baseline]{
-	  \node[fill=blue!7,anchor=base] (proj){ $\proj$ };
-  }
-  \left[\int d\mathcal{V}\backslash\{v_i\}\, f(
-	  \tikz[baseline]{
-		  \node[fill=red!10,anchor=base, inner sep=3pt] (v_set){$\mathcal{V}$};
-	  }
-  )\prod_{j=1}^c 
-    %\color{red}
-	  \tikz[baseline]{
-		  \node[fill=orange!10!white, anchor=base] (inc) 
-          {\textcolor{red}{$m_{V_j \rightarrow f}(v_j)$}} ; % end numerator
-	  }
-    %\color{mathcolor}
-  \right]}{m_{V_i\rightarrow f}(v_i)} := 
-  \frac{	
-  \tikz[baseline]{
-	  \node[fill=green!20,anchor=base] (projected)
-	  { $q_{f\rightarrow V_i}(v_i)$ };
-  }
-  }{m_{V_i \rightarrow f}(v_i)}  
-\end{align*}
+%\begin{align*}
+%    \textcolor{mygreen}{m_{f\rightarrow V_i}(v_i)} = 
+%  \frac{
+%      \tikz[baseline]{
+%      \node[fill=blue!7,anchor=base] (proj){ $\proj$ };
+%      }
+%  \left[ \int d\mathcal{V}\backslash\{v_i\}\, f(
+%      \tikz[baseline]{
+%          \node[fill=red!10,anchor=base, inner sep=3pt] (v_set){$\mathcal{V}$};
+%      }
+%  )\prod_{j=1}^c 
+%    %\color{red}
+%      \tikz[baseline]{
+%          \node[fill=orange!10!white, anchor=base] (inc) 
+%          {\textcolor{red}{$m_{V_j \rightarrow f}(v_j)$}} ; % end numerator
+%      }
+%    %\color{mathcolor}
+%  \right]}{m_{V_i\rightarrow f}(v_i)} := 
+%  \frac{	
+%  \tikz[baseline]{
+%      \node[fill=green!15,anchor=base] (projected)
+%      { $q_{f\rightarrow V_i}(v_i)$ };
+%  }
+%  }{m_{V_i \rightarrow f}(v_i)}  
+%\end{align*}
 
-\begin{tikzpicture}[scale=1.2]
-\draw[help lines, white, opacity=0] (0, -1) grid (25, 2);
-%\draw[very thick, <->] (1,0) to (0,0) to (0,1); 
-\node (projdef) [right, fill=blue!7, rectangle, inner sep=12pt, align=center,
-text width=21cm]  at (0.5, 0) {$\proj[r_{f \rightarrow
-V_i}]:=\arg\min_{q\in\text{ExpFam}}\text{KL}\left[r_{f \rightarrow V_i}\,\|\,
-q\right]$ (projection onto exponential family)}; 
-%
-\node (incdef) [right, fill=orange!10, ellipse, inner sep=1pt, align=center, text
-width=5cm]  at (22, 0) {incoming message from $V_j$}; 
-\end{tikzpicture}
+%\begin{tikzpicture}[scale=1.2]
+%\draw[help lines, white, opacity=0] (0, -1) grid (25, 2);
+%%\draw[very thick, <->] (1,0) to (0,0) to (0,1); 
+%\node (projdef) [right, fill=blue!7, rectangle, inner sep=12pt, align=center,
+%text width=21cm]  at (0.5, 0) {$\proj[r_{f \rightarrow
+%V_i}]:=\arg\min_{q\in\text{ExpFam}}\text{KL}\left[r_{f \rightarrow V_i}\,\|\,
+%q\right]$ (projection onto exponential family)}; 
+%%
+%\node (incdef) [right, fill=orange!10, ellipse, inner sep=1pt, align=center, text
+%width=5cm]  at (22, 0) {incoming message from $V_j$}; 
+%\end{tikzpicture}
 
 
-% Now it's time to draw some edges between the global nodes. Note that we
-% have to apply the 'overlay' style.
-\begin{tikzpicture}[overlay]
-   \draw[->, line width=3pt] (v_def) edge [bend left] (v_set.north);
-   %\draw[->, line width=3pt] (projdef.north) to [out=120, in=-90] (proj.south);
-   \draw[->, line width=3pt] (projdef) to [bend left] (proj.south);
-   \path[->, line width=3pt] (incdef) edge [bend left] (inc);
-   %\path[->, line width=4pt] (proj_msg_def) edge [out=80, in=220] (projected.south west);
-   \path[->, line width=3pt] (proj_msg_def) edge [bend left] (projected.north);
-\end{tikzpicture}
+%% Now it's time to draw some edges between the global nodes. Note that we
+%% have to apply the 'overlay' style.
+%\begin{tikzpicture}[overlay]
+%   \draw[->, line width=3pt] (v_def) edge [bend left] (v_set.north);
+%   %\draw[->, line width=3pt] (projdef.north) to [out=120, in=-90] (proj.south);
+%   \draw[->, line width=3pt] (projdef) to [bend left] (proj.south);
+%   \path[->, line width=3pt] (incdef) edge [bend left] (inc);
+%   %\path[->, line width=4pt] (proj_msg_def) edge [out=80, in=220] (projected.south west);
+%   \path[->, line width=3pt] (proj_msg_def) edge [bend left] (projected.north);
+%\end{tikzpicture}
+\begin{tikzfigure}[]
+    \includegraphics[width=35cm]{img/inout_msg-crop.pdf}
+\end{tikzfigure}
 
 \begin{tikzfigure}[]
     \vspace{-15mm}
@@ -304,9 +308,11 @@ width=5cm]  at (22, 0) {incoming message from $V_j$};
 Propose to incrementally learn during inference a kernel-based EP message operator 
 (distribution-to-distribution regression) 
 %
+\textcolor{mathcolor}{
 \begin{equation*}
     \left[ m_{V_j \rightarrow f}  \right]_{j=1}^c \mapsto q_{f \rightarrow V_i},
 \end{equation*}
+}
 %
 for any factor $f$ that can be sampled. 
 
@@ -329,16 +335,18 @@ for any factor $f$ that can be sampled.
 %  \mu_{\mathsf{s}},\mu_{\mathsf{s}}\right\rangle \right).
         %\end{align*}
 
+        \textcolor{mathcolor}{
 \begin{equation*}
-           \kappa(\mathsf{r}, \mathsf{s}) = 
-            \exp\left(-\frac{\|\mu_{\mathsf{r}}-
-            \mu_{\mathsf{s}}\|_{\mathcal{H}}^{2}}{2\gamma^{2}}\right)
-    %\kappa(\mathsf{r}, \mathsf{s}) 
-            \stackrel{\textcolor{red}{1^{st}}}{\approx}\exp\left(-\frac{
-        \|\hat{\phi}(\mathsf{r})-\hat{\phi}(\mathsf{s})\|_{D_\mathrm{in}}^{2}}{2\gamma^{2}}\right)
-        \stackrel{\textcolor{red}{2^{nd}}}{\approx}
-        \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s}).
-    \end{equation*}
+       \kappa(\mathsf{r}, \mathsf{s}) = 
+        \exp\left(-\frac{\|\mu_{\mathsf{r}}-
+        \mu_{\mathsf{s}}\|_{\mathcal{H}}^{2}}{2\gamma^{2}}\right)
+%\kappa(\mathsf{r}, \mathsf{s}) 
+        \stackrel{\textcolor{red}{1^{st}}}{\approx}\exp\left(-\frac{
+    \|\hat{\phi}(\mathsf{r})-\hat{\phi}(\mathsf{s})\|_{D_\mathrm{in}}^{2}}{2\gamma^{2}}\right)
+    \stackrel{\textcolor{red}{2^{nd}}}{\approx}
+    \hat{\psi}(\mathsf{r})^\top \hat{\psi}(\mathsf{s}).
+\end{equation*}
+}
 
 \end{itemize}
 %
