@@ -1,0 +1,81 @@
+%%
+%% This is file `tikzposterBackgroundstyles.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% tikzposter.dtx  (with options: `tikzposterBackgroundstyles.tex')
+%% 
+%% This is a generated file.
+%% 
+%% Copyright (C) 2014 by Pascal Richter, Elena Botoeva, Richard Barnard, and Dirk Surmann
+%% 
+%% This file may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either
+%% version 2.0 of this license or (at your option) any later
+%% version. The latest version of this license is in:
+%% 
+%% http://www.latex-project.org/lppl.txt
+%% 
+%% and version 2.0 or later is part of all distributions of
+%% LaTeX version 2013/12/01 or later.
+%% 
+
+
+
+
+
+
+
+
+ % Parameters
+ %   \textwidth  -  length
+ %   \textheight  -  length
+ %   \titlegraphicheight  -  length
+ %   \titletotopverticalspace  -  length
+ %   \titleinnersep  -  length
+ %   backgroundcolor  -  color
+ %   topright  -  coordinate
+ %   bottomleft  -  coordinate
+
+\definebackgroundstyle{Default}{
+    \fill[inner sep=0pt, line width=0pt, color=backgroundcolor]%
+    (bottomleft) rectangle (topright);
+}
+
+\definebackgroundstyle{Rays}{
+    \draw[line width=0pt, top color=backgroundcolor!70, bottom
+    color=backgroundcolor!70!black] (bottomleft) rectangle (topright);
+    %
+    \begin{scope}
+        \foreach \a in {10,20,...,80}{%
+            \draw[backgroundcolor, line width=0.15cm](bottomleft) --
+            ($(bottomleft)!1!(bottomleft)+(\a:120)$);%
+        }
+        \foreach \i in {1,2,...,50}{%
+            \begin{scope}[shift={($(rand*60,rand*70)$)}]
+                \draw[backgroundcolor!50!, line width=0.1cm] (0,0) circle (4);
+            \end{scope}
+        }
+    \end{scope}
+}
+
+\definebackgroundstyle{VerticalGradation}{
+    \draw[line width=0pt, bottom color=backgroundcolor, top
+     color=backgroundcolor!60!white] (bottomleft) rectangle (topright);
+}
+
+\definebackgroundstyle{BottomVerticalGradation}{
+    \draw[draw=none, line width=0pt, bottom color=titlebgcolor, top
+     color=framecolor] (bottomleft) rectangle ($(bottomleft)+(\textwidth,3)$);
+}
+
+\definebackgroundstyle{Empty}{
+    %
+}
+
+
+
+\endinput
+%%
+%% End of file `tikzposterBackgroundstyles.tex'.

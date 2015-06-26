@@ -1,0 +1,226 @@
+%%
+%% This is file `tikzposterNotestyles.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% tikzposter.dtx  (with options: `tikzposterNotestyles.tex')
+%% 
+%% This is a generated file.
+%% 
+%% Copyright (C) 2014 by Pascal Richter, Elena Botoeva, Richard Barnard, and Dirk Surmann
+%% 
+%% This file may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either
+%% version 2.0 of this license or (at your option) any later
+%% version. The latest version of this license is in:
+%% 
+%% http://www.latex-project.org/lppl.txt
+%% 
+%% and version 2.0 or later is part of all distributions of
+%% LaTeX version 2013/12/01 or later.
+%% 
+
+
+
+
+
+
+
+
+
+ % Options:
+ %   targetoffsetx
+ %   targetoffsety
+ %   angle
+ %   radius
+ %   width
+ %   connection
+ %   rotate
+ %   roundedcorners
+ %   linewidth
+ %   innersep
+
+ % Parameter:
+ %   \ifNoteHasConnection  -  boolean
+ %   notecenter  -  coordinate
+ %   notetarget  -  coordinate
+ %   \noterotate  -  number
+ %   \noteroundedcorners  -  number
+ %   \notelinewidth  -  length
+ %   \noteinnersep  -  length
+ %   notebgcolor  -  color
+ %   notefgcolor  -  color
+ %   notefrcolor  -  color
+
+\definenotestyle{Default}{
+    targetoffsetx=0pt, targetoffsety=0pt, angle=0, radius=8cm, width=8cm,
+    connection=false, rotate=0, roundedcorners=20, linewidth=0pt, innersep=1cm
+}{
+    \ifNoteHasConnection %% callout note
+        \draw[color=notefrcolor, fill=notebgcolor]%
+         (notetarget) -- ($(notetarget)!1!4:(notecenter.center)$) --
+         ($(notetarget)!1!-4:(notecenter.center)$) --cycle; %
+         %
+    \fi
+    % the body of the note
+    \draw[color=notefrcolor, fill=notebgcolor, rounded
+    corners=\noteroundedcorners] (notecenter.south west) -- (notecenter.north
+    west) -- (notecenter.north east) -- (notecenter.south east) -- cycle;
+}
+
+ \definenotestyle{Corner}{
+    targetoffsetx=0pt, targetoffsety=0pt, angle=0, radius=8cm, width=12cm,
+    connection=false, rotate=0, roundedcorners=20, linewidth=0pt, innersep=1cm
+}{
+    \ifNoteHasConnection % callout note
+      \draw[color=notebgcolor, fill=notebgcolor, drop shadow={shadow
+        xshift=0.2cm, shadow yshift=-0.2cm, opacity=0.3}] %
+        (notetarget) -- ($(notetarget)!1!4:(notecenter.center)$) --
+         ($(notetarget)!1!-4:(notecenter.center)$) --cycle; %
+    \fi
+    % the body of the note
+    % the shape
+    \def \border{%
+        [rounded corners=0] (notecenter.south west) -- (notecenter.north west) %
+        [rounded corners=\noteroundedcorners] -- ($(notecenter.north
+        east)-(\noterotate:4.7)$) %
+        [rounded corners=\noteroundedcorners] -- ($(notecenter.north
+        east)+(-90+\noterotate:1.7)$) %
+        [rounded corners=0] -- (notecenter.south east) -- (notecenter.south
+        west) -- cycle%
+   }
+    \fill[color=notebgcolor] \border;
+    \coordinate (x) at (\noterotate:1);
+    \coordinate (y) at (\noterotate-90:1);
+    % the shadow of the corner
+    \fill[color=gray,opacity=0.3] ($(notecenter.north east)+3*(y)$) --
+        ($(notecenter.north east)+2.5*(y)$) .. %
+        controls ($(notecenter.north east)+1.25*(y)$) and ($(notecenter.north
+        east)-1.5*(x)+1.25*(y)$) .. %
+        ($(notecenter.north east)-1.9*(x)+2.5*(y)$) .. %
+        controls ($(notecenter.north east)-4.5*(x)$) .. %
+        ($(notecenter.north east)-5.7*(x)$) %
+        [rounded corners=\noteroundedcorners] -- ($(notecenter.north east)-4.7*(x)$) %
+        [rounded corners=\noteroundedcorners] -- ($(notecenter.north east)+1.7*(y)$) %
+        [rounded corners=0] -- ($(notecenter.north east)+3*(y)$);
+    % the corner
+    \fill[color=notefrcolor] %
+        ($(notecenter.north east)+3*(y)$) -- ($(notecenter.north east)+2.5*(y)$) .. %
+        controls ($(notecenter.north east)+1.25*(y)$) and ($(notecenter.north
+        east)-1.5*(x)+1.25*(y)$) .. %
+        ($(notecenter.north east)-1.9*(x)+2.3*(y)$) .. %
+        controls ($(notecenter.north east)-4.5*(x)$) .. %
+        ($(notecenter.north east)-5.7*(x)$) %
+        [rounded corners=\noteroundedcorners] -- ($(notecenter.north east)-4.7*(x)$) %
+        [rounded corners=\noteroundedcorners] -- ($(notecenter.north east)+1.7*(y)$) %
+        [rounded corners=0] -- ($(notecenter.north east)+3*(y)$);
+}
+
+ \definenotestyle{VerticalShading}{
+    targetoffsetx=0pt, targetoffsety=0pt, angle=0, radius=8cm, width=8cm,
+    connection=false, rotate=0, roundedcorners=20, linewidth=1pt, innersep=1cm
+}{
+    \ifNoteHasConnection % callout note
+         % the shadow
+         \begin{scope}[opacity=0.3]
+            \begin{pgftransparencygroup}
+              \coordinate (shadowshift) at (0.2cm,-0.2cm); \fill%
+              ($(notetarget)+(shadowshift)$) --
+              ($(notetarget)!1!4:(notecenter.center)+(shadowshift)$) --
+              ($(notetarget)!1!-4:(notecenter.center)+(shadowshift)$) --cycle; %
+              \fill[rounded corners=\noteroundedcorners] %
+              ($(notecenter.south west)+(shadowshift)$) -- ($(notecenter.north
+              west)+(shadowshift)$) -- ($(notecenter.north east)+(shadowshift)$)
+              -- ($(notecenter.south east)+(shadowshift)$) -- cycle;
+            \end{pgftransparencygroup}
+          \end{scope}
+          %% the main drawing
+          %
+          %% the border
+          \draw[color=notefrcolor, line width=\notelinewidth*2]%
+          (notetarget) -- ($(notetarget)!1!4:(notecenter.center)$) --
+          ($(notetarget)!1!-4:(notecenter.center)$) -- cycle;%
+          \draw[color=notefrcolor, line width=\notelinewidth*2, rounded
+          corners=\noteroundedcorners]%
+          (notecenter.south west) -- (notecenter.north west) --
+          (notecenter.north east) -- (notecenter.south east) -- cycle; %
+          %
+          %% the filling (vertical shading), shared between the note and the connection
+          \begin{scope}
+            \node[fit=(notetarget)(notecenter.south west)(notecenter.south east)
+            (notecenter.north east) (notecenter.north west), inner sep=+0pt]
+            (box) {};%
+            %
+            \clip (notetarget) -- ($(notetarget)!1!4:(notecenter.center)$) --
+            ($(notetarget)!1!-4:(notecenter.center)$) -- cycle%
+            [rounded corners=\noteroundedcorners] (notecenter.south west) --
+            (notecenter.north west) -- (notecenter.north east) --
+            (notecenter.south east) -- cycle;
+            %
+            \draw[draw=none, color=notefrcolor, top color=notebgcolor!60, bottom
+            color=notebgcolor] %
+            (box.south west) rectangle (box.north east);
+          \end{scope}
+          %
+    \else % the simple note
+        \begin{scope}[drop shadow={shadow xshift=0.2cm, shadow yshift=-0.2cm,
+           opacity=0.3}]
+         \draw[line width=\notelinewidth, rounded corners=\noteroundedcorners,
+         color=notefrcolor, top color=notebgcolor!60, bottom color=notebgcolor,
+         drop shadow] %
+         (notecenter.south west) -- (notecenter.north west) -- (notecenter.north
+         east) -- (notecenter.south east) -- cycle;
+        \end{scope}
+    \fi
+}
+
+ \definenotestyle{Sticky}{
+    targetoffsetx=0pt, targetoffsety=0pt, angle=0, radius=8cm, width=8cm,
+    connection=false, rotate=0, roundedcorners=0, linewidth=0pt, innersep=1cm
+}{
+    \ifNoteHasConnection %% callout note
+    \draw[color=notefrcolor, fill=notebgcolor, drop shadow={shadow
+        xshift=0.2cm, shadow yshift=-0.2cm, opacity=0.3}] %
+         (notetarget) -- ($(notetarget)!1!4:(notecenter.center)$) --
+         ($(notetarget)!1!-4:(notecenter.center)$) --cycle; %
+    \fi
+    % the body of the note
+    % shadow
+    \draw[draw=none, fill=gray, opacity=0.3]
+        ($(notecenter.north east)+(-0.5,0)$) [rounded corners=40]--%
+        (notecenter.north west) [rounded corners=0] -- %
+        ($(notecenter.south west)$) .. %
+        controls ($0.2*(notecenter.south west) + 0.8*(notecenter.south east)$) .. %
+        ($(notecenter.south east)+(-0.2,0.3)$) .. %
+        controls ($0.75*(notecenter.south east) + 0.25*(notecenter.north east) - (0.5,0)$) .. %
+        ($(notecenter.north east)+(-0.5,0)$);
+    % the shape
+    \def \border{%
+        ($(notecenter.north east)+(-0.5,0)$) [rounded corners=40]--%
+        (notecenter.north west) [rounded corners=0] -- %
+        ($(notecenter.south west)$) .. %
+        controls ($0.2*(notecenter.south west) + 0.8*(notecenter.south east)$) .. %
+        ($(notecenter.south east)+(0,0.7)$) .. %
+        controls ($0.75*(notecenter.south east) +0.25*(notecenter.north east) -(0.5,0)$) .. %
+        ($(notecenter.north east)+(-0.5,0)$)%
+    }%
+    \draw[color=notefrcolor, fill=notebgcolor]
+    \border;
+    % the shading in the left top corner
+    \begin{scope}
+        \clip \border; %
+        \begin{scope}[transform canvas={rotate
+            around={\noterotate+15:(notecenter.north west)}}]
+            \fill[notebgcolor!60!black, path fading=south, opacity=0.6]%
+                (notecenter.north west) -- +(-3,0) |- ($(notecenter.north west) + (0,-1.2)$)
+                -- ($(notecenter.north west) + (4,-1.2)$) |- ($(notecenter.north west)$);
+        \end{scope}
+    \end{scope}
+}
+
+
+
+\endinput
+%%
+%% End of file `tikzposterNotestyles.tex'.

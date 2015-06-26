@@ -1,0 +1,113 @@
+%
+% This is file `theguy28pt.clo', generated with
+% scrfontsizes 2013/12/19 v3.12 KOMA-Script package (font size file generator),
+% Copyright (c) Markus Kohm.
+%
+\ProvidesFile{theguy28pt.clo}[2015/06/25 generated font size class option (28pt)]
+\def\normalsize{%
+  \@setfontsize\normalsize{28}{33.59991pt}%
+  \abovedisplayskip 27.99872pt plus 5.60118pt minus 16.79996pt
+  \abovedisplayshortskip 0.0pt plus 8.39998pt
+  \belowdisplayskip 27.99872pt plus 5.60118pt minus 16.79996pt
+  \belowdisplayshortskip 16.79996pt plus 8.39998pt minus 8.39998pt
+  \let\@listi\@listI
+}%
+\def\small{%
+  \@setfontsize\small{25.55017}{30.66013pt}%
+  \abovedisplayskip 25.54901pt plus 5.1111pt minus 15.33006pt
+  \abovedisplayshortskip 0.0pt plus 7.66502pt
+  \belowdisplayskip 25.54901pt plus 5.1111pt minus 15.33006pt
+  \belowdisplayshortskip 15.33006pt plus 7.66502pt minus 7.66502pt
+  \def\@listi{%
+    \leftmargin\leftmargini
+    \topsep11.19876pt plus 5.60118pt minus 5.60118pt
+    \parsep5.60118pt plus 2.79878pt minus 2.79878pt
+    \itemsep\parsep
+  }%
+}%
+\def\footnotesize{%
+  \@setfontsize\small{23.33362}{28.00026pt}%
+  \abovedisplayskip 23.33255pt plus 4.6677pt minus 14.00012pt
+  \abovedisplayshortskip 0.0pt plus 7.00006pt
+  \belowdisplayskip 23.33255pt plus 4.6677pt minus 14.00012pt
+  \belowdisplayshortskip 14.00012pt plus 7.00006pt minus 7.00006pt
+  \def\@listi{%
+    \leftmargin\leftmargini
+    \topsep8.39998pt plus 4.19998pt minus 4.19998pt
+    \parsep4.19998pt plus 2.09999pt minus 2.09999pt
+    \itemsep\parsep
+  }%
+}%
+\def\scriptsize{\@setfontsize\scriptsize{18.66681}{22.4001pt}}%
+\def\tiny{\@setfontsize\tiny{14}{16.79996pt}}%
+\def\large{\@setfontsize\large{33.59991}{40.3198pt}}%
+\def\Large{\@setfontsize\Large{40.32007}{48.38396pt}}%
+\def\LARGE{\@setfontsize\LARGE{48.38391}{58.06053pt}}%
+\def\huge{\@setfontsize\huge{58.07214}{69.68639pt}}%
+\def\Huge{\@setfontsize\Huge{69.66418}{83.5968pt}}%
+\normalsize
+\setlength{\footnotesep}{18.6477pt}%
+\setlength{\skip\footins}{25.19994pt plus 11.19876pt minus 5.60118pt}%
+\setlength{\floatsep}{33.59991pt plus 5.60118pt minus 5.60118pt}%
+\setlength{\textfloatsep}{56.00105pt plus 5.60118pt minus 11.19876pt}%
+\setlength{\intextsep}{33.59991pt plus 5.60118pt minus 5.60118pt}%
+\setlength{\dblfloatsep}{33.59991pt plus 5.60118pt minus 5.60118pt}%
+\setlength{\dbltextfloatsep}{56.00105pt plus 5.60118pt minus 11.19876pt}%
+\setlength{\@fptop}{0.0pt plus 1.0fil}%
+\setlength{\@fpsep}{22.40114pt plus 2.0fil}%
+\setlength{\@fpbot}{0.0pt plus 1.0fil}%
+\setlength{\@dblfptop}{0.0pt plus 1.0fil}%
+\setlength{\@dblfpsep}{22.40114pt plus 2.0fil}%
+\setlength{\@dblfpbot}{0.0pt plus 1.0fil}%
+\setlength{\partopsep}{6.71988pt plus 3.36018pt minus 3.36018pt}%
+\def\@listi{%
+  \leftmargin\leftmargini
+  \topsep22.40114pt plus 5.60118pt minus 11.19876pt
+  \parsep11.19876pt plus 5.60118pt minus 2.79878pt
+  \itemsep\parsep
+}%
+\let\@listI\@listi
+\def\@listii{%
+  \leftmargin\leftmarginii
+  \labelwidth\leftmarginii
+  \advance\labelwidth-\labelsep
+  \topsep11.19876pt plus 5.60118pt minus 2.79878pt
+  \parsep5.60118pt plus 2.79878pt minus 2.79878pt
+  \itemsep\parsep
+}%
+\def\@listiii{%
+  \leftmargin\leftmarginiii
+  \labelwidth\leftmarginiii
+  \advance\labelwidth-\labelsep
+  \topsep5.60118pt plus 2.79878pt minus 2.79878pt
+  \parsep0.0pt
+  \partopsep0.0pt minus 1.0pt
+  \itemsep\topsep
+}%
+\def\@listiv{%
+  \leftmargin\leftmarginiv
+  \labelwidth\leftmarginiv
+  \advance\labelwidth-\labelsep
+}%
+\def\@listv{%
+  \leftmargin\leftmarginv
+  \labelwidth\leftmarginv
+  \advance\labelwidth-\labelsep
+}%
+\def\@listvi{%
+  \leftmargin\leftmarginvi
+  \labelwidth\leftmarginvi
+  \advance\labelwidth-\labelsep
+}%
+\@ifundefined{@list@extra}{}{%
+  \l@addto@macro{\@listi}{\@list@extra}%
+  \let\@listI=\@listi
+  \l@addto@macro{\@listii}{\@list@extra}%
+  \l@addto@macro{\@listiii}{\@list@extra}%
+  \l@addto@macro{\footnotesize}{\protect\add@extra@listi{ftns}}%
+  \l@addto@macro{\small}{\protect\add@extra@listi{sml}}%
+}%
+\@listi
+\endinput
+%
+% End of file `theguy28pt.clo'. 

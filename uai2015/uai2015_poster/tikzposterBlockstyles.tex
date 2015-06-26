@@ -1,0 +1,225 @@
+%%
+%% This is file `tikzposterBlockstyles.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% tikzposter.dtx  (with options: `tikzposterBlockstyles.tex')
+%% 
+%% This is a generated file.
+%% 
+%% Copyright (C) 2014 by Pascal Richter, Elena Botoeva, Richard Barnard, and Dirk Surmann
+%% 
+%% This file may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either
+%% version 2.0 of this license or (at your option) any later
+%% version. The latest version of this license is in:
+%% 
+%% http://www.latex-project.org/lppl.txt
+%% 
+%% and version 2.0 or later is part of all distributions of
+%% LaTeX version 2013/12/01 or later.
+%% 
+
+
+
+
+
+
+
+ % Options:
+ %   titlewidthscale
+ %   bodywidthscale
+ %   titlecenter, titleleft, titleright
+ %   titleoffsetx
+ %   titleoffsety
+ %   bodyoffsetx
+ %   bodyoffsety
+ %   bodyverticalshift
+ %   roundedcorners
+ %   linewidth
+ %   titleinnersep
+ %   bodyinnersep
+
+ % Parameter:
+ %   \ifBlockHasTitle  -  boolean
+ %   blocktitle  -  coordinate
+ %   blockbody  -  coordinate
+ %   \blockroundedcorners  -  number
+ %   \blocklinewidth  -  length
+ %   \blockbodyinnersep  -  length
+ %   \blocktitleinnersep  -  length
+ %   blockbodybgcolor  -  color
+ %   blocktitlebgcolor  -  color
+ %   framecolor  -  color
+
+ \defineblockstyle{Default}{
+    titlewidthscale=1, bodywidthscale=1, titlecenter,
+    titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsety=0pt,
+    bodyverticalshift=0pt, roundedcorners=30, linewidth=0.4cm,
+    titleinnersep=1cm, bodyinnersep=1cm
+}{
+    \begin{scope}[line width=\blocklinewidth, rounded corners=\blockroundedcorners]
+        \ifBlockHasTitle %
+           \draw[color=blocktitlebgcolor, fill=blocktitlebgcolor] (blockbody.south west) rectangle (blocktitle.north east);
+           \draw[color=blocktitlebgcolor, fill=blockbodybgcolor] (blockbody.south west) rectangle (blockbody.north east);
+        \else
+           \draw[color=blocktitlebgcolor, fill=blockbodybgcolor] (blockbody.south west) rectangle (blockbody.north east);
+        \fi
+    \end{scope}
+}
+
+ \defineblockstyle{Basic}{
+    titlewidthscale=0.8, bodywidthscale=1, titlecenter,
+    titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsety=15mm,
+    bodyverticalshift=15mm, roundedcorners=22, linewidth=5pt,
+    titleinnersep=8mm, bodyinnersep=8mm
+}{
+    \draw[rounded corners=\blockroundedcorners, inner sep=\blockbodyinnersep, line width=\blocklinewidth, color=framecolor, fill=blockbodybgcolor]
+        (blockbody.south west) rectangle (blockbody.north east); %
+    \ifBlockHasTitle%
+        \draw[rounded corners=\blockroundedcorners, inner sep=\blocktitleinnersep, line width=\blocklinewidth, color=framecolor, fill=blocktitlebgcolor]
+           (blocktitle.south west) rectangle (blocktitle.north east); %
+    \fi%
+}
+
+\defineblockstyle{Minimal}{
+    titlewidthscale=1, bodywidthscale=1, titleleft,
+    titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsety=0pt,
+    bodyverticalshift=0pt, roundedcorners=0, linewidth=0.2cm,
+    titleinnersep=1cm, bodyinnersep=1cm
+}{
+    \begin{scope}[line width=\blocklinewidth, rounded corners=\blockroundedcorners]
+       \ifBlockHasTitle %
+           \draw[draw=none]%, fill=blockbodybgcolor]
+               (blockbody.south west) rectangle (blocktitle.north east);
+           \draw[color=blocktitlebgcolor, loosely dashed]
+               (blocktitle.south west) -- (blocktitle.south east);%
+       \else
+             \draw[draw=none]%, fill=blockbodybgcolor]
+                 (blockbody.south west) rectangle (blockbody.north east);
+        \fi
+    \end{scope}
+}
+
+\defineblockstyle{Envelope}{
+    titlewidthscale=1, bodywidthscale=1, titlecenter,
+    titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsety=0pt,
+    bodyverticalshift=0pt, roundedcorners=20, linewidth=1.6pt,
+    titleinnersep=1cm, bodyinnersep=1cm
+}{
+    \begin{scope}[rounded corners=\blockroundedcorners, line width=\blocklinewidth,
+      drop shadow={shadow xshift=0.3cm, shadow yshift=-0.3cm, opacity=0.3} ]
+        \ifBlockHasTitle
+           % the big rectangle
+           \draw[color=blocktitlebgcolor, fill=blockbodybgcolor, drop shadow]
+               (blockbody.south west) rectangle (blocktitle.north east);%
+           \begin{scope}
+              \clip (blocktitle.south west) rectangle (blocktitle.north east);
+              % fading on top
+              \fill[rounded corners=0, path fading=south, fill=blocktitlebgcolor, opacity=.4]
+              ($(blocktitle.south west)-(0.1,0)$) rectangle ($(blocktitle.north east)+(0.1,0)$);
+              % the trapezium
+              \draw[draw=none, bottom color=blocktitlebgcolor, top
+              color=blocktitlebgcolor!85!] %
+                 ($(blocktitle.north west)+(0.25,0)$) -- ($(blocktitle.north west)+(0.75,0)$) -- %
+                 ($(blocktitle.south west)+(2.5,0)$) -- ($(blocktitle.south east)-(2.5,0)$) -- %
+                 ($(blocktitle.north east)-(0.75,0)$) -- ($(blocktitle.north east)-(0.25,0)$) -- cycle;
+           \end{scope}
+        \else
+           % No title
+           \draw[color=blocktitlebgcolor, fill=blockbodybgcolor]
+               (blockbody.south west) rectangle (blockbody.north east);
+        \fi
+    \end{scope}
+}
+
+\defineblockstyle{Corner}{
+    titlewidthscale=1, bodywidthscale=1, titleleft,
+    titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsety=0pt,
+    bodyverticalshift=0pt, roundedcorners=20, linewidth=1.2pt,
+    titleinnersep=1cm, bodyinnersep=1cm
+}{
+   % the shadow above the corner
+   \begin{scope}
+    \clip (blockbody.south west) rectangle (blocktitle.north east);
+    \begin{scope}[transform canvas={xshift=-1cm, yshift=-0.8cm, rotate
+        around={-20:($(blocktitle.north east)-(10,0)$)}}]
+      \fill[color=gray, path fading=north, opacity=0.8]%
+      ($(blocktitle.north east)-(10,1)$) rectangle ($(blocktitle.north east)+(2,2.3)$);
+    \end{scope}
+   \end{scope}
+   %
+   % the border
+   \def \border{%
+    [rounded corners=30] (blockbody.south west) -- (blocktitle.north west) %
+    [rounded corners=30] -- ($(blocktitle.north east)-(9.4,0)$)
+    [rounded corners=30] -- ($(blocktitle.north east)-(0,3.4)$)
+    [rounded corners=30] |-    (blockbody.south west) -- cycle
+  }
+   \draw[line width=\blocklinewidth, color=blocktitlebgcolor, fill=blockbodybgcolor,
+   % drop shadow={shadow xshift=0.3cm, shadow yshift=-0.3cm, opacity=0.3}
+   ] \border;
+   %
+   % the corner
+   \begin{scope}
+    \def \corner{ ($(blocktitle.north east)-(0,6)$) -- ($(blocktitle.north east)-(0,4.5)$) .. %
+      controls ($(blocktitle.north east)-(-0,2.7)$) and ($(blocktitle.north east)-(2.8,2.2)$)
+      .. ($(blocktitle.north east)-(3.8,4.6)$) %
+      .. controls ($(blocktitle.north east)-(8.6,0)$) ..    ($(blocktitle.north east)-(11.4,0)$) %
+      [rounded corners=30] -- ($(blocktitle.north east)-(9.4,0)$) %
+      [rounded corners=30] -- ($(blocktitle.north east)-(0,3.4)$) %
+      [rounded corners=0] -- ($(blocktitle.north east)-(0,6)$)}
+    \draw[blocktitlebgcolor] \corner;
+    \clip \corner;
+    \begin{scope}[transform canvas={xshift=-1cm, yshift=-1.3cm, rotate
+        around={-23:($(blocktitle.north east)-(10,0)$)}}]
+      \fill[color=blocktitlebgcolor!90] ($(blocktitle.north east) - (10,2)$)
+      rectangle ($(blocktitle.north east) + (2,3.6)$); %
+      \fill[color=blocktitlebgcolor , path fading=south, opacity=1]
+      ($(blocktitle.north east) - (10,-1.2)$) rectangle ($(blocktitle.north east) + (2,1.6)$); %
+      \fill[color=blocktitlebgcolor , path fading=north, opacity=1]
+      ($(blocktitle.north east) - (10,-1.6)$) rectangle ($(blocktitle.north east) + (2,2.1)$);
+    \end{scope}
+   \end{scope}%
+}
+
+\defineblockstyle{Slide}{
+    titlewidthscale=1, bodywidthscale=1, titleleft,
+    titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsety=0pt,
+    bodyverticalshift=0pt, roundedcorners=0, linewidth=0pt, titleinnersep=1cm,
+    bodyinnersep=1cm
+}{
+    \ifBlockHasTitle%
+        \draw[draw=none, left color=blocktitlebgcolor, right color=blockbodybgcolor]
+           (blocktitle.south west) rectangle (blocktitle.north east);
+    \fi%
+    \draw[draw=none, fill=blockbodybgcolor] %
+        (blockbody.north west) [rounded corners=30] -- (blockbody.south west) --
+        (blockbody.south east) [rounded corners=0]-- (blockbody.north east) -- cycle;
+}
+
+\defineblockstyle{TornOut}{
+    titlewidthscale=1, bodywidthscale=1, titlecenter,
+    titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsety=0pt,
+    bodyverticalshift=-1.2cm, roundedcorners=0, linewidth=1.2pt,
+    titleinnersep=1cm, bodyinnersep=1cm
+}{
+    \ifBlockHasTitle%
+        \coordinate (topright) at (blocktitle.north east);
+    \else
+        \coordinate (topright) at (blockbody.north east);
+    \fi%
+    \draw[color=blocktitlebgcolor, fill=blockbodybgcolor,%
+        line width=\blocklinewidth, drop shadow={shadow xshift=0.2cm, shadow yshift=-0.2cm,opacity=0.3}, %
+        decorate, decoration={random steps,segment length=1.5cm,amplitude=0.15cm}
+        % decorate, decoration={penciline,amplitude=0.2cm}
+    ] (blockbody.south west) rectangle (topright);%
+}
+
+
+
+
+\endinput
+%%
+%% End of file `tikzposterBlockstyles.tex'.

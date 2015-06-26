@@ -1,0 +1,113 @@
+%
+% This is file `theguy27pt.clo', generated with
+% scrfontsizes 2013/12/19 v3.12 KOMA-Script package (font size file generator),
+% Copyright (c) Markus Kohm.
+%
+\ProvidesFile{theguy27pt.clo}[2015/06/26 generated font size class option (27pt)]
+\def\normalsize{%
+  \@setfontsize\normalsize{27}{32.39992pt}%
+  \abovedisplayskip 26.99876pt plus 5.40114pt minus 16.19995pt
+  \abovedisplayshortskip 0.0pt plus 8.09998pt
+  \belowdisplayskip 26.99876pt plus 5.40114pt minus 16.19995pt
+  \belowdisplayshortskip 16.19995pt plus 8.09998pt minus 8.09998pt
+  \let\@listi\@listI
+}%
+\def\small{%
+  \@setfontsize\small{24.63766}{29.56511pt}%
+  \abovedisplayskip 24.63654pt plus 4.92856pt minus 14.78255pt
+  \abovedisplayshortskip 0.0pt plus 7.39127pt
+  \belowdisplayskip 24.63654pt plus 4.92856pt minus 14.78255pt
+  \belowdisplayshortskip 14.78255pt plus 7.39127pt minus 7.39127pt
+  \def\@listi{%
+    \leftmargin\leftmargini
+    \topsep10.79881pt plus 5.40114pt minus 5.40114pt
+    \parsep5.40114pt plus 2.69884pt minus 2.69884pt
+    \itemsep\parsep
+  }%
+}%
+\def\footnotesize{%
+  \@setfontsize\small{22.50027}{27.00026pt}%
+  \abovedisplayskip 22.49925pt plus 4.50099pt minus 13.50012pt
+  \abovedisplayshortskip 0.0pt plus 6.75006pt
+  \belowdisplayskip 22.49925pt plus 4.50099pt minus 13.50012pt
+  \belowdisplayshortskip 13.50012pt plus 6.75006pt minus 6.75006pt
+  \def\@listi{%
+    \leftmargin\leftmargini
+    \topsep8.09998pt plus 4.04999pt minus 4.04999pt
+    \parsep4.04999pt plus 2.025pt minus 2.025pt
+    \itemsep\parsep
+  }%
+}%
+\def\scriptsize{\@setfontsize\scriptsize{18.00014}{21.6001pt}}%
+\def\tiny{\@setfontsize\tiny{13.5}{16.19995pt}}%
+\def\large{\@setfontsize\large{32.39992}{38.87979pt}}%
+\def\Large{\@setfontsize\Large{38.88007}{46.65596pt}}%
+\def\LARGE{\@setfontsize\LARGE{46.65591}{55.98695pt}}%
+\def\huge{\@setfontsize\huge{55.99814}{67.19759pt}}%
+\def\Huge{\@setfontsize\Huge{67.17618}{80.6112pt}}%
+\normalsize
+\setlength{\footnotesep}{17.9817pt}%
+\setlength{\skip\footins}{24.29993pt plus 10.79881pt minus 5.40114pt}%
+\setlength{\floatsep}{32.39992pt plus 5.40114pt minus 5.40114pt}%
+\setlength{\textfloatsep}{54.001pt plus 5.40114pt minus 10.79881pt}%
+\setlength{\intextsep}{32.39992pt plus 5.40114pt minus 5.40114pt}%
+\setlength{\dblfloatsep}{32.39992pt plus 5.40114pt minus 5.40114pt}%
+\setlength{\dbltextfloatsep}{54.001pt plus 5.40114pt minus 10.79881pt}%
+\setlength{\@fptop}{0.0pt plus 1.0fil}%
+\setlength{\@fpsep}{21.60109pt plus 2.0fil}%
+\setlength{\@fpbot}{0.0pt plus 1.0fil}%
+\setlength{\@dblfptop}{0.0pt plus 1.0fil}%
+\setlength{\@dblfpsep}{21.60109pt plus 2.0fil}%
+\setlength{\@dblfpbot}{0.0pt plus 1.0fil}%
+\setlength{\partopsep}{6.47987pt plus 3.24019pt minus 3.24019pt}%
+\def\@listi{%
+  \leftmargin\leftmargini
+  \topsep21.60109pt plus 5.40114pt minus 10.79881pt
+  \parsep10.79881pt plus 5.40114pt minus 2.69884pt
+  \itemsep\parsep
+}%
+\let\@listI\@listi
+\def\@listii{%
+  \leftmargin\leftmarginii
+  \labelwidth\leftmarginii
+  \advance\labelwidth-\labelsep
+  \topsep10.79881pt plus 5.40114pt minus 2.69884pt
+  \parsep5.40114pt plus 2.69884pt minus 2.69884pt
+  \itemsep\parsep
+}%
+\def\@listiii{%
+  \leftmargin\leftmarginiii
+  \labelwidth\leftmarginiii
+  \advance\labelwidth-\labelsep
+  \topsep5.40114pt plus 2.69884pt minus 2.69884pt
+  \parsep0.0pt
+  \partopsep0.0pt minus 1.0pt
+  \itemsep\topsep
+}%
+\def\@listiv{%
+  \leftmargin\leftmarginiv
+  \labelwidth\leftmarginiv
+  \advance\labelwidth-\labelsep
+}%
+\def\@listv{%
+  \leftmargin\leftmarginv
+  \labelwidth\leftmarginv
+  \advance\labelwidth-\labelsep
+}%
+\def\@listvi{%
+  \leftmargin\leftmarginvi
+  \labelwidth\leftmarginvi
+  \advance\labelwidth-\labelsep
+}%
+\@ifundefined{@list@extra}{}{%
+  \l@addto@macro{\@listi}{\@list@extra}%
+  \let\@listI=\@listi
+  \l@addto@macro{\@listii}{\@list@extra}%
+  \l@addto@macro{\@listiii}{\@list@extra}%
+  \l@addto@macro{\footnotesize}{\protect\add@extra@listi{ftns}}%
+  \l@addto@macro{\small}{\protect\add@extra@listi{sml}}%
+}%
+\@listi
+\endinput
+%
+% End of file `theguy27pt.clo'. 

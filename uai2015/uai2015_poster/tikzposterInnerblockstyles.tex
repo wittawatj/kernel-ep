@@ -1,0 +1,274 @@
+%%
+%% This is file `tikzposterInnerblockstyles.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% tikzposter.dtx  (with options: `tikzposterInnerblockstyles.tex')
+%% 
+%% This is a generated file.
+%% 
+%% Copyright (C) 2014 by Pascal Richter, Elena Botoeva, Richard Barnard, and Dirk Surmann
+%% 
+%% This file may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either
+%% version 2.0 of this license or (at your option) any later
+%% version. The latest version of this license is in:
+%% 
+%% http://www.latex-project.org/lppl.txt
+%% 
+%% and version 2.0 or later is part of all distributions of
+%% LaTeX version 2013/12/01 or later.
+%% 
+
+
+
+
+
+
+
+
+
+
+
+ % Options:
+ %   titlewidth
+ %   bodywidth
+ %   titlewidthscale
+ %   bodywidthscale
+ %   titlecenter, titleleft, titleright
+ %   titleoffsetx
+ %   titleoffsety
+ %   bodyoffsetx
+ %   bodyoffsety
+ %   bodyverticalshift
+ %   roundedcorners
+ %   linewidth
+ %   titleinnersep
+ %   bodyinnersep
+
+ % Parameter:
+ %   \ifInnerblockHasTitle  -  boolean
+ %   innerblocktitle  -  coordinate
+ %   innerblockbody  -  coordinate
+ %   \innerblockroundedcorners  -  number
+ %   \innerblocklinewidth  -  length
+ %   \innerblockbodyinnersep  -  length
+ %   \innerblocktitleinnersep  -  length
+ %   innerblockbodybgcolor  -  color
+ %   innerblocktitlebgcolor  -  color
+ %   framecolor  -  color
+
+\defineinnerblockstyle{Default}{
+    titlewidthscale=1, bodywidthscale=1, titlecenter,
+    titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsety=0pt,
+    bodyverticalshift=0pt, roundedcorners=20, linewidth=4pt,
+    titleinnersep=10pt, bodyinnersep=12pt
+}{
+    \begin{scope}[line width=\innerblocklinewidth, rounded
+      corners=\innerblockroundedcorners, solid]
+        \ifInnerblockHasTitle %
+           \draw[color=innerblocktitlebgcolor, fill=innerblocktitlebgcolor]
+           (innerblockbody.south west) rectangle (innerblocktitle.north east);
+           \draw[color=innerblocktitlebgcolor, fill=innerblockbodybgcolor]
+           (innerblockbody.south west) rectangle (innerblockbody.north east);
+        \else
+           \draw[color=innerblocktitlebgcolor, fill=innerblockbodybgcolor]
+           (innerblockbody.south west) rectangle (innerblockbody.north east);
+        \fi
+    \end{scope}
+}
+
+\defineinnerblockstyle{Table}{
+    titlewidthscale=0.25, bodywidthscale=0.75, titleleft,
+    titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsety=0pt,
+    bodyverticalshift=0pt, roundedcorners=15, linewidth=3mm,
+    titleinnersep=15pt, bodyinnersep=15pt
+}{
+  % minimum height should be the maximum of \TP@innerblocktitleheight and
+  % \TP@innerblockbodyheight
+  \node[minimum width=\TP@innerblocktitlewidth, minimum
+  height=\TP@innerblockbodyheight, anchor=center] (innerblocktitle) at
+  (\TP@innerblockcenter-0.5\TP@innerblockbodywidth+\TP@innerblocktitleoffsetx,
+  {-\TP@innerblocktitleheight-0.5\TP@innerblockbodyheight+\TP@innerblocktitleoffsety})
+  {};%
+  %
+  \ifInnerblockHasTitle%
+  \node[minimum width=\TP@innerblockbodywidth, minimum
+  height=\TP@innerblockbodyheight, anchor=center] (innerblockbody) at
+  (\TP@innerblockcenter+0.5\TP@innerblocktitlewidth+\TP@innerblockbodyoffsetx,
+  {-\TP@innerblocktitleheight-0.5\TP@innerblockbodyheight+\TP@innerblockbodyoffsety})
+  {};%
+  %
+  \else%
+  \node[minimum width=\TP@innerblockbodywidth, minimum
+  height=\TP@innerblockbodyheight, anchor=center] (innerblockbody) at
+  (\TP@innerblockcenter+\TP@innerblockbodyoffsetx,
+  {-\TP@innerblocktitleheight-0.5\TP@innerblockbodyheight}) {};%
+  \fi
+ \begin{scope}[rounded corners=\innerblockroundedcorners, line width=\innerblocklinewidth]
+        \ifInnerblockHasTitle
+           % the big rectangle
+        \draw[color=innerblocktitlebgcolor, fill=innerblockbodybgcolor]
+        (innerblocktitle.north west) rectangle (innerblockbody.south east);%
+        \draw[color=innerblocktitlebgcolor] (innerblocktitle.south east) --
+        (innerblocktitle.north east); %
+        \else
+           % No title
+           \draw[color=innerblocktitlebgcolor, fill=innerblockbodybgcolor]
+               (innerblockbody.south west) rectangle (innerblockbody.north east);
+        \fi
+    \end{scope}
+}
+
+ \defineinnerblockstyle{Basic}{
+    titlewidthscale=0.8, bodywidthscale=1, titlecenter,
+    titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsety=6mm,
+    bodyverticalshift=6mm, roundedcorners=14, linewidth=2pt,
+    titleinnersep=8pt, bodyinnersep=8pt
+}{
+    \draw[rounded corners=\innerblockroundedcorners, inner sep=\innerblockbodyinnersep, line width=\innerblocklinewidth, color=framecolor, fill=innerblockbodybgcolor]
+        (innerblockbody.south west) rectangle (innerblockbody.north east); %
+    \ifInnerblockHasTitle%
+        \draw[rounded corners=\innerblockroundedcorners, inner sep=\innerblocktitleinnersep, line width=\innerblocklinewidth, color=framecolor, fill=innerblocktitlebgcolor]
+           (innerblocktitle.south west) rectangle (innerblocktitle.north east); %
+    \fi%
+}
+
+\defineinnerblockstyle{Minimal}{
+    titlewidthscale=1, bodywidthscale=1, titleleft,
+    titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsety=0pt,
+    bodyverticalshift=0pt, roundedcorners=0, linewidth=1.5mm,
+    titleinnersep=10pt, bodyinnersep=10pt
+}{
+    \begin{scope}[line width=\innerblocklinewidth, rounded corners=\innerblockroundedcorners]
+       \ifInnerblockHasTitle %
+           \draw[draw=none, fill=innerblockbodybgcolor]
+               (innerblockbody.south west) rectangle (innerblocktitle.north east);
+           \draw[color=innerblocktitlebgcolor, loosely dashed]
+               (innerblocktitle.south west) -- (innerblocktitle.south east);%
+       \else
+             \draw[draw=none, fill=innerblockbodybgcolor]
+                 (innerblockbody.south west) rectangle (innerblockbody.north east);
+        \fi
+    \end{scope}
+}
+
+\defineinnerblockstyle{Envelope}{
+    titlewidthscale=1, bodywidthscale=1, titlecenter,
+    titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsety=0pt,
+    bodyverticalshift=0pt, roundedcorners=20, linewidth=1.3pt,
+    titleinnersep=10pt, bodyinnersep=10pt
+}{
+    \begin{scope}[rounded corners=\innerblockroundedcorners, line width=\innerblocklinewidth,
+      drop shadow={shadow xshift=0.3cm, shadow yshift=-0.3cm, opacity=0.3} ]
+        \ifInnerblockHasTitle
+           % the big rectangle
+           \draw[color=innerblocktitlebgcolor, fill=innerblockbodybgcolor, drop shadow]
+               (innerblockbody.south west) rectangle (innerblocktitle.north east);%
+           \begin{scope}
+              \clip (innerblocktitle.south west) rectangle (innerblocktitle.north east);
+              % fading on top
+              \fill[rounded corners=0, path fading=south, fill=innerblocktitlebgcolor, opacity=.4]
+              ($(innerblocktitle.south west)-(0.1,0)$) rectangle ($(innerblocktitle.north east)+(0.1,0)$);
+              % the trapezium
+              \draw[draw=none, bottom color=innerblocktitlebgcolor, top
+              color=innerblocktitlebgcolor!85!] %
+                 ($(innerblocktitle.north west)+(0.25,0)$) -- ($(innerblocktitle.north west)+(0.75,0)$) -- %
+                 ($(innerblocktitle.south west)+(2.5,0)$) -- ($(innerblocktitle.south east)-(2.5,0)$) -- %
+                 ($(innerblocktitle.north east)-(0.75,0)$) -- ($(innerblocktitle.north east)-(0.25,0)$) -- cycle;
+           \end{scope}
+        \else
+           % No title
+           \draw[color=innerblocktitlebgcolor, fill=innerblockbodybgcolor]
+               (innerblockbody.south west) rectangle (innerblockbody.north east);
+        \fi
+    \end{scope}
+}
+
+\defineinnerblockstyle{Corner}{
+    titlewidthscale=1, bodywidthscale=1, titleleft,
+    titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsety=0pt,
+    bodyverticalshift=0pt, roundedcorners=8, linewidth=1pt,
+    titleinnersep=10pt, bodyinnersep=10pt
+}{
+   % the shadow above the corner
+   \begin{scope}
+    \clip (innerblockbody.south west) rectangle (innerblocktitle.north east);
+    \begin{scope}[transform canvas={xshift=-1cm, yshift=-0.8cm, rotate
+        around={-20:($(innerblocktitle.north east)-(10,0)$)}}]
+      \fill[color=gray, path fading=north, opacity=0.8]%
+      ($(innerblocktitle.north east)-(10,1)$) rectangle ($(innerblocktitle.north east)+(2,2.3)$);
+    \end{scope}
+   \end{scope}
+   %
+   % the border
+   \def \border{%
+    [rounded corners=30] (innerblockbody.south west) -- (innerblocktitle.north west) %
+    [rounded corners=30] -- ($(innerblocktitle.north east)-(9.4,0)$)
+    [rounded corners=30] -- ($(innerblocktitle.north east)-(0,3.4)$)
+    [rounded corners=30] |-    (innerblockbody.south west) -- cycle
+  }
+   \draw[line width=\innerblocklinewidth, color=innerblocktitlebgcolor, fill=innerblockbodybgcolor,
+   % drop shadow={shadow xshift=0.3cm, shadow yshift=-0.3cm, opacity=0.3}
+   ] \border;
+   %
+   % the corner
+   \begin{scope}
+    \def \corner{ ($(innerblocktitle.north east)-(0,6)$) -- ($(innerblocktitle.north east)-(0,4.5)$) .. %
+      controls ($(innerblocktitle.north east)-(-0,2.7)$) and ($(innerblocktitle.north east)-(2.8,2.2)$)
+      .. ($(innerblocktitle.north east)-(3.8,4.6)$) %
+      .. controls ($(innerblocktitle.north east)-(8.6,0)$) ..    ($(innerblocktitle.north east)-(11.4,0)$) %
+      [rounded corners=30] -- ($(innerblocktitle.north east)-(9.4,0)$) %
+      [rounded corners=30] -- ($(innerblocktitle.north east)-(0,3.4)$) %
+      [rounded corners=0] -- ($(innerblocktitle.north east)-(0,6)$)}
+    \draw[innerblocktitlebgcolor] \corner;
+    \clip \corner;
+    \begin{scope}[transform canvas={xshift=-1cm, yshift=-1.3cm, rotate
+        around={-23:($(innerblocktitle.north east)-(10,0)$)}}]
+      \fill[color=innerblocktitlebgcolor!90] ($(innerblocktitle.north east) - (10,2)$)
+      rectangle ($(innerblocktitle.north east) + (2,3.6)$); %
+      \fill[color=innerblocktitlebgcolor , path fading=south, opacity=1]
+      ($(innerblocktitle.north east) - (10,-1.2)$) rectangle ($(innerblocktitle.north east) + (2,1.6)$); %
+      \fill[color=innerblocktitlebgcolor , path fading=north, opacity=1]
+      ($(innerblocktitle.north east) - (10,-1.6)$) rectangle ($(innerblocktitle.north east) + (2,2.1)$);
+    \end{scope}
+   \end{scope}%
+}
+
+\defineinnerblockstyle{Slide}{
+    titlewidthscale=1, bodywidthscale=1, titleleft,
+    titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsety=0pt,
+    bodyverticalshift=0pt, roundedcorners=0, linewidth=0pt,
+    titleinnersep=10pt, bodyinnersep=10pt
+}{
+    \ifInnerblockHasTitle%
+        \draw[draw=none, left color=innerblocktitlebgcolor, right color=innerblockbodybgcolor]
+           (innerblocktitle.south west) rectangle (innerblocktitle.north east);
+    \fi%
+    \draw[draw=none, fill=innerblockbodybgcolor] %
+        (innerblockbody.north west) [rounded corners=30] -- (innerblockbody.south west) --
+        (innerblockbody.south east) [rounded corners=0]-- (innerblockbody.north east) -- cycle;
+}
+
+\defineinnerblockstyle{TornOut}{
+    titlewidthscale=1, bodywidthscale=1, titlecenter,
+    titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsety=0pt,
+    bodyverticalshift=-1.2cm, roundedcorners=0, linewidth=1pt,
+    titleinnersep=10pt, bodyinnersep=10pt
+}{
+    \ifInnerblockHasTitle%
+        \coordinate (topright) at (innerblocktitle.north east);
+    \else
+        \coordinate (topright) at (innerblockbody.north east);
+    \fi%
+    \draw[color=innerblocktitlebgcolor, fill=innerblockbodybgcolor,%
+        line width=\innerblocklinewidth, drop shadow={shadow xshift=0.2cm, shadow yshift=-0.2cm,opacity=0.3}, %
+        decorate, decoration={random steps,segment length=1.5cm,amplitude=0.15cm}
+        % decorate, decoration={penciline,amplitude=0.2cm}
+    ] (innerblockbody.south west) rectangle (topright);%
+}
+
+\endinput
+%%
+%% End of file `tikzposterInnerblockstyles.tex'.

@@ -1,0 +1,176 @@
+%%
+%% This is file `tikzposterTitlestyles.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% tikzposter.dtx  (with options: `tikzposterTitlestyles.tex')
+%% 
+%% This is a generated file.
+%% 
+%% Copyright (C) 2014 by Pascal Richter, Elena Botoeva, Richard Barnard, and Dirk Surmann
+%% 
+%% This file may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either
+%% version 2.0 of this license or (at your option) any later
+%% version. The latest version of this license is in:
+%% 
+%% http://www.latex-project.org/lppl.txt
+%% 
+%% and version 2.0 or later is part of all distributions of
+%% LaTeX version 2013/12/01 or later.
+%% 
+
+
+
+
+
+
+
+
+
+
+ %   width
+ %   roundedcorners
+ %   linewidth
+ %   innersep
+ %   titletotopverticalspace
+ %   titletoblockverticalspace
+ %   titlegraphictotitledistance
+ %   titletextscale
+
+ % Parameter:
+ %   \textwidth  -  length
+ %   \textheight  -  length
+ %   \titlewidth  -  length
+ %   \titlegraphicheight  -  length
+ %   \titlelinewidth  -  length
+ %   \titleinnersep  -  length
+ %   \titleposleft, \titleposright, \titleposbottom, \titlepostop  -  length
+ %   \titletotopverticalspace  -  length
+ %   titlebgcolor  -  color
+
+\definetitlestyle{Default}{
+    width=600mm, roundedcorners=30, linewidth=0.4cm, innersep=1cm,
+    titletotopverticalspace=15mm, titletoblockverticalspace=20mm,
+    titlegraphictotitledistance=10pt, titletextscale=1
+}{
+    \begin{scope}[line width=\titlelinewidth, rounded corners=\titleroundedcorners]
+        \draw[color=framecolor, fill=titlebgcolor]%
+        (\titleposleft,\titleposbottom) rectangle (\titleposright,\titlepostop);
+    \end{scope}
+}
+
+\definetitlestyle{Basic}{
+    width=770mm, roundedcorners=0, linewidth=0pt, innersep=10pt,
+    titletotopverticalspace=20mm, titletoblockverticalspace=20mm,
+    titlegraphictotitledistance=25mm, titletextscale=1
+}{
+    \coordinate (topright) at (0.5\textwidth-0.5\titlelinewidth, 0.5\textheight-0.5\titlelinewidth);
+    \coordinate (bottomleft) at (-0.5\textwidth+0.5\titlelinewidth, 0.5\textheight-\titlegraphicheight-0.5\titlelinewidth-2\titletotopverticalspace-2\titleinnersep);
+    \draw[line width=\titlelinewidth, inner sep=\titleinnersep, fill=titlebgcolor] (bottomleft) rectangle (topright);
+}
+
+\definetitlestyle{Envelope}{
+    width=\paperwidth, roundedcorners=0, linewidth=0pt, innersep=1.5cm,
+    titletotopverticalspace=0mm, titletoblockverticalspace=20mm,
+    titlegraphictotitledistance=10pt, titletextscale=1
+}{
+    \coordinate (topleft) at (\titleposleft,\titlepostop);
+    \coordinate (topright) at (\titleposright,\titlepostop);
+    \coordinate (lefttoright) at (\titlewidth,0);
+    \coordinate (head) at (0,\titlepostop-\titleposbottom);
+    %
+    \draw[draw=none, bottom color=blocktitlebgcolor!90!black, %
+        top color=titlebgcolor!90] %
+        (topleft) -- ($(topleft)-0.2*(head)$) .. controls ($(topleft)-(head)+(1,0)$)
+        .. ($(topleft)-(head)+0.2*(lefttoright)$) --
+        ($(topleft)-(head)+0.8*(lefttoright)$) .. controls ($(topright)-(head)-(1,0)$)
+        .. %
+        ($(topright)-0.2*(head)$) -- (topright) -- cycle;
+    %
+    \draw[draw=none, right color=white, left color=blocktitlebgcolor]
+        ($(topleft)-(head)+0.8*(lefttoright)$) .. controls
+        ($(topleft)-(head)+0.92*(lefttoright)+(0,0.7)$) and %
+        ($(topright)- 0.13*(lefttoright)$) .. %
+        (topright) .. controls %
+        ($(topright)- 0.11*(lefttoright)$) and%
+        ($(topleft)-(head)+0.95*(lefttoright)$) .. %
+        ($(topleft)-(head)+0.82*(lefttoright)$);
+    %
+    \draw[draw=none, right color=white, left color=blocktitlebgcolor]
+        ($(topleft)-(head)+0.83*(lefttoright)$) .. controls
+        ($(topleft)-(head)+0.97*(lefttoright)+(0,0.2)$) and %
+        ($(topright)- 0.08*(lefttoright)$) .. %
+        (topright) .. controls %
+        ($(topright)- 0.06*(lefttoright)$) and %
+        ($(topleft)-(head)+0.99*(lefttoright)$) .. %
+        ($(topleft)-(head)+0.85*(lefttoright)$); %
+}
+
+\definetitlestyle{Wave}{
+    width=\paperwidth, roundedcorners=0, linewidth=0pt, innersep=1.5cm,
+    titletotopverticalspace=0mm, titletoblockverticalspace=20mm,
+    titlegraphictotitledistance=10pt, titletextscale=1
+}{
+    \coordinate (topleft) at (\titleposleft,\titlepostop);
+    \coordinate (topright) at (\titleposright,\titlepostop);
+    \coordinate (lefttoright) at (\titlewidth,0);
+    \coordinate (head) at (0,\titlepostop-\titleposbottom);
+    %
+    \draw[draw=none, left color=blocktitlebgcolor!90!black, right color=titlebgcolor!95]%
+        (topright) -- (topleft) -- %
+        ($(topleft) - (head)-(0,6)$) .. controls %
+        ($(topleft) - (head)-(0,6) + 0.25*(lefttoright) + (0,9)$) and %
+        ($(topright) - (head) - 0.5*(lefttoright) - (-10,16)$) .. %
+        ($(topright) - (head)$) -- cycle;
+    %
+    \draw[draw=none, left color=blocktitlebgcolor, right color=white] %
+        ($(topleft) - (head)-(0,2)$) .. controls %
+        ($(topleft) - (head)-(-6,3) + 0.25*(lefttoright) + (0,10)$) and ($(topright) -
+        (head) - 0.25*(lefttoright) - (-6,17)$).. %
+        ($(topright) - (head)$) .. controls %
+        ($(topright) - (head) - 0.25*(lefttoright)-(-7,19)$) and %
+        ($(topleft) - (head)-(-9,5) + 0.25*(lefttoright) + (0,10)$) .. %
+        ($(topleft) - (head)-(0,4)$);
+    %
+    \draw[draw=none, left color=white, right color=blocktitlebgcolor!90!black]%
+        ($(topleft) - (head)-(0,2)$) .. controls %
+        ($(topleft) - (head)-(-6,3) + 0.25*(lefttoright) + (0,10)$) and ($(topright) -
+        (head)+(0,6) - 0.25*(lefttoright) - (-6,20)$)..%
+        ($(topright) - (head)+(0,6)$) -- %
+        ($(topright) - (head)$) .. controls %
+        ($(topright) - (head) - 0.25*(lefttoright) - (-6,17)$) and %
+        ($(topleft) - (head)-(-8,4) + 0.25*(lefttoright) + (0,10)$) .. %
+        ($(topleft) - (head)-(0,2)$);
+    \setlength{\TP@titletoblockverticalspace}{5\TP@titletoblockverticalspace}
+}
+
+\definetitlestyle{VerticalShading}{
+    width=\paperwidth, roundedcorners=0, linewidth=0pt, innersep=1.5cm,
+    titletotopverticalspace=0mm, titletoblockverticalspace=20mm,
+    titlegraphictotitledistance=10pt, titletextscale=1
+}{
+   \draw[draw=none, bottom color=framecolor, top color=titlebgcolor]%
+   (\titleposleft,\titleposbottom) rectangle (\titleposright,\titlepostop); %
+}
+
+\definetitlestyle{Filled}{
+    width=\paperwidth, roundedcorners=0, linewidth=0pt, innersep=1.5cm,
+    titletotopverticalspace=0mm, titletoblockverticalspace=20mm,
+    titlegraphictotitledistance=10pt
+}{
+   \draw[draw=none, fill=titlebgcolor]%
+   (\titleposleft,\titleposbottom) rectangle (\titleposright,\titlepostop); %
+}
+
+\definetitlestyle{Empty}{
+    width=750mm, roundedcorners=0, linewidth=0pt, innersep=8mm,
+    titletotopverticalspace=5mm, titletoblockverticalspace=20mm,
+    titlegraphictotitledistance=10pt
+}{}
+
+
+\endinput
+%%
+%% End of file `tikzposterTitlestyles.tex'.
