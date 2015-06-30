@@ -21,6 +21,8 @@
 
 \colorlet{mygreen}{green!52!black}
 \DeclareMathOperator*{\proj}{\text{proj}} % WJ defined this
+\renewcommand{\familydefault}{\sldefault}
+
 \begin{document}
 \thispagestyle{empty}
 \centering
@@ -33,7 +35,7 @@
 %\draw[very thick, <->] (1,0) to (0,0) to (0,1); 
 \node (v_def) [right, fill=red!10, inner sep=5pt, align=center, text
 width=27mm] at (4, -0.5) {set of $c$ variables connected to $f$};
-\node (proj_msg_def) [right, fill=green!15, ellipse, inner sep=1pt,
+\node (proj_msg_def) [right, fill=cyan!20, ellipse, inner sep=1pt,
 align=center, text width=15mm] at (9, -0.5) {projected message};
 \end{tikzpicture}
 
@@ -58,7 +60,7 @@ align=center, text width=15mm] at (9, -0.5) {projected message};
   \right]}{m_{V_i\rightarrow f}(v_i)} := 
   \frac{	
   \tikz[baseline]{
-	  \node[fill=green!15,anchor=base] (projected)
+	  \node[fill=cyan!20,anchor=base] (projected)
 	  { $q_{f\rightarrow V_i}(v_i)$ };
   }
   }{m_{V_i \rightarrow f}(v_i)}  

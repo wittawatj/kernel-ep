@@ -112,8 +112,12 @@ University of Oxford$^2$
 \usetheme{Board}
 %\usenotestyle{Corner}
 \usenotestyle{Sticky}
-\colorlet{notebgcolor}{yellow!30!white}
+\colorlet{contactnotebgcolor}{yellow!30!white}
+\colorlet{highlightnotebgcolor}{green!15!white}
+
+\colorlet{notebgcolor}{contactnotebgcolor}
 \colorlet{notefrcolor}{notebgcolor}
+\colorlet{blockbodybgcolor}{white}
 %\usetheme{Autumn}
 %\usetitlestyle{Default}
 %\useblockstyle{Minimal}
@@ -286,7 +290,7 @@ message $\textcolor{mygreen}{m_{f\rightarrow V_i}}$ takes the form
     \item $q_{f\rightarrow V}(v)=\proj\left[r_{f\rightarrow V}(v)\right] \in
         \text{ExpFam}$ with sufficient statistic $u(v)$.
 
-    \item Find $q_{f\rightarrow V}(v)$ by moment matching: $\mathbb{E}_{q_{f\rightarrow
+    \item Compute $q_{f\rightarrow V}(v)$ by moment matching: $\mathbb{E}_{q_{f\rightarrow
         V}}\left[u(v)\right]=\mathbb{E}_{r_{f\rightarrow V}}\left[u(v)\right] $.
 \end{itemize}
 
@@ -362,7 +366,7 @@ for any factor $f$ that can be sampled.
     \item \textbf{Output:} $\mathsf{Y}=\left(\mathbb{E}_{r_{\factor\rightarrow
         \outV}^{1}}u(v)|\cdots|\mathbb{E}_{r_{f\rightarrow
         \outV}^{N}}u(v)\right)\in\mathbb{R}^{D_{y}\times N}$: 
-        sufficient statistics of outgoing messages.
+        expected sufficient statistics of outgoing messages.
     \item Inexpensive online updates of posterior mean and covariance.
     \item Bayesian regression gives prediction and predictive variance.
     \item If predictive variance $>$ threshold, query the importance sampling oracle.
@@ -409,7 +413,7 @@ $\{b_i\}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
 %\STATE Sample $\{b_i\}_{i=1}^{D_\mathrm{in}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
 
 \STATE $\hat{\phi}(\mathsf{r}) = \sqrt{\frac{2}{D_\mathrm{in}}} \left(
-\mathbb{E}_{\mathsf{x \sim \mathsf{r}}} 
+\mathbb{E}_{x \sim \mathsf{r}} 
 \cos(\omega_{i}^{\top}x+b_{i} ) \right)_{i=1}^{D_\mathrm{in}} \in \mathbb{R}^{D_\mathrm{in}}$ \\
 %\STATE  $\hat{\phi}(p)=\mathbb{E}_{p(x)}\sqrt{\frac{2}{D_\mathrm{in}}}\left(\cos\left(\omega_{1}^{\top}x+b_{1}\right),\ldots,\cos\left(\omega_{D_\mathrm{in}}^{\top}x+b_{D_\mathrm{in}}\right)\right)^{\top}$.
 %If $\mathsf{r}(x)=\mathcal{N}(x;m, \Sigma )$,  \\
@@ -464,11 +468,12 @@ $\{c_i\}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
 \item Training set = messages collected from 20 EP runs on toy data.
 
 \begin{tikzfigure}
-\centering
+%\centering
   %\subfloat[Parameters of $\msg{z_i}{\factor}$ \label{fig:logistic_uncertainty_test}]{
+  \hspace{-10cm}
   \includegraphics[width=13cm]{uncertainty/logistic_uncertainty_test-crop}
   %}
-  \hspace{3cm}
+  \hspace{2cm}
   %
   %\subfloat[Uncertainty estimates \label{fig:logistic_uncertainty_all}]{
       \includegraphics[width=13cm]{uncertainty/logistic_uncertainty_all-crop}
@@ -489,6 +494,13 @@ $\{c_i\}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
 
 } % end block
 
+\colorlet{notebgcolor}{highlightnotebgcolor}
+\colorlet{notefrcolor}{highlightnotebgcolor}
+\note[targetoffsetx=6.9cm,targetoffsety=-1.2cm,innersep=0.8cm, 
+  angle=-35,connection, width=13cm, radius=8.5cm]{
+  KJIT gives smoother uncertainty estimates compared to random forests.
+  }
+  
 %--------------------------
 \block{ Experiment 2: Classification Errors}{
 %--------------------------
@@ -509,11 +521,12 @@ $\{c_i\}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
         %
 \begin{tikzfigure}
     %\vspace{5mm}
-  \centering
+  %\centering
+  \hspace{-10cm}
   %\subfloat[Test error \label{fig:logistic_01_loss}]{
   \includegraphics[width=13cm]{online/logistic_01_loss-crop}
   %}
-  \hspace{3cm}
+  \hspace{2cm}
   %\subfloat[Inference time\label{fig:logistic_inference_time}]{
   \includegraphics[width=13cm]{online/logistic_inference_time-crop}
   %}
@@ -523,6 +536,12 @@ $\{c_i\}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
 
 }% end block
 
+\colorlet{notebgcolor}{highlightnotebgcolor}
+\note[targetoffsetx=7cm,targetoffsety=0.7cm,innersep=0.8cm, 
+  angle=-10, width=10cm, radius=8cm, connection]{
+  Same classification errors as obtained by importance sampling; much faster.
+  }
+  
 %--------------------------
 \block{ Experiment 3: Compound Gamma Factor }{
 %--------------------------
