@@ -1,5 +1,5 @@
  \documentclass[25pt, a0paper, portrait, margin=0mm, innermargin=10mm,
-     blockverticalspace=7mm, colspace=8mm, subcolspace=8mm]{tikzposter} %Default values for poster format options.
+     blockverticalspace=7mm, colspace=7mm, subcolspace=8mm]{tikzposter} %Default values for poster format options.
 
  \tikzposterlatexaffectionproofoff % not show small comment on how the poster
  %was made at bottom of poster
@@ -97,7 +97,7 @@
 %%%%%%%%%%%%%%
 \title{Kernel-Based Just-In-Time Learning For Passing Expectation Propagation Messages  }
 %\title{Kernel-Based Just-In-Time Learning For Expectation Propagation }
-    \author{\hspace{65mm} Wittawat Jitkrittum,$^1$ \, Arthur Gretton,$^1$ \, Nicolas Heess, \, S. M. Ali Eslami \, \newline
+    \author{\hspace{37mm} Wittawat Jitkrittum,$^1$ \, Arthur Gretton,$^1$ \, Nicolas Heess, \, S. M. Ali Eslami \, \newline
 Balaji Lakshminarayanan,$^1$ \, Dino Sejdinovic$^2$ and \, Zolt{\'a}n Szab{\'o}$^1$  
 }
 \institute{%
@@ -161,7 +161,7 @@ University of Oxford$^2$
 % http://tex.stackexchange.com/questions/243678/how-to-make-tikzposter-work-with-font-sizes-larger-than-25pt
 \makeatletter
 %\input{theguy36pt.clo}
-\input{theguy27pt.clo}
+\input{theguy28pt.clo}
 \makeatother 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
@@ -185,7 +185,7 @@ EP is a widely used message passing based inference algorithm.
     }
 \end{itemize}
 %
-\vspace*{-20mm}
+\vspace*{-15mm}
 \textbf{Merits}:
 \begin{itemize}
     \item Efficient online update of the operator during inference.
@@ -202,76 +202,16 @@ EP is a widely used message passing based inference algorithm.
 
 Under an approximation that each factor fully factorizes, an outgoing EP
 message $\textcolor{mygreen}{m_{f\rightarrow V_i}}$ takes the form
-\vspace{5mm}
  
-%\tikzstyle{every picture}+=[remember picture]
-%\tikzstyle{na} = [baseline=-.5ex]
-
-%%\tikz[na] \node[fill=blue!10,draw,circle] (n1) {}; 
-%\begin{tikzpicture}[scale=1.2]
-%\draw[help lines, white, opacity=0] (0, -1) grid (25, 2); 
-%%\draw[very thick, <->] (1,0) to (0,0) to (0,1); 
-%\node (v_def) [right, fill=red!10, inner sep=10pt, align=center, text
-%width=9cm] at (6, 0) {set of $c$ variables connected to $f$};
-%\node (proj_msg_def) [right, fill=green!15, ellipse, inner sep=1pt,
-%align=center, text width=5cm] at (21, 0) {projected message};
-%\end{tikzpicture}
-
-%\begin{align*}
-%    \textcolor{mygreen}{m_{f\rightarrow V_i}(v_i)} = 
-%  \frac{
-%      \tikz[baseline]{
-%      \node[fill=blue!7,anchor=base] (proj){ $\proj$ };
-%      }
-%  \left[ \int d\mathcal{V}\backslash\{v_i\}\, f(
-%      \tikz[baseline]{
-%          \node[fill=red!10,anchor=base, inner sep=3pt] (v_set){$\mathcal{V}$};
-%      }
-%  )\prod_{j=1}^c 
-%    %\color{red}
-%      \tikz[baseline]{
-%          \node[fill=orange!10!white, anchor=base] (inc) 
-%          {\textcolor{red}{$m_{V_j \rightarrow f}(v_j)$}} ; % end numerator
-%      }
-%    %\color{mathcolor}
-%  \right]}{m_{V_i\rightarrow f}(v_i)} := 
-%  \frac{	
-%  \tikz[baseline]{
-%      \node[fill=green!15,anchor=base] (projected)
-%      { $q_{f\rightarrow V_i}(v_i)$ };
-%  }
-%  }{m_{V_i \rightarrow f}(v_i)}  
-%\end{align*}
-
-%\begin{tikzpicture}[scale=1.2]
-%\draw[help lines, white, opacity=0] (0, -1) grid (25, 2);
-%%\draw[very thick, <->] (1,0) to (0,0) to (0,1); 
-%\node (projdef) [right, fill=blue!7, rectangle, inner sep=12pt, align=center,
-%text width=21cm]  at (0.5, 0) {$\proj[r_{f \rightarrow
-%V_i}]:=\arg\min_{q\in\text{ExpFam}}\text{KL}\left[r_{f \rightarrow V_i}\,\|\,
-%q\right]$ (projection onto exponential family)}; 
-%%
-%\node (incdef) [right, fill=orange!10, ellipse, inner sep=1pt, align=center, text
-%width=5cm]  at (22, 0) {incoming message from $V_j$}; 
-%\end{tikzpicture}
-
-
-%% Now it's time to draw some edges between the global nodes. Note that we
-%% have to apply the 'overlay' style.
-%\begin{tikzpicture}[overlay]
-%   \draw[->, line width=3pt] (v_def) edge [bend left] (v_set.north);
-%   %\draw[->, line width=3pt] (projdef.north) to [out=120, in=-90] (proj.south);
-%   \draw[->, line width=3pt] (projdef) to [bend left] (proj.south);
-%   \path[->, line width=3pt] (incdef) edge [bend left] (inc);
-%   %\path[->, line width=4pt] (proj_msg_def) edge [out=80, in=220] (projected.south west);
-%   \path[->, line width=3pt] (proj_msg_def) edge [bend left] (projected.north);
-%\end{tikzpicture}
+\vspace{-5mm}
 \begin{tikzfigure}[]
-    \includegraphics[width=35cm]{img/inout_msg-crop.pdf}
+    \includegraphics[width=37cm]{img/inout_msg-crop.pdf}
 \end{tikzfigure}
 
+\vspace{-5mm}
+
 \begin{tikzfigure}[]
-    \vspace{-15mm}
+    \vspace{-10mm}
 %\centering
  %\subfloat[ Message passing on a factor graph.]{
  \includegraphics[width=17cm]{img/factor_graph-crop.pdf}
@@ -329,7 +269,7 @@ for any factor $f$ that can be sampled.
         $\mu_{\mathsf{r}}:=\mathbb{E}_{a \sim \mathsf{r}}k(\cdot,a)$.
 
     \item Gaussian kernel on (product) distributions. Two-staged random feature
-        approximation:
+        approx.:
         %\begin{align*}
 %&= \exp\left(-\frac{1}{2\gamma^{2}}\left\langle
 %  \mu_{\mathsf{r}},\mu_{\mathsf{r}}\right\rangle
@@ -354,10 +294,11 @@ for any factor $f$ that can be sampled.
 
 \end{itemize}
 %
+\vspace{-5mm}
 } % end block
 
 %--------------------------
-\block{Message Operator: Bayesian Linear Regression }{
+\block{\hspace{-12mm} Message Operator: Bayesian Linear Regression }{
 %--------------------------
 
 \begin{itemize}
@@ -376,13 +317,23 @@ for any factor $f$ that can be sampled.
 }% end block
 
 
- \note[targetoffsetx=-6.0cm, targetoffsety=-7cm,rotate=0,
-     angle=270,radius=1cm, width=28cm,innersep=0.9cm]{
-         Contact: \url{wittawat@gatsby.ucl.ac.uk}.
-         
-         Code download: 
+ \note[targetoffsetx=-10.8cm, targetoffsety=-7.5cm,rotate=0,
+     angle=270,radius=0cm, width=19cm,innersep=1cm ]{
+        Contact: \url{wittawat@gatsby.ucl.ac.uk}.
+ } % end note
+
+ \note[targetoffsetx=15cm, targetoffsety=-7.5cm,rotate=0,
+     angle=270,radius=0cm, width=29cm,innersep=1cm ]{
+         Code download:  
          \url{http://github.com/wittawatj/kernel-ep}.
-}
+ } % end note
+
+\colorlet{notebgcolor}{orange!10}
+\colorlet{notefrcolor}{orange!10}
+ \note[targetoffsetx=46.5cm, targetoffsety=-7.5cm,rotate=0,
+     angle=270,radius=0cm, width=31cm,innersep=1cm]{
+We thank the Gatsby Charitable Foundation for the financial support.
+ } % end note
 %==================================
 \column{0.5}
 %==================================
@@ -442,30 +393,42 @@ $\{c_i\}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
 \end{spacing}
 % \end{algorithm}
 
+\vspace{-8mm}
 } % end block
 
 %--------------------------
 \block{ Experiment 1: Uncertainty Estimates}{
 %--------------------------
-    \vspace{-8mm}
+%\vspace{-8mm}
+\hspace{-14mm}
+\begin{minipage}{23cm}
 \begin{center}
 %\includegraphics[width=20cm]{binary_logistic_regression-crop}
 \includegraphics[width=21cm]{img/binlog_graph_title-crop}
 \end{center}
+\end{minipage}
+%
+\begin{minipage}{19cm}
+    \begin{itemize}
+        \item \textcolor{black}{Approx}.
+            $f(p|z) = \delta\left(p-\frac{1}{1+\exp(-z)}\right)$. 
+    %\vspace{-10mm}
+        \item \textcolor{black}{Incoming messages: }
+            %$\msg{z_i}{\factor} = \mathcal{N}(z_i; \mu, \sigma^2), \hspace{2cm}
+            %\msg{p_i}{\factor} = \text{Beta}(p_i; \alpha, \beta). $
+        \begin{align*}
+        \msg{z_i}{\factor} &= \mathcal{N}(z_i; \mu, \sigma^2), \\
+        \msg{p_i}{\factor} &= \text{Beta}(p_i; \alpha, \beta). 
+        \end{align*}
+    \end{itemize}
+\end{minipage}
+  
+\vspace{10mm}
 
 \begin{itemize}
 
-\item Approximate the logistic factor: 
-    $f(p|z) = \delta\left(p-\frac{1}{1+\exp(-z)}\right)$. 
-    %\begin{align*}
-    %\msg{z_i}{\factor} &= \mathcal{N}(z_i; \mu, \sigma^2), \hspace{2cm}
-    %\msg{p_i}{\factor} = \text{Beta}(p_i; \alpha, \beta). 
-    %\end{align*}
-    %\vspace{-10mm}
-\item Incoming messages: 
-    $\msg{z_i}{\factor} = \mathcal{N}(z_i; \mu, \sigma^2), \hspace{2cm}
-    \msg{p_i}{\factor} = \text{Beta}(p_i; \alpha, \beta). $
-\item Training set = messages collected from 20 EP runs on toy data.
+\item Training messages collected from 20 EP runs on toy data.  
+\item \#Random features: $D_{in} = 300$ and  $D_{out} = 500$.
 
 \begin{tikzfigure}
 %\centering
@@ -473,7 +436,7 @@ $\{c_i\}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
   \hspace{-10cm}
   \includegraphics[width=13cm]{uncertainty/logistic_uncertainty_test-crop}
   %}
-  \hspace{2cm}
+  \hspace{1cm}
   %
   %\subfloat[Uncertainty estimates \label{fig:logistic_uncertainty_all}]{
       \includegraphics[width=13cm]{uncertainty/logistic_uncertainty_all-crop}
@@ -488,60 +451,112 @@ $\{c_i\}_{i=1}^{D_\mathrm{out}} \overset{i.i.d}{\sim} U[0, 2\pi] $.
 
   %\label{fig:logistic_uncertainty}
 \end{tikzfigure}
-
-\item \#Random features: $D_{in} = 300$ and $D_{out} = 500$.
 \end{itemize}
-
+\vspace{-8mm}
 } % end block
 
 \colorlet{notebgcolor}{highlightnotebgcolor}
 \colorlet{notefrcolor}{highlightnotebgcolor}
-\note[targetoffsetx=6.9cm,targetoffsety=-1.2cm,innersep=0.8cm, 
+\note[targetoffsetx=6.9cm,targetoffsety=-1.5cm,innersep=0.8cm, 
   angle=-35,connection, width=13cm, radius=8.5cm]{
   KJIT gives smoother uncertainty estimates compared to random forests.
   }
   
-%--------------------------
-\block{ Experiment 2: Classification Errors}{
-%--------------------------
+%%--------------------------
+%\block{ Experiment 2: Classification Errors}{
+%%--------------------------
 
-% logistic temporal uncertainty
-% \begin{figure}[t]
-% \centering
-% \includegraphics[width=0.95\textwidth]{online/logistic_temporal_uncertainty-crop}
-% \caption{Uncertainty estimate of KJIT in its prediction of outgoing messages at each factor invocation,
-% for the binary logistic regression problem. The black dashed lines indicate the start 
-% of a new inference problem.
-% \label{fig:logistic_temporal_uncertainty}
-% }
-% \end{figure}
+%% logistic temporal uncertainty
+%% \begin{figure}[t]
+%% \centering
+%% \includegraphics[width=0.95\textwidth]{online/logistic_temporal_uncertainty-crop}
+%% \caption{Uncertainty estimate of KJIT in its prediction of outgoing messages at each factor invocation,
+%% for the binary logistic regression problem. The black dashed lines indicate the start 
+%% of a new inference problem.
+%% \label{fig:logistic_temporal_uncertainty}
+%% }
+%% \end{figure}
 
-    Fix true $\boldsymbol{w}$. Sequentially present 30 problems. Generate
-    $\{(x_i, y_i)\}_{i=1}^{300}$ for each.  
-        %
+%    Fix true $\boldsymbol{w}$. Sequentially present 30 problems. Generate
+%    $\{(x_i, y_i)\}_{i=1}^{300}$ for each.  
+%        %
+%\begin{tikzfigure}
+%    %\vspace{5mm}
+%  %\centering
+%  \hspace{-10cm}
+%  %\subfloat[Test error \label{fig:logistic_01_loss}]{
+%  \includegraphics[width=13cm]{online/logistic_01_loss-crop}
+%  %}
+%  \hspace{2cm}
+%  %\subfloat[Inference time\label{fig:logistic_inference_time}]{
+%  \includegraphics[width=13cm]{online/logistic_inference_time-crop}
+%  %}
+%\end{tikzfigure}
+
+%\textbf{Sampling + KJIT} = proposed KJIT with an importance sampling oracle.
+
+%}% end block
+
+%\colorlet{notebgcolor}{highlightnotebgcolor}
+%\note[targetoffsetx=7cm,targetoffsety=0.7cm,innersep=0.8cm, 
+%  angle=-10, width=10cm, radius=8cm, connection]{
+%  Same classification errors as obtained by importance sampling; much faster.
+%  }
+  
+%--------------------------
+\block{ Experiment 2: Real Data}{
+%--------------------------
+\begin{itemize}
+    \item Binary logistic regression.  Sequentially present 4 real datasets
+        to the operator.
+    \item Diverse distributions of incoming messages.
+\end{itemize}
+
+\vspace{-5mm}
+% UCI data classification error
+% Inference time
 \begin{tikzfigure}
-    %\vspace{5mm}
   %\centering
-  \hspace{-10cm}
-  %\subfloat[Test error \label{fig:logistic_01_loss}]{
-  \includegraphics[width=13cm]{online/logistic_01_loss-crop}
+  %\subfloat[Incoming messages]{
+  %\includegraphics[width=13.cm]{online/uci_in_msgs-crop}
   %}
-  \hspace{2cm}
-  %\subfloat[Inference time\label{fig:logistic_inference_time}]{
-  \includegraphics[width=13cm]{online/logistic_inference_time-crop}
+  \hspace{-10cm}
+  %\subfloat[Test error\label{fig:uci_01_loss}]{
+  \includegraphics[width=13cm]{online/uci_classification-crop}
+  %}
+  %
+  \hspace{1cm}
+  %\subfloat[Inference time\label{fig:uci_infer_time}]{
+  \includegraphics[width=13cm]{online/uci_infer_time-crop}
   %}
 \end{tikzfigure}
 
-\textbf{Sampling + KJIT} = proposed KJIT with an importance sampling oracle.
+\begin{itemize}
+ \item \textbf{Sampling + KJIT} = proposed KJIT with an importance sampling oracle.
+    \item KJIT operator can adapt to the change of input message distributions.
+\end{itemize}
 
-}% end block
+\vspace{-5mm}
+% UCI datasets. temporal uncertainty.
+\begin{tikzfigure}
+\centering
+\includegraphics[width=38cm]{online/uci_temporal_uncertainty-crop}
+%\caption{
+%Uncertainty estimate of KJIT for outgoing messages on the four UCI datasets.
+%\label{fig:uci_temporal_uncertainty}
+%}
+\end{tikzfigure}
+
+\vspace{-12mm}
+} % end block
 
 \colorlet{notebgcolor}{highlightnotebgcolor}
-\note[targetoffsetx=7cm,targetoffsety=0.7cm,innersep=0.8cm, 
-  angle=-10, width=10cm, radius=8cm, connection]{
-  Same classification errors as obtained by importance sampling; much faster.
+\colorlet{notefrcolor}{highlightnotebgcolor}
+\note[targetoffsetx=6.9cm,targetoffsety=3cm,innersep=0.8cm, 
+  angle=5,connection, width=11cm, radius=8cm]{
+ Much faster with same classification errors as obtained by importance sampling.
   }
-  
+
 %--------------------------
 \block{ Experiment 3: Compound Gamma Factor }{
 %--------------------------
@@ -549,7 +564,7 @@ Infer posterior of the precision $\tau$ of $x \sim \mathcal{N}(x; 0, \tau^{-1})$
 from observations $\{x_i\}_{i=1}^N $:
 %
 
-\vspace{10mm}
+\vspace{5mm}
 
 \begin{minipage}{21cm}
       \begin{align*}
@@ -563,7 +578,6 @@ from observations $\{x_i\}_{i=1}^N $:
   \includegraphics[width=11cm]{img/compound_gamma_graph-crop}
 \end{minipage}
 
-\vspace{10mm}
 
   %
 %\begin{subcolumns}
@@ -616,14 +630,12 @@ from observations $\{x_i\}_{i=1}^N $:
 } % end block
 
 
-%--------------------------
-\block{Acknowledgement}{
-%--------------------------
-%WJ, AG, BL, and ZSz 
-We 
-thank the Gatsby Charitable Foundation for the financial
-support.
-} % end block 
+%%--------------------------
+%\block{Acknowledgement}{
+%%--------------------------
+%%WJ, AG, BL, and ZSz 
+%We thank the Gatsby Charitable Foundation for the financial support.
+%} % end block 
 
 \end{columns}
 
