@@ -103,9 +103,8 @@ a large number of random features are used.  Multiplication (to a regular
 matrix or a dynamic matrix) operations are implemented.  See `DynamicMatrix`
 and `DefaultDynamicMatrix`.
 
-## Documentation 
-I am well aware that code without any documentation is not useful. 
-I will gradually put up documents for the code in Wiki of this github repository.
-Please feel free to contact me regarding code usage.
+## Code usage  
+Please feel free to contact me (see [wittawat.com](http://wittawat.com))
+regarding code usage.
 
 
