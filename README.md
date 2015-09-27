@@ -11,13 +11,15 @@ operator is done online during EP.  The operator is termed **KJIT** for
 **K**ernel-based **J**ust-**I**n-**T**ime learning for passing EP messages.
 
 Short technical description can be found on [this
-page](http://wittawat.com/pages/kernel_ep.html). Full details are in our 
-[paper](http://arxiv.org/abs/1503.02551).
+page](http://wittawat.com/pages/kernel_ep.html). Full details are in our [UAI
+2015 paper](http://auai.org/uai2015/proceedings/papers/235.pdf).
+Supplementary matrial is [here](http://auai.org/uai2015/proceedings/supp/239_supp.pdf).
+
 
     Wittawat Jitkrittum, Arthur Gretton, Nicolas Heess, 
     S. M. Ali Eslami, Balaji Lakshminarayanan, Dino Sejdinovic, and Zoltán Szabó
     "Kernel-Based Just-In-Time Learning for Passing Expectation Propagation Messages"
-    arXiv:1503.02551, 2015
+    UAI, 2015
 
 
 This project extends 
