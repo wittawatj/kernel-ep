@@ -107,6 +107,7 @@ and `DefaultDynamicMatrix`.
 
 ## Code usage  
 Please feel free to contact me (see [wittawat.com](http://wittawat.com))
-regarding code usage.
+regarding code usage. For fun, visualization of this repository is available 
+[here](https://www.youtube.com/watch?v=m93S5V5zyKw). 
 
 
