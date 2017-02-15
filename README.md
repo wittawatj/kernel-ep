@@ -10,8 +10,7 @@ mapping all incoming messages into an outgoing message. Learning of such an
 operator is done online during EP.  The operator is termed **KJIT** for
 **K**ernel-based **J**ust-**I**n-**T**ime learning for passing EP messages.
 
-Short technical description can be found on [this
-page](http://wittawat.com/pages/kernel_ep.html). Full details are in our [UAI
+Full details are in our [UAI
 2015 paper](http://auai.org/uai2015/proceedings/papers/235.pdf).
 Supplementary matrial is [here](http://auai.org/uai2015/proceedings/supp/239_supp.pdf).
 
