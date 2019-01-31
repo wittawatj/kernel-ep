@@ -12,7 +12,7 @@ operator is done online during EP.  The operator is termed **KJIT** for
 
 Full details are in our [UAI
 2015 paper](http://auai.org/uai2015/proceedings/papers/235.pdf).
-Supplementary matrial is [here](http://auai.org/uai2015/proceedings/supp/239_supp.pdf).
+Supplementary material is [here](http://auai.org/uai2015/proceedings/supp/239_supp.pdf).
 
 
     Wittawat Jitkrittum, Arthur Gretton, Nicolas Heess, 
@@ -48,16 +48,14 @@ license](http://research.microsoft.com/en-us/downloads/710cd61f-3587-44f4-b12d-a
 for details.
 
 ## Repository structure 
-The repository contains a number of components.
+The repository contains 
 
-1. **Poster and paper source files** are in the topmost folders i.e., `dali2015_poster` 
-and `uai2015`.
-2. **Matlab code** for experimenting in a batch learning setting. Experiments on new
+1. **Matlab code** for experimenting in a batch learning setting. Experiments on new
   kernels, factors, random features, message operators are all done in Matlab
 in the first stage. Once the methods are developed, they are reimplemented in
 C# to be operable in Infer.NET framework. EP inference is implemented in C#
 using Infer.NET, not in Matlab. All Matlab code is in the `code` folder.
-3. **C# code** for message operators in Infer.NET framework. The code for this
+2. **C# code** for message operators in Infer.NET framework. The code for this
    part is in `code/KernelEP.NET` which contains a C# project developed with
 [Monodevelop](http://www.monodevelop.com/) (free cross-platform IDE) on Ubuntu
 14.04.  You should be able to use Visual studio in Windows to open the project
